@@ -40,6 +40,25 @@ any = np.any
 all = np.all
 isnan = np.isnan
 isinf = np.isinf
-zeros_like = np.zeros_like
 logspace = np.logspace
 eye = np.eye
+copy = np.copy
+bool = np.bool
+
+
+def zeros_like(array, shape=None, dtype=None):
+    """Add a shape parameter in zeros_like."""
+    if shape is None:
+        shape = array.shape
+    if dtype is None:
+        dtype = array.dtype
+    return np.zeros(shape, dtype=dtype)
+
+
+def ones_like(array, shape=None, dtype=None):
+    """Add a shape parameter in ones_like."""
+    if shape is None:
+        shape = array.shape
+    if dtype is None:
+        dtype = array.dtype
+    return np.ones(shape, dtype=dtype)

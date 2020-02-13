@@ -7,6 +7,7 @@ from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.regression.kernel_ridge import multi_kernel_ridge_gradient
 from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_gradient_descent  # noqa
+from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_conjugate_gradient  # noqa
 
 
 def _create_dataset(backend):
@@ -49,23 +50,25 @@ def test_multi_kernel_ridge_gradient(backend, double_K):
     grad2, func2 = multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas,
                                                alpha, double_K=double_K,
                                                return_objective=True)
-    backend.assert_allclose(grad, grad2, rtol=1e-4, atol=1e-4)
-    backend.assert_allclose(func, func2, rtol=1e-4, atol=1e-4)
+    backend.assert_allclose(grad, grad2, rtol=1e-3, atol=1e-6)
+    backend.assert_allclose(func, func2, rtol=1e-3, atol=1e-6)
 
 
-@pytest.mark.parametrize('solver', ["gradient_descent"])
+@pytest.mark.parametrize('solver', ["gradient_descent", "conjugate_gradient"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_ridge_kernel_gamma_per_target(solver, backend):
     backend = change_backend(backend)
 
     if solver == "gradient_descent":
         solver = solve_multi_kernel_ridge_gradient_descent
+    elif solver == "conjugate_gradient":
+        solver = solve_multi_kernel_ridge_conjugate_gradient
 
     Xs, Ks, Y, gammas, dual_weights = _create_dataset(backend)
     alpha = 1.
 
-    for alpha in backend.logspace(-3, 3, 7):
-        c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=100)
+    for alpha in backend.logspace(-2, 3, 7):
+        c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=1000, tol=1e-6)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -73,15 +76,16 @@ def test_solve_ridge_kernel_gamma_per_target(solver, backend):
             K = backend.matmul(Ks.T, gammas[:, ii]).T
             K_reg = K + backend.eye(K.shape[0]) * alpha
             c1 = scipy.linalg.solve(K_reg, Y[:, ii])
-            backend.assert_allclose(c1, c2[:, ii], rtol=1e-4, atol=1e-2)
+            backend.assert_allclose(c1, c2[:, ii], rtol=1e-3, atol=1e-6)
 
             # compare predictions with sklearn.linear_model.Ridge
             X_scaled = backend.concatenate(
                 [t * backend.sqrt(g) for t, g in zip(Xs, gammas[:, ii])], 1)
             prediction = backend.matmul(K, c2[:, ii])
-            model = sklearn.linear_model.Ridge(alpha=alpha,
+            model = sklearn.linear_model.Ridge(alpha=alpha, solver="lsqr",
+                                               max_iter=1000, tol=1e-6,
                                                fit_intercept=False).fit(
                                                    X_scaled, Y[:, ii])
             prediction_sklearn = model.predict(X_scaled)
-            backend.assert_allclose(prediction, prediction_sklearn, rtol=1e-4,
-                                    atol=1e-1)
+            backend.assert_allclose(prediction, prediction_sklearn, rtol=1e-2,
+                                    atol=1e-6)

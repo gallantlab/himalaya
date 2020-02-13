@@ -36,14 +36,18 @@ any = torch.any
 all = torch.all
 isnan = torch.isnan
 isinf = torch.isinf
-zeros_like = torch.zeros_like
 logspace = torch.logspace
 eye = torch.eye
 concatenate = torch.cat
+bool = torch.bool
 
 
 def norm(x, ord=None, axis=None, keepdims=False):
     return torch.norm(x, p=ord, dim=axis, keepdim=keepdims)
+
+
+def copy(x):
+    return x.clone()
 
 
 def transpose(a, axes=None):
@@ -59,3 +63,23 @@ def max(*args, **kwargs):
         return res
     else:
         return res.values
+
+
+def zeros_like(array, shape=None, dtype=None):
+    """Add a shape parameter in zeros_like."""
+    if shape is None:
+        shape = array.shape
+    if dtype is None:
+        dtype = array.dtype
+    return torch.zeros(shape, dtype=dtype, device=array.device,
+                       layout=array.layout)
+
+
+def ones_like(array, shape=None, dtype=None):
+    """Add a shape parameter in ones_like."""
+    if shape is None:
+        shape = array.shape
+    if dtype is None:
+        dtype = array.dtype
+    return torch.ones(shape, dtype=dtype, device=array.device,
+                      layout=array.layout)

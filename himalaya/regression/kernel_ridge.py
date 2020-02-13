@@ -1,3 +1,5 @@
+import numbers
+
 from ..backend import get_current_backend
 from ..utils import compute_lipschitz_constants
 
@@ -16,7 +18,7 @@ def multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
         Kernel Ridge coefficients for each feature space.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights for each feature space. Should sum to 1 over kernels.
-    alpha : float
+    alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     double_K : bool
         If True, multiply the gradient by the kernel to obtain the true
@@ -28,7 +30,7 @@ def multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
     -------
     dual_weight_gradient : array of shape (n_samples, n_targets)
         Gradients of `dual_weights`.
-    objective : float
+    objective : array of shape (n_targets, )
         Objective function.
     """
     backend = get_current_backend()
@@ -67,7 +69,7 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
                                               initial_dual_weights=None,
                                               max_iter=100, tol=1e-3,
                                               double_K=False, debug=False):
-    """Solve the multi-Kernel ridge regression using gradient descent.
+    """Solve the multi-kernel ridge regression using gradient descent.
 
     Parameters
     ----------
@@ -77,7 +79,7 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights for each feature space. Should sum to 1 over kernels.
-    alpha : float
+    alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     step_sizes : float, or array of shape (n_targets), or None
         Step sizes.
@@ -104,9 +106,18 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
         Kernel Ridge coefficients.
     """
     backend = get_current_backend()
+    n_targets = Y.shape[1]
 
     if gammas.ndim == 1:
         gammas = gammas[:, None]
+    if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
+        alpha = backend.ones_like(Y, shape=(1, )) * alpha
+
+
+    if initial_dual_weights is None:
+        dual_weights = backend.zeros_like(Y)
+    else:
+        dual_weights = backend.copy(initial_dual_weights)
 
     if step_sizes is None:
         if lipschitz_Ks is None:
@@ -120,22 +131,133 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
         if debug:
             assert not backend.any(backend.isnan(step_sizes))
 
-    if initial_dual_weights is None:
-        dual_weights = backend.zeros_like(Y)
-    else:
-        dual_weights = initial_dual_weights.clone()
+    if isinstance(step_sizes, numbers.Number) or step_sizes.ndim == 0:
+        step_sizes = backend.ones_like(Y, shape=(1, )) * step_sizes
 
     #######################
     # Gradient descent loop
+    converged = backend.zeros_like(Y, dtype=backend.bool, shape=(n_targets))
     for i in range(max_iter):
-        grads = multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas,
-                                            alpha=alpha, double_K=double_K)
+        grads = multi_kernel_ridge_gradient(Ks, Y[:, ~converged],
+                                            dual_weights[:, ~converged],
+                                            gammas, alpha=alpha,
+                                            double_K=double_K)
         update = step_sizes * grads
-        dual_weights -= update
+        dual_weights[:, ~converged] -= update
 
+        ##########################
+        # remove converged targets
         if tol is not None:
-            max_update = backend.max(backend.abs(update / dual_weights))
-            if max_update < tol:
+            relative_update = backend.abs(update / dual_weights[:, ~converged])
+            relative_update[dual_weights[:, ~converged] == 0] = 0
+            just_converged = backend.max(relative_update, 0) < tol
+
+            if gammas.shape[1] == just_converged.shape[0]:
+                gammas = gammas[:, ~just_converged]
+            if alpha.shape[0] == just_converged.shape[0]:
+                alpha = alpha[~just_converged]
+            if step_sizes.shape[0] == just_converged.shape[0]:
+                step_sizes = step_sizes[~just_converged]
+            converged[~converged] = just_converged
+
+            if backend.all(converged):
+                break
+
+    return dual_weights
+
+
+def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
+                                                initial_dual_weights=None,
+                                                max_iter=100, tol=1e-3):
+    """Solve the multi-kernel ridge regression using conjugate gradient.
+
+    Parameters
+    ----------
+    Ks : iterable with elements of shape (n_samples, n_samples)
+        Input kernels for each feature space.
+    Y : torch.Tensor of shape (n_samples, n_targets)
+        Target data.
+    gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
+        Kernel weights for each feature space. Should sum to 1 over kernels.
+    alpha : float, or array of shape (n_targets, )
+        Regularization parameter.
+    initial_dual_weights : array of shape (n_samples, n_targets)
+        Initial kernel Ridge coefficients.
+    max_iter : int
+        Maximum number of conjugate gradient step.
+    tol : float > 0 or None
+        Tolerance for the stopping criterion.
+
+    Returns
+    -------
+    dual_weights : array of shape (n_samples, n_targets)
+        Kernel Ridge coefficients.
+    """
+    backend = get_current_backend()
+    n_targets = Y.shape[1]
+
+    if gammas.ndim == 1:
+        gammas = gammas[:, None]
+    if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
+        alpha = backend.ones_like(Y, shape=(1, )) * alpha
+
+    if initial_dual_weights is None:
+        dual_weights = backend.zeros_like(Y)
+    else:
+        dual_weights = backend.copy(initial_dual_weights)
+
+    # compute initial residual
+    r = multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=alpha,
+                                    double_K=False)
+    r *= -1
+    p = backend.copy(r)
+    new_squared_residual_norm = backend.norm(r, axis=0) ** 2
+
+    #########################
+    # Conjugate gradient loop
+    converged = backend.zeros_like(Y, dtype=backend.bool, shape=(n_targets))
+    for i in range(max_iter):
+        Ks_x_p = backend.matmul(Ks, p)
+        tmp = backend.matmul(backend.transpose(Ks_x_p, (2, 1, 0)),
+                             backend.transpose(gammas,
+                                               (1, 0))[:, :, None])[..., 0]
+        K_x_p_plus_reg = backend.transpose(tmp, (1, 0)) + alpha * p
+
+        squared_residual_norm = new_squared_residual_norm
+        squared_p_A_norm = backend.matmul(
+            backend.transpose(p, (1, 0))[:, None],
+            backend.transpose(K_x_p_plus_reg, (1, 0))[..., None])[:, 0, 0]
+
+        squared_p_A_norm[squared_p_A_norm == 0] = 1
+        alpha_step = squared_residual_norm / squared_p_A_norm
+
+        update = alpha_step * p
+        dual_weights[:, ~converged] += update
+
+        r -= alpha_step * K_x_p_plus_reg
+
+        new_squared_residual_norm = backend.norm(r, axis=0) ** 2
+
+        beta = (new_squared_residual_norm) / (squared_residual_norm)
+        p = r + beta * p
+
+        ##########################
+        # remove converged targets
+        if tol is not None:
+            relative_update = backend.abs(update / dual_weights[:, ~converged])
+            relative_update[dual_weights[:, ~converged] == 0] = 0
+            just_converged = backend.max(relative_update, 0) < tol
+
+            r = r[:, ~just_converged]
+            p = p[:, ~just_converged]
+            new_squared_residual_norm = \
+                new_squared_residual_norm[~just_converged]
+            if gammas.shape[1] == just_converged.shape[0]:
+                gammas = gammas[:, ~just_converged]
+            if alpha.shape[0] == just_converged.shape[0]:
+                alpha = alpha[~just_converged]
+            converged[~converged] = just_converged
+            if backend.all(converged):
                 break
 
     return dual_weights

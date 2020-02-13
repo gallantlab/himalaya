@@ -6,8 +6,8 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import compute_lipschitz_constants
 
 
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
 @pytest.mark.parametrize('kernelize', ["XXT", "XTX", "X"])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_compute_lipschitz_constants(backend, kernelize):
     backend = change_backend(backend)
 
