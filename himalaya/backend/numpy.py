@@ -23,9 +23,13 @@ def apply_argmax(array, argmax, axis):
 ###############################################################################
 
 argmax = np.argmax
-assert_array_equal = np.testing.assert_array_equal
+assert_allclose = np.testing.assert_allclose
 max = np.max
 randn = np.random.randn
+rand = np.random.rand
 matmul = np.matmul
 norm = np.linalg.norm
 transpose = np.transpose
+stack = np.stack
+sum = np.sum
+zeros = np.zeros

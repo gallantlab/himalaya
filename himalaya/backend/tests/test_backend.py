@@ -17,7 +17,7 @@ def test_apply_argmax(backend):
     ]:
         for axis in range(array.ndim):
             argmax = backend.argmax(array, axis=axis)
-            backend.assert_array_equal(
+            backend.assert_allclose(
                 backend.max(array, axis=axis),
                 backend.apply_argmax(array, argmax, axis=axis),
             )

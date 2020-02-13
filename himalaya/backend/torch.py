@@ -23,9 +23,13 @@ def apply_argmax(array, argmax, axis):
 ###############################################################################
 
 argmax = torch.argmax
-assert_array_equal = torch.testing.assert_allclose
+assert_allclose = torch.testing.assert_allclose
 randn = torch.randn
+rand = torch.rand
 matmul = torch.matmul
+stack = torch.stack
+zeros = torch.zeros
+sum = torch.sum
 
 
 def norm(x, ord=None, axis=None, keepdims=False):
