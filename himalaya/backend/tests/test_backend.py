@@ -1,12 +1,12 @@
 import pytest
 
-from himalaya.backend import get_backend
+from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_apply_argmax(backend):
-    backend = get_backend(backend)
+    backend = change_backend(backend)
     for array in [
             backend.randn(1),
             backend.randn(10),

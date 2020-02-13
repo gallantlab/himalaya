@@ -6,7 +6,9 @@ ALL_BACKENDS = [
 CURRENT_BACKEND = "torch"
 
 
-def get_backend(backend):
+def change_backend(backend):
+    global CURRENT_BACKEND
+    CURRENT_BACKEND = backend
     if backend == "numpy":
         from . import numpy as backend
     elif backend == "torch":
@@ -16,4 +18,4 @@ def get_backend(backend):
 
 
 def get_current_backend():
-    return get_backend(CURRENT_BACKEND)
+    return change_backend(CURRENT_BACKEND)

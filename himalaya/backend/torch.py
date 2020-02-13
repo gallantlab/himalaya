@@ -15,15 +15,28 @@ def apply_argmax(array, argmax, axis):
     >>> max_ = apply_argmax(array, argmax, axis=1)
     >>> assert torch.all(max_ == torch.max(array, axis=1).values)
     """
-
     argmax = argmax.unsqueeze(dim=axis)
     max_ = torch.gather(array, dim=axis, index=argmax)
     return torch.squeeze(max_, dim=axis)
 
 
+###############################################################################
+
 argmax = torch.argmax
 assert_array_equal = torch.testing.assert_allclose
 randn = torch.randn
+matmul = torch.matmul
+
+
+def norm(x, ord=None, axis=None, keepdims=False):
+    return torch.norm(x, p=ord, dim=axis, keepdim=keepdims)
+
+
+def transpose(a, axes=None):
+    if axes is None:
+        return a.t()
+    else:
+        return a.permute(*axes)
 
 
 def max(*args, **kwargs):

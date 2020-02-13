@@ -15,13 +15,17 @@ def apply_argmax(array, argmax, axis):
     >>> max_ = apply_argmax(array, argmax, axis=1)
     >>> assert np.all(max_ == np.max(array, axis=1))
     """
-
     argmax = np.expand_dims(argmax, axis=axis)
     max_ = np.take_along_axis(array, argmax, axis=axis)
     return np.take(max_, 0, axis=axis)
 
 
+###############################################################################
+
 argmax = np.argmax
 assert_array_equal = np.testing.assert_array_equal
 max = np.max
 randn = np.random.randn
+matmul = np.matmul
+norm = np.linalg.norm
+transpose = np.transpose
