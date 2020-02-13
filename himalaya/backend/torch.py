@@ -29,7 +29,17 @@ rand = torch.rand
 matmul = torch.matmul
 stack = torch.stack
 zeros = torch.zeros
+abs = torch.abs
 sum = torch.sum
+sqrt = torch.sqrt
+any = torch.any
+all = torch.all
+isnan = torch.isnan
+isinf = torch.isinf
+zeros_like = torch.zeros_like
+logspace = torch.logspace
+eye = torch.eye
+concatenate = torch.cat
 
 
 def norm(x, ord=None, axis=None, keepdims=False):
@@ -44,4 +54,8 @@ def transpose(a, axes=None):
 
 
 def max(*args, **kwargs):
-    return torch.max(*args, **kwargs).values
+    res = torch.max(*args, **kwargs)
+    if isinstance(res, torch.Tensor):
+        return res
+    else:
+        return res.values
