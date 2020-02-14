@@ -5,7 +5,7 @@ import scipy.linalg
 
 from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
-from himalaya.regression.kernel_ridge import multi_kernel_ridge_gradient
+from himalaya.regression.kernel_ridge import _multi_kernel_ridge_gradient
 from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_gradient_descent  # noqa
 from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_conjugate_gradient  # noqa
 from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_neumann_series  # noqa
@@ -48,9 +48,9 @@ def test_multi_kernel_ridge_gradient(backend, double_K):
             grad[:, tt] = backend.matmul(K.T, grad[:, tt])
 
     ########################
-    grad2, func2 = multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas,
-                                               alpha, double_K=double_K,
-                                               return_objective=True)
+    grad2, func2 = _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas,
+                                                alpha, double_K=double_K,
+                                                return_objective=True)
     backend.assert_allclose(grad, grad2, rtol=1e-3, atol=1e-6)
     backend.assert_allclose(func, func2, rtol=1e-3, atol=1e-6)
 

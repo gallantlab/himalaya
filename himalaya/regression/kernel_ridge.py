@@ -4,8 +4,8 @@ from ..backend import get_current_backend
 from ..utils import compute_lipschitz_constants
 
 
-def multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
-                                double_K=False, return_objective=False):
+def _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
+                                 double_K=False, return_objective=False):
     """Compute gradient of dual weights over a multi-kernel ridge regression
 
     Parameters
@@ -15,7 +15,7 @@ def multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
     Y : array of shape (n_samples, n_targets)
         Target data.
     dual_weights : array of shape (n_samples, n_targets)
-        Kernel Ridge coefficients for each feature space.
+        Kernel ridge coefficients for each feature space.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights for each feature space. Should sum to 1 over kernels.
     alpha : float, or array of shape (n_targets, )
@@ -73,7 +73,7 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
 
     Parameters
     ----------
-    Ks : iterable with elements of shape (n_samples, n_samples)
+    Ks : array of shape (n_kernels, n_samples, n_samples)
         Input kernels for each feature space.
     Y : array of shape (n_samples, n_targets)
         Target data.
@@ -89,7 +89,7 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
         Used only if `step_sizes` is None.
         If None, Lipschitz constants are estimated with power iteration on Ks.
     initial_dual_weights : array of shape (n_samples, n_targets)
-        Initial kernel Ridge coefficients.
+        Initial kernel ridge coefficients.
     max_iter : int
         Maximum number of gradient step.
     tol : float > 0 or None
@@ -103,7 +103,7 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     Returns
     -------
     dual_weights : array of shape (n_samples, n_targets)
-        Kernel Ridge coefficients.
+        Kernel ridge coefficients.
     """
     backend = get_current_backend()
     n_targets = Y.shape[1]
@@ -137,10 +137,10 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     # Gradient descent loop
     converged = backend.zeros_like(Y, dtype=backend.bool, shape=(n_targets))
     for i in range(max_iter):
-        grads = multi_kernel_ridge_gradient(Ks, Y[:, ~converged],
-                                            dual_weights[:, ~converged],
-                                            gammas, alpha=alpha,
-                                            double_K=double_K)
+        grads = _multi_kernel_ridge_gradient(Ks, Y[:, ~converged],
+                                             dual_weights[:, ~converged],
+                                             gammas, alpha=alpha,
+                                             double_K=double_K)
         update = step_sizes * grads
         dual_weights[:, ~converged] -= update
 
@@ -172,7 +172,7 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
 
     Parameters
     ----------
-    Ks : iterable with elements of shape (n_samples, n_samples)
+    Ks : array of shape (n_kernels, n_samples, n_samples)
         Input kernels for each feature space.
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
@@ -181,7 +181,7 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     initial_dual_weights : array of shape (n_samples, n_targets)
-        Initial kernel Ridge coefficients.
+        Initial kernel ridge coefficients.
     max_iter : int
         Maximum number of conjugate gradient step.
     tol : float > 0 or None
@@ -190,7 +190,7 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     Returns
     -------
     dual_weights : array of shape (n_samples, n_targets)
-        Kernel Ridge coefficients.
+        Kernel ridge coefficients.
     """
     backend = get_current_backend()
     n_targets = Y.shape[1]
@@ -206,8 +206,8 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
         dual_weights = backend.copy(initial_dual_weights)
 
     # compute initial residual
-    r = multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=alpha,
-                                    double_K=False)
+    r = _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=alpha,
+                                     double_K=False)
     r *= -1
     p = backend.copy(r)
     new_squared_residual_norm = backend.norm(r, axis=0) ** 2
@@ -269,7 +269,7 @@ def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
 
     The Neumann series approximate the invert of K as K^-1 = sum_j (Id - K)^j.
     It is a poor approximation, so this solver should NOT be used to solve
-    Ridge. It is however useful during hyper-parameter gradient descent, as
+    ridge. It is however useful during hyper-parameter gradient descent, as
     we do not need a good precision of the results, but merely the direction
     of the gradient.
 
@@ -278,7 +278,7 @@ def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
 
     Parameters
     ----------
-    Ks : iterable with elements of shape (n_samples, n_samples)
+    Ks : array of shape (n_kernels, n_samples, n_samples)
         Input kernels for each feature space.
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
@@ -299,7 +299,7 @@ def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
     Returns
     -------
     dual_weights : array of shape (n_samples, n_targets)
-        Kernel Ridge coefficients.
+        Kernel ridge coefficients.
     """
     backend = get_current_backend()
 
