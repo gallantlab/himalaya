@@ -20,6 +20,14 @@ def apply_argmax(array, argmax, axis):
     return np.take(max_, 0, axis=axis)
 
 
+def std_float64(array, axis=None, demean=True, keepdims=False):
+    """Compute the standard deviation of X with double precision,
+    and cast back the result to original dtype.
+    """
+    return array.std(axis, dtype=np.float64,
+                     keepdims=keepdims).astype(array.dtype, copy=False)
+
+
 ###############################################################################
 
 argmax = np.argmax
@@ -38,12 +46,17 @@ zeros = np.zeros
 sqrt = np.sqrt
 any = np.any
 all = np.all
+nan = np.nan
+inf = np.inf
 isnan = np.isnan
 isinf = np.isinf
 logspace = np.logspace
 eye = np.eye
 copy = np.copy
 bool = np.bool
+float32 = np.float32
+float64 = np.float64
+asarray = np.asarray
 
 
 def zeros_like(array, shape=None, dtype=None):
