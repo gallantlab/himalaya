@@ -113,7 +113,6 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
-
     if initial_dual_weights is None:
         dual_weights = backend.zeros_like(Y)
     else:
@@ -259,5 +258,73 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
             converged[~converged] = just_converged
             if backend.all(converged):
                 break
+
+    return dual_weights
+
+
+def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
+                                            max_iter=10, factor=0.0001,
+                                            tol=None, debug=False):
+    """Solve the multi-kernel ridge regression using Neumann series.
+
+    The Neumann series approximate the invert of K as K^-1 = sum_j (Id - K)^j.
+    It is a poor approximation, so this solver should NOT be used to solve
+    Ridge. It is however useful during hyper-parameter gradient descent, as
+    we do not need a good precision of the results, but merely the direction
+    of the gradient.
+
+    See [Lorraine, Vicol, & Duvenaud (2019). Optimizing Millions of
+    Hyperparameters by Implicit Differentiation. arXiv:1911.02590].
+
+    Parameters
+    ----------
+    Ks : iterable with elements of shape (n_samples, n_samples)
+        Input kernels for each feature space.
+    Y : torch.Tensor of shape (n_samples, n_targets)
+        Target data.
+    gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
+        Kernel weights for each feature space. Should sum to 1 over kernels.
+    alpha : float or array of shape (n_targets, )
+        Regularization parameter.
+    max_iter : int
+        Number of terms in the Neumann series.
+    factor : float or array of shape (n_targets, )
+        Factor used to allow convergence of the series. We actually invert
+        (factor * K) instead of K, then multiply the result by factor.
+    tol : None
+        Not used.
+    debug : bool
+        If True, check some intermediate computations.
+
+    Returns
+    -------
+    dual_weights : array of shape (n_samples, n_targets)
+        Kernel Ridge coefficients.
+    """
+    backend = get_current_backend()
+
+    if gammas.ndim == 1:
+        gammas = gammas[:, None]
+    if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
+        alpha = backend.ones_like(Y, shape=(1, )) * alpha
+    if isinstance(factor, numbers.Number) or factor.ndim == 0:
+        factor = backend.ones_like(Y, shape=(1, )) * factor
+
+    # product accumulator: product = (id_minus_K ** ii) @ Ys
+    product = Y
+    # sum accumulator: dual_weights = sum_ii product
+    dual_weights = backend.zeros_like(Y)
+    for ii in range(max_iter):
+        product = (
+            product * (1 - factor[None, :] * alpha[None, :]) -
+            factor[None, :] * backend.sum(
+                gammas[:, None, :] * backend.matmul(Ks, product), axis=0))
+        dual_weights += product
+
+    dual_weights *= factor[None, :]
+
+    if debug:
+        assert not backend.any(backend.isinf(dual_weights))
+        assert not backend.any(backend.isnan(dual_weights))
 
     return dual_weights

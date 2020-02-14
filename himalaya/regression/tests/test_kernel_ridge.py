@@ -8,10 +8,11 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.regression.kernel_ridge import multi_kernel_ridge_gradient
 from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_gradient_descent  # noqa
 from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_conjugate_gradient  # noqa
+from himalaya.regression.kernel_ridge import solve_multi_kernel_ridge_neumann_series  # noqa
 
 
 def _create_dataset(backend):
-    n_samples, n_targets = 100, 3
+    n_samples, n_targets = 30, 3
 
     Xs = [backend.randn(n_samples, 100), backend.randn(n_samples, 200)]
     Ks = backend.stack([backend.matmul(X, X.T) for X in Xs])
@@ -54,21 +55,30 @@ def test_multi_kernel_ridge_gradient(backend, double_K):
     backend.assert_allclose(func, func2, rtol=1e-3, atol=1e-6)
 
 
-@pytest.mark.parametrize('solver', ["gradient_descent", "conjugate_gradient"])
+@pytest.mark.parametrize('solver_name', [
+    "gradient_descent",
+    "conjugate_gradient",
+    "neumann_series",
+])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_ridge_kernel_gamma_per_target(solver, backend):
+def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
     backend = change_backend(backend)
 
-    if solver == "gradient_descent":
+    if solver_name == "gradient_descent":
         solver = solve_multi_kernel_ridge_gradient_descent
-    elif solver == "conjugate_gradient":
+        kwargs = dict(rtol=1e-3, atol=1e-6, allowed_mismatch=0)
+    elif solver_name == "conjugate_gradient":
         solver = solve_multi_kernel_ridge_conjugate_gradient
+        kwargs = dict(rtol=1e-3, atol=1e-6, allowed_mismatch=0)
+    elif solver_name == "neumann_series":
+        solver = solve_multi_kernel_ridge_neumann_series
+        kwargs = dict(rtol=1e-1, atol=1e-3, allowed_mismatch=15)
 
     Xs, Ks, Y, gammas, dual_weights = _create_dataset(backend)
     alpha = 1.
 
     for alpha in backend.logspace(-2, 3, 7):
-        c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=1000, tol=1e-6)
+        c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=3000, tol=1e-6)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -76,16 +86,34 @@ def test_solve_ridge_kernel_gamma_per_target(solver, backend):
             K = backend.matmul(Ks.T, gammas[:, ii]).T
             K_reg = K + backend.eye(K.shape[0]) * alpha
             c1 = scipy.linalg.solve(K_reg, Y[:, ii])
-            backend.assert_allclose(c1, c2[:, ii], rtol=1e-3, atol=1e-6)
+            _assert_allclose_mismatch(backend, c1, c2[:, ii], **kwargs)
 
-            # compare predictions with sklearn.linear_model.Ridge
-            X_scaled = backend.concatenate(
-                [t * backend.sqrt(g) for t, g in zip(Xs, gammas[:, ii])], 1)
-            prediction = backend.matmul(K, c2[:, ii])
-            model = sklearn.linear_model.Ridge(alpha=alpha, solver="lsqr",
-                                               max_iter=1000, tol=1e-6,
-                                               fit_intercept=False).fit(
-                                                   X_scaled, Y[:, ii])
-            prediction_sklearn = model.predict(X_scaled)
-            backend.assert_allclose(prediction, prediction_sklearn, rtol=1e-2,
-                                    atol=1e-6)
+            if solver_name != "neumann_series":
+                # compare predictions with sklearn.linear_model.Ridge
+                X_scaled = backend.concatenate(
+                    [t * backend.sqrt(g) for t, g in zip(Xs, gammas[:, ii])],
+                    1)
+                prediction = backend.matmul(K, c2[:, ii])
+                model = sklearn.linear_model.Ridge(alpha=alpha, solver="lsqr",
+                                                   max_iter=1000, tol=1e-6,
+                                                   fit_intercept=False).fit(
+                                                       X_scaled, Y[:, ii])
+                prediction_sklearn = model.predict(X_scaled)
+                _assert_allclose_mismatch(backend, prediction,
+                                          prediction_sklearn, **kwargs)
+
+
+def _assert_allclose_mismatch(backend, pred, true, rtol, atol,
+                              allowed_mismatch=0):
+    """Allow a level of mismatch in backend.assert_allclose.
+    Used for the coarse approximation with Neumann series
+    """
+    try:
+        backend.assert_allclose(pred, true, rtol=rtol, atol=atol)
+    except AssertionError as e:
+        try:
+            mismatch = float(str(e).split("\n")[3].split(" ")[1].split("%")[0])
+        except IndexError:
+            raise
+        if mismatch > allowed_mismatch:
+            raise
