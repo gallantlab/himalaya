@@ -17,6 +17,7 @@ def _create_data(backend, dtype_str):
                              dtype=getattr(backend, dtype_str))
     y_true = backend.asarray(backend.randn(n_samples, n_targets),
                              dtype=getattr(backend, dtype_str))
+    y_true -= y_true.mean(0)
     return y_pred, y_true
 
 
@@ -69,7 +70,7 @@ def test_r2_score_split(backend, dtype_str):
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_r2_score_split_icnlude_correlation(backend, dtype_str):
+def test_r2_score_split_include_correlation(backend, dtype_str):
     # r2_score_split(include_correlation=True) gives results that sum to the
     # r2 score of the sum.
     backend = change_backend(backend)

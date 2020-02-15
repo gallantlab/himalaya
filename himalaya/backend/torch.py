@@ -1,3 +1,5 @@
+from functools import partial
+
 import torch
 
 
@@ -62,6 +64,8 @@ concatenate = torch.cat
 bool = torch.bool
 float32 = torch.float32
 float64 = torch.float64
+eigh = partial(torch.symeig, eigenvectors=True)
+svd = torch.svd
 
 
 def asarray(x, dtype=None):
@@ -76,7 +80,7 @@ def asarray(x, dtype=None):
         device = x.device
     else:
         device = None
-    return torch.tensor(x, dtype=dtype, device=device)
+    return torch.as_tensor(x, dtype=dtype, device=device)
 
 
 def norm(x, ord=None, axis=None, keepdims=False):

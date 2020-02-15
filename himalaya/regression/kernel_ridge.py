@@ -4,8 +4,8 @@ from ..backend import get_current_backend
 from ..utils import compute_lipschitz_constants
 
 
-def _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
-                                 double_K=False, return_objective=False):
+def _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
+                           double_K=False, return_objective=False):
     """Compute gradient of dual weights over a multi-kernel ridge regression
 
     Parameters
@@ -17,7 +17,7 @@ def _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients for each feature space.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space. Should sum to 1 over kernels.
+        Kernel weights for each feature space.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     double_K : bool
@@ -63,13 +63,12 @@ def _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
         return dual_weight_gradient
 
 
-def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
-                                              step_sizes=None,
-                                              lipschitz_Ks=None,
-                                              initial_dual_weights=None,
-                                              max_iter=100, tol=1e-3,
-                                              double_K=False, debug=False):
-    """Solve the multi-kernel ridge regression using gradient descent.
+def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
+                                        step_sizes=None, lipschitz_Ks=None,
+                                        initial_dual_weights=None,
+                                        max_iter=100, tol=1e-3, double_K=False,
+                                        debug=False):
+    """Solve kernel ridge regression using gradient descent.
 
     Parameters
     ----------
@@ -78,7 +77,7 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     Y : array of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space. Should sum to 1 over kernels.
+        Kernel weights for each feature space.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     step_sizes : float, or array of shape (n_targets), or None
@@ -137,10 +136,9 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     # Gradient descent loop
     converged = backend.zeros_like(Y, dtype=backend.bool, shape=(n_targets))
     for i in range(max_iter):
-        grads = _multi_kernel_ridge_gradient(Ks, Y[:, ~converged],
-                                             dual_weights[:, ~converged],
-                                             gammas, alpha=alpha,
-                                             double_K=double_K)
+        grads = _kernel_ridge_gradient(Ks, Y[:, ~converged],
+                                       dual_weights[:, ~converged], gammas,
+                                       alpha=alpha, double_K=double_K)
         update = step_sizes * grads
         dual_weights[:, ~converged] -= update
 
@@ -165,10 +163,10 @@ def solve_multi_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     return dual_weights
 
 
-def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
-                                                initial_dual_weights=None,
-                                                max_iter=100, tol=1e-3):
-    """Solve the multi-kernel ridge regression using conjugate gradient.
+def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
+                                          initial_dual_weights=None,
+                                          max_iter=100, tol=1e-3):
+    """Solve kernel ridge regression using conjugate gradient.
 
     Parameters
     ----------
@@ -177,7 +175,7 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space. Should sum to 1 over kernels.
+        Kernel weights for each feature space.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     initial_dual_weights : array of shape (n_samples, n_targets)
@@ -206,8 +204,8 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
         dual_weights = backend.copy(initial_dual_weights)
 
     # compute initial residual
-    r = _multi_kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=alpha,
-                                     double_K=False)
+    r = _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=alpha,
+                               double_K=False)
     r *= -1
     p = backend.copy(r)
     new_squared_residual_norm = backend.norm(r, axis=0) ** 2
@@ -262,10 +260,9 @@ def solve_multi_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     return dual_weights
 
 
-def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
-                                            max_iter=10, factor=0.0001,
-                                            tol=None, debug=False):
-    """Solve the multi-kernel ridge regression using Neumann series.
+def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
+                                      factor=0.0001, tol=None, debug=False):
+    """Solve kernel ridge regression using Neumann series.
 
     The Neumann series approximate the invert of K as K^-1 = sum_j (Id - K)^j.
     It is a poor approximation, so this solver should NOT be used to solve
@@ -283,12 +280,12 @@ def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space. Should sum to 1 over kernels.
-    alpha : float or array of shape (n_targets, )
+        Kernel weights for each feature space.
+    alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     max_iter : int
         Number of terms in the Neumann series.
-    factor : float or array of shape (n_targets, )
+    factor : float, or array of shape (n_targets, )
         Factor used to allow convergence of the series. We actually invert
         (factor * K) instead of K, then multiply the result by factor.
     tol : None
@@ -326,5 +323,78 @@ def solve_multi_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1.,
     if debug:
         assert not backend.any(backend.isinf(dual_weights))
         assert not backend.any(backend.isnan(dual_weights))
+
+    return dual_weights
+
+
+def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
+                                   negative_eigenvalues="nan"):
+    """Solve kernel ridge regression using eigenvalues decomposition.
+
+    Parameters
+    ----------
+    K : array of shape (n_samples, n_samples)
+        Input kernel.
+    Y : array of shape (n_samples, n_targets)
+        Target data.
+    alpha : float
+        Regularization parameter.
+    method : str in {"eigh", "svd"}
+        Method used to diagonalize the kernel.
+    negative_eigenvalues : str in {"nan", "error"}
+        If the decomposition leads to negative eigenvalues (wrongly emerging
+        from float32 errors):
+            - "error" raises an error.
+            - "nan" returns nans if the regularization does not compensate
+                twice the smallest negative value, else it ignores the problem.
+
+    Returns
+    -------
+    dual_weights : array of shape (n_samples, n_targets)
+        Kernel ridge coefficients.
+    """
+    backend = get_current_backend()
+
+    if K.ndim == 3:
+        raise ValueError(
+            "Cannot use multiple kernels and kernel weights in "
+            "solve_kernel_ridge_eigenvalues. If you want to use the same "
+            "kernel weights for all targets, you can precompute the weighted "
+            "sum. If you want to use different kernel weights per target, "
+            "consider using solve_kernel_ridge_conjugate_gradient.")
+
+    if method == "eigh":
+        # diagonalization: K = V @ np.diag(eigenvalues) @ V.T
+        eigenvalues, V = backend.eigh(K)
+        U = V
+    elif method == "svd":
+        # SVD: K = U @ np.diag(eigenvalues) @ V.T
+        U, eigenvalues, V = backend.svd(K)
+    else:
+        raise ValueError("Unknown method=%r." % (method, ))
+
+    inverse = 1 / (alpha + eigenvalues)
+
+    # negative eigenvalues can emerge from incorrect kernels, or from float32
+    if eigenvalues[0] < 0:
+        if negative_eigenvalues == "nan":
+            if alpha < -eigenvalues[0] * 2:
+                return backend.ones_like(Y) * backend.nan
+            else:
+                pass
+        elif negative_eigenvalues == "error":
+            raise RuntimeError(
+                "Negative eigenvalues. Make sure the kernel is positive "
+                "semi-definite, increase the regularization alpha, or use"
+                "another solver")
+        else:
+            raise ValueError("Unknown negative_eigenvalues=%r." %
+                             (negative_eigenvalues, ))
+
+    iUT = inverse * U.T
+    if Y.shape[0] < Y.shape[1]:
+        dual_weights = (V @ iUT) @ Y
+    else:
+        dual_weights = V @ (iUT @ Y)
 
     return dual_weights

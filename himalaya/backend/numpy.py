@@ -1,4 +1,5 @@
 import numpy as np
+import scipy.linalg
 
 
 def apply_argmax(array, argmax, axis):
@@ -37,7 +38,6 @@ abs = np.abs
 randn = np.random.randn
 rand = np.random.rand
 matmul = np.matmul
-norm = np.linalg.norm
 transpose = np.transpose
 stack = np.stack
 concatenate = np.concatenate
@@ -57,6 +57,9 @@ bool = np.bool
 float32 = np.float32
 float64 = np.float64
 asarray = np.asarray
+eigh = scipy.linalg.eigh
+svd = scipy.linalg.svd
+norm = scipy.linalg.norm
 
 
 def zeros_like(array, shape=None, dtype=None):
