@@ -29,6 +29,14 @@ def std_float64(array, axis=None, demean=True, keepdims=False):
                      keepdims=keepdims).astype(array.dtype, copy=False)
 
 
+def mean_float64(array, axis=None, keepdims=False):
+    """Compute the mean of X with double precision,
+    and cast back the result to original dtype.
+    """
+    return array.mean(axis, dtype=np.float64,
+                      keepdims=keepdims).astype(array.dtype, copy=False)
+
+
 ###############################################################################
 
 argmax = np.argmax
@@ -56,10 +64,17 @@ copy = np.copy
 bool = np.bool
 float32 = np.float32
 float64 = np.float64
+int32 = np.int32
 asarray = np.asarray
 eigh = scipy.linalg.eigh
 svd = scipy.linalg.svd
 norm = scipy.linalg.norm
+log10 = np.log10
+arange = np.arange
+flatnonzero = np.flatnonzero
+isin = np.isin
+searchsorted = np.searchsorted
+sqrt = np.sqrt
 
 
 def zeros_like(array, shape=None, dtype=None):
@@ -78,3 +93,38 @@ def ones_like(array, shape=None, dtype=None):
     if dtype is None:
         dtype = array.dtype
     return np.ones(shape, dtype=dtype)
+
+
+def full_like(array, fill_value, shape=None, dtype=None):
+    """Add a shape parameter in full_like."""
+    if shape is None:
+        shape = array.shape
+    if dtype is None:
+        dtype = array.dtype
+    return np.full(shape, fill_value, dtype=dtype)
+
+
+def asarray_like(x, ref):
+    return np.asarray(x, dtype=ref.dtype)
+
+
+def check_random_state(seed):
+    """Turn seed into a np.random.RandomState instance
+
+    Parameters
+    ----------
+    seed : None | int | instance of RandomState
+        If seed is None, return the RandomState singleton used by np.random.
+        If seed is an int, return a new RandomState instance seeded with seed.
+        If seed is already a RandomState instance, return it.
+        Otherwise raise ValueError.
+    """
+    import numbers
+    if seed is None or seed is np.random:
+        return np.random.mtrand._rand
+    if isinstance(seed, numbers.Integral):
+        return np.random.RandomState(seed)
+    if isinstance(seed, np.random.RandomState):
+        return seed
+    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
+                     ' instance' % seed)

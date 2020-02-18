@@ -15,11 +15,16 @@ from himalaya.regression.kernel_ridge import solve_kernel_ridge_eigenvalues
 def _create_dataset(backend):
     n_samples, n_targets = 30, 3
 
-    Xs = [backend.randn(n_samples, 100), backend.randn(n_samples, 200)]
+    Xs = [
+        backend.asarray(backend.randn(n_samples, n_features), backend.float64)
+        for n_features in [100, 200]
+    ]
     Ks = backend.stack([backend.matmul(X, X.T) for X in Xs])
-    Y = backend.randn(n_samples, n_targets)
-    dual_weights = backend.randn(n_samples, n_targets)
-    gammas = backend.rand(Ks.shape[0], n_targets)
+    Y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
+    dual_weights = backend.asarray(backend.randn(n_samples, n_targets),
+                                   backend.float64)
+    gammas = backend.asarray(backend.rand(Ks.shape[0], n_targets),
+                             backend.float64)
 
     return Xs, Ks, Y, gammas, dual_weights
 
@@ -33,8 +38,8 @@ def test_kernel_ridge_gradient(backend, double_K):
     alpha = 1.
 
     n_targets = Y.shape[1]
-    grad = backend.zeros_like(dual_weights)
-    func = backend.zeros(n_targets)
+    grad = backend.zeros_like(dual_weights, dtype=backend.float64)
+    func = backend.zeros(n_targets, dtype=backend.float64)
     for tt in range(n_targets):
         K = backend.sum(
             backend.stack([K * g for K, g in zip(Ks, gammas[:, tt])]), 0)
@@ -77,14 +82,14 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
 
     Xs, Ks, Y, gammas, dual_weights = _create_dataset(backend)
 
-    for alpha in backend.logspace(-2, 3, 7):
+    for alpha in backend.asarray(backend.logspace(-2, 3, 7), backend.float64):
         c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=3000, tol=1e-6)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
             # compare dual coefficients with scipy.linalg.solve
             K = backend.matmul(Ks.T, gammas[:, ii]).T
-            K_reg = K + backend.eye(K.shape[0]) * alpha
+            K_reg = K + backend.eye(K.shape[0], dtype=backend.float64) * alpha
             c1 = scipy.linalg.solve(K_reg, Y[:, ii])
             _assert_allclose_mismatch(backend, c1, c2[:, ii], **kwargs)
 
@@ -128,7 +133,7 @@ def _assert_allclose_mismatch(backend, pred, true, rtol, atol,
 def test_solve_ridge_kernel_one_gamma(solver_name, backend):
     backend = change_backend(backend)
 
-    alphas = backend.logspace(-2, 5, 7)
+    alphas = backend.asarray(backend.logspace(-2, 5, 7), backend.float64)
     if solver_name == "gradient_descent":
         solver = solve_kernel_ridge_gradient_descent
     elif solver_name == "conjugate_gradient":
@@ -152,7 +157,7 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
         n_targets = Y.shape[1]
         for ii in range(n_targets):
             # compare dual coefficients with scipy.linalg.solve
-            K_reg = K + backend.eye(K.shape[0]) * alpha
+            K_reg = K + backend.eye(K.shape[0], dtype=backend.float64) * alpha
             c1 = scipy.linalg.solve(K_reg, Y[:, ii])
             backend.assert_allclose(c1, c2[:, ii], **kwargs)
 

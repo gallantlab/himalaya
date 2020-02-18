@@ -33,6 +33,7 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
         raise ValueError("Unknown parameter kernelize=%r" % (kernelize,))
 
     ys = backend.randn(*(kernels.shape[:2] + (1, )))
+    ys = backend.asarray_like(ys, Xs)
     for i in range(10):
         ys /= backend.norm(ys, axis=1, keepdims=True) + 1e-16
         ys = backend.matmul(kernels, ys)

@@ -386,7 +386,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
             raise RuntimeError(
                 "Negative eigenvalues. Make sure the kernel is positive "
                 "semi-definite, increase the regularization alpha, or use"
-                "another solver")
+                "another solver.")
         else:
             raise ValueError("Unknown negative_eigenvalues=%r." %
                              (negative_eigenvalues, ))

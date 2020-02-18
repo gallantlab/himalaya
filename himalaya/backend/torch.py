@@ -40,6 +40,18 @@ def std_float64(X, axis=None, demean=True, keepdims=False):
     return X_std
 
 
+def mean_float64(X, axis=None, keepdims=False):
+    """Compute the mean of X with double precision,
+    and cast back the result to original dtype.
+    """
+    X_mean = X.sum(axis, dtype=torch.float64) / X.shape[axis]
+
+    X_mean = torch.as_tensor(X_mean, dtype=X.dtype, device=X.device)
+    if keepdims:
+        X_mean = X_mean.unsqueeze(dim=axis)
+    return X_mean
+
+
 ###############################################################################
 
 argmax = torch.argmax
@@ -62,13 +74,33 @@ logspace = torch.logspace
 eye = torch.eye
 concatenate = torch.cat
 bool = torch.bool
+int32 = torch.int32
 float32 = torch.float32
 float64 = torch.float64
 eigh = partial(torch.symeig, eigenvectors=True)
 svd = torch.svd
+log10 = torch.log10
+arange = torch.arange
+sqrt = torch.sqrt
 
 
-def asarray(x, dtype=None):
+def isin(x, y):
+    import numpy as np  # XXX
+    np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())
+    return asarray(np_result, dtype=torch.bool, device=x.device)
+
+
+def searchsorted(x, y):
+    import numpy as np  # XXX
+    np_result = np.searchsorted(x.cpu().numpy(), y.cpu().numpy())
+    return asarray(np_result, dtype=x.dtype, device=x.device)
+
+
+def flatnonzero(x):
+    return torch.nonzero(torch.flatten(x), as_tuple=True)[0]
+
+
+def asarray(x, dtype=None, device=None):
     if dtype is None:
         if isinstance(x, torch.Tensor):
             dtype = x.dtype
@@ -76,11 +108,13 @@ def asarray(x, dtype=None):
             dtype = x.dtype.name
     if isinstance(dtype, str):
         dtype = getattr(torch, dtype)
-    if isinstance(x, torch.Tensor):
+    if device is None and isinstance(x, torch.Tensor):
         device = x.device
-    else:
-        device = None
     return torch.as_tensor(x, dtype=dtype, device=device)
+
+
+def asarray_like(x, ref):
+    return torch.as_tensor(x, dtype=ref.dtype, device=ref.device)
 
 
 def norm(x, ord=None, axis=None, keepdims=False):
@@ -110,6 +144,8 @@ def zeros_like(array, shape=None, dtype=None):
     """Add a shape parameter in zeros_like."""
     if shape is None:
         shape = array.shape
+    if isinstance(shape, int):
+        shape = (shape, )
     if dtype is None:
         dtype = array.dtype
     return torch.zeros(shape, dtype=dtype, device=array.device,
@@ -120,7 +156,58 @@ def ones_like(array, shape=None, dtype=None):
     """Add a shape parameter in ones_like."""
     if shape is None:
         shape = array.shape
+    if isinstance(shape, int):
+        shape = (shape, )
     if dtype is None:
         dtype = array.dtype
     return torch.ones(shape, dtype=dtype, device=array.device,
                       layout=array.layout)
+
+
+def full_like(array, fill_value, shape=None, dtype=None):
+    """Add a shape parameter in full_like."""
+    if shape is None:
+        shape = array.shape
+    if isinstance(shape, int):
+        shape = (shape, )
+    if dtype is None:
+        dtype = array.dtype
+    return torch.full(shape, fill_value, dtype=dtype, device=array.device,
+                      layout=array.layout)
+
+
+class _RNG():
+    """A torch random number generator, behaving like np.random.RandomState."""
+
+    def __init__(self, generator):
+        self.generator = generator
+
+    def randn(self, *args, **kwargs):
+        return torch.randn(*args, generator=self.generator, **kwargs)
+
+    def rand(self, *args, **kwargs):
+        return torch.rand(*args, generator=self.generator, **kwargs)
+
+
+def check_random_state(seed):
+    """Turn seed into a RNG instance
+
+    Parameters
+    ----------
+    seed : None | int | torch._C.Generator
+        If seed is None, generate a seed with torch.random.seed().
+        If seed is an int, use this seed to generate a torch._C.generator.
+        If seed is a torch._C.generator, store it in a RNG instance, to
+        Otherwise raise ValueError.
+    """
+    import numbers
+    if seed is None:
+        seed = torch.random.seed() % (2 ** 63)
+        generator = torch.random.manual_seed(seed)
+    elif isinstance(seed, numbers.Integral):
+        generator = torch.random.manual_seed(seed)
+    elif isinstance(seed, torch._C.Generator):
+        generator = seed
+    raise ValueError('Unknown parameter seed=%r.' % (seed, ))
+
+    return _RNG(generator)
