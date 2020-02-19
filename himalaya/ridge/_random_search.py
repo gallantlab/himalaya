@@ -9,7 +9,7 @@ def solve_multiple_kernel_ridge_random_search(
         Ks, Y, gammas, alphas, score_func=l2_neg_loss, cv_splitter=10,
         compute_weights=None, Xs=None, local_alpha=True, jitter_alphas=False,
         random_state=None, n_targets_batch=None, n_targets_batch_refit=None,
-        n_alphas_batch=None):
+        n_alphas_batch=None, progress_bar=True):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -45,6 +45,8 @@ def solve_multiple_kernel_ridge_random_search(
     n_alphas_batch : int or None
         Size of the batch for over alphas. Used for memory reasons.
         If None, uses all n_alphas at once.
+    progress_bar : bool
+        If True, display a progress bar over gammas.
 
     Returns
     -------
@@ -101,7 +103,8 @@ def solve_multiple_kernel_ridge_random_search(
                          (compute_weights, ))
 
     for ii, gamma in enumerate(
-            bar(gammas, '%d random sampling with cv' % len(gammas))):
+            bar(gammas, '%d random sampling with cv' % len(gammas),
+                use_it=progress_bar)):
 
         K = (gamma[:, None, None] * Ks).sum(0)
 

@@ -9,7 +9,7 @@ from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 from himalaya.scoring import r2_score
-from himalaya.regression.multiple_kernel_ridge import solve_multiple_kernel_ridge_random_search  # noqa
+from himalaya.ridge import solve_multiple_kernel_ridge_random_search
 
 
 def _create_dataset(backend):
@@ -76,7 +76,7 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     # run solver
     results = solve_multiple_kernel_ridge_random_search(
         Ks, Y, gammas, alphas, score_func=r2_score, cv_splitter=cv,
-        n_targets_batch=n_targets_batch, Xs=Xs,
+        n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
         compute_weights=compute_weights, n_alphas_batch=n_alphas_batch)
     all_scores_mean, best_gammas, best_alphas, refit_weights = results
 

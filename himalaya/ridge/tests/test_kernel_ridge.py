@@ -6,11 +6,12 @@ import scipy.linalg
 from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
-from himalaya.regression.kernel_ridge import _kernel_ridge_gradient
-from himalaya.regression.kernel_ridge import solve_kernel_ridge_gradient_descent  # noqa
-from himalaya.regression.kernel_ridge import solve_kernel_ridge_conjugate_gradient  # noqa
-from himalaya.regression.kernel_ridge import solve_kernel_ridge_neumann_series
-from himalaya.regression.kernel_ridge import solve_kernel_ridge_eigenvalues
+from himalaya.ridge import solve_kernel_ridge_gradient_descent
+from himalaya.ridge import solve_kernel_ridge_conjugate_gradient
+from himalaya.ridge import solve_kernel_ridge_neumann_series
+from himalaya.ridge import solve_kernel_ridge_eigenvalues
+
+from himalaya.ridge._kernel_ridge import _kernel_ridge_gradient
 
 
 def _create_dataset(backend):
@@ -122,7 +123,7 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
 
     Xs, Ks, Y, gammas, dual_weights = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
-    
+
     if solver_name == "gradient_descent":
         solver = solve_kernel_ridge_gradient_descent
     elif solver_name == "conjugate_gradient":
