@@ -19,7 +19,8 @@ from himalaya.viz import plot_alphas_diagnostic
 print(__doc__)
 
 ###############################################################################
-# In this example, we use the torch backend
+# In this example, we use the torch backend, and fit the model on GPU.
+
 backend = change_backend("torch")
 
 ###############################################################################
@@ -33,7 +34,7 @@ backend = change_backend("torch")
 n_samples_train = 1000
 n_samples_test = 300
 n_targets = 1000
-n_features_list = [10000, 1000, 500]
+n_features_list = [1000, 1000, 500]
 
 Xs_train = [
     backend.randn(n_samples_train, n_features)
@@ -42,12 +43,22 @@ Xs_train = [
 Xs_test = [
     backend.randn(n_samples_test, n_features) for n_features in n_features_list
 ]
-Y_train = backend.randn(n_samples_train, n_targets)
-Y_test = backend.randn(n_samples_test, n_targets)
+ws = [
+    backend.randn(n_features, n_targets) / n_features
+    for n_features in n_features_list
+]
+Y_train = backend.stack([X @ w for X, w in zip(Xs_train, ws)]).sum(0)
+Y_test = backend.stack([X @ w for X, w in zip(Xs_test, ws)]).sum(0)
+
+# Add some arbitrary scalings per kernel
+scalings = [0.2, 5, 1]
+Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
+Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
 
 ###############################################################################
 # Precompute the linear kernels, and cast them to float32.
-# We also send to GPU memory, to do the computation on GPU.
+#
+# We also send to GPU memory with `.cuda()`, to do the computation on GPU.
 
 Ks_train = backend.stack([X_train @ X_train.T for X_train in Xs_train])
 Ks_train = backend.asarray(Ks_train, dtype=backend.float32).cuda()
@@ -63,21 +74,21 @@ Y_test = backend.asarray(Y_test, dtype=backend.float32).cuda()
 # small number of kernels (< 20). The larger the number of kenels, the larger
 # we need to sample the hyperparameter space (i.e. increasing n_iter).
 
-# Here we use 50 iterations to have a reasonably fast example (~5 min).
-# To have a better convergence, you probably need something like 200 to 1000
-# iterations.
-n_iter = 50
+# Here we use 100 iterations to have a reasonably fast example (~40 sec).
+# To have a better convergence, we probably need more iterations.
+# Note that there is currently no stopping criterion in this method.
+n_iter = 100
 
 # Grid of regularization parameters.
-alphas = np.logspace(0, 15, 21)
+alphas = np.logspace(-10, 10, 21)
 
 # Generate the samples in hyperparameter space.
-n_spaces = len(Ks_train)
-# As n_spaces increases, the dirichlet's concentration parameters need to be
+n_kernels = len(Ks_train)
+# As n_kernels increases, the Dirichlet's concentration parameters need to be
 # smaller to get to the edges of Dirichlet space, with an arbitrary rule of
-# thumb of 1 / n_spaces.
-concentrations = np.logspace(np.log10(0.1 / n_spaces), 0, 3)
-gammas = generate_dirichlet_samples(n_iter, n_spaces,
+# thumb of 1 / n_kernels.
+concentrations = np.logspace(np.log10(0.1 / n_kernels), 0, 3)
+gammas = generate_dirichlet_samples(n_iter, n_kernels,
                                     concentrations=concentrations,
                                     random_state=0)
 
@@ -95,8 +106,8 @@ compute_weights = 'dual'
 n_targets_batch_refit = 200
 
 # Run the solver. For each hyperparameter gamma, it will:
-# - fit (n_splits * n_alphas) ridge models
-# - compute the scores on each validation set
+# - fit (n_splits * n_alphas * n_targets) ridge models
+# - compute the scores on the validation set of each split
 # - average the scores over splits
 # - take the maximum over alphas
 # - (only if you ask for the ridge weights) refit using the best alphas per
@@ -112,7 +123,6 @@ results = solve_multiple_kernel_ridge_random_search(
     cv_splitter=10,
     n_targets_batch=n_targets_batch,
     compute_weights=compute_weights,
-    Xs=None,
     n_alphas_batch=n_alphas_batch,
     n_targets_batch_refit=n_targets_batch_refit,
     jitter_alphas=True,
@@ -129,7 +139,7 @@ dual_weights = backend.to_numpy(results[3])
 ###############################################################################
 # Plot the convergence curve.
 #
-# all_scores_mean gives the scores for each gamma.
+# `all_scores_mean` gives the scores for each gamma.
 # The convergence curve is thus the current maximum for each target.
 
 current_max = np.maximum.accumulate(all_scores_mean, axis=0)
@@ -143,7 +153,9 @@ plt.show()
 
 ###############################################################################
 # Plot the optimal alphas selected by the solver.
-# This is to refine the alpha grid if the range is too small or too large.
+#
+# This plot is helpful to refine the alpha grid if the range is too small or
+# too large.
 
 plot_alphas_diagnostic(best_alphas, alphas)
 plt.title("Best alphas selected by cross-validation")
@@ -180,6 +192,6 @@ scores = backend.to_numpy(scores)
 bins = np.linspace(scores.min(), scores.max(), 50)
 for score in scores:
     plt.hist(score, bins, alpha=0.5)
-plt.title(r"Histogram of $R^2$ generalization score \emph{per kernel}")
+plt.title(r"Histogram of $R^2$ generalization score split between kernels")
 plt.legend(["kernel %d" % kk for kk in range(scores.shape[0])])
 plt.show()
