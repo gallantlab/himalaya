@@ -82,6 +82,7 @@ svd = torch.svd
 log10 = torch.log10
 arange = torch.arange
 sqrt = torch.sqrt
+unique = torch.unique
 
 
 def to_numpy(array):
@@ -100,7 +101,7 @@ def isin(x, y):
 def searchsorted(x, y):
     import numpy as np  # XXX
     np_result = np.searchsorted(x.cpu().numpy(), y.cpu().numpy())
-    return asarray(np_result, dtype=x.dtype, device=x.device)
+    return asarray(np_result, dtype=torch.int64, device=x.device)
 
 
 def flatnonzero(x):

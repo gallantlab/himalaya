@@ -75,6 +75,7 @@ flatnonzero = np.flatnonzero
 isin = np.isin
 searchsorted = np.searchsorted
 sqrt = np.sqrt
+unique = np.unique
 
 
 def to_numpy(array):

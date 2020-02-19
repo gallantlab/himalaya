@@ -178,30 +178,33 @@ def solve_multiple_kernel_ridge_random_search(
             update_indices = backend.flatnonzero(mask)
             if len(update_indices) > 0:
 
-                # XXX. refit over selected alphas only
+                # refit weights only for alphas used by at least one target
+                used_alphas = backend.unique(best_alphas[mask])
                 dual_weights = backend.zeros_like(
                     K, shape=(n_samples, len(update_indices)))
                 for matrix, alpha_batch in _decompose_kernel_ridge(
-                        K, alphas, Ktest=None, n_alphas_batch=n_alphas_batch):
+                        K, used_alphas, Ktest=None,
+                        n_alphas_batch=min(len(used_alphas), n_alphas_batch)):
 
                     for start in range(0, len(update_indices),
                                        n_targets_batch_refit):
                         batch = slice(start, start + n_targets_batch_refit)
                         weights = backend.matmul(matrix,
                                                  Y[:, update_indices[batch]])
-                        # n_alphas_batch, n_samples, n_targets_batch = \
+                        # used_n_alphas_batch, n_samples, n_targets_batch = \
                         # weights.shape
 
                         # select alphas corresponding to best cv_score
-                        alphas_indices = alphas_argmax[update_indices[batch]]
+                        alphas_indices = backend.searchsorted(
+                            used_alphas, best_alphas[mask][batch])
                         # mask targets whose selected alphas are outside the
                         # alpha batch
                         mask2 = backend.isin(
                             alphas_indices,
-                            backend.arange(len(alphas))[alpha_batch])
+                            backend.arange(len(used_alphas))[alpha_batch])
                         # get indices in alpha_batch
                         alphas_indices = backend.searchsorted(
-                            backend.arange(len(alphas))[alpha_batch],
+                            backend.arange(len(used_alphas))[alpha_batch],
                             alphas_indices[mask2])
                         # update corresponding weights
                         dual_weights[:, batch][:, mask2] = (
