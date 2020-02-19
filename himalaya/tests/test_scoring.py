@@ -4,6 +4,7 @@ from sklearn.metrics import mean_squared_error
 
 from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
+from himalaya.utils import assert_array_almost_equal
 
 from himalaya.scoring import r2_score
 from himalaya.scoring import l2_neg_loss
@@ -26,22 +27,23 @@ def _create_data(backend, dtype_str):
 def test_r2_score(backend, dtype_str):
     backend = change_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
-    rtol = 1e-5 if dtype_str == "float32" else 1e-6
 
     # multi predictions
     s_1 = backend.stack([
-        backend.asarray(r2_score_sklearn(y_true, pp, multioutput='raw_values'),
-                        dtype=dtype_str) for pp in y_pred
+        backend.asarray(
+            r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(pp),
+                             multioutput='raw_values'), dtype=dtype_str)
+        for pp in y_pred
     ])
     s_2 = r2_score(y_true, y_pred)
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = backend.asarray(
-        r2_score_sklearn(y_true, y_pred[0], multioutput='raw_values'),
-        dtype=dtype_str)
+        r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(y_pred[0]),
+                         multioutput='raw_values'), dtype=dtype_str)
     s_2 = r2_score(y_true, y_pred[0])
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
@@ -50,22 +52,23 @@ def test_r2_score_split(backend, dtype_str):
     # r2_score_split(include_correlation=False) is equivalent to r2_score
     backend = change_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
-    rtol = 1e-5 if dtype_str == "float32" else 1e-6
 
     # multi predictions
     s_1 = backend.stack([
-        backend.asarray(r2_score_sklearn(y_true, pp, multioutput='raw_values'),
-                        dtype=dtype_str) for pp in y_pred
+        backend.asarray(
+            r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(pp),
+                             multioutput='raw_values'), dtype=dtype_str)
+        for pp in y_pred
     ])
     s_2 = r2_score_split(y_true, y_pred, False)
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = backend.asarray(
-        r2_score_sklearn(y_true, y_pred[0], multioutput='raw_values'),
-        dtype=dtype_str)
+        r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(y_pred[0]),
+                         multioutput='raw_values'), dtype=dtype_str)
     s_2 = r2_score_split(y_true, y_pred[0], False)
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
@@ -75,11 +78,10 @@ def test_r2_score_split_include_correlation(backend, dtype_str):
     # r2 score of the sum.
     backend = change_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
-    rtol = 1e-5 if dtype_str == "float32" else 1e-6
 
     s_1 = r2_score_split(y_true, y_pred.sum(0), True)
     s_2 = r2_score_split(y_true, y_pred, True)
-    backend.assert_allclose(s_1, s_2.sum(0), rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2.sum(0), decimal=5)
 
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
@@ -87,23 +89,23 @@ def test_r2_score_split_include_correlation(backend, dtype_str):
 def test_l2_neg_loss(backend, dtype_str):
     backend = change_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
-    rtol = 1e-5 if dtype_str == "float32" else 1e-6
 
     # multi predictions
     s_1 = -backend.stack([
         backend.asarray(
-            mean_squared_error(y_true, pp, multioutput='raw_values'),
-            dtype=dtype_str) for pp in y_pred
+            mean_squared_error(backend.to_numpy(y_true), backend.to_numpy(pp),
+                               multioutput='raw_values'), dtype=dtype_str)
+        for pp in y_pred
     ])
     s_2 = l2_neg_loss(y_true, y_pred)
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = -backend.asarray(
-        mean_squared_error(y_true, y_pred[0], multioutput='raw_values'),
-        dtype=dtype_str)
+        mean_squared_error(backend.to_numpy(y_true), backend.to_numpy(
+            y_pred[0]), multioutput='raw_values'), dtype=dtype_str)
     s_2 = l2_neg_loss(y_true, y_pred[0])
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
 
 def _correlation(backend, y_true, y_pred, dtype):
@@ -124,18 +126,17 @@ def _correlation(backend, y_true, y_pred, dtype):
 def test_correlation_score(backend, dtype_str):
     backend = change_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
-    rtol = 1e-5 if dtype_str == "float32" else 1e-6
 
     # multi predictions
     s_1 = backend.stack(
         [_correlation(backend, y_true, pp, dtype=dtype_str) for pp in y_pred])
     s_2 = correlation_score(y_true, y_pred)
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = _correlation(backend, y_true, y_pred[0], dtype=dtype_str)
     s_2 = correlation_score(y_true, y_pred[0])
-    backend.assert_allclose(s_1, s_2, rtol=rtol, atol=1e-6)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
 
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])

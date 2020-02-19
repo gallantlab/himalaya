@@ -3,6 +3,7 @@ import pytest
 
 from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
+from himalaya.utils import assert_array_almost_equal
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -40,6 +41,7 @@ def test_std_float64(backend, dtype_str):
         array_64 = backend.asarray(array, dtype="float64")
         for axis in range(array.ndim):
             result = backend.std_float64(array, axis=axis)
-            reference = np.asarray(array_64).std(axis=axis, dtype="float64")
+            reference = backend.to_numpy(array_64).std(axis=axis,
+                                                       dtype="float64")
             reference = backend.asarray(reference, dtype=dtype_str)
-            backend.assert_allclose(result, reference)
+            assert_array_almost_equal(result, reference)

@@ -30,7 +30,7 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
     elif kernelize == "X":
         kernels = Xs
     else:
-        raise ValueError("Unknown parameter kernelize=%r" % (kernelize,))
+        raise ValueError("Unknown parameter kernelize=%r" % (kernelize, ))
 
     ys = backend.randn(*(kernels.shape[:2] + (1, )))
     ys = backend.asarray_like(ys, Xs)
@@ -39,3 +39,14 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
         ys = backend.matmul(kernels, ys)
     evs = backend.norm(ys, axis=1)[:, 0]
     return evs
+
+
+def assert_array_almost_equal(x, y, decimal=6, err_msg='', verbose=True):
+    """Test array equality, casting all arrays to numpy."""
+    import numpy.testing
+    backend = get_current_backend()
+    x = backend.to_numpy(x)
+    y = backend.to_numpy(y)
+    return numpy.testing.assert_array_almost_equal(x, y, decimal=decimal,
+                                                   err_msg=err_msg,
+                                                   verbose=verbose)

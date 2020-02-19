@@ -7,7 +7,7 @@ import scipy.linalg
 
 from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
-
+from himalaya.utils import assert_array_almost_equal
 from himalaya.scoring import r2_score
 from himalaya.regression.multiple_kernel_ridge import solve_multiple_kernel_ridge_random_search  # noqa
 
@@ -68,7 +68,7 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     backend = change_backend(backend)
 
     Ks, Y, gammas, Xs = _create_dataset(backend)
-    alphas = backend.asarray(backend.logspace(-3, 5, 9), backend.float64)
+    alphas = backend.asarray_like(backend.logspace(-3, 5, 9), Ks)
     n_targets = Y.shape[1]
     cv = sklearn.model_selection.check_cv(10)
 
@@ -87,19 +87,19 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
         X = backend.concatenate([x * g for x, g in zip(Xs, gamma)], 1)
         for train, test in cv.split(X):
             for alpha in alphas:
-                model = sklearn.linear_model.Ridge(alpha=alpha,
-                                                   fit_intercept=False)
-                model = model.fit(X[train], Y[train])
-                predictions = backend.asarray(model.predict(X[test]),
-                                              dtype=Y.dtype)
+                model = sklearn.linear_model.Ridge(
+                    alpha=backend.to_numpy(alpha), fit_intercept=False)
+                model = model.fit(backend.to_numpy(X[train]),
+                                  backend.to_numpy(Y[train]))
+                predictions = backend.asarray_like(
+                    model.predict(backend.to_numpy(X[test])), Y)
                 test_scores.append(r2_score(Y[test], predictions))
 
     test_scores = backend.stack(test_scores)
     test_scores = test_scores.reshape(len(gammas), cv.get_n_splits(),
                                       len(alphas), n_targets)
     test_scores_mean = backend.max(test_scores.mean(1), 1)
-    backend.assert_allclose(all_scores_mean, test_scores_mean, rtol=1e-5,
-                            atol=1e-7)
+    assert_array_almost_equal(all_scores_mean, test_scores_mean, decimal=5)
 
     ###############################################
     # test best_primal_weights or best_dual_weights
@@ -112,23 +112,24 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
             X = backend.concatenate(
                 [t * backend.sqrt(g) for t, g in zip(Xs, gamma)], 1)
             model = sklearn.linear_model.Ridge(fit_intercept=False,
-                                               alpha=alpha)
-            w1 = model.fit(X, Y[:, tt]).coef_
+                                               alpha=backend.to_numpy(alpha))
+            w1 = model.fit(backend.to_numpy(X),
+                           backend.to_numpy(Y[:, tt])).coef_
             w1 = np.split(w1, [X.shape[1] for X in Xs][:-1], axis=0)
             w1 = [backend.asarray(w) for w in w1]
             w1_scaled = backend.concatenate(
                 [w * backend.sqrt(g) for w, g, in zip(w1, gamma)])
-            backend.assert_allclose(w1_scaled, refit_weights[:, tt], rtol=1e-5,
-                                    atol=1e-7)
+            assert_array_almost_equal(w1_scaled, refit_weights[:, tt],
+                                      decimal=5)
 
         elif compute_weights == 'dual':
             # compare dual weights with scipy.linalg.solve
             Ks_64 = backend.asarray(Ks, dtype=backend.float64)
             gamma_64 = backend.asarray(gamma, dtype=backend.float64)
             K = backend.matmul(Ks_64.T, gamma_64).T
-            K_reg = K + backend.eye(K.shape[0], dtype=backend.float64) * alpha
+            reg = backend.asarray_like(backend.eye(K.shape[0]) * alpha, K)
             Y_64 = backend.asarray(Y, dtype=backend.float64)
-            c1 = scipy.linalg.solve(K_reg, Y_64[:, tt])
-            c1 = backend.asarray(c1, dtype=refit_weights.dtype)
-            backend.assert_allclose(c1, refit_weights[:, tt], rtol=1e-5,
-                                    atol=1e-7)
+            c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
+                                    backend.to_numpy(Y_64[:, tt]))
+            c1 = backend.asarray_like(c1, K)
+            assert_array_almost_equal(c1, refit_weights[:, tt], decimal=5)

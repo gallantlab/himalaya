@@ -84,6 +84,13 @@ arange = torch.arange
 sqrt = torch.sqrt
 
 
+def to_numpy(array):
+    try:
+        return array.cpu().numpy()
+    except AttributeError:
+        return array
+
+
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())

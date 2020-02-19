@@ -77,6 +77,10 @@ searchsorted = np.searchsorted
 sqrt = np.sqrt
 
 
+def to_numpy(array):
+    return array
+
+
 def zeros_like(array, shape=None, dtype=None):
     """Add a shape parameter in zeros_like."""
     if shape is None:
