@@ -1,8 +1,11 @@
+import warnings
+
 from sklearn.model_selection import check_cv
 
 from ..backend import get_current_backend
 from ..progress_bar import bar
 from ..scoring import l2_neg_loss
+from ..utils import check_random_state
 
 
 def solve_multiple_kernel_ridge_random_search(
@@ -15,11 +18,11 @@ def solve_multiple_kernel_ridge_random_search(
     Parameters
     ----------
     Ks : array of shape (n_kernels, n_samples, n_samples)
-        Input kernels for each feature space.
+        Input kernels.
     Y : array of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_gammas, n_kernels)
-        Kernel weights for each feature space.
+        Kernel weights.
     alphas : float or array of shape (n_alphas, )
         Range of ridge regularization parameter.
     score_func : callable
@@ -34,8 +37,8 @@ def solve_multiple_kernel_ridge_random_search(
         If True, alphas are selected per voxel, else globally over all voxels.
     jitter_alphas : bool
         If True, alphas range is slightly gittered for each gamma.
-    random_state : int, np.random.RandomState, or None
-        Random generator state, used only if jitter_alphas is True.
+    random_state : int, or None
+        Random generator seed, used only if jitter_alphas is True.
     n_targets_batch : int or None
         Size of the batch for over targets during cross-validation.
         Used for memory reasons. If None, uses all n_targets at once.
@@ -64,6 +67,7 @@ def solve_multiple_kernel_ridge_random_search(
         else, None.
     """
     backend = get_current_backend()
+    Ks, Y, gammas, alphas, Xs = backend.check_arrays(Ks, Y, gammas, alphas, Xs)
 
     n_samples, n_targets = Y.shape
     if n_targets_batch is None:
@@ -78,7 +82,7 @@ def solve_multiple_kernel_ridge_random_search(
     n_kernels = len(Ks)
 
     if jitter_alphas:
-        random_generator = backend.check_random_state(random_state)
+        random_generator = check_random_state(random_state)
         given_alphas = alphas.clone()
 
     best_gammas = backend.full_like(Ks, fill_value=1.0 / n_kernels,
@@ -109,7 +113,8 @@ def solve_multiple_kernel_ridge_random_search(
         K = (gamma[:, None, None] * Ks).sum(0)
 
         if jitter_alphas:
-            alphas = given_alphas * (10 ** (random_generator.rand() - 0.5))
+            noise = backend.asarray_like(random_generator.rand(), alphas)
+            alphas = given_alphas * (10 ** (noise - 0.5))
 
         scores = backend.zeros_like(Y,
                                     shape=(n_splits, len(alphas), n_targets))
@@ -132,9 +137,11 @@ def solve_multiple_kernel_ridge_random_search(
                     # n_alphas_batch, n_samples_test, n_targets_batch = \
                     # predictions.shape
 
-                    scores[jj, alpha_batch, batch] = score_func(
-                        Y[test, batch], predictions)
-                    # n_alphas_batch, n_targets_batch = score.shape
+                    with warnings.catch_warnings():
+                        warnings.filterwarnings("ignore", category=UserWarning)
+                        scores[jj, alpha_batch, batch] = score_func(
+                            Y[test, batch], predictions)
+                        # n_alphas_batch, n_targets_batch = score.shape
 
                 # make small alphas impossible to select
                 too_small_alphas = backend.isnan(matrix[:, 0, 0])
@@ -221,6 +228,60 @@ def solve_multiple_kernel_ridge_random_search(
         del K
 
     return all_scores_mean, best_gammas, best_alphas, refit_weights
+
+
+def generate_dirichlet_samples(n_samples, n_kernels, concentrations=[.1, 1.],
+                               random_state=None):
+    """Generate samples from a Dirichlet distribution
+
+    Parameters
+    ----------
+    n_samples : int
+        Number of samples to generate.
+    n_kernels : int
+        Number of dimension of the distribution.
+    concentrations : float, or list of float
+        Concentration parameters of the Dirichlet distribution.
+        If a list, samples cycle through the list.
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic samples.
+
+    Returns
+    -------
+    gammas : array of shape (n_samples, n_kernels)
+        Dirichlet samples.
+    """
+    import numpy as np
+    random_generator = check_random_state(random_state)
+
+    concentrations = np.atleast_1d(concentrations)
+    n_concentrations = len(concentrations)
+    n_samples_per_concentration = int(
+        np.ceil(n_samples / float(n_concentrations)))
+
+    # generate the gammas
+    gammas = np.vstack([
+        random_generator.dirichlet([conc] * n_kernels,
+                                   n_samples_per_concentration)
+        for conc in concentrations
+    ])
+
+    # reorder the gammas to alternate between concentrations:
+    # [a0, a1, a2, a0, a1, a2] instead of [a0, a0, a1, a1, a2, a2]
+    gammas = gammas.reshape(n_concentrations, n_samples_per_concentration,
+                            n_kernels)
+    gammas = np.swapaxes(gammas, 0, 1)
+    gammas = gammas.reshape(n_concentrations * n_samples_per_concentration,
+                            n_kernels)
+
+    # remove extra gammas
+    gammas = gammas[:n_samples]
+
+    # cast to current backend
+    backend = get_current_backend()
+    gammas = backend.asarray(gammas)
+
+    return gammas
 
 
 def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,

@@ -183,38 +183,22 @@ def full_like(array, fill_value, shape=None, dtype=None):
                       layout=array.layout)
 
 
-class _RNG():
-    """A torch random number generator, behaving like np.random.RandomState."""
-
-    def __init__(self, generator):
-        self.generator = generator
-
-    def randn(self, *args, **kwargs):
-        return torch.randn(*args, generator=self.generator, **kwargs)
-
-    def rand(self, *args, **kwargs):
-        return torch.rand(*args, generator=self.generator, **kwargs)
-
-
-def check_random_state(seed):
-    """Turn seed into a RNG instance
-
-    Parameters
-    ----------
-    seed : None | int | torch._C.Generator
-        If seed is None, generate a seed with torch.random.seed().
-        If seed is an int, use this seed to generate a torch._C.generator.
-        If seed is a torch._C.generator, store it in a RNG instance, to
-        Otherwise raise ValueError.
+def check_arrays(*all_inputs):
+    """Change all inputs into Tensors (or list of Tensors) using the same
+    precision and device as the first one. Some tensors can be None.
     """
-    import numbers
-    if seed is None:
-        seed = torch.random.seed() % (2 ** 63)
-        generator = torch.random.manual_seed(seed)
-    elif isinstance(seed, numbers.Integral):
-        generator = torch.random.manual_seed(seed)
-    elif isinstance(seed, torch._C.Generator):
-        generator = seed
-    raise ValueError('Unknown parameter seed=%r.' % (seed, ))
-
-    return _RNG(generator)
+    all_tensors = []
+    all_tensors.append(torch.as_tensor(all_inputs[0]))
+    for tensor in all_inputs[1:]:
+        if tensor is None:
+            pass
+        elif isinstance(tensor, list):
+            tensor = [
+                torch.as_tensor(tt, dtype=all_tensors[0].dtype,
+                                device=all_tensors[0].device) for tt in tensor
+            ]
+        else:
+            tensor = torch.as_tensor(tensor, dtype=all_tensors[0].dtype,
+                                     device=all_tensors[0].device)
+        all_tensors.append(tensor)
+    return all_tensors

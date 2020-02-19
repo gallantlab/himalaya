@@ -11,13 +11,13 @@ def _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
     Parameters
     ----------
     Ks : array of shape (n_kernels, n_samples, n_samples)
-        Input kernels for each feature space.
+        Input kernels.
     Y : array of shape (n_samples, n_targets)
         Target data.
     dual_weights : array of shape (n_samples, n_targets)
-        Kernel ridge coefficients for each feature space.
+        Kernel ridge coefficients.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space.
+        Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     double_K : bool
@@ -73,18 +73,18 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     Parameters
     ----------
     Ks : array of shape (n_kernels, n_samples, n_samples)
-        Input kernels for each feature space.
+        Input kernels.
     Y : array of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space.
+        Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     step_sizes : float, or array of shape (n_targets), or None
         Step sizes.
         If None, computes a step size based on the Lipschitz constants.
     lipschitz_Ks : float, or array of shape (n_kernels), or None:
-        Lipschitz constant for each feature space.
+        Lipschitz constant.
         Used only if `step_sizes` is None.
         If None, Lipschitz constants are estimated with power iteration on Ks.
     initial_dual_weights : array of shape (n_samples, n_targets)
@@ -111,6 +111,10 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
         gammas = gammas[:, None]
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
+
+    Ks, Y, gammas, alpha, step_sizes, lipschitz_Ks, initial_dual_weights = \
+        backend.check_arrays(Ks, Y, gammas, alpha, step_sizes, lipschitz_Ks,
+                             initial_dual_weights)
 
     if initial_dual_weights is None:
         dual_weights = backend.zeros_like(Y)
@@ -171,11 +175,11 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     Parameters
     ----------
     Ks : array of shape (n_kernels, n_samples, n_samples)
-        Input kernels for each feature space.
+        Input kernels.
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space.
+        Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     initial_dual_weights : array of shape (n_samples, n_targets)
@@ -197,6 +201,9 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
         gammas = gammas[:, None]
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
+
+    Ks, Y, gammas, alpha, initial_dual_weights = backend.check_arrays(
+        Ks, Y, gammas, alpha, initial_dual_weights)
 
     if initial_dual_weights is None:
         dual_weights = backend.zeros_like(Y)
@@ -276,11 +283,11 @@ def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
     Parameters
     ----------
     Ks : array of shape (n_kernels, n_samples, n_samples)
-        Input kernels for each feature space.
+        Input kernels.
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
     gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights for each feature space.
+        Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     max_iter : int
@@ -306,6 +313,9 @@ def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
     if isinstance(factor, numbers.Number) or factor.ndim == 0:
         factor = backend.ones_like(Y, shape=(1, )) * factor
+
+    Ks, Y, gammas, alpha, factor = backend.check_arrays(
+        Ks, Y, gammas, alpha, factor)
 
     # product accumulator: product = (id_minus_K ** ii) @ Ys
     product = Y
@@ -354,6 +364,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         Kernel ridge coefficients.
     """
     backend = get_current_backend()
+    K, Y = backend.check_arrays(K, Y)
 
     if K.ndim == 3:
         raise ValueError(

@@ -112,23 +112,20 @@ def asarray_like(x, ref):
     return np.asarray(x, dtype=ref.dtype)
 
 
-def check_random_state(seed):
-    """Turn seed into a np.random.RandomState instance
-
-    Parameters
-    ----------
-    seed : None | int | instance of RandomState
-        If seed is None, return the RandomState singleton used by np.random.
-        If seed is an int, return a new RandomState instance seeded with seed.
-        If seed is already a RandomState instance, return it.
-        Otherwise raise ValueError.
+def check_arrays(*all_inputs):
+    """Change all inputs into arrays (or list of arrays) using the same
+    precision as the first one. Some arrays can be None.
     """
-    import numbers
-    if seed is None or seed is np.random:
-        return np.random.mtrand._rand
-    if isinstance(seed, numbers.Integral):
-        return np.random.RandomState(seed)
-    if isinstance(seed, np.random.RandomState):
-        return seed
-    raise ValueError('%r cannot be used to seed a numpy.random.RandomState'
-                     ' instance' % seed)
+    all_arrays = []
+    all_arrays.append(np.asarray(all_inputs[0]))
+    for tensor in all_inputs[1:]:
+        if tensor is None:
+            pass
+        elif isinstance(tensor, list):
+            tensor = [
+                np.asarray(tt, dtype=all_arrays[0].dtype) for tt in tensor
+            ]
+        else:
+            tensor = np.asarray(tensor, dtype=all_arrays[0].dtype)
+        all_arrays.append(tensor)
+    return all_arrays
