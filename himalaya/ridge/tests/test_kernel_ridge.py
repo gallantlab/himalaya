@@ -130,7 +130,6 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
         solver = solve_kernel_ridge_conjugate_gradient
     elif solver_name == "eigenvalues":
         solver = solve_kernel_ridge_eigenvalues
-        alphas *= 1e7  # XXX. solver is very not precise on this dataset..
 
     gammas = gammas[:, 0]
     K = backend.matmul(Ks.T, gammas).T

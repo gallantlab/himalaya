@@ -377,9 +377,11 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     if method == "eigh":
         # diagonalization: K = V @ np.diag(eigenvalues) @ V.T
         eigenvalues, V = backend.eigh(K)
+        # match SVD notations: K = U @ np.diag(eigenvalues) @ V
         U = V
+        V = V.T
     elif method == "svd":
-        # SVD: K = U @ np.diag(eigenvalues) @ V.T
+        # SVD: K = U @ np.diag(eigenvalues) @ V
         U, eigenvalues, V = backend.svd(K)
     else:
         raise ValueError("Unknown method=%r." % (method, ))
@@ -402,10 +404,10 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
             raise ValueError("Unknown negative_eigenvalues=%r." %
                              (negative_eigenvalues, ))
 
-    iUT = inverse * U.T
+    iUT = inverse[:, None] * U.T
     if Y.shape[0] < Y.shape[1]:
-        dual_weights = (V @ iUT) @ Y
+        dual_weights = (V.T @ iUT) @ Y
     else:
-        dual_weights = V @ (iUT @ Y)
+        dual_weights = V.T @ (iUT @ Y)
 
     return dual_weights
