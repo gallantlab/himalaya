@@ -1,5 +1,8 @@
 import numpy as np
-import scipy.linalg
+try:
+    import scipy.linalg as linalg
+except ImportError:
+    import np.linalg as linalg
 
 
 def apply_argmax(array, argmax, axis):
@@ -40,7 +43,6 @@ def mean_float64(array, axis=None, keepdims=False):
 ###############################################################################
 
 argmax = np.argmax
-assert_allclose = np.testing.assert_allclose
 max = np.max
 min = np.min
 abs = np.abs
@@ -67,9 +69,9 @@ float32 = np.float32
 float64 = np.float64
 int32 = np.int32
 asarray = np.asarray
-eigh = scipy.linalg.eigh
-svd = scipy.linalg.svd
-norm = scipy.linalg.norm
+eigh = linalg.eigh
+svd = linalg.svd
+norm = linalg.norm
 log10 = np.log10
 log = np.log
 exp = np.exp

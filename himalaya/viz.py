@@ -1,5 +1,4 @@
 import numpy as np
-import matplotlib.pyplot as plt
 
 
 def plot_alphas_diagnostic(best_alphas, alphas, ax=None):
@@ -19,6 +18,7 @@ def plot_alphas_diagnostic(best_alphas, alphas, ax=None):
     -------
     ax : figure axis
     """
+    import matplotlib.pyplot as plt
     alphas = np.sort(alphas)
     logalphas = np.log10(alphas)
     n_alphas = len(logalphas)

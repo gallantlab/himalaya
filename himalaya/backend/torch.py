@@ -55,7 +55,6 @@ def mean_float64(X, axis=None, keepdims=False):
 ###############################################################################
 
 argmax = torch.argmax
-assert_allclose = torch.testing.assert_allclose
 randn = torch.randn
 rand = torch.rand
 matmul = torch.matmul

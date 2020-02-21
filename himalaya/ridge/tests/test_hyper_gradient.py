@@ -124,7 +124,7 @@ def test_delta_gradient_indirect(backend, n_targets_batch):
     norm = backend.norm(gradient_direction_product)
 
     assert_array_almost_equal(gradient_direction_product / norm,
-                              directional_derivatives / norm, decimal=5)
+                              directional_derivatives / norm, decimal=4)
 
 
 @pytest.mark.parametrize('n_targets_batch', [None, 3])

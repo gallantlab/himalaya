@@ -2,6 +2,11 @@ from setuptools import setup
 
 requirements = [
     "numpy",
+    "scikit-learn",
+    # "scipy", # optional
+    # "torch",  # optional
+    # "matplotlib",  # for visualization only
+    # "pytest",  # for testing only
 ]
 
 if __name__ == "__main__":

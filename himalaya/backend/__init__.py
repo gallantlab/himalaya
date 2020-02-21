@@ -4,7 +4,7 @@ ALL_BACKENDS = [
     "torch_cuda",
 ]
 
-CURRENT_BACKEND = "torch"
+CURRENT_BACKEND = "numpy"
 
 
 def change_backend(backend):

@@ -61,7 +61,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     random_state : int, np.random.RandomState, or None
         Random generator state, used only in the Dirichlet sampling init.
     progress_bar : bool
-        If True, display a progress bar over gammas.
+        If True, display a progress bar over batches and iterations.
 
     Returns
     -------
@@ -84,11 +84,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
     Y, Ks = backend.check_arrays(Y, Ks)
 
-    deltas, dual_weights = _init_multiple_kernel_ridge(initial_deltas,
-                                                       initial_dual_weights,
-                                                       Ks, Y, cv_splitter,
-                                                       n_targets_batch,
-                                                       random_state)
+    deltas, dual_weights = _init_multiple_kernel_ridge(
+        initial_deltas, initial_dual_weights, Ks, Y, cv_splitter,
+        n_targets_batch, random_state, progress_bar)
 
     name = "hypergradient_" + hyper_gradient_method
     if kernel_ridge_method == "conjugate":
@@ -209,7 +207,8 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
 
 def _init_multiple_kernel_ridge(initial_deltas, initial_dual_weights, Ks, Y,
-                                cv_splitter, n_targets_batch, random_state):
+                                cv_splitter, n_targets_batch, random_state,
+                                progress_bar):
     """Initialize deltas (log kernel weights) and dual_weights.
 
     Parameters
@@ -233,6 +232,8 @@ def _init_multiple_kernel_ridge(initial_deltas, initial_dual_weights, Ks, Y,
         If None, uses all n_targets at once.
     random_state : int, np.random.RandomState, or None
         Random generator state, used only in the Dirichlet sampling init.
+    progress_bar : bool
+        If True, display a progress bar over Dirichlet samples.
 
     Returns
     -------
@@ -268,7 +269,8 @@ def _init_multiple_kernel_ridge(initial_deltas, initial_dual_weights, Ks, Y,
 
         results = solve_multiple_kernel_ridge_random_search(
             Ks, Y, gammas, alphas, cv_splitter=cv_splitter,
-            n_targets_batch=n_targets_batch, compute_weights='dual')
+            n_targets_batch=n_targets_batch, compute_weights='dual',
+            progress_bar=progress_bar)
         _, best_gammas, best_alphas, dual_weights = results
 
         deltas = backend.log(best_gammas / best_alphas[None, :])
