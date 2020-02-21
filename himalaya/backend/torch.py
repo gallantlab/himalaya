@@ -80,9 +80,16 @@ float64 = torch.float64
 eigh = partial(torch.symeig, eigenvectors=True)
 svd = torch.svd
 log10 = torch.log10
+log = torch.log
+exp = torch.exp
 arange = torch.arange
 sqrt = torch.sqrt
 unique = torch.unique
+
+
+def diagonal_view(array, axis1=0, axis2=1):
+    """Return a view of the array diagonal."""
+    return torch.diagonal(array, 0, dim1=axis1, dim2=axis2)
 
 
 def to_numpy(array):
@@ -125,7 +132,7 @@ def asarray_like(x, ref):
     return torch.as_tensor(x, dtype=ref.dtype, device=ref.device)
 
 
-def norm(x, ord=None, axis=None, keepdims=False):
+def norm(x, ord="fro", axis=None, keepdims=False):
     return torch.norm(x, p=ord, dim=axis, keepdim=keepdims)
 
 
@@ -142,6 +149,14 @@ def transpose(a, axes=None):
 
 def max(*args, **kwargs):
     res = torch.max(*args, **kwargs)
+    if isinstance(res, torch.Tensor):
+        return res
+    else:
+        return res.values
+
+
+def min(*args, **kwargs):
+    res = torch.min(*args, **kwargs)
     if isinstance(res, torch.Tensor):
         return res
     else:

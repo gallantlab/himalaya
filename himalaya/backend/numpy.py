@@ -42,6 +42,7 @@ def mean_float64(array, axis=None, keepdims=False):
 argmax = np.argmax
 assert_allclose = np.testing.assert_allclose
 max = np.max
+min = np.min
 abs = np.abs
 randn = np.random.randn
 rand = np.random.rand
@@ -70,12 +71,32 @@ eigh = scipy.linalg.eigh
 svd = scipy.linalg.svd
 norm = scipy.linalg.norm
 log10 = np.log10
+log = np.log
+exp = np.exp
 arange = np.arange
 flatnonzero = np.flatnonzero
 isin = np.isin
 searchsorted = np.searchsorted
 sqrt = np.sqrt
 unique = np.unique
+
+
+def diagonal_view(array, axis1=0, axis2=1):
+    """Return a view of the array diagonal"""
+    assert array.ndim >= 2
+    axis1, axis2 = min([axis1, axis2]), max([axis1, axis2])
+    shape = list(array.shape)
+    new = min([shape[axis1], shape[axis2]])
+    shape.pop(axis1)
+    shape.pop(axis2 - 1)
+    shape.append(new)
+    strides = list(array.strides)
+    new = strides[axis1] + strides[axis2]
+    strides.pop(axis1)
+    strides.pop(axis2 - 1)
+    strides.append(new)
+    diag = np.lib.stride_tricks.as_strided(array, shape=shape, strides=strides)
+    return diag
 
 
 def to_numpy(array):

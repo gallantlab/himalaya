@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 
 from himalaya.backend import change_backend
@@ -45,3 +44,37 @@ def test_std_float64(backend, dtype_str):
                                                        dtype="float64")
             reference = backend.asarray(reference, dtype=dtype_str)
             assert_array_almost_equal(result, reference)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_diagonal_view(backend):
+    backend = change_backend(backend)
+    import torch
+    import numpy as np
+
+    for array in [
+            backend.randn(10, 4),
+            backend.randn(10, 4).T,
+            backend.randn(10, 4, 8),
+            backend.randn(10, 4, 8).T,
+            backend.randn(3, 4, 8, 5),
+    ]:
+        for axis1 in range(array.ndim):
+            for axis2 in range(array.ndim):
+                if axis1 != axis2:
+                    result = backend.diagonal_view(array, axis1=axis1,
+                                                   axis2=axis2)
+                    # compare with torch diagonal
+                    reference = torch.diagonal(
+                        torch.from_numpy(backend.to_numpy(array)), dim1=axis1,
+                        dim2=axis2)
+                    assert_array_almost_equal(result, reference)
+                    # compare with numpy diagonal
+                    reference = np.diagonal(backend.to_numpy(array),
+                                            axis1=axis1, axis2=axis2)
+                    assert_array_almost_equal(result, reference)
+                    # test that this is a modifiable view
+                    result += 1
+                    reference = np.diagonal(backend.to_numpy(array),
+                                            axis1=axis1, axis2=axis2)
+                    assert_array_almost_equal(result, reference)
