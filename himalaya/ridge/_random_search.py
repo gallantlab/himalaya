@@ -9,10 +9,11 @@ from ..utils import check_random_state
 
 
 def solve_multiple_kernel_ridge_random_search(
-        Ks, Y, gammas, alphas, score_func=l2_neg_loss, cv_splitter=10,
-        compute_weights=None, Xs=None, local_alpha=True, jitter_alphas=False,
-        random_state=None, n_targets_batch=None, n_targets_batch_refit=None,
-        n_alphas_batch=None, progress_bar=True):
+        Ks, Y, n_iter=100, concentration=[0.1, 1.0], alphas=1.0,
+        score_func=l2_neg_loss, cv_splitter=10, return_weights=None, Xs=None,
+        local_alpha=True, jitter_alphas=False, random_state=None,
+        n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
+        progress_bar=True):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -21,24 +22,30 @@ def solve_multiple_kernel_ridge_random_search(
         Input kernels.
     Y : array of shape (n_samples, n_targets)
         Target data.
-    gammas : array of shape (n_gammas, n_kernels)
-        Kernel weights.
+    n_iter : int, or array of shape (n_iter, n_kernels)
+        Number of kernel weights combination to search.
+        If an array is given, the solver uses it as the list of kernel weights
+        to try, instead of sampling from a Dirichlet distribution.
+    concentration : float, or list of float
+        Concentration parameters of the Dirichlet distribution.
+        If a list, iteratively cycle through the list.
+        Not used if n_iter is an array.
     alphas : float or array of shape (n_alphas, )
         Range of ridge regularization parameter.
     score_func : callable
         Function used to compute the score of predictions versus Y.
     cv_splitter : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
-    compute_weights : None, 'primal', or 'dual'
+    return_weights : None, 'primal', or 'dual'
         Whether to refit on the entire dataset and return the weights.
     Xs : array of shape (n_kernels, n_samples, n_features) or None
-        Necessary if compute_weights == 'primal'.
+        Necessary if return_weights == 'primal'.
     local_alpha : bool
         If True, alphas are selected per voxel, else globally over all voxels.
     jitter_alphas : bool
         If True, alphas range is slightly gittered for each gamma.
     random_state : int, or None
-        Random generator seed, used only if jitter_alphas is True.
+        Random generator seed. Use an int for deterministic search.
     n_targets_batch : int or None
         Size of the batch for over targets during cross-validation.
         Used for memory reasons. If None, uses all n_targets at once.
@@ -53,20 +60,32 @@ def solve_multiple_kernel_ridge_random_search(
 
     Returns
     -------
-    all_scores_mean : array of shape (n_gammas, n_targets)
-        Scores averaged over splits, for best alpha.
-    best_gammas : array of shape (n_kernels, n_targets)
-        Best kernel weights.
-    best_alphas : array of shape (n_targets)
-        Best ridge regularization.
+    deltas : array of shape (n_kernels, n_targets)
+        Best log kernel weights for each target.
     refit_weights : array or None
         Refit regression weights on the entire dataset, using selected best
         hyperparameters.
         If compute_weights == 'primal', shape is (n_features, n_targets),
         if compute_weights == 'dual', shape is (n_samples, n_targets),
         else, None.
+    all_scores_mean : array of shape (n_iter, n_targets)
+        Cross-validation scores per iteration, averaged over splits, for the
+        best alpha.
     """
     backend = get_current_backend()
+    if isinstance(n_iter, int):
+        gammas = generate_dirichlet_samples(n_samples=n_iter,
+                                            n_kernels=len(Ks),
+                                            concentration=concentration,
+                                            random_state=random_state)
+    elif n_iter.ndim == 2:
+        gammas = n_iter
+    else:
+        raise ValueError("Unknown parameter n_iter=%r." % (n_iter, ))
+
+    alphas = backend.asarray(alphas)
+    if alphas.ndim == 0:
+        alphas = backend.asarray([alphas])
     Ks, Y, gammas, alphas, Xs = backend.check_arrays(Ks, Y, gammas, alphas, Xs)
 
     n_samples, n_targets = Y.shape
@@ -92,19 +111,19 @@ def solve_multiple_kernel_ridge_random_search(
     current_best_scores = backend.full_like(Ks, fill_value=-backend.inf,
                                             shape=n_targets)
 
-    if compute_weights == 'primal':
+    if return_weights == 'primal':
         if Xs is None:
             raise ValueError("Xs is needed to compute the primal weights.")
         n_features = sum(X.shape[1] for X in Xs)
         refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets))
 
-    elif compute_weights == 'dual':
+    elif return_weights == 'dual':
         refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets))
-    elif compute_weights is None:
+    elif return_weights is None:
         refit_weights = None
     else:
-        raise ValueError("Unknown parameter compute_weights=%r." %
-                         (compute_weights, ))
+        raise ValueError("Unknown parameter return_weights=%r." %
+                         (return_weights, ))
 
     for ii, gamma in enumerate(
             bar(gammas, '%d random sampling with cv' % len(gammas),
@@ -174,7 +193,7 @@ def solve_multiple_kernel_ridge_random_search(
         best_alphas[mask] = alphas[alphas_argmax[mask]]
 
         # compute primal or dual weights on the entire dataset (nocv)
-        if compute_weights is not None:
+        if return_weights is not None:
             update_indices = backend.flatnonzero(mask)
             if len(update_indices) > 0:
 
@@ -213,7 +232,7 @@ def solve_multiple_kernel_ridge_random_search(
                         del weights
                     del matrix
 
-                if compute_weights == 'primal':
+                if return_weights == 'primal':
                     # multiply by g and not np.sqrt(g), as we then want to use
                     # the primal weights on the unscaled features Xs, and not
                     # on the scaled features (np.sqrt(g) * Xs)
@@ -223,17 +242,21 @@ def solve_multiple_kernel_ridge_random_search(
                     refit_weights[:, mask] = primal_weights
 
                     del X, primal_weights
-                elif compute_weights == 'dual':
+                elif return_weights == 'dual':
                     refit_weights[:, mask] = dual_weights
 
                 del dual_weights
 
         del K
 
-    return all_scores_mean, best_gammas, best_alphas, refit_weights
+    deltas = backend.log(best_gammas / best_alphas[None, :])
+    if return_weights == 'dual':
+        refit_weights = refit_weights * best_alphas
+
+    return deltas, refit_weights, all_scores_mean
 
 
-def generate_dirichlet_samples(n_samples, n_kernels, concentrations=[.1, 1.],
+def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
                                random_state=None):
     """Generate samples from a Dirichlet distribution
 
@@ -243,8 +266,10 @@ def generate_dirichlet_samples(n_samples, n_kernels, concentrations=[.1, 1.],
         Number of samples to generate.
     n_kernels : int
         Number of dimension of the distribution.
-    concentrations : float, or list of float
+    concentration : float, or list of float
         Concentration parameters of the Dirichlet distribution.
+        A value of 1 corresponds to uniform sampling over the simplex.
+        A value of infinity corresponds to equal weights.
         If a list, samples cycle through the list.
     random_state : int, or None
         Random generator seed. Use an int for deterministic samples.
@@ -257,17 +282,22 @@ def generate_dirichlet_samples(n_samples, n_kernels, concentrations=[.1, 1.],
     import numpy as np
     random_generator = check_random_state(random_state)
 
-    concentrations = np.atleast_1d(concentrations)
-    n_concentrations = len(concentrations)
+    concentration = np.atleast_1d(concentration)
+    n_concentrations = len(concentration)
     n_samples_per_concentration = int(
         np.ceil(n_samples / float(n_concentrations)))
 
     # generate the gammas
-    gammas = np.vstack([
-        random_generator.dirichlet([conc] * n_kernels,
-                                   n_samples_per_concentration)
-        for conc in concentrations
-    ])
+    gammas = []
+    for conc in concentration:
+        if conc == np.inf:
+            gamma = np.full(n_kernels, fill_value=1. / n_kernels)[None]
+            gamma = np.tile(gamma, (n_samples_per_concentration, 1))
+        else:
+            gamma = random_generator.dirichlet([conc] * n_kernels,
+                                               n_samples_per_concentration)
+        gammas.append(gamma)
+    gammas = np.vstack(gammas)
 
     # reorder the gammas to alternate between concentrations:
     # [a0, a1, a2, a0, a1, a2] instead of [a0, a0, a1, a1, a2, a2]

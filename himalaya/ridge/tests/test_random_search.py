@@ -16,7 +16,7 @@ def _create_dataset(backend):
     n_featuress = (100, 200)
     n_samples = 80
     n_targets = 4
-    n_gammas = 2
+    n_gammas = 3
 
     Xs = [
         backend.asarray(backend.randn(n_samples, n_features), backend.float64)
@@ -33,6 +33,7 @@ def _create_dataset(backend):
 
     gammas = backend.asarray(backend.rand(n_gammas, Ks.shape[0]),
                              backend.float64)
+    gammas /= gammas.sum(1)[:, None]
 
     return Ks, Y, gammas, Xs
 
@@ -53,18 +54,18 @@ def test_solve_multiple_kernel_ridge_random_search_n_alphas_batch(
         backend=backend, n_alphas_batch=n_alphas_batch)
 
 
-@pytest.mark.parametrize('compute_weights', ['primal', 'dual'])
+@pytest.mark.parametrize('return_weights', ['primal', 'dual'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_multiple_kernel_ridge_random_search_compute_weights(
-        backend, compute_weights):
+def test_solve_multiple_kernel_ridge_random_search_return_weights(
+        backend, return_weights):
     _test_solve_multiple_kernel_ridge_random_search(
-        backend=backend, compute_weights=compute_weights)
+        backend=backend, return_weights=return_weights)
 
 
 def _test_solve_multiple_kernel_ridge_random_search(backend,
                                                     n_targets_batch=None,
                                                     n_alphas_batch=None,
-                                                    compute_weights="dual"):
+                                                    return_weights="dual"):
     backend = change_backend(backend)
 
     Ks, Y, gammas, Xs = _create_dataset(backend)
@@ -75,10 +76,11 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     ############
     # run solver
     results = solve_multiple_kernel_ridge_random_search(
-        Ks, Y, gammas, alphas, score_func=r2_score, cv_splitter=cv,
-        n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
-        compute_weights=compute_weights, n_alphas_batch=n_alphas_batch)
-    all_scores_mean, best_gammas, best_alphas, refit_weights = results
+        Ks, Y, n_iter=gammas, alphas=alphas, score_func=r2_score,
+        cv_splitter=cv, n_targets_batch=n_targets_batch, Xs=Xs,
+        progress_bar=False, return_weights=return_weights,
+        n_alphas_batch=n_alphas_batch)
+    best_deltas, refit_weights, all_scores_mean = results
 
     #########################################
     # compare with sklearn.linear_model.Ridge
@@ -101,28 +103,28 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     test_scores_mean = backend.max(test_scores.mean(1), 1)
     assert_array_almost_equal(all_scores_mean, test_scores_mean, decimal=5)
 
-    ###############################################
-    # test best_primal_weights or best_dual_weights
+    ######################
+    # test refited_weights
     for tt in range(n_targets):
-        gamma = best_gammas[:, tt]
-        alpha = best_alphas[tt]
+        gamma = backend.exp(best_deltas[:, tt])
+        alpha = 1.0
 
-        if compute_weights == 'primal':
+        if return_weights == 'primal':
             # compare primal weights with sklearn.linear_model.Ridge
             X = backend.concatenate(
-                [t * backend.sqrt(g) for t, g in zip(Xs, gamma)], 1)
+                [X * backend.sqrt(g) for X, g in zip(Xs, gamma)], 1)
             model = sklearn.linear_model.Ridge(fit_intercept=False,
                                                alpha=backend.to_numpy(alpha))
             w1 = model.fit(backend.to_numpy(X),
                            backend.to_numpy(Y[:, tt])).coef_
-            w1 = np.split(w1, [X.shape[1] for X in Xs][:-1], axis=0)
+            w1 = np.split(w1, np.cumsum([X.shape[1] for X in Xs][:-1]), axis=0)
             w1 = [backend.asarray(w) for w in w1]
             w1_scaled = backend.concatenate(
                 [w * backend.sqrt(g) for w, g, in zip(w1, gamma)])
             assert_array_almost_equal(w1_scaled, refit_weights[:, tt],
                                       decimal=5)
 
-        elif compute_weights == 'dual':
+        elif return_weights == 'dual':
             # compare dual weights with scipy.linalg.solve
             Ks_64 = backend.asarray(Ks, dtype=backend.float64)
             gamma_64 = backend.asarray(gamma, dtype=backend.float64)

@@ -1,7 +1,7 @@
 from ..backend import get_current_backend
 
 
-def predict(Ks, dual_weights, gammas, split=False):
+def predict(Ks, dual_weights, deltas, split=False):
     """
     Compute predictions on test set, on pytorch Tensors.
 
@@ -11,8 +11,8 @@ def predict(Ks, dual_weights, gammas, split=False):
         Test kernels.
     dual_weights : array of shape (n_samples_train, n_targets)
         Dual weights of the kernel ridge model.
-    gammas : array of shape (n_kernels, n_targets)
-        Kernel weights.
+    deltas : array of shape (n_kernels, n_targets)
+        Log kernel weights for each target.
     split : bool
         If True, the predictions is split across kernels.
 
@@ -24,16 +24,16 @@ def predict(Ks, dual_weights, gammas, split=False):
     """
     backend = get_current_backend()
 
-    Ks, dual_weights, gammas = backend.check_arrays(Ks, dual_weights, gammas)
+    Ks, dual_weights, deltas = backend.check_arrays(Ks, dual_weights, deltas)
     chi = backend.matmul(Ks, dual_weights)
-    split_predictions = (gammas[:, None, :] * chi)
+    split_predictions = (backend.exp(deltas[:, None, :]) * chi)
     if split:
         return split_predictions
     else:
         return split_predictions.sum(0)
 
 
-def predict_and_score(Ks, dual_weights, gammas, Y, score_func, split=False,
+def predict_and_score(Ks, dual_weights, deltas, Y, score_func, split=False,
                       n_targets_batch=None):
     """
     Compute predictions, typically on a test set, and compute the score.
@@ -44,8 +44,8 @@ def predict_and_score(Ks, dual_weights, gammas, Y, score_func, split=False,
         Input kernels.
     dual_weights : array of shape (n_samples_train, n_targets)
         Dual weights of the kernel ridge model.
-    gammas : array of shape (n_kernels, n_targets)
-        Kernel weights for each target.
+    deltas : array of shape (n_kernels, n_targets)
+        Log kernel weights for each target.
     Y : array of shape (n_samples_test, n_targets)
         Target data.
     score_func : callable
@@ -62,10 +62,10 @@ def predict_and_score(Ks, dual_weights, gammas, Y, score_func, split=False,
         Prediction score per target.
     """
     backend = get_current_backend()
-    Ks, dual_weights, gammas, Y = backend.check_arrays(Ks, dual_weights,
-                                                       gammas, Y)
+    Ks, dual_weights, deltas, Y = backend.check_arrays(Ks, dual_weights,
+                                                       deltas, Y)
 
-    n_kernels, n_targets = gammas.shape
+    n_kernels, n_targets = deltas.shape
     if split:
         scores = backend.zeros_like(Y, shape=(n_kernels, n_targets))
     else:
@@ -75,7 +75,7 @@ def predict_and_score(Ks, dual_weights, gammas, Y, score_func, split=False,
         n_targets_batch = n_targets
     for start in range(0, n_targets, n_targets_batch):
         batch = slice(start, start + n_targets_batch)
-        predictions = predict(Ks, dual_weights[:, batch], gammas[:, batch],
+        predictions = predict(Ks, dual_weights[:, batch], deltas[:, batch],
                               split=split)
         score_batch = score_func(Y[:, batch], predictions)
 

@@ -1,5 +1,10 @@
 import pytest
 
+import numpy as np
+import sklearn.linear_model
+import sklearn.model_selection
+import scipy.linalg
+
 from himalaya.backend import change_backend
 from himalaya.backend import ALL_BACKENDS
 
@@ -50,7 +55,7 @@ def _create_dataset(backend):
 
     dual_weights = backend.asarray(backend.randn(*Y.shape), backend.float64)
 
-    return Ks, Y, dual_weights, gammas, Ks_val, Y_val
+    return Ks, Y, dual_weights, gammas, Ks_val, Y_val, Xs
 
 
 @pytest.mark.parametrize('n_targets_batch', [None, 3])
@@ -58,7 +63,7 @@ def _create_dataset(backend):
 def test_delta_gradient_direct(backend, n_targets_batch):
     backend = change_backend(backend)
 
-    Ks, Y, dual_weights, gammas, Ks_val, Y_val = _create_dataset(backend)
+    Ks, Y, dual_weights, gammas, Ks_val, Y_val, _ = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-1, 1, Y.shape[1]), Ks)
     deltas = backend.log(gammas / alphas)
     epsilons = backend.asarray_like(backend.randn(*deltas.shape), Ks)
@@ -87,7 +92,7 @@ def test_delta_gradient_direct(backend, n_targets_batch):
 def test_delta_gradient_indirect(backend, n_targets_batch):
     backend = change_backend(backend)
 
-    Ks, Y, dual_weights, gammas, Ks_val, Y_val = _create_dataset(backend)
+    Ks, Y, _, gammas, Ks_val, Y_val, _ = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-1, 1, Y.shape[1]), Ks)
     deltas = backend.log(gammas / alphas)
     epsilons = backend.asarray_like(backend.randn(*deltas.shape), Ks)
@@ -103,11 +108,10 @@ def test_delta_gradient_indirect(backend, n_targets_batch):
         return 0.5 * backend.norm(Ypred - Y_val, axis=0) ** 2
 
     def compute_loss(deltas):
-        gammas = backend.exp(deltas)
         dual_weights = solve_kernel_ridge_conjugate_gradient(
-            Ks, Y, gammas, initial_dual_weights=None, alpha=1, max_iter=1000,
-            tol=1e-5)
-        loss = predict_and_score(Ks_val, dual_weights, gammas, Y_val,
+            Ks, Y, backend.exp(deltas), initial_dual_weights=None, alpha=1,
+            max_iter=1000, tol=1e-5)
+        loss = predict_and_score(Ks_val, dual_weights, deltas, Y_val,
                                  score_func=score_func)
         return loss, dual_weights
 
@@ -142,7 +146,7 @@ def test_solve_multiple_kernel_ridge_hyper_gradient_method(backend, method):
                                                      method=method)
 
 
-@pytest.mark.parametrize('initial_deltas', [0, 5, 'dirichlet', 'ridgecv'])
+@pytest.mark.parametrize('initial_deltas', [0, 5, 'ridgecv'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_hyper_gradient_initial_deltas(
         backend, initial_deltas):
@@ -164,12 +168,12 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
                                                      initial_deltas=0,
                                                      kernel_ridge="conjugate"):
     backend = change_backend(backend)
-    Ks, Y, dual_weights, gammas, Ks_val, Y_val = _create_dataset(backend)
+    Ks, Y, dual_weights, gammas, Ks_val, Y_val, Xs = _create_dataset(backend)
     cv = 3
     progress_bar = False
 
     # compare bilinear gradient descent and dirichlet sampling
-    all_scores_mean, dual_weights, deltas = \
+    _, _, all_scores_mean = \
         solve_multiple_kernel_ridge_hyper_gradient(
             Ks, Y, max_iter=100, n_targets_batch=n_targets_batch,
             max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=None,
@@ -179,12 +183,77 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
     scores_1 = all_scores_mean[all_scores_mean.sum(axis=1) != 0][-1]
 
     alphas = backend.logspace(-5, 5, 11)
-    gammas = generate_dirichlet_samples(50, len(Ks), concentrations=[.1, 1.],
+    gammas = generate_dirichlet_samples(50, len(Ks), concentration=[.1, 1.],
                                         random_state=0)
-    all_scores_mean, best_gammas, best_alphas, refit_weights = \
+    _, _, all_scores_mean = \
         solve_multiple_kernel_ridge_random_search(
             Ks, Y, gammas, alphas, n_targets_batch=n_targets_batch,
             score_func=r2_score, cv_splitter=cv, progress_bar=progress_bar)
     scores_2 = backend.max(all_scores_mean, axis=0)
 
     assert_array_almost_equal(scores_1, scores_2, decimal=1)
+
+
+@pytest.mark.parametrize('n_targets_batch', [None, 3])
+@pytest.mark.parametrize('return_weights', ['primal', 'dual'])
+@pytest.mark.parametrize('method', ['hyper_gradient', 'random_search'])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_return_weights(backend, method,
+                                                    return_weights,
+                                                    n_targets_batch):
+    backend = change_backend(backend)
+
+    Ks, Y, _, _, Ks_val, Y_val, Xs = _create_dataset(backend)
+    n_targets = Y.shape[1]
+    cv = sklearn.model_selection.check_cv(10)
+
+    ############
+    # run solver
+    if method == "hyper_gradient":
+        results = solve_multiple_kernel_ridge_hyper_gradient(
+            Ks, Y, score_func=r2_score, cv_splitter=cv, max_iter=1,
+            n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
+            return_weights=return_weights)
+        best_deltas, refit_weights, all_scores_mean = results
+    elif method == "random_search":
+        alphas = backend.asarray_like(backend.logspace(-3, 5, 2), Ks)
+        results = solve_multiple_kernel_ridge_random_search(
+            Ks, Y, n_iter=1, alphas=alphas, score_func=r2_score,
+            cv_splitter=cv, n_targets_batch=n_targets_batch, Xs=Xs,
+            progress_bar=False, return_weights=return_weights)
+        best_deltas, refit_weights, all_scores_mean = results
+    else:
+        raise ValueError("Unknown parameter method=%r." % (method, ))
+
+    ######################
+    # test refited_weights
+    for tt in range(n_targets):
+        gamma = backend.exp(best_deltas[:, tt])
+        alpha = 1.0
+
+        if return_weights == 'primal':
+            # compare primal weights with sklearn.linear_model.Ridge
+            X = backend.concatenate(
+                [t * backend.sqrt(g) for t, g in zip(Xs, gamma)], 1)
+            model = sklearn.linear_model.Ridge(fit_intercept=False,
+                                               alpha=backend.to_numpy(alpha))
+            w1 = model.fit(backend.to_numpy(X),
+                           backend.to_numpy(Y[:, tt])).coef_
+            w1 = np.split(w1, np.cumsum([X.shape[1] for X in Xs][:-1]), axis=0)
+            w1 = [backend.asarray(w) for w in w1]
+            w1_scaled = backend.concatenate(
+                [w * backend.sqrt(g) for w, g, in zip(w1, gamma)])
+            assert_array_almost_equal(w1_scaled, refit_weights[:, tt],
+                                      decimal=5)
+
+        elif return_weights == 'dual':
+            # compare dual weights with scipy.linalg.solve
+            Ks_64 = backend.asarray(Ks, dtype=backend.float64)
+            gamma_64 = backend.asarray(gamma, dtype=backend.float64)
+            K = backend.matmul(Ks_64.T, gamma_64).T
+            reg = backend.asarray_like(backend.eye(K.shape[0]) * alpha, K)
+            Y_64 = backend.asarray(Y, dtype=backend.float64)
+            c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
+                                    backend.to_numpy(Y_64[:, tt]))
+            c1 = backend.asarray_like(c1, K)
+            assert_array_almost_equal(c1, refit_weights[:, tt], decimal=5)

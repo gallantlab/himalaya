@@ -118,7 +118,7 @@ def asarray(x, dtype=None, device=None):
     if dtype is None:
         if isinstance(x, torch.Tensor):
             dtype = x.dtype
-        if hasattr(x.dtype, "name"):
+        if hasattr(x, "dtype") and hasattr(x.dtype, "name"):
             dtype = x.dtype.name
     if isinstance(dtype, str):
         dtype = getattr(torch, dtype)

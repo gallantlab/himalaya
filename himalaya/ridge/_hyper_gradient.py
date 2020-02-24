@@ -5,23 +5,23 @@ from sklearn.model_selection import check_cv
 from ..backend import get_current_backend
 from ..progress_bar import ProgressBar
 from ..utils import compute_lipschitz_constants
+from ..scoring import l2_neg_loss
 
 from ._kernel_ridge import solve_kernel_ridge_conjugate_gradient
 from ._kernel_ridge import solve_kernel_ridge_gradient_descent
 from ._kernel_ridge import solve_kernel_ridge_neumann_series
 from ._random_search import solve_multiple_kernel_ridge_random_search
-from ._random_search import generate_dirichlet_samples
 
 
 def solve_multiple_kernel_ridge_hyper_gradient(
-        Ks, Y, score_func, cv_splitter=10, initial_dual_weights=None,
-        initial_deltas=0, max_iter=100, tol=1e-2, max_iter_inner_dual=1,
-        max_iter_inner_hyper=1, cg_tol=1e-3, n_targets_batch=None,
-        hyper_gradient_method="conjugate", kernel_ridge_method="gradient",
-        random_state=None, progress_bar=True):
+        Ks, Y, score_func=l2_neg_loss, cv_splitter=10, return_weights=None,
+        Xs=None, initial_deltas=0, max_iter=100, tol=1e-2,
+        max_iter_inner_dual=1, max_iter_inner_hyper=1, cg_tol=1e-3,
+        n_targets_batch=None, hyper_gradient_method="conjugate",
+        kernel_ridge_method="gradient", random_state=None, progress_bar=True):
     """Solve bilinear kernel ridge regression with cross-validation.
 
-    The hyper-parameters deltas correspond to torch.log(gammas / alphas).
+    The hyper-parameters deltas correspond to log(gammas / alphas).
 
     Parameters
     ----------
@@ -33,14 +33,15 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Function used to compute the score of predictions.
     cv_splitter : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
-    initial_dual_weights : array of shape (n_samples, n_targets) or None
-        Initial kernel ridge coefficients.
+    return_weights : None, or 'dual'
+        Whether to refit on the entire dataset and return the weights.
+    Xs : array of shape (n_kernels, n_samples, n_features) or None
+        Necessary if return_weights == 'primal'.
     initial_deltas : str, float, array of shape (n_kernels, n_targets)
         Initial log kernel weights for each target.
+        If a float, initialize the deltas with this value.        
         If a str, initialize the deltas with different strategies:
-            - 'dirichlet' : draw 10 Dirichlet samples and keep the best over cv
-            - 'ridgecv' : fit a RidgeCV model over the average kernel
-        If a float, initialize the deltas with this value.
+            - 'ridgecv' : fit a RidgeCV model over the average kernel.
     max_iter : int
         Maximum number of iteration for the outer loop.
     tol : float > 0, or None
@@ -65,13 +66,14 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
     Returns
     -------
+    deltas : array of shape (n_kernels, n_targets)
+        Best log kernel weights for each target.
+    refit_weights : array of shape (n_samples, n_targets)
+        Refit regression weights on the entire dataset, using selected best
+        hyperparameters.
     all_scores_mean : array of shape (max_iter * max_iter_inner_hyper,
             n_targets)
-        Scores averaged over splits for each iteration.
-    dual_weights : array of shape (n_samples, n_targets)
-        Kernel ridge coefficients.
-    deltas : array of shape (n_kernels, n_targets)
-        Log kernel weights for each target.
+        Cross-validation scores per iteration, averaged over splits.
     """
     backend = get_current_backend()
 
@@ -84,9 +86,22 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
     Y, Ks = backend.check_arrays(Y, Ks)
 
-    deltas, dual_weights = _init_multiple_kernel_ridge(
-        initial_deltas, initial_dual_weights, Ks, Y, cv_splitter,
-        n_targets_batch, random_state, progress_bar)
+    deltas = _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv_splitter,
+                                         n_targets_batch)
+
+    if return_weights == 'primal':
+        if Xs is None:
+            raise ValueError("Xs is needed to compute the primal weights.")
+        n_features = sum(X.shape[1] for X in Xs)
+        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets))
+
+    elif return_weights == 'dual':
+        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets))
+    elif return_weights is None:
+        refit_weights = None
+    else:
+        raise ValueError("Unknown parameter return_weights=%r." %
+                         (return_weights, ))
 
     name = "hypergradient_" + hyper_gradient_method
     if kernel_ridge_method == "conjugate":
@@ -113,11 +128,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
         previous_solutions = [None] * n_splits
         step_sizes = [None] * n_splits
-
-        dual_weights_cv = [
-            backend.copy(dual_weights[train, batch])
-            for train, _ in cv_splitter.split(Y)
-        ]  # this might be a poor initialization
+        dual_weights_cv = [None] * n_splits
 
         for ii in range(max_iter):
             if progress_bar:
@@ -195,58 +206,63 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
         ##########################################
         # refit dual weights on the entire dataset
-        dual_weights[:, batch] = solve_kernel_ridge_conjugate_gradient(
-            Ks, Y[:, batch], backend.exp(deltas[:, batch]),
-            initial_dual_weights=dual_weights[:, batch], alpha=alpha,
-            max_iter=100, tol=1e-3)
+        if return_weights in ["primal", "dual"]:
+            gammas = backend.exp(deltas[:, batch])
+            dual_weights = solve_kernel_ridge_conjugate_gradient(
+                Ks, Y[:, batch], gammas, initial_dual_weights=None,
+                alpha=alpha, max_iter=100, tol=1e-4)
+            if return_weights == 'primal':
+                # multiply by g and not np.sqrt(g), as we then want to use
+                # the primal weights on the unscaled features Xs, and not
+                # on the scaled features (np.sqrt(g) * Xs)
+                for tt in range(refit_weights[:, batch].shape[1]):
+                    X = backend.concatenate(
+                        [t * g for t, g in zip(Xs, gammas[:, tt])], 1)
+                    refit_weights[:, batch][:, tt] = backend.matmul(
+                        X.T, dual_weights[:, tt])
+                del X
+
+            elif return_weights == 'dual':
+                refit_weights[:, batch] = dual_weights
+
+            del dual_weights
 
     if progress_bar:
         bar.update(bar.max_value)
 
-    return all_scores_mean, dual_weights, deltas
+    return deltas, refit_weights, all_scores_mean
 
 
-def _init_multiple_kernel_ridge(initial_deltas, initial_dual_weights, Ks, Y,
-                                cv_splitter, n_targets_batch, random_state,
-                                progress_bar):
+def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv_splitter,
+                                n_targets_batch):
     """Initialize deltas (log kernel weights) and dual_weights.
 
     Parameters
     ----------
-    initial_deltas : str, float, array of shape (n_kernels, n_targets)
-        Initial log kernel weights for each target.
-        If a str, initialize the deltas with different strategies:
-            - 'dirichlet' : draw 10 Dirichlet samples and keep the best over cv
-            - 'ridgecv' : fit a RidgeCV model over the average kernel
-        If a float, initialize the deltas with this value.
-    initial_dual_weights : array of shape (n_samples, n_targets) or None
-        Initial kernel ridge coefficients.
     Ks : array of shape (n_kernels, n_samples, n_samples)
         Training kernel for each feature space.
     Y : array of shape (n_samples, n_targets)
         Training target data.
+    initial_deltas : str, float, array of shape (n_kernels, n_targets)
+        Initial log kernel weights for each target.
+        If a float, initialize the deltas with this value.        
+        If a str, initialize the deltas with different strategies:
+            - 'ridgecv' : fit a RidgeCV model over the average kernel
     cv_splitter : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
     n_targets_batch : int or None
         Size of the batch for computing predictions. Used for memory reasons.
         If None, uses all n_targets at once.
-    random_state : int, np.random.RandomState, or None
-        Random generator state, used only in the Dirichlet sampling init.
-    progress_bar : bool
-        If True, display a progress bar over Dirichlet samples.
 
     Returns
     -------
     deltas : array of shape (n_kernels, n_targets)
         Initial deltas.
-    dual_weights : array of shape (n_samples, n_targets)
-        Initial kernel ridge coefficients.
     """
     backend = get_current_backend()
 
     n_kernels = Ks.shape[0]
     n_targets = Y.shape[1]
-    dual_weights = None
 
     if n_targets_batch is None:
         n_targets_batch = n_targets
@@ -254,27 +270,14 @@ def _init_multiple_kernel_ridge(initial_deltas, initial_dual_weights, Ks, Y,
     if initial_deltas is None:
         initial_deltas = 0
 
-    if ((isinstance(initial_deltas, str)
-         and (initial_deltas in ['ridgecv', 'dirichlet']))):
-        if initial_deltas == 'dirichlet':
-            n_samples = 10
-
-            gammas = generate_dirichlet_samples(n_samples, n_kernels,
-                                                concentrations=[.1, 1.],
-                                                random_state=random_state)
-        else:
-            gammas = backend.full_like(Y, shape=n_kernels,
-                                       fill_value=1. / n_kernels)[None]
-        alphas = backend.logspace(-10, 25, 31)
-
-        results = solve_multiple_kernel_ridge_random_search(
-            Ks, Y, gammas, alphas, cv_splitter=cv_splitter,
-            n_targets_batch=n_targets_batch, compute_weights='dual',
-            progress_bar=progress_bar)
-        _, best_gammas, best_alphas, dual_weights = results
-
-        deltas = backend.log(best_gammas / best_alphas[None, :])
-        dual_weights = dual_weights * best_alphas
+    if ((isinstance(initial_deltas, str) and (initial_deltas == 'ridgecv'))):
+        alphas = backend.logspace(-10, 20, 30)
+        gammas = backend.full_like(Y, shape=n_kernels,
+                                   fill_value=1. / n_kernels)[None]
+        deltas, _, _ = solve_multiple_kernel_ridge_random_search(
+            Ks, Y, n_iter=gammas, alphas=alphas, cv_splitter=cv_splitter,
+            n_targets_batch=n_targets_batch, n_alphas_batch=5,
+            return_weights=None, progress_bar=False)
 
     elif isinstance(initial_deltas, numbers.Number):
         deltas = backend.full_like(Y, shape=(n_kernels, n_targets),
@@ -283,16 +286,8 @@ def _init_multiple_kernel_ridge(initial_deltas, initial_dual_weights, Ks, Y,
     else:
         deltas = backend.copy(backend.asarray_like(initial_deltas, Y))
 
-    if dual_weights is None:
-        if initial_dual_weights is not None:
-            dual_weights = backend.copy(
-                backend.asarray_like(initial_dual_weights, Y))
-
-        else:
-            dual_weights = backend.zeros_like(Y)
-
-    Y, deltas, dual_weights = backend.check_arrays(Y, deltas, dual_weights)
-    return deltas, dual_weights
+    Y, deltas = backend.check_arrays(Y, deltas)
+    return deltas
 
 
 def _compute_delta_loss(Ks_val, Y_val, deltas, dual_weights):
@@ -403,13 +398,13 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         if hyper_gradient_method == 'conjugate':
             assert tol is not None
             solution = solve_kernel_ridge_conjugate_gradient(
-                Ks_train, nabla_g_1, gammas=exp_delta,
+                Ks=Ks_train, Y=nabla_g_1, gammas=exp_delta,
                 initial_dual_weights=previous_solution, max_iter=100, tol=tol,
                 alpha=alpha)
         elif hyper_gradient_method == 'neumann':
             solution = solve_kernel_ridge_neumann_series(
-                Ks_train, nabla_g_1, exp_delta, max_iter=5, factor=0.00001,
-                alpha=alpha)
+                Ks=Ks_train, Y=nabla_g_1, gammas=exp_delta, max_iter=5,
+                factor=0.00001, alpha=alpha)
         else:
             raise ValueError("Unknown parameter hyper_gradient_method=%r." %
                              (hyper_gradient_method, ))

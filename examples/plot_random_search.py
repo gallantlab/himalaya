@@ -10,7 +10,6 @@ import matplotlib.pyplot as plt
 
 from himalaya.backend import change_backend
 from himalaya.ridge import solve_multiple_kernel_ridge_random_search
-from himalaya.ridge import generate_dirichlet_samples
 from himalaya.ridge import predict_and_score
 from himalaya.scoring import l2_neg_loss
 from himalaya.scoring import r2_score_split
@@ -82,30 +81,21 @@ n_iter = 100
 # Grid of regularization parameters.
 alphas = np.logspace(-10, 10, 21)
 
-# Generate the samples in hyperparameter space.
-n_kernels = len(Ks_train)
-# As n_kernels increases, the Dirichlet's concentration parameters need to be
-# smaller to get to the edges of Dirichlet space, with an arbitrary rule of
-# thumb of 1 / n_kernels.
-concentrations = np.logspace(np.log10(0.1 / n_kernels), 0, 3)
-gammas = generate_dirichlet_samples(n_iter, n_kernels,
-                                    concentrations=concentrations,
-                                    random_state=0)
-
 # Batch parameters, used to reduce the necessary GPU memory. A larger value
 # will be a bit faster, but the solver might crash if it is out of memory.
 # Optimal values depend on the size of your dataset.
 n_targets_batch = 1000
 n_alphas_batch = 20
 
-# If compute_weights == "dual", the solver will use more memory.
+# If return_weights == "dual", the solver will use more memory.
 # Too mitigate it, you can reduce `n_targets_batch` in the refit
 # using `n_targets_batch_refit`.
-# If you don't need the dual weights, use compute_weights = None.
-compute_weights = 'dual'
+# If you don't need the dual weights, use return_weights = None.
+return_weights = 'dual'
 n_targets_batch_refit = 200
 
-# Run the solver. For each hyperparameter gamma, it will:
+# Run the solver. For each iteration, it will:
+# - sample kernel weights gamma from a Dirichlet distribution
 # - fit (n_splits * n_alphas * n_targets) ridge models
 # - compute the scores on the validation set of each split
 # - average the scores over splits
@@ -117,12 +107,12 @@ n_targets_batch_refit = 200
 results = solve_multiple_kernel_ridge_random_search(
     Ks=Ks_train,
     Y=Y_train,
-    gammas=gammas,
+    n_iter=n_iter,
     alphas=alphas,
     score_func=l2_neg_loss,
     cv_splitter=10,
     n_targets_batch=n_targets_batch,
-    compute_weights=compute_weights,
+    return_weights=return_weights,
     n_alphas_batch=n_alphas_batch,
     n_targets_batch_refit=n_targets_batch_refit,
     jitter_alphas=True,
@@ -131,10 +121,9 @@ results = solve_multiple_kernel_ridge_random_search(
 # As we used the torch backend, the results are torch.Tensors.
 # As the data was on GPU, the results are also on GPU.
 # Here, we cast the results back to CPU, and to numpy arrays.
-all_scores_mean = backend.to_numpy(results[0])
-best_gammas = backend.to_numpy(results[1])
-best_alphas = backend.to_numpy(results[2])
-dual_weights = backend.to_numpy(results[3])
+deltas = backend.to_numpy(results[0])
+dual_weights = backend.to_numpy(results[1])
+all_scores_mean = backend.to_numpy(results[2])
 
 ###############################################################################
 # Plot the convergence curve.
@@ -157,6 +146,7 @@ plt.show()
 # This plot is helpful to refine the alpha grid if the range is too small or
 # too large.
 
+best_alphas = 1. / np.sum(np.exp(deltas), axis=0)
 plot_alphas_diagnostic(best_alphas, alphas)
 plt.title("Best alphas selected by cross-validation")
 plt.show()
@@ -167,8 +157,8 @@ plt.show()
 # The generalization scores are close to zero since the dataset is only noise.
 
 split = False
-scores = predict_and_score(Ks_test, dual_weights, best_gammas, Y_test,
-                           split=split, n_targets_batch=n_targets_batch,
+scores = predict_and_score(Ks_test, dual_weights, deltas, Y_test, split=split,
+                           n_targets_batch=n_targets_batch,
                            score_func=r2_score_split)
 scores = backend.to_numpy(scores)
 
@@ -184,8 +174,8 @@ plt.show()
 # (corrected for correlations) of each prediction.
 
 split = True
-scores = predict_and_score(Ks_test, dual_weights, best_gammas, Y_test,
-                           split=split, n_targets_batch=n_targets_batch,
+scores = predict_and_score(Ks_test, dual_weights, deltas, Y_test, split=split,
+                           n_targets_batch=n_targets_batch,
                            score_func=r2_score_split)
 scores = backend.to_numpy(scores)
 
