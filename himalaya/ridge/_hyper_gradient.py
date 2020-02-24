@@ -155,7 +155,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                 Y_train = Y[train, batch]
 
                 dual_weights_cv[kk] = inner_function_(
-                    Ks_train, Y_train, backend.exp(deltas[:, batch]),
+                    Ks_train, Y_train, deltas[:, batch],
                     initial_dual_weights=dual_weights_cv[kk], alpha=alpha,
                     max_iter=max_iter_inner_dual_, tol=cg_tol_)
 
@@ -207,17 +207,18 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         ##########################################
         # refit dual weights on the entire dataset
         if return_weights in ["primal", "dual"]:
-            gammas = backend.exp(deltas[:, batch])
             dual_weights = solve_kernel_ridge_conjugate_gradient(
-                Ks, Y[:, batch], gammas, initial_dual_weights=None,
+                Ks, Y[:, batch], deltas[:, batch], initial_dual_weights=None,
                 alpha=alpha, max_iter=100, tol=1e-4)
             if return_weights == 'primal':
                 # multiply by g and not np.sqrt(g), as we then want to use
                 # the primal weights on the unscaled features Xs, and not
                 # on the scaled features (np.sqrt(g) * Xs)
                 for tt in range(refit_weights[:, batch].shape[1]):
-                    X = backend.concatenate(
-                        [t * g for t, g in zip(Xs, gammas[:, tt])], 1)
+                    X = backend.concatenate([
+                        t * g for t, g in zip(
+                            Xs, backend.exp(deltas[:, batch][:, tt]))
+                    ], 1)
                     refit_weights[:, batch][:, tt] = backend.matmul(
                         X.T, dual_weights[:, tt])
                 del X
@@ -398,12 +399,12 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         if hyper_gradient_method == 'conjugate':
             assert tol is not None
             solution = solve_kernel_ridge_conjugate_gradient(
-                Ks=Ks_train, Y=nabla_g_1, gammas=exp_delta,
+                Ks=Ks_train, Y=nabla_g_1, deltas=deltas,
                 initial_dual_weights=previous_solution, max_iter=100, tol=tol,
                 alpha=alpha)
         elif hyper_gradient_method == 'neumann':
             solution = solve_kernel_ridge_neumann_series(
-                Ks=Ks_train, Y=nabla_g_1, gammas=exp_delta, max_iter=5,
+                Ks=Ks_train, Y=nabla_g_1, deltas=deltas, max_iter=5,
                 factor=0.00001, alpha=alpha)
         else:
             raise ValueError("Unknown parameter hyper_gradient_method=%r." %

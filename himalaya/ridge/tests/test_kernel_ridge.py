@@ -25,10 +25,11 @@ def _create_dataset(backend):
     Y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
     dual_weights = backend.asarray(backend.randn(n_samples, n_targets),
                                    backend.float64)
-    gammas = backend.asarray(backend.rand(Ks.shape[0], n_targets),
-                             backend.float64)
+    exp_deltas = backend.asarray(backend.rand(Ks.shape[0], n_targets),
+                                 backend.float64)
+    deltas = backend.log(exp_deltas)
 
-    return Xs, Ks, Y, gammas, dual_weights
+    return Xs, Ks, Y, deltas, dual_weights
 
 
 @pytest.mark.parametrize("double_K", [False, True])
@@ -36,7 +37,8 @@ def _create_dataset(backend):
 def test_kernel_ridge_gradient(backend, double_K):
     backend = change_backend(backend)
 
-    _, Ks, Y, gammas, dual_weights = _create_dataset(backend)
+    _, Ks, Y, deltas, dual_weights = _create_dataset(backend)
+    exp_deltas = backend.exp(deltas)
     alpha = 1.
 
     n_targets = Y.shape[1]
@@ -44,7 +46,7 @@ def test_kernel_ridge_gradient(backend, double_K):
     func = backend.zeros(n_targets, dtype=backend.float64)
     for tt in range(n_targets):
         K = backend.sum(
-            backend.stack([K * g for K, g in zip(Ks, gammas[:, tt])]), 0)
+            backend.stack([K * g for K, g in zip(Ks, exp_deltas[:, tt])]), 0)
         grad[:, tt] = (backend.matmul(K, dual_weights[:, tt]) - Y[:, tt] +
                        alpha * dual_weights[:, tt])
 
@@ -56,7 +58,8 @@ def test_kernel_ridge_gradient(backend, double_K):
             grad[:, tt] = backend.matmul(K.T, grad[:, tt])
 
     ########################
-    grad2, func2 = _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha,
+    grad2, func2 = _kernel_ridge_gradient(Ks, Y, dual_weights,
+                                          exp_deltas=exp_deltas, alpha=alpha,
                                           double_K=double_K,
                                           return_objective=True)
     assert_array_almost_equal(grad, grad2, decimal=1e-3)
@@ -82,15 +85,16 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
         solver = solve_kernel_ridge_neumann_series
         decimal = 1
 
-    Xs, Ks, Y, gammas, dual_weights = _create_dataset(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
+    exp_deltas = backend.exp(deltas)
 
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
-        c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=3000, tol=1e-6)
+        c2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=3000, tol=1e-6)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
             # compare dual coefficients with scipy.linalg.solve
-            K = backend.matmul(Ks.T, gammas[:, ii]).T
+            K = backend.matmul(Ks.T, exp_deltas[:, ii]).T
             reg = backend.asarray_like(backend.eye(K.shape[0]) * alpha, K)
             c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
                                     backend.to_numpy(Y[:, ii]))
@@ -98,9 +102,9 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
 
             if solver_name != "neumann_series":
                 # compare predictions with sklearn.linear_model.Ridge
-                X_scaled = backend.concatenate(
-                    [t * backend.sqrt(g) for t, g in zip(Xs, gammas[:, ii])],
-                    1)
+                X_scaled = backend.concatenate([
+                    t * backend.sqrt(g) for t, g in zip(Xs, exp_deltas[:, ii])
+                ], 1)
                 prediction = backend.matmul(K, c2[:, ii])
                 model = sklearn.linear_model.Ridge(
                     alpha=backend.to_numpy(alpha), solver="lsqr",
@@ -121,7 +125,7 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
 def test_solve_ridge_kernel_one_gamma(solver_name, backend):
     backend = change_backend(backend)
 
-    Xs, Ks, Y, gammas, dual_weights = _create_dataset(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
     if solver_name == "gradient_descent":
@@ -131,14 +135,16 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
     elif solver_name == "eigenvalues":
         solver = solve_kernel_ridge_eigenvalues
 
-    gammas = gammas[:, 0]
-    K = backend.matmul(Ks.T, gammas).T
+    deltas = deltas[:, 0]
+    exp_deltas = backend.exp(deltas)
+    K = backend.matmul(Ks.T, exp_deltas).T
 
     for alpha in alphas:
         if solver_name == "eigenvalues":
             c2 = solver(K, Y, alpha=alpha)
         else:
-            c2 = solver(Ks, Y, gammas, alpha=alpha, max_iter=3000, tol=1e-6)
+            c2 = solver(Ks, Y, deltas=deltas, alpha=alpha, max_iter=3000,
+                        tol=1e-6)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -150,7 +156,7 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
 
             # compare predictions with sklearn.linear_model.Ridge
             X_scaled = backend.concatenate(
-                [t * backend.sqrt(g) for t, g in zip(Xs, gammas)], 1)
+                [t * backend.sqrt(g) for t, g in zip(Xs, exp_deltas)], 1)
             prediction = backend.matmul(K, c2[:, ii])
             model = sklearn.linear_model.Ridge(alpha=backend.to_numpy(alpha),
                                                solver="lsqr", max_iter=1000,

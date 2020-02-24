@@ -22,8 +22,8 @@ from himalaya.utils import assert_array_almost_equal
 
 def _create_dataset(backend):
     n_featuress = [100, 200, 150]
-    n_samples_train = 100
-    n_samples_val = 50
+    n_samples_train = 80
+    n_samples_val = 20
     n_targets = 4
 
     Xs = [
@@ -109,7 +109,7 @@ def test_delta_gradient_indirect(backend, n_targets_batch):
 
     def compute_loss(deltas):
         dual_weights = solve_kernel_ridge_conjugate_gradient(
-            Ks, Y, backend.exp(deltas), initial_dual_weights=None, alpha=1,
+            Ks, Y, deltas=deltas, initial_dual_weights=None, alpha=1,
             max_iter=1000, tol=1e-5)
         loss = predict_and_score(Ks_val, dual_weights, deltas, Y_val,
                                  score_func=score_func)

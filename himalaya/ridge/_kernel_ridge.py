@@ -4,7 +4,7 @@ from ..backend import get_current_backend
 from ..utils import compute_lipschitz_constants
 
 
-def _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
+def _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
                            double_K=False, return_objective=False):
     """Compute gradient of dual weights over a multi-kernel ridge regression
 
@@ -16,7 +16,7 @@ def _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
         Target data.
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients.
-    gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
+    exp_deltas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
@@ -35,22 +35,22 @@ def _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
     """
     backend = get_current_backend()
 
-    if gammas.ndim == 1:
-        gammas = gammas[:, None]
+    if exp_deltas.ndim == 1:
+        exp_deltas = exp_deltas[:, None]
 
     Ks_times_dualweights = backend.stack(
         [backend.matmul(K, dual_weights).T for K in Ks], 2)
 
     predictions = backend.matmul(Ks_times_dualweights,
-                                 gammas.T[..., None])[..., 0].T
+                                 exp_deltas.T[..., None])[..., 0].T
     residual = predictions - Y
     dampened_residual = residual + dual_weights * alpha
 
     if double_K:
         Ks_times_dampened_residual = backend.stack(
             [backend.matmul(K, dampened_residual).T for K in Ks], 2)
-        dual_weight_gradient = backend.matmul(Ks_times_dampened_residual,
-                                              gammas.T[..., None])[..., 0].T
+        dual_weight_gradient = backend.matmul(
+            Ks_times_dampened_residual, exp_deltas.T[..., None])[..., 0].T
     else:
         dual_weight_gradient = dampened_residual
 
@@ -63,7 +63,7 @@ def _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=1.,
         return dual_weight_gradient
 
 
-def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
+def solve_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
                                         step_sizes=None, lipschitz_Ks=None,
                                         initial_dual_weights=None,
                                         max_iter=100, tol=1e-3, double_K=False,
@@ -76,7 +76,7 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
         Input kernels.
     Y : array of shape (n_samples, n_targets)
         Target data.
-    gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
+    deltas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
@@ -107,14 +107,15 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     backend = get_current_backend()
     n_targets = Y.shape[1]
 
-    if gammas.ndim == 1:
-        gammas = gammas[:, None]
+    if deltas.ndim == 1:
+        deltas = deltas[:, None]
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
-    Ks, Y, gammas, alpha, step_sizes, lipschitz_Ks, initial_dual_weights = \
-        backend.check_arrays(Ks, Y, gammas, alpha, step_sizes, lipschitz_Ks,
+    Ks, Y, deltas, alpha, step_sizes, lipschitz_Ks, initial_dual_weights = \
+        backend.check_arrays(Ks, Y, deltas, alpha, step_sizes, lipschitz_Ks,
                              initial_dual_weights)
+    exp_deltas = backend.exp(deltas)
 
     if initial_dual_weights is None:
         dual_weights = backend.zeros_like(Y)
@@ -127,7 +128,8 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
             if not double_K:
                 lipschitz_Ks = backend.sqrt(lipschitz_Ks)
 
-        total_lip = backend.matmul(lipschitz_Ks[None, :], gammas)[0] + alpha
+        total_lip = backend.matmul(lipschitz_Ks[None, :],
+                                   exp_deltas)[0] + alpha
         step_sizes = 1. / total_lip
 
         if debug:
@@ -141,8 +143,9 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     converged = backend.zeros_like(Y, dtype=backend.bool, shape=(n_targets))
     for i in range(max_iter):
         grads = _kernel_ridge_gradient(Ks, Y[:, ~converged],
-                                       dual_weights[:, ~converged], gammas,
-                                       alpha=alpha, double_K=double_K)
+                                       dual_weights[:, ~converged],
+                                       exp_deltas=exp_deltas, alpha=alpha,
+                                       double_K=double_K)
         update = step_sizes * grads
         dual_weights[:, ~converged] -= update
 
@@ -153,8 +156,8 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
             relative_update[dual_weights[:, ~converged] == 0] = 0
             just_converged = backend.max(relative_update, 0) < tol
 
-            if gammas.shape[1] == just_converged.shape[0]:
-                gammas = gammas[:, ~just_converged]
+            if exp_deltas.shape[1] == just_converged.shape[0]:
+                exp_deltas = exp_deltas[:, ~just_converged]
             if alpha.shape[0] == just_converged.shape[0]:
                 alpha = alpha[~just_converged]
             if step_sizes.shape[0] == just_converged.shape[0]:
@@ -167,7 +170,7 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, gammas, alpha=1.,
     return dual_weights
 
 
-def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
+def solve_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
                                           initial_dual_weights=None,
                                           max_iter=100, tol=1e-3):
     """Solve kernel ridge regression using conjugate gradient.
@@ -178,7 +181,7 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
         Input kernels.
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
-    gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
+    deltas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
@@ -197,13 +200,14 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     backend = get_current_backend()
     n_targets = Y.shape[1]
 
-    if gammas.ndim == 1:
-        gammas = gammas[:, None]
+    if deltas.ndim == 1:
+        deltas = deltas[:, None]
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
-    Ks, Y, gammas, alpha, initial_dual_weights = backend.check_arrays(
-        Ks, Y, gammas, alpha, initial_dual_weights)
+    Ks, Y, deltas, alpha, initial_dual_weights = backend.check_arrays(
+        Ks, Y, deltas, alpha, initial_dual_weights)
+    exp_deltas = backend.exp(deltas)
 
     if initial_dual_weights is None:
         dual_weights = backend.zeros_like(Y)
@@ -211,8 +215,8 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
         dual_weights = backend.copy(initial_dual_weights)
 
     # compute initial residual
-    r = _kernel_ridge_gradient(Ks, Y, dual_weights, gammas, alpha=alpha,
-                               double_K=False)
+    r = _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas=exp_deltas,
+                               alpha=alpha, double_K=False)
     r *= -1
     p = backend.copy(r)
     new_squared_residual_norm = backend.norm(r, axis=0) ** 2
@@ -223,7 +227,7 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     for i in range(max_iter):
         Ks_x_p = backend.matmul(Ks, p)
         tmp = backend.matmul(backend.transpose(Ks_x_p, (2, 1, 0)),
-                             backend.transpose(gammas,
+                             backend.transpose(exp_deltas,
                                                (1, 0))[:, :, None])[..., 0]
         K_x_p_plus_reg = backend.transpose(tmp, (1, 0)) + alpha * p
 
@@ -256,8 +260,8 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
             p = p[:, ~just_converged]
             new_squared_residual_norm = \
                 new_squared_residual_norm[~just_converged]
-            if gammas.shape[1] == just_converged.shape[0]:
-                gammas = gammas[:, ~just_converged]
+            if exp_deltas.shape[1] == just_converged.shape[0]:
+                exp_deltas = exp_deltas[:, ~just_converged]
             if alpha.shape[0] == just_converged.shape[0]:
                 alpha = alpha[~just_converged]
             converged[~converged] = just_converged
@@ -267,7 +271,7 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, gammas, alpha=1.,
     return dual_weights
 
 
-def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
+def solve_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1., max_iter=10,
                                       factor=0.0001, tol=None, debug=False):
     """Solve kernel ridge regression using Neumann series.
 
@@ -286,7 +290,7 @@ def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
         Input kernels.
     Y : torch.Tensor of shape (n_samples, n_targets)
         Target data.
-    gammas : array of shape (n_kernels, ) or (n_kernels, n_targets)
+    deltas : array of shape (n_kernels, ) or (n_kernels, n_targets)
         Kernel weights.
     alpha : float, or array of shape (n_targets, )
         Regularization parameter.
@@ -307,15 +311,16 @@ def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
     """
     backend = get_current_backend()
 
-    if gammas.ndim == 1:
-        gammas = gammas[:, None]
+    if deltas.ndim == 1:
+        deltas = deltas[:, None]
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
     if isinstance(factor, numbers.Number) or factor.ndim == 0:
         factor = backend.ones_like(Y, shape=(1, )) * factor
 
-    Ks, Y, gammas, alpha, factor = backend.check_arrays(
-        Ks, Y, gammas, alpha, factor)
+    Ks, Y, deltas, alpha, factor = backend.check_arrays(
+        Ks, Y, deltas, alpha, factor)
+    exp_deltas = backend.exp(deltas)
 
     # product accumulator: product = (id_minus_K ** ii) @ Ys
     product = Y
@@ -325,7 +330,7 @@ def solve_kernel_ridge_neumann_series(Ks, Y, gammas, alpha=1., max_iter=10,
         product = (
             product * (1 - factor[None, :] * alpha[None, :]) -
             factor[None, :] * backend.sum(
-                gammas[:, None, :] * backend.matmul(Ks, product), axis=0))
+                exp_deltas[:, None, :] * backend.matmul(Ks, product), axis=0))
         dual_weights += product
 
     dual_weights *= factor[None, :]
