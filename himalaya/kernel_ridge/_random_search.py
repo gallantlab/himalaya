@@ -5,7 +5,7 @@ from sklearn.model_selection import check_cv
 from ..backend import get_backend
 from ..progress_bar import bar
 from ..scoring import l2_neg_loss
-from ..utils import check_random_state
+from ..validation import check_random_state
 
 
 def solve_multiple_kernel_ridge_random_search(

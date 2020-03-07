@@ -7,9 +7,9 @@ from ..progress_bar import ProgressBar
 from ..utils import compute_lipschitz_constants
 from ..scoring import l2_neg_loss
 
-from ._kernel_solvers import solve_kernel_ridge_conjugate_gradient
-from ._kernel_solvers import solve_kernel_ridge_gradient_descent
-from ._kernel_solvers import solve_kernel_ridge_neumann_series
+from ._solvers import solve_kernel_ridge_conjugate_gradient
+from ._solvers import solve_kernel_ridge_gradient_descent
+from ._solvers import solve_kernel_ridge_neumann_series
 from ._random_search import solve_multiple_kernel_ridge_random_search
 
 

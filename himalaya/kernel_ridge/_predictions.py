@@ -18,7 +18,7 @@ def predict_kernel_ridge(Ks, dual_weights, deltas, split=False):
 
     Returns
     -------
-    predictions : array of shape (n_samples_test, n_targets) or \
+    Y_hat : array of shape (n_samples_test, n_targets) or \
             (n_kernels, n_samples_test, n_targets) (if split is True)
         Predicted values.
     """
@@ -28,9 +28,11 @@ def predict_kernel_ridge(Ks, dual_weights, deltas, split=False):
     chi = backend.matmul(Ks, dual_weights)
     split_predictions = backend.exp(deltas[:, None, :]) * chi
     if split:
-        return split_predictions
+        Y_hat = split_predictions
     else:
-        return split_predictions.sum(0)
+        Y_hat = split_predictions.sum(0)
+
+    return Y_hat
 
 
 def predict_and_score_kernel_ridge(Ks, dual_weights, deltas, Y, score_func,

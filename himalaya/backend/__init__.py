@@ -2,8 +2,8 @@ import types
 import importlib
 
 ALL_BACKENDS = [
-    "cupy",
     "numpy",
+    "cupy",
     "torch",
     "torch_cuda",
 ]

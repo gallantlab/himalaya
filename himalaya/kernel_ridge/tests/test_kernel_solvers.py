@@ -8,11 +8,13 @@ from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
-from himalaya.ridge import solve_kernel_ridge_gradient_descent
-from himalaya.ridge import solve_kernel_ridge_conjugate_gradient
-from himalaya.ridge import solve_kernel_ridge_neumann_series
-from himalaya.ridge import solve_kernel_ridge_eigenvalues
-from himalaya.ridge._kernel_solvers import _kernel_ridge_gradient
+from himalaya.kernel_ridge import solve_kernel_ridge_gradient_descent
+from himalaya.kernel_ridge import solve_kernel_ridge_conjugate_gradient
+from himalaya.kernel_ridge import solve_kernel_ridge_neumann_series
+from himalaya.kernel_ridge import solve_shared_kernel_ridge_eigenvalues
+from himalaya.kernel_ridge import solve_shared_kernel_ridge_gradient_descent
+from himalaya.kernel_ridge import solve_shared_kernel_ridge_conjugate_gradient
+from himalaya.kernel_ridge._solvers import _kernel_ridge_gradient
 
 
 def _create_dataset(backend):
@@ -124,18 +126,18 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
     "eigenvalues",
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_ridge_kernel_one_gamma(solver_name, backend):
+def test_solve_shared_ridge_kernel(solver_name, backend):
     backend = set_backend(backend)
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
     if solver_name == "gradient_descent":
-        solver = solve_kernel_ridge_gradient_descent
+        solver = solve_shared_kernel_ridge_gradient_descent
     elif solver_name == "conjugate_gradient":
-        solver = solve_kernel_ridge_conjugate_gradient
+        solver = solve_shared_kernel_ridge_conjugate_gradient
     elif solver_name == "eigenvalues":
-        solver = solve_kernel_ridge_eigenvalues
+        solver = solve_shared_kernel_ridge_eigenvalues
 
     deltas = deltas[:, 0]
     exp_deltas = backend.exp(deltas)
@@ -145,8 +147,7 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
         if solver_name == "eigenvalues":
             c2 = solver(K, Y, alpha=alpha)
         else:
-            c2 = solver(Ks, Y, deltas=deltas, alpha=alpha, max_iter=3000,
-                        tol=1e-6)
+            c2 = solver(K, Y, alpha=alpha, max_iter=3000, tol=1e-6)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):

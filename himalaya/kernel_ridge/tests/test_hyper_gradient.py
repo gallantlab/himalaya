@@ -10,13 +10,13 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.scoring import r2_score
 from himalaya.utils import assert_array_almost_equal
 
-from himalaya.ridge._hyper_gradient import _compute_delta_gradient
-from himalaya.ridge._hyper_gradient import _compute_delta_loss
-from himalaya.ridge import solve_multiple_kernel_ridge_hyper_gradient
-from himalaya.ridge import solve_multiple_kernel_ridge_random_search
-from himalaya.ridge import solve_kernel_ridge_conjugate_gradient
-from himalaya.ridge import generate_dirichlet_samples
-from himalaya.ridge import predict_and_score_kernel_ridge
+from himalaya.kernel_ridge._hyper_gradient import _compute_delta_gradient
+from himalaya.kernel_ridge._hyper_gradient import _compute_delta_loss
+from himalaya.kernel_ridge import solve_multiple_kernel_ridge_hyper_gradient
+from himalaya.kernel_ridge import solve_multiple_kernel_ridge_random_search
+from himalaya.kernel_ridge import solve_kernel_ridge_conjugate_gradient
+from himalaya.kernel_ridge import generate_dirichlet_samples
+from himalaya.kernel_ridge import predict_and_score_kernel_ridge
 
 
 def _create_dataset(backend):

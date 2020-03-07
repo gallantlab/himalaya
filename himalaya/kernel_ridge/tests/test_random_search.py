@@ -10,7 +10,7 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 from himalaya.scoring import r2_score
 
-from himalaya.ridge import solve_multiple_kernel_ridge_random_search
+from himalaya.kernel_ridge import solve_multiple_kernel_ridge_random_search
 
 
 def _create_dataset(backend):

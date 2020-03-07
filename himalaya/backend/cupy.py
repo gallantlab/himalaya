@@ -80,6 +80,10 @@ exp = cupy.exp
 arange = cupy.arange
 flatnonzero = cupy.flatnonzero
 unique = cupy.unique
+einsum = cupy.einsum
+tanh = cupy.tanh
+power = cupy.power
+prod = cupy.prod
 
 
 def diagonal_view(array, axis1=0, axis2=1):

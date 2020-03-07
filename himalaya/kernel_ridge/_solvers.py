@@ -342,8 +342,87 @@ def solve_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1., max_iter=10,
     return dual_weights
 
 
-def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
-                                   negative_eigenvalues="nan"):
+def solve_shared_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
+                                                 initial_dual_weights=None,
+                                                 max_iter=100, tol=1e-3):
+    """Solve kernel ridge regression using conjugate gradient.
+
+    Parameters
+    ----------
+    K : array of shape (n_samples, n_samples)
+        Input kernel.
+    Y : array of shape (n_samples, n_targets)
+        Target data.
+    alpha : float, or array of shape (n_targets, )
+        Regularization parameter.
+    initial_dual_weights : array of shape (n_samples, n_targets)
+        Initial kernel ridge coefficients.
+    max_iter : int
+        Maximum number of conjugate gradient step.
+    tol : float > 0 or None
+        Tolerance for the stopping criterion.
+
+    Returns
+    -------
+    dual_weights : array of shape (n_samples, n_targets)
+        Kernel ridge coefficients.
+    """
+    backend = get_backend()
+    deltas = backend.zeros_like(K, shape=(1, ))
+    return solve_kernel_ridge_conjugate_gradient(
+        K[None], Y=Y, deltas=deltas, alpha=alpha,
+        initial_dual_weights=initial_dual_weights, max_iter=max_iter, tol=tol)
+
+
+def solve_shared_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
+                                               lipschitz_Ks=None,
+                                               initial_dual_weights=None,
+                                               max_iter=100, tol=1e-3,
+                                               double_K=False, debug=False):
+    """Solve kernel ridge regression using conjugate gradient.
+
+    Parameters
+    ----------
+    K : array of shape (n_samples, n_samples)
+        Input kernel.
+    Y : array of shape (n_samples, n_targets)
+        Target data.
+    alpha : float, or array of shape (n_targets, )
+        Regularization parameter.
+    step_sizes : float, or array of shape (n_targets), or None
+        Step sizes.
+        If None, computes a step size based on the Lipschitz constants.
+    lipschitz_Ks : float, or array of shape (n_kernels), or None:
+        Lipschitz constant.
+        Used only if `step_sizes` is None.
+        If None, Lipschitz constants are estimated with power iteration on Ks.
+    initial_dual_weights : array of shape (n_samples, n_targets)
+        Initial kernel ridge coefficients.
+    max_iter : int
+        Maximum number of gradient step.
+    tol : float > 0 or None
+        Tolerance for the stopping criterion.
+    double_K : bool
+        If True, multiply the gradient by the kernel to obtain the true
+        gradients, which are less well conditionned.
+    debug : bool
+        If True, check some intermediate computations.
+
+    Returns
+    -------
+    dual_weights : array of shape (n_samples, n_targets)
+        Kernel ridge coefficients.
+    """
+    backend = get_backend()
+    deltas = backend.zeros_like(K, shape=(1, ))
+    return solve_kernel_ridge_gradient_descent(
+        K[None], Y=Y, deltas=deltas, alpha=alpha, step_sizes=step_sizes,
+        lipschitz_Ks=lipschitz_Ks, initial_dual_weights=initial_dual_weights,
+        max_iter=max_iter, tol=tol, double_K=double_K, debug=debug)
+
+
+def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
+                                          negative_eigenvalues="nan"):
     """Solve kernel ridge regression using eigenvalues decomposition.
 
     Parameters
@@ -374,10 +453,10 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     if K.ndim == 3:
         raise ValueError(
             "Cannot use multiple kernels and kernel weights in "
-            "solve_kernel_ridge_eigenvalues. If you want to use the same "
-            "kernel weights for all targets, you can precompute the weighted "
-            "sum. If you want to use different kernel weights per target, "
-            "consider using solve_kernel_ridge_conjugate_gradient.")
+            "solve_shared_kernel_ridge_eigenvalues. If you want to use the "
+            "same kernel weights for all targets, you can precompute the "
+            "weighted sum. If you want to use different kernel weights per "
+            "target, consider using solve_kernel_ridge_conjugate_gradient.")
 
     if method == "eigh":
         # diagonalization: K = V @ np.diag(eigenvalues) @ V.T

@@ -9,8 +9,8 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 from himalaya.backend import set_backend
-from himalaya.ridge import solve_multiple_kernel_ridge_random_search
-from himalaya.ridge import predict_and_score_kernel_ridge
+from himalaya.kernel_ridge import solve_multiple_kernel_ridge_random_search
+from himalaya.kernel_ridge import predict_and_score_kernel_ridge
 from himalaya.scoring import l2_neg_loss
 from himalaya.scoring import r2_score_split
 from himalaya.viz import plot_alphas_diagnostic

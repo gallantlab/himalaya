@@ -79,6 +79,10 @@ flatnonzero = np.flatnonzero
 isin = np.isin
 searchsorted = np.searchsorted
 unique = np.unique
+einsum = np.einsum
+tanh = np.tanh
+power = np.power
+prod = np.prod
 
 
 def diagonal_view(array, axis1=0, axis2=1):

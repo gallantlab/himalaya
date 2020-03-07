@@ -90,6 +90,10 @@ log = torch.log
 exp = torch.exp
 arange = torch.arange
 unique = torch.unique
+einsum = torch.einsum
+tanh = torch.tanh
+power = torch.pow
+prod = torch.prod
 
 
 def diagonal_view(array, axis1=0, axis2=1):
