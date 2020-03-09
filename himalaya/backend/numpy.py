@@ -105,7 +105,7 @@ def to_numpy(array):
     return array
 
 
-def zeros_like(array, shape=None, dtype=None):
+def zeros_like(array, shape=None, dtype=None, device=None):
     """Add a shape parameter in zeros_like."""
     if shape is None:
         shape = array.shape
@@ -114,7 +114,7 @@ def zeros_like(array, shape=None, dtype=None):
     return np.zeros(shape, dtype=dtype)
 
 
-def ones_like(array, shape=None, dtype=None):
+def ones_like(array, shape=None, dtype=None, device=None):
     """Add a shape parameter in ones_like."""
     if shape is None:
         shape = array.shape
@@ -123,13 +123,17 @@ def ones_like(array, shape=None, dtype=None):
     return np.ones(shape, dtype=dtype)
 
 
-def full_like(array, fill_value, shape=None, dtype=None):
+def full_like(array, fill_value, shape=None, dtype=None, device=None):
     """Add a shape parameter in full_like."""
     if shape is None:
         shape = array.shape
     if dtype is None:
         dtype = array.dtype
     return np.full(shape, fill_value, dtype=dtype)
+
+
+def cpu(array):
+    return array
 
 
 def asarray_like(x, ref):

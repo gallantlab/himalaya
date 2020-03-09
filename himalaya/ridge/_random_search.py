@@ -64,7 +64,7 @@ def solve_multiple_kernel_ridge_random_search(
         Best log kernel weights for each target.
     refit_weights : array or None
         Refit regression weights on the entire dataset, using selected best
-        hyperparameters.
+        hyperparameters. Refit weights will always be on CPU memory.
         If compute_weights == 'primal', shape is (n_features, n_targets),
         if compute_weights == 'dual', shape is (n_samples, n_targets),
         else, None.
@@ -111,14 +111,17 @@ def solve_multiple_kernel_ridge_random_search(
     current_best_scores = backend.full_like(Ks, fill_value=-backend.inf,
                                             shape=n_targets)
 
+    # initialize refit ridge weights
     if return_weights == 'primal':
         if Xs is None:
             raise ValueError("Xs is needed to compute the primal weights.")
         n_features = sum(X.shape[1] for X in Xs)
-        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets))
+        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets),
+                                           device="cpu")
 
     elif return_weights == 'dual':
-        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets))
+        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets),
+                                           device="cpu")
     elif return_weights is None:
         refit_weights = None
     else:
@@ -239,11 +242,11 @@ def solve_multiple_kernel_ridge_random_search(
                     X = backend.concatenate([t * g for t, g in zip(Xs, gamma)],
                                             1)
                     primal_weights = backend.matmul(X.T, dual_weights)
-                    refit_weights[:, mask] = primal_weights
+                    refit_weights[:, mask] = backend.cpu(primal_weights)
 
                     del X, primal_weights
                 elif return_weights == 'dual':
-                    refit_weights[:, mask] = dual_weights
+                    refit_weights[:, mask] = backend.cpu(dual_weights)
 
                 del dual_weights
 
@@ -251,7 +254,7 @@ def solve_multiple_kernel_ridge_random_search(
 
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
-        refit_weights = refit_weights * best_alphas
+        refit_weights = refit_weights * backend.cpu(best_alphas)
 
     return deltas, refit_weights, all_scores_mean
 

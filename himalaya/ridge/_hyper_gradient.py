@@ -33,7 +33,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Function used to compute the score of predictions.
     cv_splitter : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
-    return_weights : None, or 'dual'
+    return_weights : None, 'primal', or 'dual'
         Whether to refit on the entire dataset and return the weights.
     Xs : array of shape (n_kernels, n_samples, n_features) or None
         Necessary if return_weights == 'primal'.
@@ -68,9 +68,12 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     -------
     deltas : array of shape (n_kernels, n_targets)
         Best log kernel weights for each target.
-    refit_weights : array of shape (n_samples, n_targets)
+    refit_weights : array or None
         Refit regression weights on the entire dataset, using selected best
-        hyperparameters.
+        hyperparameters. Refit weights will always be on CPU memory.
+        If compute_weights == 'primal', shape is (n_features, n_targets),
+        if compute_weights == 'dual', shape is (n_samples, n_targets),
+        else, None.
     all_scores_mean : array of shape (max_iter * max_iter_inner_hyper,
             n_targets)
         Cross-validation scores per iteration, averaged over splits.
@@ -93,10 +96,12 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         if Xs is None:
             raise ValueError("Xs is needed to compute the primal weights.")
         n_features = sum(X.shape[1] for X in Xs)
-        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets))
+        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets),
+                                           device="cpu")
 
     elif return_weights == 'dual':
-        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets))
+        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets),
+                                           device="cpu")
     elif return_weights is None:
         refit_weights = None
     else:
@@ -219,12 +224,12 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                         t * g for t, g in zip(
                             Xs, backend.exp(deltas[:, batch][:, tt]))
                     ], 1)
-                    refit_weights[:, batch][:, tt] = backend.matmul(
-                        X.T, dual_weights[:, tt])
+                    refit_weights[:, batch][:, tt] = backend.cpu(
+                        backend.matmul(X.T, dual_weights[:, tt]))
                 del X
 
             elif return_weights == 'dual':
-                refit_weights[:, batch] = dual_weights
+                refit_weights[:, batch] = backend.cpu(dual_weights)
 
             del dual_weights
 

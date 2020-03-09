@@ -98,6 +98,10 @@ def to_numpy(array):
         return array
 
 
+def cpu(array):
+    return array.cpu()
+
+
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())
@@ -162,7 +166,7 @@ def min(*args, **kwargs):
         return res.values
 
 
-def zeros_like(array, shape=None, dtype=None):
+def zeros_like(array, shape=None, dtype=None, device=None):
     """Add a shape parameter in zeros_like."""
     if shape is None:
         shape = array.shape
@@ -170,11 +174,12 @@ def zeros_like(array, shape=None, dtype=None):
         shape = (shape, )
     if dtype is None:
         dtype = array.dtype
-    return torch.zeros(shape, dtype=dtype, device=array.device,
-                       layout=array.layout)
+    if device is None:
+        device = array.device
+    return torch.zeros(shape, dtype=dtype, device=device, layout=array.layout)
 
 
-def ones_like(array, shape=None, dtype=None):
+def ones_like(array, shape=None, dtype=None, device=None):
     """Add a shape parameter in ones_like."""
     if shape is None:
         shape = array.shape
@@ -182,11 +187,12 @@ def ones_like(array, shape=None, dtype=None):
         shape = (shape, )
     if dtype is None:
         dtype = array.dtype
-    return torch.ones(shape, dtype=dtype, device=array.device,
-                      layout=array.layout)
+    if device is None:
+        device = array.device
+    return torch.ones(shape, dtype=dtype, device=device, layout=array.layout)
 
 
-def full_like(array, fill_value, shape=None, dtype=None):
+def full_like(array, fill_value, shape=None, dtype=None, device=None):
     """Add a shape parameter in full_like."""
     if shape is None:
         shape = array.shape
@@ -194,7 +200,9 @@ def full_like(array, fill_value, shape=None, dtype=None):
         shape = (shape, )
     if dtype is None:
         dtype = array.dtype
-    return torch.full(shape, fill_value, dtype=dtype, device=array.device,
+    if device is None:
+        device = array.device
+    return torch.full(shape, fill_value, dtype=dtype, device=device,
                       layout=array.layout)
 
 
