@@ -59,7 +59,6 @@ randn = torch.randn
 rand = torch.rand
 matmul = torch.matmul
 stack = torch.stack
-zeros = torch.zeros
 abs = torch.abs
 sum = torch.sum
 sqrt = torch.sqrt
@@ -70,7 +69,6 @@ inf = torch.tensor(float('inf'))
 isnan = torch.isnan
 isinf = torch.isinf
 logspace = torch.logspace
-eye = torch.eye
 concatenate = torch.cat
 bool = torch.bool
 int32 = torch.int32
@@ -78,11 +76,9 @@ float32 = torch.float32
 float64 = torch.float64
 eigh = partial(torch.symeig, eigenvectors=True)
 svd = torch.svd
-log10 = torch.log10
 log = torch.log
 exp = torch.exp
 arange = torch.arange
-sqrt = torch.sqrt
 unique = torch.unique
 
 

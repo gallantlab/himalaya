@@ -175,7 +175,7 @@ def solve_multiple_kernel_ridge_random_search(
         # average scores over splits
         scores_mean = backend.mean_float64(scores, axis=0)
         # add epsilon slope to select larger alphas if scores are equal
-        scores_mean += (backend.log10(alphas) * 1e-10)[:, None]
+        scores_mean += (backend.log(alphas) * 1e-10)[:, None]
 
         # compute the max over alphas
         axis = 0

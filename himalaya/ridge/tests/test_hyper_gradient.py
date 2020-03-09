@@ -251,7 +251,7 @@ def test_solve_multiple_kernel_ridge_return_weights(backend, method,
             Ks_64 = backend.asarray(Ks, dtype=backend.float64)
             gamma_64 = backend.asarray(gamma, dtype=backend.float64)
             K = backend.matmul(Ks_64.T, gamma_64).T
-            reg = backend.asarray_like(backend.eye(K.shape[0]) * alpha, K)
+            reg = backend.asarray_like(np.eye(K.shape[0]), K) * alpha
             Y_64 = backend.asarray(Y, dtype=backend.float64)
             c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
                                     backend.to_numpy(Y_64[:, tt]))

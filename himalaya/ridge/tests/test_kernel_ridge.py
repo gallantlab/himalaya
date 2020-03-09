@@ -1,5 +1,6 @@
 import pytest
 
+import numpy as np
 import sklearn.linear_model
 import scipy.linalg
 
@@ -43,7 +44,8 @@ def test_kernel_ridge_gradient(backend, double_K):
 
     n_targets = Y.shape[1]
     grad = backend.zeros_like(dual_weights, dtype=backend.float64)
-    func = backend.zeros(n_targets, dtype=backend.float64)
+    func = backend.zeros_like(dual_weights, dtype=backend.float64,
+                              shape=(n_targets))
     for tt in range(n_targets):
         K = backend.sum(
             backend.stack([K * g for K, g in zip(Ks, exp_deltas[:, tt])]), 0)
@@ -95,7 +97,7 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
         for ii in range(n_targets):
             # compare dual coefficients with scipy.linalg.solve
             K = backend.matmul(Ks.T, exp_deltas[:, ii]).T
-            reg = backend.asarray_like(backend.eye(K.shape[0]) * alpha, K)
+            reg = backend.asarray_like(np.eye(K.shape[0]), K) * alpha
             c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
                                     backend.to_numpy(Y[:, ii]))
             assert_array_almost_equal(c1, c2[:, ii], decimal=decimal)
@@ -149,7 +151,7 @@ def test_solve_ridge_kernel_one_gamma(solver_name, backend):
         n_targets = Y.shape[1]
         for ii in range(n_targets):
             # compare dual coefficients with scipy.linalg.solve
-            reg = backend.asarray_like(backend.eye(K.shape[0]) * alpha, K)
+            reg = backend.asarray_like(np.eye(K.shape[0]), K) * alpha
             c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
                                     backend.to_numpy(Y[:, ii]))
             assert_array_almost_equal(c1, c2[:, ii], decimal=3)
