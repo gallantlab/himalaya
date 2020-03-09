@@ -8,7 +8,7 @@ It uses random search and cross validation to select optimal hyperparameters.
 import numpy as np
 import matplotlib.pyplot as plt
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.ridge import solve_multiple_kernel_ridge_random_search
 from himalaya.ridge import predict_and_score
 from himalaya.scoring import l2_neg_loss
@@ -20,7 +20,7 @@ print(__doc__)
 ###############################################################################
 # In this example, we use the torch backend, and fit the model on GPU.
 
-backend = change_backend("torch")
+backend = set_backend("torch")
 
 ###############################################################################
 # Generate a random dataset.

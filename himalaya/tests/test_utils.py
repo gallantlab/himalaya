@@ -1,6 +1,6 @@
 import pytest
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 
 from himalaya.utils import compute_lipschitz_constants
@@ -9,7 +9,7 @@ from himalaya.utils import compute_lipschitz_constants
 @pytest.mark.parametrize('kernelize', ["XXT", "XTX", "X"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_compute_lipschitz_constants(backend, kernelize):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Xs = backend.randn(3, 5, 6)
     if kernelize == "X":
@@ -23,7 +23,7 @@ def test_compute_lipschitz_constants(backend, kernelize):
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_compute_lipschitz_constants_error(backend):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Xs = backend.randn(3, 5, 6)
     with pytest.raises(ValueError):

@@ -2,7 +2,7 @@ import pytest
 from sklearn.metrics import r2_score as r2_score_sklearn
 from sklearn.metrics import mean_squared_error
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
@@ -25,7 +25,7 @@ def _create_data(backend, dtype_str):
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_r2_score(backend, dtype_str):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
 
     # multi predictions
@@ -50,7 +50,7 @@ def test_r2_score(backend, dtype_str):
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_r2_score_split(backend, dtype_str):
     # r2_score_split(include_correlation=False) is equivalent to r2_score
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
 
     # multi predictions
@@ -76,7 +76,7 @@ def test_r2_score_split(backend, dtype_str):
 def test_r2_score_split_include_correlation(backend, dtype_str):
     # r2_score_split(include_correlation=True) gives results that sum to the
     # r2 score of the sum.
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
 
     s_1 = r2_score_split(y_true, y_pred.sum(0), True)
@@ -87,7 +87,7 @@ def test_r2_score_split_include_correlation(backend, dtype_str):
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_l2_neg_loss(backend, dtype_str):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
 
     # multi predictions
@@ -124,7 +124,7 @@ def _correlation(backend, y_true, y_pred, dtype):
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_correlation_score(backend, dtype_str):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
 
     # multi predictions
@@ -148,7 +148,7 @@ def test_correlation_score(backend, dtype_str):
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_infinite_and_nans(backend, dtype_str, scoring):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     y_pred, y_true = _create_data(backend, dtype_str)
 
     # nan as zero

@@ -5,7 +5,7 @@ import sklearn.linear_model
 import sklearn.model_selection
 import scipy.linalg
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 from himalaya.scoring import r2_score
@@ -66,7 +66,7 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
                                                     n_targets_batch=None,
                                                     n_alphas_batch=None,
                                                     return_weights="dual"):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Ks, Y, gammas, Xs = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-3, 5, 9), Ks)

@@ -16,8 +16,8 @@ The available backends are Numpy, and PyTorch.
 To change the backend (e.g. to PyTorch), simply call:
 
 ```python
-from himalaya.backend import change_backend
-change_backend("torch")
+from himalaya.backend import set_backend
+set_backend("torch")
 ```
 
 and give `torch.Tensor` inputs to Himalaya solvers.
@@ -28,8 +28,8 @@ To run Himalaya on a graphics processing unit (GPU), you can use the PyTorch
 backend, and move your data to GPU memory with the `.cuda()` method.
 
 ```python
-from himalaya.backend import change_backend
-change_backend("torch")
+from himalaya.backend import set_backend
+set_backend("torch")
 
 ...  # (load data as a torch.Tensor)
 data = data.cuda()  # then move the data to GPU

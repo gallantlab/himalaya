@@ -1,13 +1,13 @@
 import pytest
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_apply_argmax(backend):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     for array in [
             backend.randn(1),
             backend.randn(10),
@@ -27,7 +27,7 @@ def test_apply_argmax(backend):
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_std_float64(backend, dtype_str):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     for array in [
             backend.randn(1),
             backend.randn(10),
@@ -48,7 +48,7 @@ def test_std_float64(backend, dtype_str):
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_diagonal_view(backend):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     import torch
     import numpy as np
 

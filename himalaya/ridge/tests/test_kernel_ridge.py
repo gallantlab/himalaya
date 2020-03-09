@@ -3,7 +3,7 @@ import pytest
 import sklearn.linear_model
 import scipy.linalg
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 from himalaya.ridge import solve_kernel_ridge_gradient_descent
@@ -35,7 +35,7 @@ def _create_dataset(backend):
 @pytest.mark.parametrize("double_K", [False, True])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_gradient(backend, double_K):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     _, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     exp_deltas = backend.exp(deltas)
@@ -73,7 +73,7 @@ def test_kernel_ridge_gradient(backend, double_K):
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     if solver_name == "gradient_descent":
         solver = solve_kernel_ridge_gradient_descent
@@ -123,7 +123,7 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_ridge_kernel_one_gamma(solver_name, backend):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)

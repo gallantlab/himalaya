@@ -7,7 +7,7 @@ ALL_BACKENDS = [
 CURRENT_BACKEND = "numpy"
 
 
-def change_backend(backend):
+def set_backend(backend):
     global CURRENT_BACKEND
     CURRENT_BACKEND = backend
     return get_current_backend()

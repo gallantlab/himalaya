@@ -5,7 +5,7 @@ import sklearn.linear_model
 import sklearn.model_selection
 import scipy.linalg
 
-from himalaya.backend import change_backend
+from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 
 from himalaya.ridge._hyper_gradient import _compute_delta_gradient
@@ -61,7 +61,7 @@ def _create_dataset(backend):
 @pytest.mark.parametrize('n_targets_batch', [None, 3])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_delta_gradient_direct(backend, n_targets_batch):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Ks, Y, dual_weights, gammas, Ks_val, Y_val, _ = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-1, 1, Y.shape[1]), Ks)
@@ -90,7 +90,7 @@ def test_delta_gradient_direct(backend, n_targets_batch):
 @pytest.mark.parametrize('n_targets_batch', [None, 3])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_delta_gradient_indirect(backend, n_targets_batch):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Ks, Y, _, gammas, Ks_val, Y_val, _ = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-1, 1, Y.shape[1]), Ks)
@@ -167,7 +167,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
                                                      method="direct",
                                                      initial_deltas=0,
                                                      kernel_ridge="conjugate"):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
     Ks, Y, dual_weights, gammas, Ks_val, Y_val, Xs = _create_dataset(backend)
     cv = 3
     progress_bar = False
@@ -201,7 +201,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
 def test_solve_multiple_kernel_ridge_return_weights(backend, method,
                                                     return_weights,
                                                     n_targets_batch):
-    backend = change_backend(backend)
+    backend = set_backend(backend)
 
     Ks, Y, _, _, Ks_val, Y_val, Xs = _create_dataset(backend)
     n_targets = Y.shape[1]
