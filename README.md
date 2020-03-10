@@ -45,6 +45,9 @@ Himalaya requires:
 * Numpy
 * Scikit-learn
 * PyTorch (optional backend)
+* Scipy (optional, use `scipy.linalg` instead of `numpy.linalg` if available)
+* Matplotlib (optional, for visualization only)
+* Pytest (optional, for testing only)
 
 <!--
 ### Standard installation
