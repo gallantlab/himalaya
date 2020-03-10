@@ -125,7 +125,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     all_scores_mean = backend.zeros_like(
         Y, shape=(max_iter * max_iter_inner_hyper, n_targets))
 
-    batch_iterates = backend.arange(0, n_targets, n_targets_batch)
+    batch_iterates = range(0, n_targets, n_targets_batch)
     if progress_bar:
         bar = ProgressBar(title=name, max_value=len(batch_iterates) * max_iter)
     for bb, start in enumerate(batch_iterates):

@@ -12,7 +12,7 @@ Use Himalaya if you need a library that:
 ## Himalaya backends
 
 Himalaya can be used seamlessly with different backends.
-The available backends are Numpy, and PyTorch.
+The available backends are Numpy, Cupy, and PyTorch.
 To change the backend (e.g. to PyTorch), simply call:
 
 ```python
@@ -45,6 +45,7 @@ Himalaya requires:
 * Numpy
 * Scikit-learn
 * PyTorch (optional backend)
+* Cupy (optional backend)
 * Scipy (optional, use `scipy.linalg` instead of `numpy.linalg` if available)
 * Matplotlib (optional, for visualization only)
 * Pytest (optional, for testing only)

@@ -4,6 +4,7 @@ requirements = [
     "numpy",
     "scikit-learn",
     # "scipy", # optional
+    # "cupy",  # optional
     # "torch",  # optional
     # "matplotlib",  # for visualization only
     # "pytest",  # for testing only

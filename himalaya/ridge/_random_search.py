@@ -191,7 +191,7 @@ def solve_multiple_kernel_ridge_random_search(
 
         # update best_gammas and best_alphas
         mask = all_scores_mean[ii, :] > current_best_scores
-        current_best_scores[mask] = all_scores_mean[ii, mask]
+        current_best_scores[mask] = all_scores_mean[ii][mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]
 
@@ -242,11 +242,13 @@ def solve_multiple_kernel_ridge_random_search(
                     X = backend.concatenate([t * g for t, g in zip(Xs, gamma)],
                                             1)
                     primal_weights = backend.matmul(X.T, dual_weights)
-                    refit_weights[:, mask] = backend.cpu(primal_weights)
+                    refit_weights[:, backend.cpu(mask)] = backend.cpu(
+                        primal_weights)
 
                     del X, primal_weights
                 elif return_weights == 'dual':
-                    refit_weights[:, mask] = backend.cpu(dual_weights)
+                    refit_weights[:, backend.cpu(mask)] = backend.cpu(
+                        dual_weights)
 
                 del dual_weights
 

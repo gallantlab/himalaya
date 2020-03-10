@@ -1,4 +1,5 @@
 ALL_BACKENDS = [
+    "cupy",
     "numpy",
     "torch",
     "torch_cuda",
@@ -16,6 +17,8 @@ def set_backend(backend):
 def get_current_backend():
     if CURRENT_BACKEND == "numpy":
         from . import numpy as backend
+    elif CURRENT_BACKEND == "cupy":
+        from . import cupy as backend
     elif CURRENT_BACKEND == "torch":
         from . import torch as backend
     elif CURRENT_BACKEND == "torch_cuda":
