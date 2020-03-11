@@ -1,5 +1,4 @@
 """Used for testing on GPU."""
-import torch
 from .torch import *  # noqa
 
 

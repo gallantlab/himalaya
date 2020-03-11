@@ -1,4 +1,9 @@
-import cupy
+try:
+    import cupy
+except ImportError as error:
+    import pytest
+    pytest.skip("Cupy not installed.")
+    raise ImportError('Cupy not installed.') from error
 
 
 def apply_argmax(array, argmax, axis):

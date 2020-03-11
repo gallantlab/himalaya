@@ -49,7 +49,10 @@ def test_std_float64(backend, dtype_str):
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_diagonal_view(backend):
     backend = set_backend(backend)
-    import torch
+    try:
+        import torch
+    except ImportError as error:
+        pytest.skip("PyTorch not installed.")
     import numpy as np
 
     for array in [
