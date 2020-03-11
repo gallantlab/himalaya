@@ -3,9 +3,14 @@ from functools import partial
 try:
     import torch
 except ImportError as error:
-    import pytest
-    pytest.skip("PyTorch not installed.")
-    raise ImportError('PyTorch not installed.') from error
+    try:
+        import pytest
+        pytest.skip("PyTorch not installed.")
+    except ImportError:
+        pass
+    raise ImportError("PyTorch not installed.") from error
+
+###############################################################################
 
 
 def apply_argmax(array, argmax, axis):

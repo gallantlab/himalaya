@@ -4,6 +4,8 @@ try:
 except ImportError:
     import np.linalg as linalg
 
+###############################################################################
+
 
 def apply_argmax(array, argmax, axis):
     """Apply precomputed argmax indices in multi dimension arrays
