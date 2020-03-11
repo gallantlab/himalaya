@@ -3,7 +3,7 @@ import time
 
 
 def bar(iterable, title='', use_it=True):
-    """simple API for progress_bar
+    """simple API for progress_bar.
 
     Example
     -------
@@ -19,7 +19,7 @@ def bar(iterable, title='', use_it=True):
 
 
 class ProgressBar():
-    """Class for generating a command-line progressbar
+    """Class for generating a command-line progressbar.
 
     Parameters
     ----------
@@ -69,7 +69,7 @@ class ProgressBar():
         self.update(initial_value)
 
     def update(self, cur_value, title=None):
-        """Update progressbar with current value of process
+        """Update progressbar with current value of process.
 
         Parameters
         ----------
@@ -118,7 +118,7 @@ class ProgressBar():
 
     def update_with_increment_value(self, increment_value, title=None):
         """Update progressbar with the value of the increment instead of the
-        current value of process as in update()
+        current value of process as in update().
 
         Parameters
         ----------

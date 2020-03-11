@@ -7,9 +7,9 @@ from ..progress_bar import ProgressBar
 from ..utils import compute_lipschitz_constants
 from ..scoring import l2_neg_loss
 
-from ._kernel_ridge import solve_kernel_ridge_conjugate_gradient
-from ._kernel_ridge import solve_kernel_ridge_gradient_descent
-from ._kernel_ridge import solve_kernel_ridge_neumann_series
+from ._kernel_solvers import solve_kernel_ridge_conjugate_gradient
+from ._kernel_solvers import solve_kernel_ridge_gradient_descent
+from ._kernel_solvers import solve_kernel_ridge_neumann_series
 from ._random_search import solve_multiple_kernel_ridge_random_search
 
 
@@ -241,7 +241,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
 def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv_splitter,
                                 n_targets_batch):
-    """Initialize deltas (log kernel weights) and dual_weights.
+    """Initialize deltas, i.e. log kernel weights.
 
     Parameters
     ----------

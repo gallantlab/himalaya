@@ -263,7 +263,7 @@ def solve_multiple_kernel_ridge_random_search(
 
 def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
                                random_state=None):
-    """Generate samples from a Dirichlet distribution
+    """Generate samples from a Dirichlet distribution.
 
     Parameters
     ----------
@@ -324,7 +324,7 @@ def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
 
 def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
                             method="eigh", negative_eigenvalues="nan"):
-    """Precompute resolution matrices for kernel ridge predictions
+    """Precompute resolution matrices for kernel ridge predictions.
 
     To compute the prediction:
         Ytest_hat = Ktest @ (Ktrain + alphas * Id)^-1 @ Ytrain

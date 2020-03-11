@@ -6,7 +6,7 @@ from ..utils import compute_lipschitz_constants
 
 def _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
                            double_K=False, return_objective=False):
-    """Compute gradient of dual weights over a multi-kernel ridge regression
+    """Compute gradient of dual weights over a multi-kernel ridge regression.
 
     Parameters
     ----------

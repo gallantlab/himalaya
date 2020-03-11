@@ -7,17 +7,16 @@ import scipy.linalg
 
 from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
+from himalaya.scoring import r2_score
+from himalaya.utils import assert_array_almost_equal
 
 from himalaya.ridge._hyper_gradient import _compute_delta_gradient
 from himalaya.ridge._hyper_gradient import _compute_delta_loss
 from himalaya.ridge import solve_multiple_kernel_ridge_hyper_gradient
 from himalaya.ridge import solve_multiple_kernel_ridge_random_search
 from himalaya.ridge import solve_kernel_ridge_conjugate_gradient
-
 from himalaya.ridge import generate_dirichlet_samples
-from himalaya.ridge._utils import predict_and_score
-from himalaya.scoring import r2_score
-from himalaya.utils import assert_array_almost_equal
+from himalaya.ridge import predict_and_score_kernel_ridge
 
 
 def _create_dataset(backend):
@@ -111,8 +110,9 @@ def test_delta_gradient_indirect(backend, n_targets_batch):
         dual_weights = solve_kernel_ridge_conjugate_gradient(
             Ks, Y, deltas=deltas, initial_dual_weights=None, alpha=1,
             max_iter=1000, tol=1e-5)
-        loss = predict_and_score(Ks_val, dual_weights, deltas, Y_val,
-                                 score_func=score_func)
+        loss = predict_and_score_kernel_ridge(Ks_val, dual_weights,
+                                              deltas, Y_val,
+                                              score_func=score_func)
         return loss, dual_weights
 
     loss, dual_weights = compute_loss(deltas)

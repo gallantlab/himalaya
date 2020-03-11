@@ -6,7 +6,7 @@ from .backend import get_current_backend
 
 
 def compute_lipschitz_constants(Xs, kernelize="XTX"):
-    """Compute Lipschitz constants of gradients of linear regression problems
+    """Compute Lipschitz constants of gradients of linear regression problems.
 
     Find the largest eigenvalue of X^TX for several X, using power iteration.
 

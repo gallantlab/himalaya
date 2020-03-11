@@ -7,12 +7,12 @@ import scipy.linalg
 from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
+
 from himalaya.ridge import solve_kernel_ridge_gradient_descent
 from himalaya.ridge import solve_kernel_ridge_conjugate_gradient
 from himalaya.ridge import solve_kernel_ridge_neumann_series
 from himalaya.ridge import solve_kernel_ridge_eigenvalues
-
-from himalaya.ridge._kernel_ridge import _kernel_ridge_gradient
+from himalaya.ridge._kernel_solvers import _kernel_ridge_gradient
 
 
 def _create_dataset(backend):

@@ -10,7 +10,7 @@ import matplotlib.pyplot as plt
 
 from himalaya.backend import set_backend
 from himalaya.ridge import solve_multiple_kernel_ridge_random_search
-from himalaya.ridge import predict_and_score
+from himalaya.ridge import predict_and_score_kernel_ridge
 from himalaya.scoring import l2_neg_loss
 from himalaya.scoring import r2_score_split
 from himalaya.viz import plot_alphas_diagnostic
@@ -157,9 +157,10 @@ plt.show()
 # The generalization scores are close to zero since the dataset is only noise.
 
 split = False
-scores = predict_and_score(Ks_test, dual_weights, deltas, Y_test, split=split,
-                           n_targets_batch=n_targets_batch,
-                           score_func=r2_score_split)
+scores = predict_and_score_kernel_ridge(Ks_test, dual_weights, deltas, Y_test,
+                                        split=split,
+                                        n_targets_batch=n_targets_batch,
+                                        score_func=r2_score_split)
 scores = backend.to_numpy(scores)
 
 plt.hist(scores, 50)
@@ -174,9 +175,10 @@ plt.show()
 # (corrected for correlations) of each prediction.
 
 split = True
-scores = predict_and_score(Ks_test, dual_weights, deltas, Y_test, split=split,
-                           n_targets_batch=n_targets_batch,
-                           score_func=r2_score_split)
+scores = predict_and_score_kernel_ridge(Ks_test, dual_weights, deltas, Y_test,
+                                        split=split,
+                                        n_targets_batch=n_targets_batch,
+                                        score_func=r2_score_split)
 scores = backend.to_numpy(scores)
 
 bins = np.linspace(scores.min(), scores.max(), 50)
