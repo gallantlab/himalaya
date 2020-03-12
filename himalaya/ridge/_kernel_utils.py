@@ -1,4 +1,4 @@
-from ..backend import get_current_backend
+from ..backend import get_backend
 
 
 def predict_kernel_ridge(Ks, dual_weights, deltas, split=False):
@@ -22,7 +22,7 @@ def predict_kernel_ridge(Ks, dual_weights, deltas, split=False):
             (n_kernels, n_samples_test, n_targets) (if split is True)
         Predicted values.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     Ks, dual_weights, deltas = backend.check_arrays(Ks, dual_weights, deltas)
     chi = backend.matmul(Ks, dual_weights)
@@ -61,7 +61,7 @@ def predict_and_score_kernel_ridge(Ks, dual_weights, deltas, Y, score_func,
     scores : array of shape (n_targets, ) or (n_kernels, n_targets) (if split)
         Prediction score per target.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     Ks, dual_weights, deltas, Y = backend.check_arrays(Ks, dual_weights,
                                                        deltas, Y)
 

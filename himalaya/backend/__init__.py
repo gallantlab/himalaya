@@ -1,3 +1,6 @@
+import types
+import importlib
+
 ALL_BACKENDS = [
     "cupy",
     "numpy",
@@ -9,18 +12,38 @@ CURRENT_BACKEND = "numpy"
 
 
 def set_backend(backend):
+    """Set the backend using a global variable, and return the backend module.
+
+    Parameters
+    ----------
+    backend : str or module
+        Name or module of the backend.
+
+    Returns
+    -------
+    module : python module
+        Module of the backend.
+    """
     global CURRENT_BACKEND
+
+    if isinstance(backend, types.ModuleType):  # get backend name from module
+        backend = backend.__name__.split('.')[-1]
+
+    if backend not in ALL_BACKENDS:
+        raise ValueError("Unknown backend=%r" % (backend, ))
+
+    module = importlib.import_module(__name__ + "." + backend)
     CURRENT_BACKEND = backend
-    return get_current_backend()
+    return module
 
 
-def get_current_backend():
-    if CURRENT_BACKEND == "numpy":
-        from . import numpy as backend
-    elif CURRENT_BACKEND == "cupy":
-        from . import cupy as backend
-    elif CURRENT_BACKEND == "torch":
-        from . import torch as backend
-    elif CURRENT_BACKEND == "torch_cuda":
-        from . import torch_cuda as backend
-    return backend
+def get_backend():
+    """Get the current backend module.
+
+    Returns
+    -------
+    module : python module
+        Module of the backend.
+    """
+    module = importlib.import_module(__name__ + "." + CURRENT_BACKEND)
+    return module

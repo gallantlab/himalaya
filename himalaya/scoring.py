@@ -1,6 +1,6 @@
 import warnings
 
-from .backend import get_current_backend
+from .backend import get_backend
 
 
 def l2_neg_loss(y_true, y_pred):
@@ -123,7 +123,7 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     r2 : array (n_kernels, n_targets) or (n_targets, )
         Individual feature space R2 scores.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     y_pred = _check_finite(y_pred)
 
     sst = (y_true ** 2).sum(0)
@@ -155,7 +155,7 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
 
 
 def _check_finite(y_pred):
-    backend = get_current_backend()
+    backend = get_backend()
 
     is_nan = backend.isnan(y_pred)
     if backend.any(is_nan):
@@ -171,7 +171,7 @@ def _check_finite(y_pred):
 
 
 def _zscore(X, axis):
-    backend = get_current_backend()
+    backend = get_backend()
 
     Xz = X - X.mean(axis, keepdims=True)
     std = backend.std_float64(Xz, axis, demean=False, keepdims=True)

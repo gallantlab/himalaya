@@ -1,6 +1,6 @@
 import numbers
 
-from ..backend import get_current_backend
+from ..backend import get_backend
 from ..utils import compute_lipschitz_constants
 
 
@@ -33,7 +33,7 @@ def _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
     objective : array of shape (n_targets, )
         Objective function.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     if exp_deltas.ndim == 1:
         exp_deltas = exp_deltas[:, None]
@@ -104,7 +104,7 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     n_targets = Y.shape[1]
 
     if deltas.ndim == 1:
@@ -197,7 +197,7 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     n_targets = Y.shape[1]
 
     if deltas.ndim == 1:
@@ -309,7 +309,7 @@ def solve_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1., max_iter=10,
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     if deltas.ndim == 1:
         deltas = deltas[:, None]
@@ -368,7 +368,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     K, Y = backend.check_arrays(K, Y)
 
     if K.ndim == 3:

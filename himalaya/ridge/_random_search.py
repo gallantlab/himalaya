@@ -2,7 +2,7 @@ import warnings
 
 from sklearn.model_selection import check_cv
 
-from ..backend import get_current_backend
+from ..backend import get_backend
 from ..progress_bar import bar
 from ..scoring import l2_neg_loss
 from ..utils import check_random_state
@@ -72,7 +72,7 @@ def solve_multiple_kernel_ridge_random_search(
         Cross-validation scores per iteration, averaged over splits, for the
         best alpha.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     if isinstance(n_iter, int):
         gammas = generate_dirichlet_samples(n_samples=n_iter,
                                             n_kernels=len(Ks),
@@ -316,7 +316,7 @@ def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
     gammas = gammas[:n_samples]
 
     # cast to current backend
-    backend = get_current_backend()
+    backend = get_backend()
     gammas = backend.asarray(gammas)
 
     return gammas
@@ -361,7 +361,7 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
     alpha_batch : slice
         Slice of the batch of alphas.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     use_alpha_batch = n_alphas_batch is not None
     if n_alphas_batch is None:

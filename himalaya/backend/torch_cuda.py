@@ -22,3 +22,16 @@ def randn(*args, **kwargs):
 
 def rand(*args, **kwargs):
     return torch.rand(*args, **kwargs).cuda()
+
+
+def asarray(x, dtype=None, device="cuda"):
+    if dtype is None:
+        if isinstance(x, torch.Tensor):
+            dtype = x.dtype
+        if hasattr(x, "dtype") and hasattr(x.dtype, "name"):
+            dtype = x.dtype.name
+    if isinstance(dtype, str):
+        dtype = getattr(torch, dtype)
+    if device is None and isinstance(x, torch.Tensor):
+        device = x.device
+    return torch.as_tensor(x, dtype=dtype, device=device)

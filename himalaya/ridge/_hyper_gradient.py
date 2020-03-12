@@ -2,7 +2,7 @@ import numbers
 
 from sklearn.model_selection import check_cv
 
-from ..backend import get_current_backend
+from ..backend import get_backend
 from ..progress_bar import ProgressBar
 from ..utils import compute_lipschitz_constants
 from ..scoring import l2_neg_loss
@@ -78,7 +78,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
             n_targets)
         Cross-validation scores per iteration, averaged over splits.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     n_samples, n_targets = Y.shape
     if n_targets_batch is None:
@@ -265,7 +265,7 @@ def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv_splitter,
     deltas : array of shape (n_kernels, n_targets)
         Initial deltas.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     n_kernels = Ks.shape[0]
     n_targets = Y.shape[1]
@@ -315,7 +315,7 @@ def _compute_delta_loss(Ks_val, Y_val, deltas, dual_weights):
     loss : array of shape (n_targets)
         L2 validation loss.
     """
-    backend = get_current_backend()
+    backend = get_backend()
     exp_delta = backend.exp(deltas)
     chi_val = backend.matmul(Ks_val, dual_weights)
     exp_delta_chi_val = exp_delta[:, None, :] * chi_val
@@ -363,7 +363,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     solution : array of shape (n_samples_train, n_targets) or None
         Solution of the inverse Hessian in the indirect gradient.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     # prepare quantities
     exp_delta = backend.exp(deltas)
@@ -449,7 +449,7 @@ def _compute_deltas_hessian(exp_delta_chi, Y):
     XTXs : array of shape (n_targets, n_kernels, n_kernels)
         Hessian of the direct gradient.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     XTXs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
                           backend.transpose(exp_delta_chi, (2, 1, 0)))

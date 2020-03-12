@@ -1,8 +1,32 @@
 import pytest
 
 from himalaya.backend import set_backend
+from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_set_backend_correct(backend):
+    # test the change of backend
+    module = set_backend(backend)
+    assert module.__name__.split('.')[-1] == backend
+
+    # test idempotence
+    module = set_backend(set_backend(backend))
+    assert module.__name__.split('.')[-1] == backend
+
+    # test set and get
+    module = set_backend(get_backend())
+    assert module.__name__.split('.')[-1] == backend
+
+    assert set_backend(backend)
+
+
+def test_set_backend_incorrect():
+    for backend in ["wrong", ["numpy"], True, None, 10]:
+        with pytest.raises(ValueError):
+            set_backend(backend)
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -51,7 +75,7 @@ def test_diagonal_view(backend):
     backend = set_backend(backend)
     try:
         import torch
-    except ImportError as error:
+    except ImportError:
         pytest.skip("PyTorch not installed.")
     import numpy as np
 

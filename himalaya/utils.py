@@ -2,7 +2,7 @@ import numbers
 
 import numpy as np
 
-from .backend import get_current_backend
+from .backend import get_backend
 
 
 def compute_lipschitz_constants(Xs, kernelize="XTX"):
@@ -23,7 +23,7 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
     lipschitz : array of shape (n_kernels)
         Lipschitz constants.
     """
-    backend = get_current_backend()
+    backend = get_backend()
 
     if kernelize == "XXT":
         XTs = backend.transpose(Xs, (0, 2, 1))
@@ -47,7 +47,7 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
 
 def assert_array_almost_equal(x, y, decimal=6, err_msg='', verbose=True):
     """Test array equality, casting all arrays to numpy."""
-    backend = get_current_backend()
+    backend = get_backend()
     x = backend.to_numpy(x)
     y = backend.to_numpy(y)
     return np.testing.assert_array_almost_equal(x, y, decimal=decimal,
