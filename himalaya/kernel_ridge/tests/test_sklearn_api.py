@@ -55,6 +55,8 @@ def test_kernel_ridge_vs_scikit_learn(backend, multitarget, kernel):
 
         assert model.dual_coef_.shape == Y.shape
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
+        assert_array_almost_equal(model.predict(X),
+                                  reference.predict(backend.to_numpy(X)))
 
 
 @pytest.mark.parametrize(
@@ -83,6 +85,8 @@ def test_kernel_ridge_vs_scikit_learn_sparse(kernel, format):
 
         assert model.dual_coef_.shape == Y.shape
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
+        assert_array_almost_equal(model.predict(X),
+                                  reference.predict(backend.to_numpy(X)))
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -97,6 +101,8 @@ def test_kernel_ridge_precomputed(backend):
         model_2.fit(Ks[0], Y)
 
         assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
+        assert_array_almost_equal(model_1.predict(Xs[0]),
+                                  model_2.predict(Ks[0]))
 
 
 @pytest.mark.parametrize('solver', ['eigenvalues', 'conjugate', 'gradient'])
@@ -126,6 +132,8 @@ def test_kernel_ridge_solvers(solver, backend):
 
         assert model.dual_coef_.shape == Y.shape
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
+        assert_array_almost_equal(model.predict(X),
+                                  reference.predict(backend.to_numpy(X)))
 
 
 class KernelRidge_(KernelRidge):
@@ -133,6 +141,7 @@ class KernelRidge_(KernelRidge):
 
     Used for testing only.
     """
+
     def predict(self, *args, **kwargs):
         backend = get_backend()
         return backend.to_numpy(super().predict(*args, **kwargs))
