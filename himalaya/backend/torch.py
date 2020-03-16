@@ -10,6 +10,8 @@ except ImportError as error:
         pass
     raise ImportError("PyTorch not installed.") from error
 
+from .__init__ import _dtype_to_str
+
 ###############################################################################
 
 
@@ -138,7 +140,14 @@ def asarray(x, dtype=None, device=None):
         dtype = getattr(torch, dtype)
     if device is None and isinstance(x, torch.Tensor):
         device = x.device
-    return torch.as_tensor(x, dtype=dtype, device=device)
+
+    try:
+        tensor = torch.as_tensor(x, dtype=dtype, device=device)
+    except Exception:
+        import numpy as np
+        array = np.asarray(x, dtype=_dtype_to_str(dtype))
+        tensor = torch.as_tensor(array, dtype=dtype, device=device)
+    return tensor
 
 
 def asarray_like(x, ref):

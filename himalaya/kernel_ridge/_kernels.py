@@ -94,12 +94,14 @@ def _return_float_dtype(X, Y):
     1. If dtype of X and Y is float32, then dtype float32 is returned.
     2. Else dtype float64 is returned.
     """
+    X_dtype = _get_string_dtype(X)
+
     if Y is None:
-        Y_dtype = _get_string_dtype(X)
+        Y_dtype = X_dtype
     else:
         Y_dtype = _get_string_dtype(Y)
 
-    if X.dtype == Y_dtype == "float32":
+    if X_dtype == Y_dtype == "float32":
         dtype = "float32"
     else:
         dtype = "float64"

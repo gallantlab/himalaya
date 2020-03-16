@@ -2,8 +2,10 @@ import warnings
 
 import pytest
 import sklearn.kernel_ridge
+import sklearn.utils.estimator_checks
 
 from himalaya.backend import set_backend
+from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
@@ -100,7 +102,7 @@ def test_kernel_ridge_precomputed(backend):
 @pytest.mark.parametrize('solver', ['eigenvalues', 'conjugate', 'gradient'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_solvers(solver, backend):
-    backend = set_backend("numpy")
+    backend = set_backend(backend)
     Xs, _, Y, _ = _create_dataset(backend)
 
     kernel = "linear"
@@ -124,3 +126,20 @@ def test_kernel_ridge_solvers(solver, backend):
 
         assert model.dual_coef_.shape == Y.shape
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
+
+
+class KernelRidge_(KernelRidge):
+    """Cast predictions to numpy arrays, to be used in scikit-learn tests.
+
+    Used for testing only.
+    """
+    def predict(self, *args, **kwargs):
+        backend = get_backend()
+        return backend.to_numpy(super().predict(*args, **kwargs))
+
+
+@sklearn.utils.estimator_checks.parametrize_with_checks([KernelRidge_()])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_check_estimator(estimator, check, backend):
+    backend = set_backend(backend)
+    check(estimator)

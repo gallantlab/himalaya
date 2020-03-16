@@ -1,5 +1,3 @@
-import numpy as np
-
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
 
@@ -8,6 +6,8 @@ from ._solvers import solve_shared_kernel_ridge_gradient_descent
 from ._solvers import solve_shared_kernel_ridge_conjugate_gradient
 from ._kernels import pairwise_kernels
 from ..validation import check_array
+from ..validation import _get_string_dtype
+from ..backend import get_backend
 
 
 class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -80,10 +80,18 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
         -------
         self : returns an instance of self.
         """
+        backend = get_backend()
         X = check_array(X, accept_sparse=("csr", "csc"), ndim=2)
-        y = check_array(y, ndim=[1, 2])
+        self.dtype_ = _get_string_dtype(X)
+        y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
+        if X.shape[0] != y.shape[0]:
+            raise ValueError("Inconsistent number of samples.")
+
         if sample_weight is not None:
-            sample_weight = check_array(sample_weight, ndim=1)
+            sample_weight = check_array(sample_weight, dtype=self.dtype_,
+                                        ndim=1)
+            if sample_weight.shape[0] != y.shape[0]:
+                raise ValueError("Inconsistent number of samples.")
 
         K = self._get_kernel(X)
 
@@ -92,12 +100,12 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             y = y[:, None]
             ravel = True
 
-        if sample_weight not in [1.0, None]:
+        if sample_weight is not None:
             # We need to support sample_weight directly because K might be a
             # pre-computed kernel.
-            sw = np.sqrt(np.atleast_1d(sample_weight))
-            y = y * sw[:, None]
-            K *= np.outer(sw, sw)
+            sw = backend.sqrt(sample_weight)[:, None]
+            y = y * sw
+            K *= sw @ sw.T
 
         solver_params = self.solver_params or {}
 
@@ -117,6 +125,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             self.dual_coef_ = self.dual_coef_[:, 0]
 
         self.X_fit_ = X
+        self.n_features_in_ = X.shape[1]
 
         return self
 
@@ -135,13 +144,17 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             Returns predicted values.
         """
         check_is_fitted(self)
+        X = check_array(X, dtype=self.dtype_, accept_sparse=("csr", "csc"),
+                        ndim=2)
         K = self._get_kernel(X, self.X_fit_)
-        Y_hat = np.dot(K, self.dual_coef_)
+        Y_hat = K @ self.dual_coef_
         return Y_hat
 
     def _get_kernel(self, X, Y=None):
+        backend = get_backend()
         kernel_params = self.kernel_params or {}
-        return pairwise_kernels(X, Y, metric=self.kernel, **kernel_params)
+        kernel = pairwise_kernels(X, Y, metric=self.kernel, **kernel_params)
+        return backend.asarray(kernel)
 
     @property
     def _pairwise(self):

@@ -1,6 +1,8 @@
 import numbers
+import warnings
 
 import numpy as np
+from numpy.core.numeric import ComplexWarning
 
 try:
     from scipy.sparse import issparse
@@ -11,6 +13,7 @@ except ImportError:
 
 
 from .backend import get_backend
+from .backend import _dtype_to_str
 
 
 def check_random_state(seed):
@@ -73,13 +76,8 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
         - 'allow-nan': accept only np.nan values in array. Values cannot
           be infinite.
 
-        For object dtyped data, only np.nan is checked and not np.inf.
-
-        .. versionadded:: 0.20
-           ``force_all_finite`` accepts the string ``'allow-nan'``.
-
     ndim : int, list of int, or None (default=2)
-        If not None, list the accepted number of dimension of the array.
+        If not None, list the accepted number of dimensions of the array.
 
     ensure_min_samples : int (default=1)
         Make sure that the array has a minimum number of samples in its first
@@ -105,14 +103,14 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
     dtype_input = _get_string_dtype(array)
 
     if dtype is None:
-        change_dtype = False
+        dtype = None
     elif isinstance(dtype, str):
         if dtype not in ("float32", "float64"):
             raise ValueError("Unknown dtype=%r" % dtype)
-        change_dtype = dtype_input != dtype
     elif isinstance(dtype, (list, tuple)):
-        change_dtype = dtype_input not in dtype
-        if change_dtype:
+        if dtype_input in dtype:
+            dtype = dtype_input
+        else:
             dtype = dtype[0]
     else:
         raise ValueError("Unknown dtype=%r" % dtype)
@@ -142,24 +140,34 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
                              "boolean or list of strings. You provided "
                              "'accept_sparse={}'.".format(accept_sparse))
 
-        if change_dtype:
+        if dtype != dtype_input:
             array = array.astype(dtype)
         elif copy and not changed_format:
             array = array.copy()
 
-        _assert_all_finite(array.data, force_all_finite)
+        _assert_all_finite(array.data, force_all_finite, numpy=True)
 
     ############
     # dense case
     else:
-        if ndim is not None and array.ndim not in np.atleast_1d(ndim):
-            raise ValueError("Found array with ndim %d, expected %d." %
-                             (array.ndim, ndim))
 
-        if change_dtype:
-            array = backend.asarray(array, dtype=dtype)
-        elif copy:
+        # convert ComplexWarning into error
+        with warnings.catch_warnings():
+            try:
+                warnings.simplefilter('error', ComplexWarning)
+                ################
+                array = backend.asarray(array, dtype=dtype)
+                ################
+            except ComplexWarning:
+                raise ValueError("Complex data not supported")
+
+        if copy:
             array = backend.copy(array)
+
+        if ndim is not None and array.ndim not in np.atleast_1d(ndim):
+            raise ValueError("Found array with ndim %d, expected %d. "
+                             "Reshape your data or change the input." %
+                             (array.ndim, ndim))
 
         _assert_all_finite(array, force_all_finite)
 
@@ -168,41 +176,67 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
     if ensure_min_samples > 0:
         n_samples = array.shape[0]
         if n_samples < ensure_min_samples:
-            raise ValueError("Found array with %d sample(s) (shape=%s) while a"
-                             " minimum of %d is required." %
-                             (n_samples, array.shape, ensure_min_samples))
+            raise ValueError(
+                "Found array with %d sample(s) (shape=%s) while a"
+                " minimum of %d is required." %
+                (n_samples, tuple(array.shape), ensure_min_samples))
 
     if ensure_min_features > 0 and array.ndim == 2:
         n_features = array.shape[1]
         if n_features < ensure_min_features:
-            raise ValueError("Found array with %d feature(s) (shape=%s) while"
-                             " a minimum of %d is required." %
-                             (n_features, array.shape, ensure_min_features))
+            raise ValueError(
+                "Found array with %d feature(s) (shape=%s) while"
+                " a minimum of %d is required." %
+                (n_features, tuple(array.shape), ensure_min_features))
 
     return array
 
 
-def _assert_all_finite(X, force_all_finite):
-    backend = get_backend()
+def _assert_all_finite(X, force_all_finite, numpy=False):
+    """Check infinity and NaNs in X.
+
+    Parameters
+    ----------
+    X : array
+        Input data.
+    force_all_finite : {True, False, 'allow-nan'}
+        If True, raise an error for infinity and NaNs.
+        If False, does not raise any error.
+        If 'allow_nan', raise an error for infinity but not for NaNs.
+    numpy : bool
+        If True, use numpy for the check, else use the current backend.
+
+    Return
+    ------
+    None
+    """
+    if numpy:
+        backend = np
+    else:
+        backend = get_backend()
 
     if force_all_finite not in (True, False, 'allow-nan'):
         raise ValueError('force_all_finite should be a bool or "allow-nan"'
                          '. Got {!r} instead'.format(force_all_finite))
-
     if not force_all_finite:
         return
+
+    X_dtype = _get_string_dtype(X)
+    msg = ("Input contains NaN, infinity or a value too large for "
+           "dtype(%r)." % X_dtype)
+
     if backend.any(backend.isinf(X)):
-        raise ValueError("Input contains infinity values")
+        raise ValueError(msg)
     if force_all_finite != 'allow_nan' and backend.any(backend.isnan(X)):
-        raise ValueError("Input contains NaNs values")
+        raise ValueError(msg)
 
 
 def _get_string_dtype(array):
+    """Get array's dtype, as a string.
+    Returns None, if array has no attribute dtype.
+    """
     dtype = getattr(array, "dtype", None)
     if dtype is None:
         return None
 
-    if hasattr(dtype, "name"):
-        return dtype.name
-    else:
-        return NotImplementedError()
+    return _dtype_to_str(dtype)
