@@ -431,7 +431,7 @@ def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         Input kernel.
     Y : array of shape (n_samples, n_targets)
         Target data.
-    alpha : float
+    alpha : float, or array of shape (n_targets, )
         Regularization parameter.
     method : str in {"eigh", "svd"}
         Method used to diagonalize the kernel.
@@ -448,7 +448,10 @@ def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         Kernel ridge coefficients.
     """
     backend = get_backend()
-    K, Y = backend.check_arrays(K, Y)
+    if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
+        alpha = backend.ones_like(Y, shape=(1, )) * alpha
+
+    K, Y, alpha = backend.check_arrays(K, Y, alpha)
 
     if K.ndim == 3:
         raise ValueError(
@@ -470,7 +473,7 @@ def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     else:
         raise ValueError("Unknown method=%r." % (method, ))
 
-    inverse = 1 / (alpha + eigenvalues)
+    inverse = 1 / (alpha[None] + eigenvalues[:, None])
 
     # negative eigenvalues can emerge from incorrect kernels, or from float32
     if eigenvalues[0] < 0:
@@ -488,10 +491,14 @@ def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
             raise ValueError("Unknown negative_eigenvalues=%r." %
                              (negative_eigenvalues, ))
 
-    iUT = inverse[:, None] * U.T
+    iUT = inverse[:, None, :] * U.T[:, :, None]
     if Y.shape[0] < Y.shape[1]:
-        dual_weights = (V.T @ iUT) @ Y
+        dual_weights = (
+            backend.transpose(V.T @ iUT,
+                              (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
     else:
-        dual_weights = V.T @ (iUT @ Y)
+        dual_weights = V.T @ (
+            backend.transpose(iUT, (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
 
+    assert dual_weights.shape == Y.shape
     return dual_weights

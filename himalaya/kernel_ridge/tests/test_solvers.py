@@ -144,6 +144,7 @@ def test_solve_shared_ridge_kernel(solver_name, backend):
     K = backend.matmul(Ks.T, exp_deltas).T
 
     for alpha in alphas:
+        alpha = backend.full_like(K, fill_value=alpha, shape=Y.shape[1])
         if solver_name == "eigenvalues":
             c2 = solver(K, Y, alpha=alpha)
         else:
@@ -152,7 +153,7 @@ def test_solve_shared_ridge_kernel(solver_name, backend):
         n_targets = Y.shape[1]
         for ii in range(n_targets):
             # compare dual coefficients with scipy.linalg.solve
-            reg = backend.asarray_like(np.eye(K.shape[0]), K) * alpha
+            reg = backend.asarray_like(np.eye(K.shape[0]), K) * alpha[ii]
             c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
                                     backend.to_numpy(Y[:, ii]))
             assert_array_almost_equal(c1, c2[:, ii], decimal=3)
@@ -161,9 +162,9 @@ def test_solve_shared_ridge_kernel(solver_name, backend):
             X_scaled = backend.concatenate(
                 [t * backend.sqrt(g) for t, g in zip(Xs, exp_deltas)], 1)
             prediction = backend.matmul(K, c2[:, ii])
-            model = sklearn.linear_model.Ridge(alpha=backend.to_numpy(alpha),
-                                               solver="lsqr", max_iter=1000,
-                                               tol=1e-6, fit_intercept=False)
+            model = sklearn.linear_model.Ridge(
+                alpha=backend.to_numpy(alpha[ii]), solver="lsqr",
+                max_iter=1000, tol=1e-6, fit_intercept=False)
             model.fit(backend.to_numpy(X_scaled), backend.to_numpy(Y[:, ii]))
             prediction_sklearn = model.predict(backend.to_numpy(X_scaled))
             assert_array_almost_equal(prediction, prediction_sklearn,

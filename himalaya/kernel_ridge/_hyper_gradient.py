@@ -21,7 +21,8 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         kernel_ridge_method="gradient", random_state=None, progress_bar=True):
     """Solve bilinear kernel ridge regression with cross-validation.
 
-    The hyper-parameters deltas correspond to log(gammas / alphas).
+    The hyper-parameters deltas correspond to
+        log(kernel_weights / ridge_regularization).
 
     Parameters
     ----------

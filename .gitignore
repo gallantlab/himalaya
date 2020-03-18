@@ -2,5 +2,6 @@
 *.egg-info/
 *.so
 
+.vscode
 .pytest_cache
 __pycache__
