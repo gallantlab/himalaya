@@ -4,8 +4,8 @@ from ..backend import get_backend
 from ..utils import compute_lipschitz_constants
 
 
-def _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
-                           double_K=False, return_objective=False):
+def _weighted_kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
+                                    double_K=False, return_objective=False):
     """Compute gradient of dual weights over a multi-kernel ridge regression.
 
     Parameters
@@ -63,12 +63,21 @@ def _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
         return dual_weight_gradient
 
 
-def solve_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
-                                        step_sizes=None, lipschitz_Ks=None,
-                                        initial_dual_weights=None,
-                                        max_iter=100, tol=1e-3, double_K=False,
-                                        debug=False):
-    """Solve kernel ridge regression using gradient descent.
+def solve_weighted_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
+                                                 step_sizes=None,
+                                                 lipschitz_Ks=None,
+                                                 initial_dual_weights=None,
+                                                 max_iter=100, tol=1e-3,
+                                                 double_K=False, debug=False):
+    """Solve weighted kernel ridge regression using gradient descent.
+
+    Solve the kernel ridge regression
+
+        w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
+
+    where the kernel K is a weighted sum of multiple kernels:
+
+        K = sum_i exp(delta[i]) Ks[i]
 
     Parameters
     ----------
@@ -142,10 +151,10 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
     # Gradient descent loop
     converged = backend.zeros_like(Y, dtype=backend.bool, shape=(n_targets))
     for i in range(max_iter):
-        grads = _kernel_ridge_gradient(Ks, Y[:, ~converged],
-                                       dual_weights[:, ~converged],
-                                       exp_deltas=exp_deltas, alpha=alpha,
-                                       double_K=double_K)
+        grads = _weighted_kernel_ridge_gradient(Ks, Y[:, ~converged],
+                                                dual_weights[:, ~converged],
+                                                exp_deltas=exp_deltas,
+                                                alpha=alpha, double_K=double_K)
         update = step_sizes * grads
         dual_weights[:, ~converged] -= update
 
@@ -170,10 +179,18 @@ def solve_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
     return dual_weights
 
 
-def solve_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
-                                          initial_dual_weights=None,
-                                          max_iter=100, tol=1e-3):
-    """Solve kernel ridge regression using conjugate gradient.
+def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
+                                                   initial_dual_weights=None,
+                                                   max_iter=100, tol=1e-3):
+    """Solve weighted kernel ridge regression using conjugate gradient.
+
+    Solve the kernel ridge regression
+
+        w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
+
+    where the kernel K is a weighted sum of multiple kernels:
+
+        K = sum_i exp(delta[i]) Ks[i]
 
     Parameters
     ----------
@@ -215,8 +232,9 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
         dual_weights = backend.copy(initial_dual_weights)
 
     # compute initial residual
-    r = _kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas=exp_deltas,
-                               alpha=alpha, double_K=False)
+    r = _weighted_kernel_ridge_gradient(Ks, Y, dual_weights,
+                                        exp_deltas=exp_deltas, alpha=alpha,
+                                        double_K=False)
     r *= -1
     p = backend.copy(r)
     new_squared_residual_norm = backend.norm(r, axis=0) ** 2
@@ -271,9 +289,18 @@ def solve_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
     return dual_weights
 
 
-def solve_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1., max_iter=10,
-                                      factor=0.0001, tol=None, debug=False):
-    """Solve kernel ridge regression using Neumann series.
+def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
+                                               max_iter=10, factor=0.0001,
+                                               tol=None, debug=False):
+    """Solve weighted kernel ridge regression using Neumann series.
+
+    Solve the kernel ridge regression
+
+        w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
+
+    where the kernel K is a weighted sum of multiple kernels:
+
+        K = sum_i exp(delta[i]) Ks[i]
 
     The Neumann series approximate the invert of K as K^-1 = sum_j (Id - K)^j.
     It is a poor approximation, so this solver should NOT be used to solve
@@ -342,10 +369,14 @@ def solve_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1., max_iter=10,
     return dual_weights
 
 
-def solve_shared_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
-                                                 initial_dual_weights=None,
-                                                 max_iter=100, tol=1e-3):
+def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
+                                          initial_dual_weights=None,
+                                          max_iter=100, tol=1e-3):
     """Solve kernel ridge regression using conjugate gradient.
+
+    Solve the kernel ridge regression
+
+        w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
     Parameters
     ----------
@@ -369,17 +400,21 @@ def solve_shared_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
     """
     backend = get_backend()
     deltas = backend.zeros_like(K, shape=(1, ))
-    return solve_kernel_ridge_conjugate_gradient(
+    return solve_weighted_kernel_ridge_conjugate_gradient(
         K[None], Y=Y, deltas=deltas, alpha=alpha,
         initial_dual_weights=initial_dual_weights, max_iter=max_iter, tol=tol)
 
 
-def solve_shared_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
-                                               lipschitz_Ks=None,
-                                               initial_dual_weights=None,
-                                               max_iter=100, tol=1e-3,
-                                               double_K=False, debug=False):
+def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
+                                        lipschitz_Ks=None,
+                                        initial_dual_weights=None,
+                                        max_iter=100, tol=1e-3, double_K=False,
+                                        debug=False):
     """Solve kernel ridge regression using conjugate gradient.
+
+    Solve the kernel ridge regression
+
+        w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
     Parameters
     ----------
@@ -415,15 +450,19 @@ def solve_shared_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
     """
     backend = get_backend()
     deltas = backend.zeros_like(K, shape=(1, ))
-    return solve_kernel_ridge_gradient_descent(
+    return solve_weighted_kernel_ridge_gradient_descent(
         K[None], Y=Y, deltas=deltas, alpha=alpha, step_sizes=step_sizes,
         lipschitz_Ks=lipschitz_Ks, initial_dual_weights=initial_dual_weights,
         max_iter=max_iter, tol=tol, double_K=double_K, debug=debug)
 
 
-def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
-                                          negative_eigenvalues="nan"):
+def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
+                                   negative_eigenvalues="nan"):
     """Solve kernel ridge regression using eigenvalues decomposition.
+
+    Solve the kernel ridge regression
+
+        w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
     Parameters
     ----------
@@ -452,14 +491,6 @@ def solve_shared_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
     K, Y, alpha = backend.check_arrays(K, Y, alpha)
-
-    if K.ndim == 3:
-        raise ValueError(
-            "Cannot use multiple kernels and kernel weights in "
-            "solve_shared_kernel_ridge_eigenvalues. If you want to use the "
-            "same kernel weights for all targets, you can precompute the "
-            "weighted sum. If you want to use different kernel weights per "
-            "target, consider using solve_kernel_ridge_conjugate_gradient.")
 
     if method == "eigh":
         # diagonalization: K = V @ np.diag(eigenvalues) @ V.T

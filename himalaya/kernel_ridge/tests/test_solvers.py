@@ -8,13 +8,13 @@ from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
+from himalaya.kernel_ridge import solve_weighted_kernel_ridge_gradient_descent
+from himalaya.kernel_ridge import solve_weighted_kernel_ridge_conjugate_gradient  # noqa
+from himalaya.kernel_ridge import solve_weighted_kernel_ridge_neumann_series
+from himalaya.kernel_ridge import solve_kernel_ridge_eigenvalues
 from himalaya.kernel_ridge import solve_kernel_ridge_gradient_descent
 from himalaya.kernel_ridge import solve_kernel_ridge_conjugate_gradient
-from himalaya.kernel_ridge import solve_kernel_ridge_neumann_series
-from himalaya.kernel_ridge import solve_shared_kernel_ridge_eigenvalues
-from himalaya.kernel_ridge import solve_shared_kernel_ridge_gradient_descent
-from himalaya.kernel_ridge import solve_shared_kernel_ridge_conjugate_gradient
-from himalaya.kernel_ridge._solvers import _kernel_ridge_gradient
+from himalaya.kernel_ridge._solvers import _weighted_kernel_ridge_gradient
 
 
 def _create_dataset(backend):
@@ -37,7 +37,7 @@ def _create_dataset(backend):
 
 @pytest.mark.parametrize("double_K", [False, True])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_kernel_ridge_gradient(backend, double_K):
+def test_weighted_kernel_ridge_gradient(backend, double_K):
     backend = set_backend(backend)
 
     _, Ks, Y, deltas, dual_weights = _create_dataset(backend)
@@ -62,10 +62,11 @@ def test_kernel_ridge_gradient(backend, double_K):
             grad[:, tt] = backend.matmul(K.T, grad[:, tt])
 
     ########################
-    grad2, func2 = _kernel_ridge_gradient(Ks, Y, dual_weights,
-                                          exp_deltas=exp_deltas, alpha=alpha,
-                                          double_K=double_K,
-                                          return_objective=True)
+    grad2, func2 = _weighted_kernel_ridge_gradient(Ks, Y, dual_weights,
+                                                   exp_deltas=exp_deltas,
+                                                   alpha=alpha,
+                                                   double_K=double_K,
+                                                   return_objective=True)
     assert_array_almost_equal(grad, grad2, decimal=1e-3)
     assert_array_almost_equal(func, func2, decimal=1e-3)
 
@@ -76,17 +77,17 @@ def test_kernel_ridge_gradient(backend, double_K):
     "neumann_series",
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
+def test_solve_weighted_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
 
     if solver_name == "gradient_descent":
-        solver = solve_kernel_ridge_gradient_descent
+        solver = solve_weighted_kernel_ridge_gradient_descent
         decimal = 3
     elif solver_name == "conjugate_gradient":
-        solver = solve_kernel_ridge_conjugate_gradient
+        solver = solve_weighted_kernel_ridge_conjugate_gradient
         decimal = 3
     elif solver_name == "neumann_series":
-        solver = solve_kernel_ridge_neumann_series
+        solver = solve_weighted_kernel_ridge_neumann_series
         decimal = 1
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
@@ -126,18 +127,18 @@ def test_solve_ridge_kernel_gamma_per_target(solver_name, backend):
     "eigenvalues",
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_shared_ridge_kernel(solver_name, backend):
+def test_solve_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
     if solver_name == "gradient_descent":
-        solver = solve_shared_kernel_ridge_gradient_descent
+        solver = solve_kernel_ridge_gradient_descent
     elif solver_name == "conjugate_gradient":
-        solver = solve_shared_kernel_ridge_conjugate_gradient
+        solver = solve_kernel_ridge_conjugate_gradient
     elif solver_name == "eigenvalues":
-        solver = solve_shared_kernel_ridge_eigenvalues
+        solver = solve_kernel_ridge_eigenvalues
 
     deltas = deltas[:, 0]
     exp_deltas = backend.exp(deltas)

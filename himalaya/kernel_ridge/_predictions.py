@@ -1,7 +1,7 @@
 from ..backend import get_backend
 
 
-def predict_kernel_ridge(Ks, dual_weights, deltas, split=False):
+def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
     """
     Compute predictions, typically on a test set.
 
@@ -35,8 +35,9 @@ def predict_kernel_ridge(Ks, dual_weights, deltas, split=False):
     return Y_hat
 
 
-def predict_and_score_kernel_ridge(Ks, dual_weights, deltas, Y, score_func,
-                                   split=False, n_targets_batch=None):
+def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
+                                            score_func, split=False,
+                                            n_targets_batch=None):
     """
     Compute predictions, typically on a test set, and compute the score.
 
@@ -78,8 +79,7 @@ def predict_and_score_kernel_ridge(Ks, dual_weights, deltas, Y, score_func,
     for start in range(0, n_targets, n_targets_batch):
         batch = slice(start, start + n_targets_batch)
         predictions = predict_kernel_ridge(Ks, dual_weights[:, batch],
-                                           deltas[:, batch],
-                                           split=split)
+                                           deltas[:, batch], split=split)
         score_batch = score_func(Y[:, batch], predictions)
 
         if split:

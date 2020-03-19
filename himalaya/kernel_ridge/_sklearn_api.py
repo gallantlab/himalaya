@@ -1,9 +1,9 @@
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
 
-from ._solvers import solve_shared_kernel_ridge_eigenvalues
-from ._solvers import solve_shared_kernel_ridge_gradient_descent
-from ._solvers import solve_shared_kernel_ridge_conjugate_gradient
+from ._solvers import solve_kernel_ridge_eigenvalues
+from ._solvers import solve_kernel_ridge_gradient_descent
+from ._solvers import solve_kernel_ridge_conjugate_gradient
 from ._kernels import pairwise_kernels
 from ..validation import check_array
 from ..validation import _get_string_dtype
@@ -40,6 +40,10 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     X_fit_ : array of shape (n_samples, n_features), or MultipleArray.
         Training data. If kernel == "precomputed" this is instead
         a precomputed kernel array of shape (n_samples, n_samples).
+
+    n_features_in_ : int
+        Number of features (or number of samples if kernel == "precomputed")
+        used during the fit.
 
     Examples
     --------
@@ -110,13 +114,13 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
         solver_params = self.solver_params or {}
 
         if self.solver == "eigenvalues":
-            self.dual_coef_ = solve_shared_kernel_ridge_eigenvalues(
+            self.dual_coef_ = solve_kernel_ridge_eigenvalues(
                 K, y, alpha=self.alpha)
         elif self.solver == 'conjugate':
-            self.dual_coef_ = solve_shared_kernel_ridge_conjugate_gradient(
+            self.dual_coef_ = solve_kernel_ridge_conjugate_gradient(
                 K, y, alpha=self.alpha, **solver_params)
         elif self.solver == 'gradient':
-            self.dual_coef_ = solve_shared_kernel_ridge_gradient_descent(
+            self.dual_coef_ = solve_kernel_ridge_gradient_descent(
                 K, y, alpha=self.alpha, **solver_params)
         else:
             raise ValueError("Unknown solver=%r." % self.solver)
@@ -147,6 +151,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
         X = check_array(X, dtype=self.dtype_, accept_sparse=("csr", "csc"),
                         ndim=2)
         K = self._get_kernel(X, self.X_fit_)
+        assert X.shape[1] == self.n_features_in_
         Y_hat = K @ self.dual_coef_
         return Y_hat
 

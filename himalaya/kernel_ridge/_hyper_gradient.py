@@ -7,9 +7,9 @@ from ..progress_bar import ProgressBar
 from ..utils import compute_lipschitz_constants
 from ..scoring import l2_neg_loss
 
-from ._solvers import solve_kernel_ridge_conjugate_gradient
-from ._solvers import solve_kernel_ridge_gradient_descent
-from ._solvers import solve_kernel_ridge_neumann_series
+from ._solvers import solve_weighted_kernel_ridge_conjugate_gradient
+from ._solvers import solve_weighted_kernel_ridge_gradient_descent
+from ._solvers import solve_weighted_kernel_ridge_neumann_series
 from ._random_search import solve_multiple_kernel_ridge_random_search
 
 
@@ -111,9 +111,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
     name = "hypergradient_" + hyper_gradient_method
     if kernel_ridge_method == "conjugate":
-        inner_function = solve_kernel_ridge_conjugate_gradient
+        inner_function = solve_weighted_kernel_ridge_conjugate_gradient
     elif kernel_ridge_method == "gradient":
-        inner_function = solve_kernel_ridge_gradient_descent
+        inner_function = solve_weighted_kernel_ridge_gradient_descent
     else:
         raise ValueError("Unknown parameter kernel_ridge_method=%r." %
                          (kernel_ridge_method, ))
@@ -148,7 +148,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
             if ii == 0:
                 max_iter_inner_dual_ = 50
                 cg_tol_ = min(1e-2, cg_tol[ii])
-                inner_function_ = solve_kernel_ridge_conjugate_gradient
+                inner_function_ = solve_weighted_kernel_ridge_conjugate_gradient
             else:
                 max_iter_inner_dual_ = max_iter_inner_dual
                 cg_tol_ = cg_tol[ii]
@@ -213,7 +213,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         ##########################################
         # refit dual weights on the entire dataset
         if return_weights in ["primal", "dual"]:
-            dual_weights = solve_kernel_ridge_conjugate_gradient(
+            dual_weights = solve_weighted_kernel_ridge_conjugate_gradient(
                 Ks, Y[:, batch], deltas[:, batch], initial_dual_weights=None,
                 alpha=alpha, max_iter=100, tol=1e-4)
             if return_weights == 'primal':
@@ -404,12 +404,12 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         assert Ks_train is not None
         if hyper_gradient_method == 'conjugate':
             assert tol is not None
-            solution = solve_kernel_ridge_conjugate_gradient(
+            solution = solve_weighted_kernel_ridge_conjugate_gradient(
                 Ks=Ks_train, Y=nabla_g_1, deltas=deltas,
                 initial_dual_weights=previous_solution, max_iter=100, tol=tol,
                 alpha=alpha)
         elif hyper_gradient_method == 'neumann':
-            solution = solve_kernel_ridge_neumann_series(
+            solution = solve_weighted_kernel_ridge_neumann_series(
                 Ks=Ks_train, Y=nabla_g_1, deltas=deltas, max_iter=5,
                 factor=0.00001, alpha=alpha)
         else:
