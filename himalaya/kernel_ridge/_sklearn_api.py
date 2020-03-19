@@ -1,10 +1,14 @@
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
+from sklearn.model_selection import check_cv
 
 from ._solvers import solve_kernel_ridge_eigenvalues
 from ._solvers import solve_kernel_ridge_gradient_descent
 from ._solvers import solve_kernel_ridge_conjugate_gradient
+from ._random_search import solve_multiple_kernel_ridge_random_search
+from ._hyper_gradient import solve_multiple_kernel_ridge_hyper_gradient
 from ._kernels import pairwise_kernels
+from ._predictions import predict_weighted_kernel_ridge
 from ..validation import check_array
 from ..validation import _get_string_dtype
 from ..backend import get_backend
@@ -16,34 +20,41 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     Parameters
     ----------
     alpha : float, or array of shape (n_targets, )
-        Regularization parameter.
+        L2 regularization parameter.
 
     kernel : string or callable, default="linear"
-        Kernel mapping used internally. A callable should accept two arguments
-        and the keyword arguments passed to this object as kernel_params, and
-        should return a floating point number. Set to "precomputed" in
-        order to pass a precomputed kernel matrix to the estimator
-        methods instead of samples.
+        Kernel mapping used internally. Available kernels are: 'linear',
+        'polynomial, 'poly', 'rbf', 'sigmoid', 'cosine', or 'precomputed'.
+        Set to 'precomputed' in order to pass a precomputed kernel matrix to
+        the estimator methods instead of samples.
+        A callable should accept two arguments and the keyword arguments passed
+        to this object as kernel_params, and should return a floating point
+        number.
 
-    kernel_params : mapping of string to any, optional
-        Additional parameters (keyword arguments) for kernel function passed
-        as callable object.
+    kernel_params : dict or None
+        Additional parameters for the kernel function.
 
     solver : str
         Algorithm used during the fit.
+
+    solver_params : dict or None
+        Additional parameters for the solver.
 
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
         Representation of weight vectors in kernel space.
 
-    X_fit_ : array of shape (n_samples, n_features), or MultipleArray.
+    X_fit_ : array of shape (n_samples, n_features)
         Training data. If kernel == "precomputed" this is instead
         a precomputed kernel array of shape (n_samples, n_samples).
 
     n_features_in_ : int
         Number of features (or number of samples if kernel == "precomputed")
         used during the fit.
+
+    dtype_ : str
+        Dtype of input data.
 
     Examples
     --------
@@ -70,7 +81,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
 
         Parameters
         ----------
-        X : array of shape (n_samples, n_features), or MultipleArray.
+        X : array of shape (n_samples, n_features)
             Training data. If kernel == "precomputed" this is instead
             a precomputed kernel array of shape (n_samples, n_samples).
 
@@ -85,7 +96,9 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self : returns an instance of self.
         """
         backend = get_backend()
-        X = check_array(X, accept_sparse=("csr", "csc"), ndim=2)
+        accept_sparse = False if self.kernels == "precomputed" else ("csr",
+                                                                     "csc")
+        X = check_array(X, accept_sparse=accept_sparse, ndim=2)
         self.dtype_ = _get_string_dtype(X)
         y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
         if X.shape[0] != y.shape[0]:
@@ -148,7 +161,9 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             Returns predicted values.
         """
         check_is_fitted(self)
-        X = check_array(X, dtype=self.dtype_, accept_sparse=("csr", "csc"),
+        accept_sparse = False if self.kernels == "precomputed" else ("csr",
+                                                                     "csc")
+        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=2)
         K = self._get_kernel(X, self.X_fit_)
         assert X.shape[1] == self.n_features_in_

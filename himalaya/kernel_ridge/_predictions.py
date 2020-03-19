@@ -78,8 +78,9 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
         n_targets_batch = n_targets
     for start in range(0, n_targets, n_targets_batch):
         batch = slice(start, start + n_targets_batch)
-        predictions = predict_kernel_ridge(Ks, dual_weights[:, batch],
-                                           deltas[:, batch], split=split)
+        predictions = predict_weighted_kernel_ridge(Ks, dual_weights[:, batch],
+                                                    deltas[:, batch],
+                                                    split=split)
         score_batch = score_func(Y[:, batch], predictions)
 
         if split:

@@ -10,7 +10,7 @@ from ..validation import check_random_state
 
 def solve_multiple_kernel_ridge_random_search(
         Ks, Y, n_iter=100, concentration=[0.1, 1.0], alphas=1.0,
-        score_func=l2_neg_loss, cv_splitter=10, return_weights=None, Xs=None,
+        score_func=l2_neg_loss, cv=10, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
         progress_bar=True):
@@ -34,7 +34,7 @@ def solve_multiple_kernel_ridge_random_search(
         Range of ridge regularization parameter.
     score_func : callable
         Function used to compute the score of predictions versus Y.
-    cv_splitter : int or scikit-learn splitter
+    cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
     return_weights : None, 'primal', or 'dual'
         Whether to refit on the entire dataset and return the weights.
@@ -96,8 +96,8 @@ def solve_multiple_kernel_ridge_random_search(
     if n_alphas_batch is None:
         n_alphas_batch = len(alphas)
 
-    cv_splitter = check_cv(cv_splitter)
-    n_splits = cv_splitter.get_n_splits()
+    cv = check_cv(cv)
+    n_splits = cv.get_n_splits()
     n_kernels = len(Ks)
 
     if jitter_alphas:
@@ -140,7 +140,7 @@ def solve_multiple_kernel_ridge_random_search(
 
         scores = backend.zeros_like(Y,
                                     shape=(n_splits, len(alphas), n_targets))
-        for jj, (train, test) in enumerate(cv_splitter.split(K)):
+        for jj, (train, test) in enumerate(cv.split(K)):
             if hasattr(K, "device"):
                 train = backend.asarray(train, device=K.device)
                 test = backend.asarray(test, device=K.device)

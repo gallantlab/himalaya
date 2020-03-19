@@ -177,7 +177,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
         solve_multiple_kernel_ridge_hyper_gradient(
             Ks, Y, max_iter=100, n_targets_batch=n_targets_batch,
             max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=None,
-            score_func=r2_score, cv_splitter=cv,
+            score_func=r2_score, cv=cv,
             hyper_gradient_method=method, initial_deltas=initial_deltas,
             kernel_ridge_method=kernel_ridge, progress_bar=progress_bar)
     scores_1 = all_scores_mean[all_scores_mean.sum(axis=1) != 0][-1]
@@ -188,7 +188,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
     _, _, all_scores_mean = \
         solve_multiple_kernel_ridge_random_search(
             Ks, Y, gammas, alphas, n_targets_batch=n_targets_batch,
-            score_func=r2_score, cv_splitter=cv, progress_bar=progress_bar)
+            score_func=r2_score, cv=cv, progress_bar=progress_bar)
     scores_2 = backend.max(all_scores_mean, axis=0)
 
     assert_array_almost_equal(scores_1, scores_2, decimal=1)
@@ -211,16 +211,16 @@ def test_solve_multiple_kernel_ridge_return_weights(backend, method,
     # run solver
     if method == "hyper_gradient":
         results = solve_multiple_kernel_ridge_hyper_gradient(
-            Ks, Y, score_func=r2_score, cv_splitter=cv, max_iter=1,
+            Ks, Y, score_func=r2_score, cv=cv, max_iter=1,
             n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
             return_weights=return_weights)
         best_deltas, refit_weights, all_scores_mean = results
     elif method == "random_search":
         alphas = backend.asarray_like(backend.logspace(-3, 5, 2), Ks)
         results = solve_multiple_kernel_ridge_random_search(
-            Ks, Y, n_iter=1, alphas=alphas, score_func=r2_score,
-            cv_splitter=cv, n_targets_batch=n_targets_batch, Xs=Xs,
-            progress_bar=False, return_weights=return_weights)
+            Ks, Y, n_iter=1, alphas=alphas, score_func=r2_score, cv=cv,
+            n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
+            return_weights=return_weights)
         best_deltas, refit_weights, all_scores_mean = results
     else:
         raise ValueError("Unknown parameter method=%r." % (method, ))

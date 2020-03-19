@@ -77,10 +77,9 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     ############
     # run solver
     results = solve_multiple_kernel_ridge_random_search(
-        Ks, Y, n_iter=gammas, alphas=alphas, score_func=r2_score,
-        cv_splitter=cv, n_targets_batch=n_targets_batch, Xs=Xs,
-        progress_bar=False, return_weights=return_weights,
-        n_alphas_batch=n_alphas_batch)
+        Ks, Y, n_iter=gammas, alphas=alphas, score_func=r2_score, cv=cv,
+        n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
+        return_weights=return_weights, n_alphas_batch=n_alphas_batch)
     best_deltas, refit_weights, all_scores_mean = results
 
     #########################################
