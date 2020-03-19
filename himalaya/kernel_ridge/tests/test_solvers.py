@@ -8,12 +8,8 @@ from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
-from himalaya.kernel_ridge import solve_weighted_kernel_ridge_gradient_descent
-from himalaya.kernel_ridge import solve_weighted_kernel_ridge_conjugate_gradient  # noqa
-from himalaya.kernel_ridge import solve_weighted_kernel_ridge_neumann_series
-from himalaya.kernel_ridge import solve_kernel_ridge_eigenvalues
-from himalaya.kernel_ridge import solve_kernel_ridge_gradient_descent
-from himalaya.kernel_ridge import solve_kernel_ridge_conjugate_gradient
+from himalaya.kernel_ridge import WEIGHTED_KERNEL_RIDGE_SOLVERS
+from himalaya.kernel_ridge import KERNEL_RIDGE_SOLVERS
 from himalaya.kernel_ridge._solvers import _weighted_kernel_ridge_gradient
 
 
@@ -71,24 +67,13 @@ def test_weighted_kernel_ridge_gradient(backend, double_K):
     assert_array_almost_equal(func, func2, decimal=1e-3)
 
 
-@pytest.mark.parametrize('solver_name', [
-    "gradient_descent",
-    "conjugate_gradient",
-    "neumann_series",
-])
+@pytest.mark.parametrize('solver_name', WEIGHTED_KERNEL_RIDGE_SOLVERS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_weighted_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
 
-    if solver_name == "gradient_descent":
-        solver = solve_weighted_kernel_ridge_gradient_descent
-        decimal = 3
-    elif solver_name == "conjugate_gradient":
-        solver = solve_weighted_kernel_ridge_conjugate_gradient
-        decimal = 3
-    elif solver_name == "neumann_series":
-        solver = solve_weighted_kernel_ridge_neumann_series
-        decimal = 1
+    solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
+    decimal = 1 if solver_name == "neumann_series" else 3
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     exp_deltas = backend.exp(deltas)
@@ -121,11 +106,7 @@ def test_solve_weighted_kernel_ridge(solver_name, backend):
                                           decimal=decimal)
 
 
-@pytest.mark.parametrize('solver_name', [
-    "gradient_descent",
-    "conjugate_gradient",
-    "eigenvalues",
-])
+@pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
@@ -133,12 +114,7 @@ def test_solve_kernel_ridge(solver_name, backend):
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
-    if solver_name == "gradient_descent":
-        solver = solve_kernel_ridge_gradient_descent
-    elif solver_name == "conjugate_gradient":
-        solver = solve_kernel_ridge_conjugate_gradient
-    elif solver_name == "eigenvalues":
-        solver = solve_kernel_ridge_eigenvalues
+    solver = KERNEL_RIDGE_SOLVERS[solver_name]
 
     deltas = deltas[:, 0]
     exp_deltas = backend.exp(deltas)

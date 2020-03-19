@@ -73,8 +73,6 @@ def test_delta_gradient_direct(backend, n_targets_batch):
     # check direct gradient with a finite difference
     gradients = _compute_delta_gradient(Ks, Y, deltas, dual_weights,
                                         hyper_gradient_method='direct')[0]
-    # gradients2 = _compute_delta_gradient(Ks, Y, deltas2, dual_weights,
-    #                                      hyper_gradient_method='direct')[0]
     scores = _compute_delta_loss(Ks, Y, deltas, dual_weights)
     scores2 = _compute_delta_loss(Ks, Y, deltas2, dual_weights)
 
@@ -118,10 +116,9 @@ def test_delta_gradient_indirect(backend, n_targets_batch):
     loss, dual_weights = compute_loss(deltas)
     loss2, dual_weights2 = compute_loss(deltas2)
 
-    gradients = _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights,
-                                        Ks_train=Ks,
-                                        hyper_gradient_method='conjugate',
-                                        tol=1e-5)[0]
+    gradients = _compute_delta_gradient(
+        Ks_val, Y_val, deltas, dual_weights, Ks_train=Ks,
+        hyper_gradient_method='conjugate_gradient', tol=1e-5)[0]
 
     directional_derivatives = (loss2 - loss) / step
     gradient_direction_product = (gradients * epsilons[:, :]).sum(0)
@@ -139,7 +136,7 @@ def test_solve_multiple_kernel_ridge_hyper_gradient_n_targets_batch(
         backend=backend, n_targets_batch=n_targets_batch)
 
 
-@pytest.mark.parametrize('method', ["direct", "conjugate", "neumann"])
+@pytest.mark.parametrize('method', ["direct", "conjugate_gradient", "neumann"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_hyper_gradient_method(backend, method):
     _test_solve_multiple_kernel_ridge_hyper_gradient(backend=backend,
@@ -154,7 +151,8 @@ def test_solve_multiple_kernel_ridge_hyper_gradient_initial_deltas(
         backend=backend, initial_deltas=initial_deltas)
 
 
-@pytest.mark.parametrize('kernel_ridge', ["conjugate", "gradient"])
+@pytest.mark.parametrize('kernel_ridge',
+                         ["conjugate_gradient", "gradient_descent"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_hyper_gradient_kernel_ridge(
         backend, kernel_ridge):
@@ -162,11 +160,9 @@ def test_solve_multiple_kernel_ridge_hyper_gradient_kernel_ridge(
                                                      kernel_ridge=kernel_ridge)
 
 
-def _test_solve_multiple_kernel_ridge_hyper_gradient(backend,
-                                                     n_targets_batch=None,
-                                                     method="direct",
-                                                     initial_deltas=0,
-                                                     kernel_ridge="conjugate"):
+def _test_solve_multiple_kernel_ridge_hyper_gradient(
+        backend, n_targets_batch=None, method="direct", initial_deltas=0,
+        kernel_ridge="conjugate_gradient"):
     backend = set_backend(backend)
     Ks, Y, dual_weights, gammas, Ks_val, Y_val, Xs = _create_dataset(backend)
     cv = 3

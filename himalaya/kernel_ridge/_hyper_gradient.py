@@ -17,8 +17,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Ks, Y, score_func=l2_neg_loss, cv=10, return_weights=None, Xs=None,
         initial_deltas=0, max_iter=100, tol=1e-2, max_iter_inner_dual=1,
         max_iter_inner_hyper=1, cg_tol=1e-3, n_targets_batch=None,
-        hyper_gradient_method="conjugate", kernel_ridge_method="gradient",
-        random_state=None, progress_bar=True):
+        hyper_gradient_method="conjugate_gradient",
+        kernel_ridge_method="gradient_descent", random_state=None,
+        progress_bar=True):
     """Solve bilinear kernel ridge regression with cross-validation.
 
     The hyper-parameters deltas correspond to
@@ -56,9 +57,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     n_targets_batch : int or None
         Size of the batch for computing predictions. Used for memory reasons.
         If None, uses all n_targets at once.
-    hyper_gradient_method : str, "conjugate", "neumann", "direct"
+    hyper_gradient_method : str, "conjugate_gradient", "neumann", "direct"
         Method to compute the hypergradient.
-    kernel_ridge_method : str, "conjugate" or "gradient"
+    kernel_ridge_method : str, "conjugate_gradient" or "gradient_descent"
         Algorithm used for the inner step.
     random_state : int, np.random.RandomState, or None
         Random generator state, used only in the Dirichlet sampling init.
@@ -110,9 +111,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                          (return_weights, ))
 
     name = "hypergradient_" + hyper_gradient_method
-    if kernel_ridge_method == "conjugate":
+    if kernel_ridge_method == "conjugate_gradient":
         inner_function = solve_weighted_kernel_ridge_conjugate_gradient
-    elif kernel_ridge_method == "gradient":
+    elif kernel_ridge_method == "gradient_descent":
         inner_function = solve_weighted_kernel_ridge_gradient_descent
     else:
         raise ValueError("Unknown parameter kernel_ridge_method=%r." %
@@ -327,7 +328,7 @@ def _compute_delta_loss(Ks_val, Y_val, deltas, dual_weights):
 
 def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
                             tol=None, previous_solution=None,
-                            hyper_gradient_method='conjugate'):
+                            hyper_gradient_method='conjugate_gradient'):
     """Compute the gradient over deltas on the validation dataset.
 
     Parameters
@@ -345,11 +346,11 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         Not required if hyper_gradient_method = "direct".
     tol : float
         Tolerance for the conjugate method.
-        Required if hyper_gradient_method = "conjugate".
+        Required if hyper_gradient_method = "conjugate_gradient".
     previous_solution
-        Speed up hyper_gradient_method = "conjugate" by warm starting with the
-        previous solution.
-    hyper_gradient_method : str, in {"conjugate", "neumann", "direct"}
+        Speed up hyper_gradient_method = "conjugate_gradient" by warm starting
+        with the previous solution.
+    hyper_gradient_method : str, in {"conjugate_gradient", "neumann", "direct"}
         Method used to compute the hyper gradient.
 
     Returns
@@ -401,7 +402,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         # solve linear system (sum_i gamma[i]*K[i] + 1) @ X = nabla_g_1
         alpha = 1
         assert Ks_train is not None
-        if hyper_gradient_method == 'conjugate':
+        if hyper_gradient_method == 'conjugate_gradient':
             assert tol is not None
             solution = solve_weighted_kernel_ridge_conjugate_gradient(
                 Ks=Ks_train, Y=nabla_g_1, deltas=deltas,

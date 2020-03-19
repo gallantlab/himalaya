@@ -2,9 +2,7 @@ from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
 from sklearn.model_selection import check_cv
 
-from ._solvers import solve_kernel_ridge_eigenvalues
-from ._solvers import solve_kernel_ridge_gradient_descent
-from ._solvers import solve_kernel_ridge_conjugate_gradient
+from ._solvers import KERNEL_RIDGE_SOLVERS
 from ._random_search import solve_multiple_kernel_ridge_random_search
 from ._hyper_gradient import solve_multiple_kernel_ridge_hyper_gradient
 from ._kernels import pairwise_kernels
@@ -33,12 +31,16 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
 
     kernel_params : dict or None
         Additional parameters for the kernel function.
+        See more details in the docstring of the function:
+            himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS[kernel]
 
     solver : str
         Algorithm used during the fit.
 
     solver_params : dict or None
         Additional parameters for the solver.
+        See more details in the docstring of the function:
+            himalaya.kernel_ridge.KERNEL_RIDGE_SOLVERS[solver]
 
     Attributes
     ----------
@@ -96,8 +98,8 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self : returns an instance of self.
         """
         backend = get_backend()
-        accept_sparse = False if self.kernels == "precomputed" else ("csr",
-                                                                     "csc")
+        accept_sparse = False if self.kernel == "precomputed" else ("csr",
+                                                                    "csc")
         X = check_array(X, accept_sparse=accept_sparse, ndim=2)
         self.dtype_ = _get_string_dtype(X)
         y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
@@ -119,22 +121,16 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
 
         if sample_weight is not None:
             # We need to support sample_weight directly because K might be a
-            # pre-computed kernel.
+            # precomputed kernel.
             sw = backend.sqrt(sample_weight)[:, None]
             y = y * sw
             K *= sw @ sw.T
 
         solver_params = self.solver_params or {}
 
-        if self.solver == "eigenvalues":
-            self.dual_coef_ = solve_kernel_ridge_eigenvalues(
-                K, y, alpha=self.alpha)
-        elif self.solver == 'conjugate':
-            self.dual_coef_ = solve_kernel_ridge_conjugate_gradient(
-                K, y, alpha=self.alpha, **solver_params)
-        elif self.solver == 'gradient':
-            self.dual_coef_ = solve_kernel_ridge_gradient_descent(
-                K, y, alpha=self.alpha, **solver_params)
+        if self.solver in KERNEL_RIDGE_SOLVERS:
+            function = KERNEL_RIDGE_SOLVERS[self.solver]
+            self.dual_coef_ = function(K, y, alpha=self.alpha, **solver_params)
         else:
             raise ValueError("Unknown solver=%r." % self.solver)
 
@@ -161,8 +157,8 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             Returns predicted values.
         """
         check_is_fitted(self)
-        accept_sparse = False if self.kernels == "precomputed" else ("csr",
-                                                                     "csc")
+        accept_sparse = False if self.kernel == "precomputed" else ("csr",
+                                                                    "csc")
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=2)
         K = self._get_kernel(X, self.X_fit_)

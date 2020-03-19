@@ -369,6 +369,14 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
     return dual_weights
 
 
+WEIGHTED_KERNEL_RIDGE_SOLVERS = {
+    "neumann_series": solve_weighted_kernel_ridge_neumann_series,
+    "conjugate_gradient": solve_weighted_kernel_ridge_conjugate_gradient,
+    "gradient_descent": solve_weighted_kernel_ridge_gradient_descent,
+}
+###############################################################################
+
+
 def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
                                           initial_dual_weights=None,
                                           max_iter=100, tol=1e-3):
@@ -533,3 +541,10 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
 
     assert dual_weights.shape == Y.shape
     return dual_weights
+
+
+KERNEL_RIDGE_SOLVERS = {
+    "eigenvalues": solve_kernel_ridge_eigenvalues,
+    "conjugate_gradient": solve_kernel_ridge_conjugate_gradient,
+    "gradient_descent": solve_kernel_ridge_gradient_descent,
+}

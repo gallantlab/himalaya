@@ -105,7 +105,8 @@ def test_kernel_ridge_precomputed(backend):
                                   model_2.predict(Ks[0]))
 
 
-@pytest.mark.parametrize('solver', ['eigenvalues', 'conjugate', 'gradient'])
+@pytest.mark.parametrize(
+    'solver', ['eigenvalues', 'conjugate_gradient', 'gradient_descent'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_solvers(solver, backend):
     backend = set_backend(backend)
@@ -116,9 +117,9 @@ def test_kernel_ridge_solvers(solver, backend):
 
     if solver == "eigenvalues":
         solver_params = dict()
-    elif solver == "conjugate":
+    elif solver == "conjugate_gradient":
         solver_params = dict(max_iter=300, tol=1e-6)
-    elif solver == "gradient":
+    elif solver == "gradient_descent":
         solver_params = dict(max_iter=300, tol=1e-6)
 
     for alpha in backend.asarray_like(backend.logspace(0, 3, 7), Y):
