@@ -83,6 +83,7 @@ einsum = np.einsum
 tanh = np.tanh
 power = np.power
 prod = np.prod
+zeros = np.zeros
 
 
 def diagonal_view(array, axis1=0, axis2=1):

@@ -73,11 +73,10 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     refit_weights : array or None
         Refit regression weights on the entire dataset, using selected best
         hyperparameters. Refit weights will always be on CPU memory.
-        If compute_weights == 'primal', shape is (n_features, n_targets),
-        if compute_weights == 'dual', shape is (n_samples, n_targets),
+        If return_weights == 'primal', shape is (n_features, n_targets),
+        if return_weights == 'dual', shape is (n_samples, n_targets),
         else, None.
-    all_scores_mean : array of shape (max_iter * max_iter_inner_hyper,
-            n_targets)
+    cv_scores : array of shape (max_iter * max_iter_inner_hyper, n_targets)
         Cross-validation scores per iteration, averaged over splits.
     """
     backend = get_backend()
@@ -124,7 +123,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
     alpha = 1.0
 
-    all_scores_mean = backend.zeros_like(
+    cv_scores = backend.zeros_like(
         Y, shape=(max_iter * max_iter_inner_hyper, n_targets))
 
     batch_iterates = range(0, n_targets, n_targets_batch)
@@ -196,7 +195,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                     scores[kk] = score_func(Y_val, predictions)
 
                 it = ii * max_iter_inner_hyper + jj
-                all_scores_mean[it, batch] = scores.mean(0)
+                cv_scores[it, batch] = scores.mean(0)
 
                 # update deltas, using the minimum step size over splits
                 step_size = backend.min(backend.stack(step_sizes), axis=0)
@@ -238,7 +237,13 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     if progress_bar:
         bar.update(bar.max_value)
 
-    return deltas, refit_weights, all_scores_mean
+    return deltas, refit_weights, cv_scores
+
+
+MULTIPLE_KERNEL_RIDGE_SOLVERS = {
+    "random_search": solve_multiple_kernel_ridge_random_search,
+    "hyper_gradient": solve_multiple_kernel_ridge_hyper_gradient,
+}
 
 
 def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, n_targets_batch):

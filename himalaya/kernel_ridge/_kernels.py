@@ -177,11 +177,13 @@ def linear_kernel(X, Y=None):
     K : array of shape (n_samples_X, n_samples_Y)
         Computed kernel.
     """
+    backend = get_backend()
     X, Y = check_pairwise_arrays(X, Y)
 
     K = X @ Y.T
     if issparse(K):
         K = K.toarray()
+    K = backend.asarray(K)
     return K
 
 
@@ -217,6 +219,7 @@ def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     K = X @ Y.T
     if issparse(K):
         K = K.toarray()
+    K = backend.asarray(K)
     K *= gamma
     K += coef0
     K = backend.power(K, degree, out=K)
@@ -253,6 +256,7 @@ def sigmoid_kernel(X, Y=None, gamma=None, coef0=1):
     K = X @ Y.T
     if issparse(K):
         K = K.toarray()
+    K = backend.asarray(K)
     K *= gamma
     K += coef0
     K = backend.tanh(K, out=K)
@@ -287,6 +291,7 @@ def rbf_kernel(X, Y=None, gamma=None):
         gamma = 1.0 / X.shape[1]
 
     K = euclidean_distances(X, Y, squared=True)
+    K = backend.asarray(K)
     K *= -gamma
     K = backend.exp(K, out=K)
     return K
@@ -314,6 +319,7 @@ def cosine_similarity_kernel(X, Y=None):
     K : array of shape (n_samples_X, n_samples_Y)
         Computed kernel.
     """
+    backend = get_backend()
     X, Y = check_pairwise_arrays(X, Y)
 
     X_normalized = _normalize(X)
@@ -326,6 +332,7 @@ def cosine_similarity_kernel(X, Y=None):
 
     if issparse(K):
         K = K.toarray()
+    K = backend.asarray(K)
 
     return K
 
@@ -383,11 +390,17 @@ def _euclidean_distances_upcast(X, Y, batch_size=None):
     n_samples_Y = Y.shape[0]
     n_features = X.shape[1]
 
-    distances = backend.zeros_like(X, shape=(n_samples_X, n_samples_Y))
+    if issparse(X):
+        distances = backend.zeros(shape=(n_samples_X, n_samples_Y),
+                                  dtype=_get_string_dtype(X))
+    else:
+        distances = backend.zeros_like(X, shape=(n_samples_X, n_samples_Y))
 
     if batch_size is None:
-        x_density = X.nnz / backend.prod(X.shape) if issparse(X) else 1
-        y_density = Y.nnz / backend.prod(Y.shape) if issparse(Y) else 1
+        X_size = backend.prod(backend.asarray(X.shape))
+        Y_size = backend.prod(backend.asarray(Y.shape))
+        x_density = X.nnz / X_size if issparse(X) else 1
+        y_density = Y.nnz / Y_size if issparse(Y) else 1
 
         # Allow 10% more memory than X, Y and the distance matrix take (at
         # least 10MiB)
@@ -410,7 +423,7 @@ def _euclidean_distances_upcast(X, Y, batch_size=None):
         x_batch = slice(x_start, x_start + batch_size)
 
         if issparse(X):
-            X_chunk = X[x_batch].astype(backend.float64, copy=False)
+            X_chunk = X[x_batch].astype("float64", copy=False)
         else:
             X_chunk = backend.asarray(X[x_batch], dtype=backend.float64)
         XX_chunk = _row_norms(X_chunk, squared=True)[:, None]
@@ -424,7 +437,7 @@ def _euclidean_distances_upcast(X, Y, batch_size=None):
                 d = distances[y_batch, x_batch].T
             else:
                 if issparse(Y):
-                    Y_chunk = Y[y_batch].astype(backend.float64, copy=False)
+                    Y_chunk = Y[y_batch].astype("float64", copy=False)
                 else:
                     Y_chunk = backend.asarray(Y[y_batch],
                                               dtype=backend.float64)
@@ -436,7 +449,10 @@ def _euclidean_distances_upcast(X, Y, batch_size=None):
                 d += XX_chunk
                 d += YY_chunk
 
-            distances[x_batch, y_batch] = backend.asarray_like(d, X)
+            if issparse(X):
+                distances[x_batch, y_batch] = backend.asarray(d)
+            else:
+                distances[x_batch, y_batch] = backend.asarray_like(d, X)
 
     return distances
 

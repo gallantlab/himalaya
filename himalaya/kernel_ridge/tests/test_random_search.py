@@ -80,7 +80,7 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
         Ks, Y, n_iter=gammas, alphas=alphas, score_func=r2_score, cv=cv,
         n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
         return_weights=return_weights, n_alphas_batch=n_alphas_batch)
-    best_deltas, refit_weights, all_scores_mean = results
+    best_deltas, refit_weights, cv_scores = results
 
     #########################################
     # compare with sklearn.linear_model.Ridge
@@ -101,7 +101,7 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     test_scores = test_scores.reshape(len(gammas), cv.get_n_splits(),
                                       len(alphas), n_targets)
     test_scores_mean = backend.max(test_scores.mean(1), 1)
-    assert_array_almost_equal(all_scores_mean, test_scores_mean, decimal=5)
+    assert_array_almost_equal(cv_scores, test_scores_mean, decimal=5)
 
     ######################
     # test refited_weights

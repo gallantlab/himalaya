@@ -77,7 +77,7 @@ def solve_weighted_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
 
     where the kernel K is a weighted sum of multiple kernels:
 
-        K = sum_i exp(delta[i]) Ks[i]
+        K = sum_i exp(deltas[i]) Ks[i]
 
     Parameters
     ----------
@@ -190,7 +190,7 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
 
     where the kernel K is a weighted sum of multiple kernels:
 
-        K = sum_i exp(delta[i]) Ks[i]
+        K = sum_i exp(deltas[i]) Ks[i]
 
     Parameters
     ----------
@@ -300,7 +300,7 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
 
     where the kernel K is a weighted sum of multiple kernels:
 
-        K = sum_i exp(delta[i]) Ks[i]
+        K = sum_i exp(deltas[i]) Ks[i]
 
     The Neumann series approximate the invert of K as K^-1 = sum_j (Id - K)^j.
     It is a poor approximation, so this solver should NOT be used to solve

@@ -84,6 +84,7 @@ einsum = cupy.einsum
 tanh = cupy.tanh
 power = cupy.power
 prod = cupy.prod
+zeros = cupy.zeros
 
 
 def diagonal_view(array, axis1=0, axis2=1):

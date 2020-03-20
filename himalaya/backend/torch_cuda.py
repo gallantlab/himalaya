@@ -44,3 +44,11 @@ def asarray(x, dtype=None, device="cuda"):
         array = np.asarray(x, dtype=_dtype_to_str(dtype))
         tensor = torch.as_tensor(array, dtype=dtype, device=device)
     return tensor
+
+
+def zeros(shape, dtype="float32", device="cuda"):
+    if isinstance(shape, int):
+        shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = getattr(torch, dtype)
+    return torch.zeros(shape, dtype=dtype, device=device)

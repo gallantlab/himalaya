@@ -185,12 +185,22 @@ def min(*args, **kwargs):
         return res.values
 
 
+def zeros(shape, dtype="float32", device="cpu"):
+    if isinstance(shape, int):
+        shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = getattr(torch, dtype)
+    return torch.zeros(shape, dtype=dtype, device=device)
+
+
 def zeros_like(array, shape=None, dtype=None, device=None):
     """Add a shape parameter in zeros_like."""
     if shape is None:
         shape = array.shape
     if isinstance(shape, int):
         shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = getattr(torch, dtype)
     if dtype is None:
         dtype = array.dtype
     if device is None:
@@ -204,6 +214,8 @@ def ones_like(array, shape=None, dtype=None, device=None):
         shape = array.shape
     if isinstance(shape, int):
         shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = getattr(torch, dtype)
     if dtype is None:
         dtype = array.dtype
     if device is None:
@@ -217,6 +229,8 @@ def full_like(array, fill_value, shape=None, dtype=None, device=None):
         shape = array.shape
     if isinstance(shape, int):
         shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = getattr(torch, dtype)
     if dtype is None:
         dtype = array.dtype
     if device is None:

@@ -169,23 +169,23 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
     progress_bar = False
 
     # compare bilinear gradient descent and dirichlet sampling
-    _, _, all_scores_mean = \
+    _, _, cv_scores = \
         solve_multiple_kernel_ridge_hyper_gradient(
             Ks, Y, max_iter=100, n_targets_batch=n_targets_batch,
             max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=None,
             score_func=r2_score, cv=cv,
             hyper_gradient_method=method, initial_deltas=initial_deltas,
             kernel_ridge_method=kernel_ridge, progress_bar=progress_bar)
-    scores_1 = all_scores_mean[all_scores_mean.sum(axis=1) != 0][-1]
+    scores_1 = cv_scores[cv_scores.sum(axis=1) != 0][-1]
 
     alphas = backend.logspace(-5, 5, 11)
     gammas = generate_dirichlet_samples(50, len(Ks), concentration=[.1, 1.],
                                         random_state=0)
-    _, _, all_scores_mean = \
+    _, _, cv_scores = \
         solve_multiple_kernel_ridge_random_search(
             Ks, Y, gammas, alphas, n_targets_batch=n_targets_batch,
             score_func=r2_score, cv=cv, progress_bar=progress_bar)
-    scores_2 = backend.max(all_scores_mean, axis=0)
+    scores_2 = backend.max(cv_scores, axis=0)
 
     assert_array_almost_equal(scores_1, scores_2, decimal=1)
 
@@ -210,14 +210,14 @@ def test_solve_multiple_kernel_ridge_return_weights(backend, method,
             Ks, Y, score_func=r2_score, cv=cv, max_iter=1,
             n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
             return_weights=return_weights)
-        best_deltas, refit_weights, all_scores_mean = results
+        best_deltas, refit_weights, cv_scores = results
     elif method == "random_search":
         alphas = backend.asarray_like(backend.logspace(-3, 5, 2), Ks)
         results = solve_multiple_kernel_ridge_random_search(
             Ks, Y, n_iter=1, alphas=alphas, score_func=r2_score, cv=cv,
             n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
             return_weights=return_weights)
-        best_deltas, refit_weights, all_scores_mean = results
+        best_deltas, refit_weights, cv_scores = results
     else:
         raise ValueError("Unknown parameter method=%r." % (method, ))
 

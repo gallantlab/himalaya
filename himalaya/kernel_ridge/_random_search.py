@@ -1,4 +1,5 @@
 import warnings
+import numbers
 
 from sklearn.model_selection import check_cv
 
@@ -43,7 +44,7 @@ def solve_multiple_kernel_ridge_random_search(
     local_alpha : bool
         If True, alphas are selected per voxel, else globally over all voxels.
     jitter_alphas : bool
-        If True, alphas range is slightly gittered for each gamma.
+        If True, alphas range is slightly jittered for each gamma.
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
     n_targets_batch : int or None
@@ -65,10 +66,10 @@ def solve_multiple_kernel_ridge_random_search(
     refit_weights : array or None
         Refit regression weights on the entire dataset, using selected best
         hyperparameters. Refit weights will always be on CPU memory.
-        If compute_weights == 'primal', shape is (n_features, n_targets),
-        if compute_weights == 'dual', shape is (n_samples, n_targets),
+        If return_weights == 'primal', shape is (n_features, n_targets),
+        if return_weights == 'dual', shape is (n_samples, n_targets),
         else, None.
-    all_scores_mean : array of shape (n_iter, n_targets)
+    cv_scores : array of shape (n_iter, n_targets)
         Cross-validation scores per iteration, averaged over splits, for the
         best alpha.
     """
@@ -83,9 +84,8 @@ def solve_multiple_kernel_ridge_random_search(
     else:
         raise ValueError("Unknown parameter n_iter=%r." % (n_iter, ))
 
-    alphas = backend.asarray(alphas)
-    if alphas.ndim == 0:
-        alphas = backend.asarray([alphas])
+    if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
+        alphas = backend.ones_like(Y, shape=(1, )) * alphas
     Ks, Y, gammas, alphas, Xs = backend.check_arrays(Ks, Y, gammas, alphas, Xs)
 
     n_samples, n_targets = Y.shape
@@ -107,7 +107,7 @@ def solve_multiple_kernel_ridge_random_search(
     best_gammas = backend.full_like(Ks, fill_value=1.0 / n_kernels,
                                     shape=(n_kernels, n_targets))
     best_alphas = backend.ones_like(Ks, shape=n_targets)
-    all_scores_mean = backend.zeros_like(Ks, shape=(len(gammas), n_targets))
+    cv_scores = backend.zeros_like(Ks, shape=(len(gammas), n_targets))
     current_best_scores = backend.full_like(Ks, fill_value=-backend.inf,
                                             shape=n_targets)
 
@@ -186,12 +186,12 @@ def solve_multiple_kernel_ridge_random_search(
             alphas_argmax = backend.full_like(Ks, shape=scores_mean.shape[1],
                                               dtype=backend.int32,
                                               fill_value=alphas_argmax)
-        all_scores_mean[ii, :] = backend.apply_argmax(scores_mean,
-                                                      alphas_argmax, axis)
+        cv_scores[ii, :] = backend.apply_argmax(scores_mean, alphas_argmax,
+                                                axis)
 
         # update best_gammas and best_alphas
-        mask = all_scores_mean[ii, :] > current_best_scores
-        current_best_scores[mask] = all_scores_mean[ii][mask]
+        mask = cv_scores[ii, :] > current_best_scores
+        current_best_scores[mask] = cv_scores[ii][mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]
 
@@ -258,7 +258,7 @@ def solve_multiple_kernel_ridge_random_search(
     if return_weights == 'dual':
         refit_weights = refit_weights * backend.cpu(best_alphas)
 
-    return deltas, refit_weights, all_scores_mean
+    return deltas, refit_weights, cv_scores
 
 
 def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
