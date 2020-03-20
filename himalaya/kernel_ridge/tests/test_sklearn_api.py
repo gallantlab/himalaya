@@ -11,6 +11,7 @@ from himalaya.utils import assert_array_almost_equal
 
 from himalaya.kernel_ridge import KernelRidge
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
+from himalaya.kernel_ridge import WeightedKernelRidge
 
 
 def _create_dataset(backend):
@@ -146,13 +147,19 @@ def test_multiple_kernel_ridge_cv_smoke_test(backend):
                           solver_params=dict(max_iter=2)).fit(Xs[0], Y)
 
 
+@pytest.mark.parametrize('solver', ['random_search', 'hyper_gradient'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_multiple_kernel_ridge_cv_precomputed(backend):
+def test_multiple_kernel_ridge_cv_precomputed(backend, solver):
     backend = set_backend(backend)
     Xs, Ks, Y = _create_dataset(backend)
 
-    kwargs = dict(solver="hyper_gradient",
-                  solver_params=dict(max_iter=2, progress_bar=False))
+    if solver == "random_search":
+        kwargs = dict(
+            solver="random_search",
+            solver_params=dict(n_iter=2, random_state=0, progress_bar=False))
+    elif solver == "hyper_gradient":
+        kwargs = dict(solver="hyper_gradient",
+                      solver_params=dict(max_iter=2, progress_bar=False))
 
     model_1 = MultipleKernelRidgeCV(kernels=["linear"], **kwargs)
     model_1.fit(Xs[0], Y)
@@ -162,6 +169,26 @@ def test_multiple_kernel_ridge_cv_precomputed(backend):
     assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
     assert_array_almost_equal(model_1.predict(Xs[0]),
                               model_2.predict(Ks[0][None]))
+
+
+@pytest.mark.parametrize('solver', ['conjugate_gradient', 'gradient_descent'])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_precomputed(backend, solver):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model_1 = WeightedKernelRidge(kernels=["linear"])
+    model_1.fit(Xs[0], Y)
+    model_2 = WeightedKernelRidge(kernels="precomputed")
+    model_2.fit(Ks[0][None], Y)
+
+    assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
+    assert_array_almost_equal(model_1.predict(Xs[0]),
+                              model_2.predict(Ks[0][None]))
+
+
+###############################################################################
+# scikit-learn.utils.estimator_checks
 
 
 class KernelRidge_(KernelRidge):
@@ -192,8 +219,22 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
         return backend.to_numpy(super().predict(*args, **kwargs))
 
 
-@sklearn.utils.estimator_checks.parametrize_with_checks(
-    [KernelRidge_(), MultipleKernelRidgeCV_()])
+class WeightedKernelRidge_(WeightedKernelRidge):
+    """Cast predictions to numpy arrays, to be used in scikit-learn tests.
+
+    Used for testing only.
+    """
+
+    def predict(self, *args, **kwargs):
+        backend = get_backend()
+        return backend.to_numpy(super().predict(*args, **kwargs))
+
+
+@sklearn.utils.estimator_checks.parametrize_with_checks([
+    KernelRidge_(),
+    MultipleKernelRidgeCV_(),
+    WeightedKernelRidge_(),
+])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
