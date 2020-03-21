@@ -7,10 +7,12 @@ from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
 from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
 from ._kernels import pairwise_kernels
 from ._predictions import predict_weighted_kernel_ridge
+from ._predictions import predict_and_score_weighted_kernel_ridge
 
 from ..validation import check_array
 from ..validation import _get_string_dtype
 from ..backend import get_backend
+from ..scoring import r2_score
 
 
 class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -175,6 +177,30 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
         Y_hat = K @ self.dual_coef_
         return Y_hat
 
+    def score(self, X, y):
+        """Return the coefficient of determination R^2 of the prediction.
+
+        Parameters
+        ----------
+        X : array of shape (n_samples_test, n_features)
+            Samples. If kernel == "precomputed" this is instead a precomputed
+            kernel array of shape (n_samples_test, n_samples_train).
+
+        y : array-like of shape (n_samples,) or (n_samples, n_targets)
+            True values for X.
+
+        Returns
+        -------
+        score : array of shape (n_targets, )
+            R^2 of self.predict(X) versus y.
+        """
+        y_pred = self.predict(X)
+
+        if y_pred.ndim == 1:
+            return r2_score(y[:, None], y_pred[:, None])[0]
+        else:
+            return r2_score(y, y_pred)
+
     def _get_kernel(self, X, Y=None):
         backend = get_backend()
         kernel_params = self.kernel_params or {}
@@ -231,6 +257,42 @@ class _BaseWeightedKernelRidge(MultiOutputMixin, RegressorMixin,
             Y_hat = predict_weighted_kernel_ridge(Ks, self.dual_coef_,
                                                   self.deltas_)
         return Y_hat
+
+    def score(self, X, y):
+        """Return the coefficient of determination R^2 of the prediction.
+
+        Parameters
+        ----------
+        X : array of shape (n_samples_test, n_features)
+            Samples. If kernels == "precomputed" this is instead a precomputed
+            kernel array of shape (n_kerbels, n_samples_test, n_samples_train).
+
+        y : array-like of shape (n_samples,) or (n_samples, n_targets)
+            True values for X.
+
+        Returns
+        -------
+        score : array of shape (n_targets, )
+            R^2 of self.predict(X) versus y.
+        """
+        check_is_fitted(self)
+
+        ndim = 3 if self.kernels == "precomputed" else 2
+        accept_sparse = False if self.kernels == "precomputed" else ("csr",
+                                                                     "csc")
+        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
+                        ndim=ndim)
+        Ks = self._get_kernels(X, self.X_fit_)
+        assert X.shape[-1] == self.n_features_in_
+
+        if self.dual_coef_.ndim == 1:
+            score = predict_and_score_weighted_kernel_ridge(
+                Ks, self.dual_coef_[:, None], self.deltas_[:, None],
+                score_func=r2_score)[:, 0]
+        else:
+            score = predict_and_score_weighted_kernel_ridge(
+                Ks, self.dual_coef_, self.deltas_, score_func=r2_score)
+        return score
 
     def _get_kernels(self, X, Y=None):
         backend = get_backend()

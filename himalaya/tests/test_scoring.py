@@ -1,6 +1,5 @@
 import pytest
-from sklearn.metrics import r2_score as r2_score_sklearn
-from sklearn.metrics import mean_squared_error
+import sklearn.metrics
 
 from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
@@ -31,17 +30,19 @@ def test_r2_score(backend, dtype_str):
     # multi predictions
     s_1 = backend.stack([
         backend.asarray(
-            r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(pp),
-                             multioutput='raw_values'), dtype=dtype_str)
-        for pp in y_pred
+            sklearn.metrics.r2_score(backend.to_numpy(y_true),
+                                     backend.to_numpy(pp),
+                                     multioutput='raw_values'),
+            dtype=dtype_str) for pp in y_pred
     ])
     s_2 = r2_score(y_true, y_pred)
     assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = backend.asarray(
-        r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(y_pred[0]),
-                         multioutput='raw_values'), dtype=dtype_str)
+        sklearn.metrics.r2_score(backend.to_numpy(y_true),
+                                 backend.to_numpy(y_pred[0]),
+                                 multioutput='raw_values'), dtype=dtype_str)
     s_2 = r2_score(y_true, y_pred[0])
     assert_array_almost_equal(s_1, s_2, decimal=5)
 
@@ -56,17 +57,19 @@ def test_r2_score_split(backend, dtype_str):
     # multi predictions
     s_1 = backend.stack([
         backend.asarray(
-            r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(pp),
-                             multioutput='raw_values'), dtype=dtype_str)
-        for pp in y_pred
+            sklearn.metrics.r2_score(backend.to_numpy(y_true),
+                                     backend.to_numpy(pp),
+                                     multioutput='raw_values'),
+            dtype=dtype_str) for pp in y_pred
     ])
     s_2 = r2_score_split(y_true, y_pred, False)
     assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = backend.asarray(
-        r2_score_sklearn(backend.to_numpy(y_true), backend.to_numpy(y_pred[0]),
-                         multioutput='raw_values'), dtype=dtype_str)
+        sklearn.metrics.r2_score(backend.to_numpy(y_true),
+                                 backend.to_numpy(y_pred[0]),
+                                 multioutput='raw_values'), dtype=dtype_str)
     s_2 = r2_score_split(y_true, y_pred[0], False)
     assert_array_almost_equal(s_1, s_2, decimal=5)
 
@@ -93,17 +96,18 @@ def test_l2_neg_loss(backend, dtype_str):
     # multi predictions
     s_1 = -backend.stack([
         backend.asarray(
-            mean_squared_error(backend.to_numpy(y_true), backend.to_numpy(pp),
-                               multioutput='raw_values'), dtype=dtype_str)
-        for pp in y_pred
+            sklearn.metrics.mean_squared_error(
+                backend.to_numpy(y_true), backend.to_numpy(pp),
+                multioutput='raw_values'), dtype=dtype_str) for pp in y_pred
     ])
     s_2 = l2_neg_loss(y_true, y_pred)
     assert_array_almost_equal(s_1, s_2, decimal=5)
 
     # single prediction
     s_1 = -backend.asarray(
-        mean_squared_error(backend.to_numpy(y_true), backend.to_numpy(
-            y_pred[0]), multioutput='raw_values'), dtype=dtype_str)
+        sklearn.metrics.mean_squared_error(
+            backend.to_numpy(y_true), backend.to_numpy(
+                y_pred[0]), multioutput='raw_values'), dtype=dtype_str)
     s_2 = l2_neg_loss(y_true, y_pred[0])
     assert_array_almost_equal(s_1, s_2, decimal=5)
 

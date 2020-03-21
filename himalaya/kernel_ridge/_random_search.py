@@ -102,7 +102,7 @@ def solve_multiple_kernel_ridge_random_search(
 
     if jitter_alphas:
         random_generator = check_random_state(random_state)
-        given_alphas = alphas.clone()
+        given_alphas = backend.copy(alphas)
 
     best_gammas = backend.full_like(Ks, fill_value=1.0 / n_kernels,
                                     shape=(n_kernels, n_targets))

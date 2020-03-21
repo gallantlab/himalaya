@@ -56,6 +56,9 @@ def test_kernel_ridge_vs_scikit_learn(backend, multitarget, kernel):
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
         assert_array_almost_equal(model.predict(X),
                                   reference.predict(backend.to_numpy(X)))
+        assert_array_almost_equal(
+            model.score(X, Y).mean(),
+            reference.score(backend.to_numpy(X), backend.to_numpy(Y)))
 
 
 @pytest.mark.parametrize(
@@ -86,6 +89,8 @@ def test_kernel_ridge_vs_scikit_learn_sparse(backend, kernel, format):
         assert model.dual_coef_.shape == Y.shape
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
         assert_array_almost_equal(model.predict(X), reference.predict(X))
+        assert_array_almost_equal(
+            model.score(X, Y).mean(), reference.score(X, backend.to_numpy(Y)))
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -134,17 +139,6 @@ def test_kernel_ridge_solvers(solver, backend):
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
         assert_array_almost_equal(model.predict(X),
                                   reference.predict(backend.to_numpy(X)))
-
-
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_multiple_kernel_ridge_cv_smoke_test(backend):
-    backend = set_backend(backend)
-    Xs, Ks, Y = _create_dataset(backend)
-
-    MultipleKernelRidgeCV(solver="random_search",
-                          solver_params=dict(n_iter=2)).fit(Xs[0], Y)
-    MultipleKernelRidgeCV(solver="hyper_gradient",
-                          solver_params=dict(max_iter=2)).fit(Xs[0], Y)
 
 
 @pytest.mark.parametrize('solver', ['random_search', 'hyper_gradient'])
