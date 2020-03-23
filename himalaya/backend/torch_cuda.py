@@ -17,6 +17,8 @@ from .__init__ import _dtype_to_str
 
 ###############################################################################
 
+name = "torch_cuda"
+
 
 def randn(*args, **kwargs):
     return torch.randn(*args, **kwargs).cuda()

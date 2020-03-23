@@ -66,6 +66,7 @@ def mean_float64(X, axis=None, keepdims=False):
 
 ###############################################################################
 
+name = "torch"
 argmax = torch.argmax
 randn = torch.randn
 rand = torch.rand

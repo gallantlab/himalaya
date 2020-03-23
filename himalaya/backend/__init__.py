@@ -27,7 +27,7 @@ def set_backend(backend):
     global CURRENT_BACKEND
 
     if isinstance(backend, types.ModuleType):  # get backend name from module
-        backend = backend.__name__.split('.')[-1]
+        backend = backend.name
 
     if backend not in ALL_BACKENDS:
         raise ValueError("Unknown backend=%r" % (backend, ))

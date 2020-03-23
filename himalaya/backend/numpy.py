@@ -44,6 +44,7 @@ def mean_float64(array, axis=None, keepdims=False):
 
 ###############################################################################
 
+name = "numpy"
 argmax = np.argmax
 max = np.max
 min = np.min
