@@ -165,11 +165,19 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
             array = backend.copy(array)
 
         if ndim is not None and array.ndim not in np.atleast_1d(ndim):
-            raise ValueError("Found array with ndim %d, expected %d. "
+            raise ValueError("Found array with ndim %d, expected %s. "
                              "Reshape your data or change the input." %
                              (array.ndim, ndim))
 
         _assert_all_finite(array, force_all_finite)
+
+        # copy misaligned arrays, as it can lead to segmentation faults
+        if hasattr(array, "data_ptr"):
+            if array.data_ptr() % 8 != 0:
+                array = backend.copy(array)
+        if hasattr(array, "__array_interface__"):
+            if array.__array_interface__['data'][0] % 8 != 0:
+                array = backend.copy(array)
 
     #####################
     # check minimum sizes
