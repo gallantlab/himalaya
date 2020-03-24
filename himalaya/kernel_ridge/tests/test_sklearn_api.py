@@ -10,6 +10,7 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
 from himalaya.kernel_ridge import KernelRidge
+from himalaya.kernel_ridge import KernelRidgeCV
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
 from himalaya.kernel_ridge import WeightedKernelRidge
 
@@ -141,6 +142,21 @@ def test_kernel_ridge_solvers(solver, backend):
                                   reference.predict(backend.to_numpy(X)))
 
 
+@pytest.mark.parametrize('solver', ['eigenvalues'])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_cv_precomputed(backend, solver):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model_1 = KernelRidgeCV(kernel="linear")
+    model_1.fit(Xs[0], Y)
+    model_2 = KernelRidgeCV(kernel="precomputed")
+    model_2.fit(Ks[0], Y)
+
+    assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
+    assert_array_almost_equal(model_1.predict(Xs[0]), model_2.predict(Ks[0]))
+
+
 @pytest.mark.parametrize('solver', ['random_search', 'hyper_gradient'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_multiple_kernel_ridge_cv_precomputed(backend, solver):
@@ -191,9 +207,48 @@ class KernelRidge_(KernelRidge):
     Used for testing only.
     """
 
-    def predict(self, *args, **kwargs):
+    def predict(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().predict(*args, **kwargs))
+        return backend.to_numpy(super().predict(X))
+
+    def score(self, X, y):
+        from himalaya.validation import check_array
+        from himalaya.scoring import r2_score
+        backend = get_backend()
+
+        y_pred = super().predict(X)
+        y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
+
+        if y_true.ndim == 1:
+            return backend.to_numpy(
+                r2_score(y_true[:, None], y_pred[:, None])[0])
+        else:
+            return backend.to_numpy(r2_score(y_true, y_pred))
+
+
+class KernelRidgeCV_(KernelRidgeCV):
+    """Cast predictions to numpy arrays, to be used in scikit-learn tests.
+
+    Used for testing only.
+    """
+
+    def predict(self, X):
+        backend = get_backend()
+        return backend.to_numpy(super().predict(X))
+
+    def score(self, X, y):
+        from himalaya.validation import check_array
+        from himalaya.scoring import r2_score
+        backend = get_backend()
+
+        y_pred = super().predict(X)
+        y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
+
+        if y_true.ndim == 1:
+            return backend.to_numpy(
+                r2_score(y_true[:, None], y_pred[:, None])[0])
+        else:
+            return backend.to_numpy(r2_score(y_true, y_pred))
 
 
 class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
@@ -208,9 +263,13 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
         super().__init__(kernels=kernels, kernels_params=kernels_params,
                          solver=solver, solver_params=solver_params, cv=cv)
 
-    def predict(self, *args, **kwargs):
+    def predict(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().predict(*args, **kwargs))
+        return backend.to_numpy(super().predict(X))
+
+    def score(self, X, y):
+        backend = get_backend()
+        return backend.to_numpy(super().score(X, y))
 
 
 class WeightedKernelRidge_(WeightedKernelRidge):
@@ -219,13 +278,18 @@ class WeightedKernelRidge_(WeightedKernelRidge):
     Used for testing only.
     """
 
-    def predict(self, *args, **kwargs):
+    def predict(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().predict(*args, **kwargs))
+        return backend.to_numpy(super().predict(X))
+
+    def score(self, X, y):
+        backend = get_backend()
+        return backend.to_numpy(super().score(X, y))
 
 
 @sklearn.utils.estimator_checks.parametrize_with_checks([
     KernelRidge_(),
+    KernelRidgeCV_(),
     MultipleKernelRidgeCV_(),
     WeightedKernelRidge_(),
 ])

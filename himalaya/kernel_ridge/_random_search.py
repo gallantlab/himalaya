@@ -11,7 +11,7 @@ from ..validation import check_random_state
 
 def solve_multiple_kernel_ridge_random_search(
         Ks, Y, n_iter=100, concentration=[0.1, 1.0], alphas=1.0,
-        score_func=l2_neg_loss, cv=10, return_weights=None, Xs=None,
+        score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
         progress_bar=True):
@@ -42,7 +42,7 @@ def solve_multiple_kernel_ridge_random_search(
     Xs : array of shape (n_kernels, n_samples, n_features) or None
         Necessary if return_weights == 'primal'.
     local_alpha : bool
-        If True, alphas are selected per voxel, else globally over all voxels.
+        If True, alphas are selected per target, else shared over all targets.
     jitter_alphas : bool
         If True, alphas range is slightly jittered for each gamma.
     random_state : int, or None
@@ -59,13 +59,14 @@ def solve_multiple_kernel_ridge_random_search(
     progress_bar : bool
         If True, display a progress bar over gammas.
 
+
     Returns
     -------
     deltas : array of shape (n_kernels, n_targets)
         Best log kernel weights for each target.
     refit_weights : array or None
         Refit regression weights on the entire dataset, using selected best
-        hyperparameters. Refit weights will always be on CPU memory.
+        hyperparameters. Refit weights are always stored on CPU memory.
         If return_weights == 'primal', shape is (n_features, n_targets),
         if return_weights == 'dual', shape is (n_samples, n_targets),
         else, None.
@@ -211,6 +212,7 @@ def solve_multiple_kernel_ridge_random_search(
                     for start in range(0, len(update_indices),
                                        n_targets_batch_refit):
                         batch = slice(start, start + n_targets_batch_refit)
+
                         weights = backend.matmul(matrix,
                                                  Y[:, update_indices[batch]])
                         # used_n_alphas_batch, n_samples, n_targets_batch = \
@@ -410,3 +412,67 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
             yield matrices, batch
         else:
             return matrices, batch
+
+
+def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
+                                      cv=5, local_alpha=True,
+                                      n_targets_batch=None,
+                                      n_targets_batch_refit=None,
+                                      n_alphas_batch=None):
+    """Solve kernel ridge regression with a grid search over alphas.
+
+    Parameters
+    ----------
+    K : array of shape (n_samples, n_samples)
+        Input kernel.
+    Y : array of shape (n_samples, n_targets)
+        Target data.
+    alphas : float or array of shape (n_alphas, )
+        Range of ridge regularization parameter.
+    score_func : callable
+        Function used to compute the score of predictions versus Y.
+    cv : int or scikit-learn splitter
+        Cross-validation splitter. If an int, KFold is used.
+    local_alpha : bool
+        If True, alphas are selected per target, else shared over all targets.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
+    n_targets_batch_refit : int or None
+        Size of the batch for over targets during refit.
+        Used for memory reasons. If None, uses all n_targets at once.
+    n_alphas_batch : int or None
+        Size of the batch for over alphas. Used for memory reasons.
+        If None, uses all n_alphas at once.
+
+    Returns
+    -------
+    best_alphas : array of shape (n_targets, )
+        Selected best hyperparameter alphas.
+    dual_weights : array of shape (n_samples, n_targets)
+        Kernel ridge coefficients refit on the entire dataset, using selected
+        best hyperparameters alpha.
+    cv_scores : array of shape (n_targets, )
+        Cross-validation scores averaged over splits, for the best alpha.
+    """
+    backend = get_backend()
+
+    n_iter = backend.ones_like(K, shape=(1, 1))
+    fixed_params = dict(return_weights="dual", Xs=None, progress_bar=False,
+                        concentration=None, jitter_alphas=False,
+                        random_state=None, n_iter=n_iter)
+
+    copied_params = dict(alphas=alphas, score_func=score_func, cv=cv,
+                         local_alpha=local_alpha,
+                         n_targets_batch=n_targets_batch,
+                         n_targets_batch_refit=n_targets_batch_refit,
+                         n_alphas_batch=n_alphas_batch)
+
+    deltas, dual_weights, cv_scores = \
+        solve_multiple_kernel_ridge_random_search(
+            K[None], Y, **copied_params, **fixed_params)
+
+    best_alphas = backend.exp(-deltas)
+    dual_weights = backend.asarray(dual_weights)
+
+    return best_alphas, dual_weights, cv_scores

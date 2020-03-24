@@ -10,9 +10,11 @@ from ._hyper_gradient import solve_multiple_kernel_ridge_hyper_gradient
 from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
 from ._random_search import solve_multiple_kernel_ridge_random_search
 from ._random_search import generate_dirichlet_samples
+from ._random_search import solve_kernel_ridge_cv_eigenvalues
 from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
 from ._sklearn_api import KernelRidge
+from ._sklearn_api import KernelRidgeCV
 from ._sklearn_api import MultipleKernelRidgeCV
 from ._sklearn_api import WeightedKernelRidge
 from ._kernels import PAIRWISE_KERNEL_FUNCTIONS
@@ -27,6 +29,7 @@ __all__ = [
     solve_weighted_kernel_ridge_gradient_descent,
     solve_weighted_kernel_ridge_conjugate_gradient,
     solve_weighted_kernel_ridge_neumann_series,
+    solve_kernel_ridge_cv_eigenvalues,
     solve_kernel_ridge_eigenvalues,
     solve_kernel_ridge_gradient_descent,
     solve_kernel_ridge_conjugate_gradient,
@@ -42,6 +45,7 @@ __all__ = [
     predict_and_score_weighted_kernel_ridge,
     # scikit-learn API
     KernelRidge,
+    KernelRidgeCV,
     MultipleKernelRidgeCV,
     WeightedKernelRidge,
     # kernels

@@ -5,6 +5,7 @@ from sklearn.model_selection import check_cv
 from ._solvers import KERNEL_RIDGE_SOLVERS
 from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
 from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
+from ._random_search import solve_kernel_ridge_cv_eigenvalues
 from ._kernels import pairwise_kernels
 from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
@@ -195,11 +196,12 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             R^2 of self.predict(X) versus y.
         """
         y_pred = self.predict(X)
+        y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
 
-        if y_pred.ndim == 1:
-            return r2_score(y[:, None], y_pred[:, None])[0]
+        if y_true.ndim == 1:
+            return r2_score(y_true[:, None], y_pred[:, None])[0]
         else:
-            return r2_score(y, y_pred)
+            return r2_score(y_true, y_pred)
 
     def _get_kernel(self, X, Y=None):
         backend = get_backend()
@@ -210,6 +212,144 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     @property
     def _pairwise(self):
         return self.kernel == "precomputed"
+
+
+class KernelRidgeCV(KernelRidge):
+    """Kernel ridge regression with efficient cross-validation over alpha.
+
+    Parameters
+    ----------
+    alphas : array of shape (n_alphas, )
+        List of L2 regularization parameter to try.
+
+    kernel : str or callable, default="linear"
+        Kernel mapping. Available kernels are: 'linear',
+        'polynomial, 'poly', 'rbf', 'sigmoid', 'cosine', or 'precomputed'.
+        Set to 'precomputed' in order to pass a precomputed kernel matrix to
+        the estimator methods instead of samples.
+        A callable should accept two arguments and the keyword arguments passed
+        to this object as kernel_params, and should return a floating point
+        number.
+
+    kernel_params : dict or None
+        Additional parameters for the kernel function.
+
+    solver : str
+        Algorithm used during the fit, "eigenvalues" only for now.
+
+    solver_params : dict or None
+        Additional parameters for the solver.
+        See more details in the docstring of the function
+        himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues
+
+    cv : int or scikit-learn splitter
+        Cross-validation splitter. If an int, KFold is used.
+
+    Attributes
+    ----------
+    dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
+        Representation of weight vectors in kernel space.
+
+    best_alphas_ : array of shape (n_targets, )
+        Selected best hyperparameter alphas.
+
+    cv_scores_ : array of shape (n_targets, )
+        Cross-validation scores averaged over splits, for the best alpha.
+
+    X_fit_ : array of shape (n_samples, n_features).
+        Training data. If kernel == "precomputed" this is instead
+        a precomputed kernel array of shape (n_samples, n_samples).
+
+    n_features_in_ : int
+        Number of features (or number of samples if kernel == "precomputed")
+        used during the fit.
+
+    Examples
+    --------
+    >>> from himalaya.ridge import KernelRidgeCV
+    >>> import numpy as np
+    >>> n_samples, n_features, n_targets = 10, 5, 3
+    >>> X = np.random.randn(n_samples, n_features)
+    >>> Y = np.random.randn(n_samples, n_targets)
+    >>> clf = KernelRidgeCV()
+    >>> clf.fit(X, Y)
+    KernelRidgeCV()
+    """
+
+    def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
+                 solver="eigenvalues", solver_params=None, cv=None):
+        self.alphas = alphas
+        self.kernel = kernel
+        self.kernel_params = kernel_params
+        self.solver = solver
+        self.solver_params = solver_params
+        self.cv = cv
+
+    def fit(self, X, y=None, sample_weight=None):
+        """Fit kernel ridge regression model
+
+        Parameters
+        ----------
+        X : array of shape (n_samples, n_features).
+            Training data. If kernel == "precomputed" this is instead
+            a precomputed kernel array of shape (n_samples, n_samples).
+
+        y : array of shape (n_samples,) or (n_samples, n_targets)
+            Target values.
+
+        sample_weight : None, or array of shape (n_samples, )
+            Individual weights for each sample, ignored if None is passed.
+
+        Returns
+        -------
+        self : returns an instance of self.
+        """
+        backend = get_backend()
+        X = check_array(X, accept_sparse=("csr", "csc"), ndim=2)
+        self.dtype_ = _get_string_dtype(X)
+        y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
+        if X.shape[0] != y.shape[0]:
+            raise ValueError("Inconsistent number of samples.")
+
+        if sample_weight is not None:
+            sample_weight = check_array(sample_weight, dtype=self.dtype_,
+                                        ndim=1)
+            if sample_weight.shape[0] != y.shape[0]:
+                raise ValueError("Inconsistent number of samples.")
+
+        alphas = check_array(self.alphas, dtype=self.dtype_, ndim=1)
+
+        K = self._get_kernel(X)
+
+        ravel = False
+        if y.ndim == 1:
+            y = y[:, None]
+            ravel = True
+
+        if sample_weight is not None:
+            # We need to support sample_weight directly because K might be a
+            # pre-computed kernel.
+            sw = backend.sqrt(sample_weight)[:, None]
+            y = y * sw
+            K *= sw @ sw.T
+
+        cv = check_cv(self.cv)
+        solver_params = self.solver_params or {}
+
+        if self.solver == "eigenvalues":
+            self.best_alphas_, self.dual_coef_, self.cv_scores_ = \
+                solve_kernel_ridge_cv_eigenvalues(
+                    K, y, cv=cv, alphas=alphas, **solver_params)
+        else:
+            raise ValueError("Unknown solver=%r." % self.solver)
+
+        if ravel:
+            self.dual_coef_ = self.dual_coef_[:, 0]
+
+        self.X_fit_ = X
+        self.n_features_in_ = X.shape[1]
+
+        return self
 
 
 ###############################################################################
@@ -251,11 +391,13 @@ class _BaseWeightedKernelRidge(MultiOutputMixin, RegressorMixin,
         assert X.shape[-1] == self.n_features_in_
 
         if self.dual_coef_.ndim == 1:
-            Y_hat = predict_weighted_kernel_ridge(Ks, self.dual_coef_[:, None],
-                                                  self.deltas_[:, None])[:, 0]
+            Y_hat = predict_weighted_kernel_ridge(
+                Ks=Ks, dual_weights=self.dual_coef_[:, None],
+                deltas=self.deltas_[:, None])[:, 0]
         else:
-            Y_hat = predict_weighted_kernel_ridge(Ks, self.dual_coef_,
-                                                  self.deltas_)
+            Y_hat = predict_weighted_kernel_ridge(Ks=Ks,
+                                                  dual_weights=self.dual_coef_,
+                                                  deltas=self.deltas_)
         return Y_hat
 
     def score(self, X, y):
@@ -282,16 +424,19 @@ class _BaseWeightedKernelRidge(MultiOutputMixin, RegressorMixin,
                                                                      "csc")
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=ndim)
+        y = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
         Ks = self._get_kernels(X, self.X_fit_)
         assert X.shape[-1] == self.n_features_in_
 
         if self.dual_coef_.ndim == 1:
             score = predict_and_score_weighted_kernel_ridge(
-                Ks, self.dual_coef_[:, None], self.deltas_[:, None],
-                score_func=r2_score)[:, 0]
+                Ks=Ks, dual_weights=self.dual_coef_[:, None],
+                deltas=self.deltas_[:, None], Y=y[:, None],
+                score_func=r2_score)[0]
         else:
             score = predict_and_score_weighted_kernel_ridge(
-                Ks, self.dual_coef_, self.deltas_, score_func=r2_score)
+                Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_, Y=y,
+                score_func=r2_score)
         return score
 
     def _get_kernels(self, X, Y=None):
@@ -377,11 +522,12 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         Cross-validation scores, averaged over splits.
 
     X_fit_ : array of shape (n_samples, n_features)
-        Training data. If kernel == "precomputed" this is instead
-        a precomputed kernel array of shape (n_samples, n_samples).
+        Training data. If kernels == "precomputed" this is instead
+        a precomputed kernel array of shape
+        (n_kernels, n_samples, n_samples).
 
     n_features_in_ : int
-        Number of features (or number of samples if kernel == "precomputed")
+        Number of features (or number of samples if kernels == "precomputed")
         used during the fit.
 
     dtype_ : str
@@ -542,11 +688,12 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         Log of kernel weights.
 
     X_fit_ : array of shape (n_samples, n_features)
-        Training data. If kernel == "precomputed" this is instead
-        a precomputed kernel array of shape (n_samples, n_samples).
+        Training data. If kernels == "precomputed" this is instead
+        a precomputed kernel array of shape
+        (n_kernels, n_samples, n_samples).
 
     n_features_in_ : int
-        Number of features (or number of samples if kernel == "precomputed")
+        Number of features (or number of samples if kernels == "precomputed")
         used during the fit.
 
     dtype_ : str

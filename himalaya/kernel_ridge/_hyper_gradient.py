@@ -14,7 +14,7 @@ from ._random_search import solve_multiple_kernel_ridge_random_search
 
 
 def solve_multiple_kernel_ridge_hyper_gradient(
-        Ks, Y, score_func=l2_neg_loss, cv=10, return_weights=None, Xs=None,
+        Ks, Y, score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         initial_deltas=0, max_iter=100, tol=1e-2, max_iter_inner_dual=1,
         max_iter_inner_hyper=1, cg_tol=1e-3, n_targets_batch=None,
         hyper_gradient_method="conjugate_gradient",
