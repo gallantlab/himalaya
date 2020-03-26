@@ -12,7 +12,6 @@ for line in infos:
 requirements = [
     "numpy",
     "scikit-learn",
-    # "scipy", # optional
     # "cupy",  # optional
     # "torch",  # optional
     # "matplotlib",  # for visualization only
@@ -26,7 +25,7 @@ if __name__ == "__main__":
         maintainer_email="tom.dupre-la-tour@m4x.org",
         description="Multiple-target machine learning",
         license='BSD (3-clause)',
-        version='__version__',
+        version=__version__,
         packages=find_packages(),
         url="https://github.com/tomdlt/himalaya",
         install_requires=requirements,

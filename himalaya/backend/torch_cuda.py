@@ -8,10 +8,10 @@ try:
 except AssertionError as error:
     try:
         import pytest
-        pytest.skip("Torch not compiled with CUDA enabled.")
+        pytest.skip("PyTorch not compiled with CUDA enabled.")
     except ImportError:
         pass
-    raise AssertionError("Torch not compiled with CUDA enabled.") from error
+    raise AssertionError("PyTorch not compiled with CUDA enabled.") from error
 
 from .__init__ import _dtype_to_str
 
