@@ -94,4 +94,4 @@ pip install --editable .
 
 ### Examples
 
-To get example of use of Himalaya, see the [example directory](.examples).
+To get examples of use of Himalaya, see the ["examples"](examples) directory.
