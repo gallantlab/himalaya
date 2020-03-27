@@ -11,16 +11,15 @@ import matplotlib.pyplot as plt
 from himalaya.backend import set_backend
 from himalaya.kernel_ridge import solve_multiple_kernel_ridge_random_search
 from himalaya.kernel_ridge import predict_and_score_weighted_kernel_ridge
-from himalaya.scoring import l2_neg_loss
 from himalaya.scoring import r2_score_split
 from himalaya.viz import plot_alphas_diagnostic
 
 print(__doc__)
 
 ###############################################################################
-# In this example, we use the torch backend, and fit the model on GPU.
+# In this example, we use the cupy backend, and fit the model on GPU.
 
-backend = set_backend("torch")
+backend = set_backend("cupy")
 
 ###############################################################################
 # Generate a random dataset.
@@ -56,17 +55,15 @@ Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
 
 ###############################################################################
 # Precompute the linear kernels, and cast them to float32.
-#
-# We also send to GPU memory with `.cuda()`, to do the computation on GPU.
 
 Ks_train = backend.stack([X_train @ X_train.T for X_train in Xs_train])
-Ks_train = backend.asarray(Ks_train, dtype=backend.float32).cuda()
-Y_train = backend.asarray(Y_train, dtype=backend.float32).cuda()
+Ks_train = backend.asarray(Ks_train, dtype=backend.float32)
+Y_train = backend.asarray(Y_train, dtype=backend.float32)
 
 Ks_test = backend.stack(
     [X_test @ X_train.T for X_train, X_test in zip(Xs_train, Xs_test)])
-Ks_test = backend.asarray(Ks_test, dtype=backend.float32).cuda()
-Y_test = backend.asarray(Y_test, dtype=backend.float32).cuda()
+Ks_test = backend.asarray(Ks_test, dtype=backend.float32)
+Y_test = backend.asarray(Y_test, dtype=backend.float32)
 
 ###############################################################################
 # Run the solver, using random search. This method should work fine for
@@ -95,22 +92,20 @@ return_weights = 'dual'
 n_targets_batch_refit = 200
 
 # Run the solver. For each iteration, it will:
-# - sample kernel weights gamma from a Dirichlet distribution
+# - sample kernel weights from a Dirichlet distribution
 # - fit (n_splits * n_alphas * n_targets) ridge models
 # - compute the scores on the validation set of each split
 # - average the scores over splits
 # - take the maximum over alphas
 # - (only if you ask for the ridge weights) refit using the best alphas per
 #   target and the entire dataset
-# - return for each target the alpha and gamma leading to the best CV score
+# - return for each target the log kernel weights leading to the best CV score
 #   (and the best weights if necessary)
 results = solve_multiple_kernel_ridge_random_search(
     Ks=Ks_train,
     Y=Y_train,
     n_iter=n_iter,
     alphas=alphas,
-    score_func=l2_neg_loss,
-    cv_splitter=10,
     n_targets_batch=n_targets_batch,
     return_weights=return_weights,
     n_alphas_batch=n_alphas_batch,
@@ -118,25 +113,24 @@ results = solve_multiple_kernel_ridge_random_search(
     jitter_alphas=True,
 )
 
-# As we used the torch backend, the results are torch.Tensors.
-# As the data was on GPU, the results are also on GPU.
+# As we used the cupy backend, the results are cupy arrays, which are on GPU.
 # Here, we cast the results back to CPU, and to numpy arrays.
 deltas = backend.to_numpy(results[0])
 dual_weights = backend.to_numpy(results[1])
-all_scores_mean = backend.to_numpy(results[2])
+cv_scores = backend.to_numpy(results[2])
 
 ###############################################################################
 # Plot the convergence curve.
 #
-# `all_scores_mean` gives the scores for each gamma.
+# `cv_scores` gives the scores for each sampled kernel weights.
 # The convergence curve is thus the current maximum for each target.
 
-current_max = np.maximum.accumulate(all_scores_mean, axis=0)
+current_max = np.maximum.accumulate(cv_scores, axis=0)
 mean_current_max = np.mean(current_max, axis=1)
 x_array = np.arange(1, len(mean_current_max) + 1)
 plt.plot(x_array, mean_current_max, '-o')
 plt.grid("on")
-plt.xlabel("number of gamma samples")
+plt.xlabel("Number of kernel weights sampled")
 plt.title("Convergence of the L2 negative loss, averaged over targets")
 plt.show()
 
