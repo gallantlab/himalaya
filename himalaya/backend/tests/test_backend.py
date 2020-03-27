@@ -105,3 +105,26 @@ def test_diagonal_view(backend):
                     reference = np.diagonal(backend.to_numpy(array),
                                             axis1=axis1, axis2=axis2)
                     assert_array_almost_equal(result, reference)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_eigh(backend):
+    import scipy.linalg
+    backend = set_backend(backend)
+
+    array = backend.randn(10, 20)
+    array = backend.asarray(array, dtype='float64')
+    kernel = array @ array.T
+
+    values, vectors = backend.eigh(kernel)
+    values_ref, vectors_ref = scipy.linalg.eigh(backend.to_numpy(kernel))
+
+    assert_array_almost_equal(values, values_ref)
+
+    # vectors can be flipped in sign
+    assert vectors.shape == vectors_ref.shape
+    for ii in range(vectors.shape[1]):
+        try:
+            assert_array_almost_equal(vectors[:, ii], vectors_ref[:, ii])
+        except AssertionError:
+            assert_array_almost_equal(vectors[:, ii], -vectors_ref[:, ii])
