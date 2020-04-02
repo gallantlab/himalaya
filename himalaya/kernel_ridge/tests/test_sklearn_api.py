@@ -197,6 +197,15 @@ def test_weighted_kernel_ridge_precomputed(backend, solver):
                               model_2.predict(Ks[0][None]))
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_duplicate_solver_parameters(backend):
+    backend = set_backend(backend)
+    Xs, _, Y = _create_dataset(backend)
+
+    model = KernelRidge(solver_params=dict(alpha=1))
+    with pytest.raises(ValueError):
+        model.fit(Xs[0], Y)
+
 ###############################################################################
 # scikit-learn.utils.estimator_checks
 

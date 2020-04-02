@@ -1,3 +1,5 @@
+from abc import ABC, abstractmethod
+
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
 from sklearn.model_selection import check_cv
@@ -7,6 +9,7 @@ from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
 from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
 from ._random_search import solve_kernel_ridge_cv_eigenvalues
 from ._kernels import pairwise_kernels
+from ._kernels import PAIRWISE_KERNEL_FUNCTIONS
 from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
 
@@ -16,7 +19,37 @@ from ..backend import get_backend
 from ..scoring import r2_score
 
 
-class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
+class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
+    """Base class for kernel ridge estimators"""
+
+    ALL_KERNELS = PAIRWISE_KERNEL_FUNCTIONS
+
+    @property
+    @classmethod
+    @abstractmethod
+    def ALL_SOLVERS(cls):
+        ...
+
+    def _call_solver(self, **direct_params):
+        if self.solver not in self.ALL_SOLVERS:
+            raise ValueError("Unknown solver=%r." % self.solver)
+
+        function = self.ALL_SOLVERS[self.solver]
+        solver_params = self.solver_params or {}
+
+        # check duplicated parameters
+        intersection = set(direct_params.keys()).intersection(
+            set(solver_params.keys()))
+        if intersection:
+            raise ValueError(
+                'Parameters %s should not be given in solver_params, since '
+                'they are either fixed or have a direct parameter in %s.' %
+                (intersection, self.__class__.__name__))
+
+        return function(**direct_params, **solver_params)
+
+
+class KernelRidge(_BaseKernelRidge):
     """Kernel ridge regression.
 
     Solve the kernel ridge regression
@@ -43,7 +76,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     kernel_params : dict or None
         Additional parameters for the kernel function.
         See more details in the docstring of the function:
-            himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+            KernelRidge.ALL_KERNELS[kernel]
 
     solver : str
         Algorithm used during the fit, "eigenvalues", "conjugate_gradient", or
@@ -52,7 +85,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            himalaya.kernel_ridge.KERNEL_RIDGE_SOLVERS[solver]
+            KernelRidge.ALL_SOLVERS[solver]
 
     Attributes
     ----------
@@ -81,6 +114,7 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
     >>> model.fit(X, Y)
     KernelRidge()
     """
+    ALL_SOLVERS = KERNEL_RIDGE_SOLVERS
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None):
@@ -138,12 +172,10 @@ class KernelRidge(MultiOutputMixin, RegressorMixin, BaseEstimator):
             y = y * sw
             K *= sw @ sw.T
 
-        solver_params = self.solver_params or {}
+        # ------------------ call the solver
+        self.dual_coef_ = self._call_solver(K=K, Y=y, alpha=self.alpha)
 
-        if self.solver in KERNEL_RIDGE_SOLVERS:
-            function = KERNEL_RIDGE_SOLVERS[self.solver]
-            self.dual_coef_ = function(K, y, alpha=self.alpha, **solver_params)
-        else:
+        if self.solver not in self.ALL_SOLVERS:
             raise ValueError("Unknown solver=%r." % self.solver)
 
         if ravel:
@@ -233,14 +265,16 @@ class KernelRidgeCV(KernelRidge):
 
     kernel_params : dict or None
         Additional parameters for the kernel function.
+        See more details in the docstring of the function:
+            KernelRidgeCV.ALL_KERNELS[kernel]
 
     solver : str
         Algorithm used during the fit, "eigenvalues" only for now.
 
     solver_params : dict or None
         Additional parameters for the solver.
-        See more details in the docstring of the function
-        himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues
+        See more details in the docstring of the function:
+            KernelRidgeCV.ALL_SOLVERS[solver]
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -275,6 +309,7 @@ class KernelRidgeCV(KernelRidge):
     >>> clf.fit(X, Y)
     KernelRidgeCV()
     """
+    ALL_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues)
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, cv=None):
@@ -334,14 +369,10 @@ class KernelRidgeCV(KernelRidge):
             K *= sw @ sw.T
 
         cv = check_cv(self.cv)
-        solver_params = self.solver_params or {}
 
-        if self.solver == "eigenvalues":
-            self.best_alphas_, self.dual_coef_, self.cv_scores_ = \
-                solve_kernel_ridge_cv_eigenvalues(
-                    K, y, cv=cv, alphas=alphas, **solver_params)
-        else:
-            raise ValueError("Unknown solver=%r." % self.solver)
+        # ------------------ call the solver
+        tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas)
+        self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
@@ -355,16 +386,9 @@ class KernelRidgeCV(KernelRidge):
 ###############################################################################
 
 
-class _BaseWeightedKernelRidge(MultiOutputMixin, RegressorMixin,
-                               BaseEstimator):
+class _BaseWeightedKernelRidge(_BaseKernelRidge):
     """Private class for shared implementations.
     """
-
-    def __init__(self):
-        ...
-
-    def fit(self, X, y=None, sample_weight=None):
-        ...
 
     def predict(self, X):
         """Predict using the model.
@@ -497,7 +521,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     kernels_params : list of dict, or None
         Additional parameters for the kernel functions.
         See more details in the docstring of the function:
-            himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+            MultipleKernelRidgeCV.ALL_KERNELS[kernel]
 
     solver : str
         Algorithm used during the fit, "random_search", or "hyper_gradient".
@@ -505,7 +529,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            himalaya.kernel_ridge.MULTIPLE_KERNEL_RIDGE_SOLVERS[solver]
+            MultipleKernelRidgeCV.ALL_SOLVERS[solver]
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -544,6 +568,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     >>> model.fit(X, Y)
     MultipleKernelRidgeCV()
     """
+    ALL_SOLVERS = MULTIPLE_KERNEL_RIDGE_SOLVERS
 
     def __init__(self, kernels=["linear", "polynomial"], kernels_params=None,
                  solver="random_search", solver_params=None, cv=5):
@@ -607,16 +632,11 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
             Ks *= (sw @ sw.T)[None]
 
         cv = check_cv(self.cv)
-        solver_params = self.solver_params or {}
 
-        if self.solver in MULTIPLE_KERNEL_RIDGE_SOLVERS:
-            function = MULTIPLE_KERNEL_RIDGE_SOLVERS[self.solver]
-            results = function(Ks, y, cv=cv, return_weights="dual", Xs=None,
-                               **solver_params)
-            self.deltas_, self.dual_coef_, self.cv_scores_ = results
-
-        else:
-            raise ValueError("Unknown solver=%r." % self.solver)
+        # ------------------ call the solver
+        tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
+                                Xs=None)
+        self.deltas_, self.dual_coef_, self.cv_scores_ = tmp
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
@@ -665,7 +685,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     kernels_params : list of dict, or None
         Additional parameters for the kernel functions.
         See more details in the docstring of the function:
-            himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS[kernel]
+            WeightedKernelRidge.ALL_KERNELS[kernel]
 
     solver : str
         Algorithm used during the fit, "conjugate_gradient", or
@@ -674,7 +694,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            himalaya.kernel_ridge.WEIGHTED_KERNEL_RIDGE_SOLVERS[solver]
+            WeightedKernelRidge.ALL_SOLVERS[solver]
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -710,6 +730,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     >>> model.fit(X, Y)
     WeightedKernelRidge()
     """
+    ALL_SOLVERS = WEIGHTED_KERNEL_RIDGE_SOLVERS
 
     def __init__(self, alpha=1., deltas="zeros",
                  kernels=["linear", "polynomial"], kernels_params=None,
@@ -787,13 +808,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
             if self.deltas_.ndim == 1:
                 self.deltas_ = self.deltas_[:, None]
 
-        solver_params = self.solver_params or {}
-        if self.solver in WEIGHTED_KERNEL_RIDGE_SOLVERS:
-            function = WEIGHTED_KERNEL_RIDGE_SOLVERS[self.solver]
-            self.dual_coef_ = function(Ks=Ks, Y=y, deltas=self.deltas_,
-                                       **solver_params)
-        else:
-            raise ValueError("Unknown solver=%r." % self.solver)
+        # ------------------ call the solver
+        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, deltas=self.deltas_)
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]

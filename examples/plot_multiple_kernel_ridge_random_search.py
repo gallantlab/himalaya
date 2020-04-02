@@ -164,7 +164,7 @@ plt.show()
 # Compute the split predictions on the test set (requires the dual weights).
 #
 # Here we apply the dual weights on each kernel separately
-# (gamma[i] * kernel[i]), and we compute the R2 scores
+# (exp(deltas[i]) * kernel[i]), and we compute the R2 scores
 # (corrected for correlations) of each prediction.
 
 split = True
