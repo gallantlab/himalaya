@@ -44,6 +44,10 @@ set_backend("torch")
 
 data = backend.asarray(data)  # torch tensors are on CPU by default...
 data = data.cuda()  # ...and you can move them to GPU with the `cuda` method.
+
+# or directly use
+set_backend("torch_cuda")
+data = backend.asarray(data)
 ```
 
 ## Installation
