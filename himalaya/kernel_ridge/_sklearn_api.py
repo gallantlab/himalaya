@@ -312,7 +312,7 @@ class KernelRidgeCV(KernelRidge):
     ALL_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues)
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None, cv=None):
+                 solver="eigenvalues", solver_params=None, cv=5):
         self.alphas = alphas
         self.kernel = kernel
         self.kernel_params = kernel_params
@@ -384,6 +384,9 @@ class KernelRidgeCV(KernelRidge):
 
 
 ###############################################################################
+###############################################################################
+###############################################################################
+###############################################################################
 
 
 class _BaseWeightedKernelRidge(_BaseKernelRidge):
@@ -452,15 +455,21 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         Ks = self._get_kernels(X, self.X_fit_)
         assert X.shape[-1] == self.n_features_in_
 
+        if (self.solver_params is not None
+                and "n_targets_batch" in self.solver_params):
+            n_targets_batch = self.solver_params["n_targets_batch"]
+        else:
+            n_targets_batch = None
+
         if self.dual_coef_.ndim == 1:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
                 deltas=self.deltas_[:, None], Y=y[:, None],
-                score_func=r2_score)[0]
+                score_func=r2_score, n_targets_batch=n_targets_batch)[0]
         else:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_, Y=y,
-                score_func=r2_score)
+                score_func=r2_score, n_targets_batch=n_targets_batch)
         return score
 
     def _get_kernels(self, X, Y=None):

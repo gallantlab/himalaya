@@ -206,6 +206,24 @@ def test_duplicate_solver_parameters(backend):
     with pytest.raises(ValueError):
         model.fit(Xs[0], Y)
 
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_cv_predict(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    n_iter = backend.ones_like(Ks, shape=(1, Ks.shape[0]))
+    alphas = backend.logspace(1, 2, 3)
+
+    model_0 = KernelRidgeCV(kernel="precomputed",
+                            alphas=alphas).fit(Ks.sum(0), Y)
+    model_1 = MultipleKernelRidgeCV(
+        kernels="precomputed", solver_params=dict(n_iter=n_iter,
+                                                  alphas=alphas)).fit(Ks, Y)
+
+    assert_array_almost_equal(model_0.predict(Ks.sum(0)), model_1.predict(Ks))
+
+
 ###############################################################################
 # scikit-learn.utils.estimator_checks
 

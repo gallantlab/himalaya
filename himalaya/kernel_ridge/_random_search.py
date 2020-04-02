@@ -258,7 +258,7 @@ def solve_multiple_kernel_ridge_random_search(
 
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
-        refit_weights = refit_weights * backend.cpu(best_alphas)
+        refit_weights *= backend.cpu(best_alphas)
 
     return deltas, refit_weights, cv_scores
 
@@ -472,7 +472,8 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
         solve_multiple_kernel_ridge_random_search(
             K[None], Y, **copied_params, **fixed_params)
 
-    best_alphas = backend.exp(-deltas)
-    dual_weights = backend.asarray(dual_weights)
+    best_alphas = backend.exp(-deltas[0])
+    dual_weights = backend.asarray_like(dual_weights, ref=K)
+    dual_weights /= best_alphas
 
     return best_alphas, dual_weights, cv_scores
