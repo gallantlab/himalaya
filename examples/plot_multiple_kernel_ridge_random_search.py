@@ -131,7 +131,8 @@ x_array = np.arange(1, len(mean_current_max) + 1)
 plt.plot(x_array, mean_current_max, '-o')
 plt.grid("on")
 plt.xlabel("Number of kernel weights sampled")
-plt.title("Convergence of the L2 negative loss, averaged over targets")
+plt.ylabel("L2 negative loss (higher is better)")
+plt.title("Convergence curve, averaged over targets")
 plt.show()
 
 ###############################################################################
@@ -147,8 +148,6 @@ plt.show()
 
 ###############################################################################
 # Compute the predictions on the test set (requires the dual weights).
-#
-# The generalization scores are close to zero since the dataset is only noise.
 
 split = False
 scores = predict_and_score_weighted_kernel_ridge(
@@ -157,7 +156,8 @@ scores = predict_and_score_weighted_kernel_ridge(
 scores = backend.to_numpy(scores)
 
 plt.hist(scores, 50)
-plt.title(r"Histogram of $R^2$ generalization score")
+plt.xlabel(r"$R^2$ generalization score")
+plt.title("Histogram over targets")
 plt.show()
 
 ###############################################################################
