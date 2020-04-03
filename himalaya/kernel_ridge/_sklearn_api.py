@@ -93,8 +93,7 @@ class KernelRidge(_BaseKernelRidge):
         Representation of weight vectors in kernel space.
 
     X_fit_ : array of shape (n_samples, n_features)
-        Training data. If kernel == "precomputed" this is instead
-        a precomputed kernel array of shape (n_samples, n_samples).
+        Training data. If kernel == "precomputed" this is None.
 
     n_features_in_ : int
         Number of features (or number of samples if kernel == "precomputed")
@@ -181,7 +180,7 @@ class KernelRidge(_BaseKernelRidge):
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
 
-        self.X_fit_ = X
+        self.X_fit_ = X if self.kernel != "precomputed" else None
         self.n_features_in_ = X.shape[1]
 
         return self
@@ -206,7 +205,11 @@ class KernelRidge(_BaseKernelRidge):
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=2)
         K = self._get_kernel(X, self.X_fit_)
-        assert X.shape[1] == self.n_features_in_
+
+        if X.shape[1] != self.n_features_in_:
+            raise ValueError(
+                'Different number of features in X than during fit.')
+
         Y_hat = K @ self.dual_coef_
         return Y_hat
 
@@ -290,9 +293,8 @@ class KernelRidgeCV(KernelRidge):
     cv_scores_ : array of shape (n_targets, )
         Cross-validation scores averaged over splits, for the best alpha.
 
-    X_fit_ : array of shape (n_samples, n_features).
-        Training data. If kernel == "precomputed" this is instead
-        a precomputed kernel array of shape (n_samples, n_samples).
+    X_fit_ : array of shape (n_samples, n_features)
+        Training data. If kernel == "precomputed" this is None.
 
     n_features_in_ : int
         Number of features (or number of samples if kernel == "precomputed")
@@ -377,7 +379,7 @@ class KernelRidgeCV(KernelRidge):
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
 
-        self.X_fit_ = X
+        self.X_fit_ = X if self.kernel != "precomputed" else None
         self.n_features_in_ = X.shape[1]
 
         return self
@@ -400,7 +402,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         ----------
         X : array of shape (n_samples_test, n_features)
             Samples. If kernels == "precomputed" this is instead a precomputed
-            kernel array of shape (n_kerbels, n_samples_test, n_samples_train).
+            kernel array of shape (n_kernels, n_samples_test, n_samples_train).
 
         Returns
         -------
@@ -415,7 +417,10 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=ndim)
         Ks = self._get_kernels(X, self.X_fit_)
-        assert X.shape[-1] == self.n_features_in_
+
+        if X.shape[-1] != self.n_features_in_:
+            raise ValueError(
+                'Different number of features in X than during fit.')
 
         if self.dual_coef_.ndim == 1:
             Y_hat = predict_weighted_kernel_ridge(
@@ -434,7 +439,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         ----------
         X : array of shape (n_samples_test, n_features)
             Samples. If kernels == "precomputed" this is instead a precomputed
-            kernel array of shape (n_kerbels, n_samples_test, n_samples_train).
+            kernel array of shape (n_kernels, n_samples_test, n_samples_train).
 
         y : array-like of shape (n_samples,) or (n_samples, n_targets)
             True values for X.
@@ -453,7 +458,10 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
                         ndim=ndim)
         y = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
         Ks = self._get_kernels(X, self.X_fit_)
-        assert X.shape[-1] == self.n_features_in_
+
+        if X.shape[-1] != self.n_features_in_:
+            raise ValueError(
+                'Different number of features in X than during fit.')
 
         if (self.solver_params is not None
                 and "n_targets_batch" in self.solver_params):
@@ -475,14 +483,11 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
     def _get_kernels(self, X, Y=None):
         backend = get_backend()
         if isinstance(self.kernels, str) and self.kernels == "precomputed":
-            n_kernels = X.shape[0]
-            Y_ = Y[0] if Y is not None else None
-            _ = pairwise_kernels(X[0], Y_, metric="precomputed")
             kernels = backend.asarray(X)
 
         elif not isinstance(self.kernels, (list, tuple)):
             raise ValueError("Parameter 'kernels' has to be a list or a tuple "
-                             "or kernel parameters. Got %r instead." %
+                             "of kernel parameters. Got %r instead." %
                              (self.kernels, ))
         else:
             n_kernels = len(self.kernels)
@@ -495,10 +500,6 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             kernels = backend.stack(kernels)
 
         return kernels
-
-    @property
-    def _pairwise(self):
-        return self.kernel == "precomputed"
 
 
 class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
@@ -555,9 +556,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         Cross-validation scores, averaged over splits.
 
     X_fit_ : array of shape (n_samples, n_features)
-        Training data. If kernels == "precomputed" this is instead
-        a precomputed kernel array of shape
-        (n_kernels, n_samples, n_samples).
+        Training data. If kernels == "precomputed" this is None.
 
     n_features_in_ : int
         Number of features (or number of samples if kernels == "precomputed")
@@ -651,7 +650,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
             self.dual_coef_ = self.dual_coef_[:, 0]
             self.deltas_ = self.deltas_[:, 0]
 
-        self.X_fit_ = X
+        self.X_fit_ = X if self.kernels != "precomputed" else None
         self.n_features_in_ = X.shape[-1]
 
         return self
@@ -717,9 +716,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         Log of kernel weights.
 
     X_fit_ : array of shape (n_samples, n_features)
-        Training data. If kernels == "precomputed" this is instead
-        a precomputed kernel array of shape
-        (n_kernels, n_samples, n_samples).
+        Training data. If kernels == "precomputed" this is None.
 
     n_features_in_ : int
         Number of features (or number of samples if kernels == "precomputed")
@@ -824,7 +821,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
             self.dual_coef_ = self.dual_coef_[:, 0]
             self.deltas_ = self.deltas_[:, 0]
 
-        self.X_fit_ = X
+        self.X_fit_ = X if self.kernels != "precomputed" else None
         self.n_features_in_ = X.shape[-1]
 
         return self

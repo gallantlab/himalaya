@@ -48,10 +48,11 @@ ws = [
 Y_train = backend.stack([X @ w for X, w in zip(Xs_train, ws)]).sum(0)
 Y_test = backend.stack([X @ w for X, w in zip(Xs_test, ws)]).sum(0)
 
-# Add some arbitrary scalings per kernel
-scalings = [0.2, 5, 1]
-Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
-Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
+# Optional: Add some arbitrary scalings per kernel
+if True:
+    scalings = [0.2, 5, 1]
+    Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
+    Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
 
 ###############################################################################
 # Precompute the linear kernels, and cast them to float32.

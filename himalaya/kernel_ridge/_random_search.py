@@ -82,6 +82,7 @@ def solve_multiple_kernel_ridge_random_search(
                                             random_state=random_state)
     elif n_iter.ndim == 2:
         gammas = n_iter
+        assert gammas.shape[1] == Ks.shape[0]
     else:
         raise ValueError("Unknown parameter n_iter=%r." % (n_iter, ))
 

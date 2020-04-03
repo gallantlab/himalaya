@@ -11,6 +11,10 @@ import matplotlib.pyplot as plt
 from himalaya.backend import set_backend
 from himalaya.kernel_ridge import KernelRidgeCV
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
+from himalaya.kernel_ridge import Kernelizer
+from himalaya.kernel_ridge import ColumnKernelizer
+
+from sklearn.pipeline import make_pipeline
 
 print(__doc__)
 
@@ -37,6 +41,7 @@ n_samples_train = 1000
 n_samples_test = 300
 n_targets = 1000
 n_features_list = [1000, 1000, 500]
+feature_names = ["feature space A", "feature space B", "feature space C"]
 
 Xs_train = [
     backend.randn(n_samples_train, n_features)
@@ -52,25 +57,40 @@ ws = [
 Y_train = backend.stack([X @ w for X, w in zip(Xs_train, ws)]).sum(0)
 Y_test = backend.stack([X @ w for X, w in zip(Xs_test, ws)]).sum(0)
 
-# Add some arbitrary scalings per kernel
-scalings = [0.2, 5, 1]
-Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
-Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
+# Optional: Add some arbitrary scalings per kernel
+if True:
+    scalings = [0.2, 5, 1]
+    Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
+    Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
+
+# concatenate the feature spaces and move to GPU with backend.asarray
+X_train = backend.asarray(backend.concatenate(Xs_train, 1), dtype="float32")
+X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
 
 ###############################################################################
-# Precompute the linear kernels, and cast them to float32.
+# We could precompute the kernels by hand on Xs_train, as done in
+# plot_multiple_kernel_ridge_random_search.py.
+# Here instead, we use the ColumnKernelizer to make a scikit-learn Pipeline.
 
-Ks_train = backend.stack([X_train @ X_train.T for X_train in Xs_train])
-Ks_train = backend.asarray(Ks_train, dtype=backend.float32)
-Y_train = backend.asarray(Y_train, dtype=backend.float32)
+# Find the start and end of each feature space X in Xs
+start_and_end = np.concatenate([[0], np.cumsum(n_features_list)])
+slices = [
+    slice(start, end)
+    for start, end in zip(start_and_end[:-1], start_and_end[1:])
+]
 
-Ks_test = backend.stack(
-    [X_test @ X_train.T for X_train, X_test in zip(Xs_train, Xs_test)])
-Ks_test = backend.asarray(Ks_test, dtype=backend.float32)
-Y_test = backend.asarray(Y_test, dtype=backend.float32)
+# Create a different Kernelizer for each feature space.
+# Here we use a linear kernel for all feature spaces, but ColumnKernelizer
+# accepts any Kernelizer, or scikit-learn Pipeline ending with a Kernelizer.
+kernelizers = [(name, Kernelizer(), slice_)
+               for name, slice_ in zip(feature_names, slices)]
+column_kernelizer = ColumnKernelizer(kernelizers)
+
+# Note that ColumnKernelizer has a parameter `n_jobs` to parallelize each
+# kernelizer, yet such parallelism does not work with GPU arrays.
 
 ###############################################################################
-# Define and fit the model
+# Define the model
 #
 # The class takes a number of common parameters during initialization, such as
 # `kernels` or `solver`. Since the solver parameters might be different
@@ -105,12 +125,17 @@ solver_params = dict(n_iter=n_iter, alphas=alphas,
 
 model = MultipleKernelRidgeCV(kernels="precomputed", solver="random_search",
                               solver_params=solver_params)
-model.fit(Ks_train, Y_train)
+
+###############################################################################
+# Define and fit the pipeline
+
+pipe = make_pipeline(column_kernelizer, model)
+pipe.fit(X_train, Y_train)
 
 ###############################################################################
 # Plot the convergence curve.
 
-cv_scores = backend.to_numpy(model.cv_scores_)
+cv_scores = backend.to_numpy(pipe[1].cv_scores_)
 
 # `cv_scores` gives the scores for each sampled kernel weights.
 # The convergence curve is thus the current maximum for each target.
@@ -126,20 +151,18 @@ plt.title("Convergence curve, averaged over targets")
 plt.show()
 
 ###############################################################################
-# Compare to KernelRidgeCV with the average kernel (kernel weights identical),
-# with the prediction scores on the test set.
+# Compare to KernelRidgeCV with all the concatenated features.
+# Comparison uses the prediction scores on the test set.
 
 # fit the baseline model KernelRidgeCV
-K_train = Ks_train.mean(0)
-K_test = Ks_test.mean(0)
-baseline = KernelRidgeCV(kernel="precomputed", alphas=alphas)
-baseline.fit(K_train, Y_train)
+baseline = KernelRidgeCV(kernel="linear", alphas=alphas)
+baseline.fit(X_train, Y_train)
 
 # compute scores of both models
-scores = model.score(Ks_test, Y_test)
+scores = pipe.score(X_test, Y_test)
 scores = backend.to_numpy(scores)
 
-scores_baseline = baseline.score(K_test, Y_test)
+scores_baseline = baseline.score(X_test, Y_test)
 scores_baseline = backend.to_numpy(scores_baseline)
 
 # plot histograms

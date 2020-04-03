@@ -76,11 +76,7 @@ def check_pairwise_arrays(X, Y, precomputed=False, dtype=None,
                         force_all_finite=force_all_finite)
 
     if precomputed:
-        if X.shape[1] != Y.shape[0]:
-            raise ValueError("Precomputed metric requires shape "
-                             "(n_queries, n_indexed). Got (%d, %d) "
-                             "for %d indexed." %
-                             (X.shape[0], X.shape[1], Y.shape[0]))
+        pass
     elif X.shape[1] != Y.shape[1]:
         raise ValueError("Incompatible dimension for X and Y matrices: "
                          "X.shape[1] == %d while Y.shape[1] == %d" %

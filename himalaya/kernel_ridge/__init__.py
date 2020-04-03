@@ -23,6 +23,9 @@ from ._kernels import polynomial_kernel
 from ._kernels import rbf_kernel
 from ._kernels import sigmoid_kernel
 from ._kernels import cosine_similarity_kernel
+from ._kernelizer import Kernelizer
+from ._kernelizer import ColumnKernelizer
+from ._kernelizer import make_column_kernelizer
 
 __all__ = [
     # kernel ridge solvers
@@ -55,4 +58,8 @@ __all__ = [
     rbf_kernel,
     sigmoid_kernel,
     cosine_similarity_kernel,
+    # kernelizers
+    Kernelizer,
+    ColumnKernelizer,
+    make_column_kernelizer,
 ]
