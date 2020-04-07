@@ -205,7 +205,7 @@ def solve_multiple_kernel_ridge_random_search(
                 # refit weights only for alphas used by at least one target
                 used_alphas = backend.unique(best_alphas[mask])
                 dual_weights = backend.zeros_like(
-                    K, shape=(n_samples, len(update_indices)))
+                    K, shape=(n_samples, len(update_indices)), device="cpu")
                 for matrix, alpha_batch in _decompose_kernel_ridge(
                         K, used_alphas, Ktest=None,
                         n_alphas_batch=min(len(used_alphas), n_alphas_batch)):
@@ -232,10 +232,10 @@ def solve_multiple_kernel_ridge_random_search(
                             backend.arange(len(used_alphas))[alpha_batch],
                             alphas_indices[mask2])
                         # update corresponding weights
-                        dual_weights[:, batch][:, mask2] = (
+                        dual_weights[:, batch][:, mask2] = backend.cpu(
                             weights[alphas_indices, :,
                                     backend.arange(weights.shape[2])[mask2]]).T
-                        del weights
+                        del weights, alphas_indices, mask2
                     del matrix
 
                 if return_weights == 'primal':
@@ -244,18 +244,16 @@ def solve_multiple_kernel_ridge_random_search(
                     # on the scaled features (np.sqrt(g) * Xs)
                     X = backend.concatenate([t * g for t, g in zip(Xs, gamma)],
                                             1)
-                    primal_weights = backend.matmul(X.T, dual_weights)
-                    refit_weights[:, backend.cpu(mask)] = backend.cpu(
-                        primal_weights)
-
+                    primal_weights = backend.cpu(X.T) @ dual_weights
+                    refit_weights[:, backend.cpu(mask)] = primal_weights
                     del X, primal_weights
+
                 elif return_weights == 'dual':
-                    refit_weights[:, backend.cpu(mask)] = backend.cpu(
-                        dual_weights)
+                    refit_weights[:, backend.cpu(mask)] = dual_weights
 
                 del dual_weights
-
-        del K
+            del update_indices
+        del K, mask
 
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
@@ -413,6 +411,8 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
             yield matrices, batch
         else:
             return matrices, batch
+
+        del matrices
 
 
 def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
