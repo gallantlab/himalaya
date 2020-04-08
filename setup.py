@@ -12,8 +12,8 @@ for line in infos:
 requirements = [
     "numpy",
     "scikit-learn",
-    # "cupy",  # optional
-    # "torch",  # optional
+    # "cupy",  # optional backend
+    # "torch",  # optional backend
     # "matplotlib",  # for visualization only
     # "pytest",  # for testing only
 ]
@@ -22,11 +22,11 @@ if __name__ == "__main__":
     setup(
         name='himalaya',
         maintainer="Tom Dupre la Tour",
-        maintainer_email="tom.dupre-la-tour@m4x.org",
+        maintainer_email="tomdlt@berkeley.edu",
         description="Multiple-target machine learning",
         license='BSD (3-clause)',
         version=__version__,
         packages=find_packages(),
-        url="https://github.com/tomdlt/himalaya",
+        url="https://github.com/gallantlab/himalaya",
         install_requires=requirements,
     )
