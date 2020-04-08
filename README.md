@@ -80,7 +80,7 @@ pip install himalaya
 To install Himalaya from the latest source (`master` branch), you may call:
 
 ```bash
-pip install git+https://github.com/TomDLT/himalaya.git
+pip install git+https://github.com/gallantlab/himalaya.git
 ```
 
 Assuming the source has been downloaded manually, you may install it by
