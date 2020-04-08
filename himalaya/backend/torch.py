@@ -111,7 +111,7 @@ def to_numpy(array):
         return array
 
 
-def cpu(array):
+def to_cpu(array):
     return array.cpu()
 
 

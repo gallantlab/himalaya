@@ -14,6 +14,7 @@ from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
 
 from ..validation import check_array
+from ..validation import issparse
 from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..scoring import r2_score
@@ -159,6 +160,10 @@ class KernelRidge(_BaseKernelRidge):
 
         K = self._get_kernel(X)
 
+        self.X_fit_ = _to_cpu(X) if self.kernel != "precomputed" else None
+        self.n_features_in_ = X.shape[1]
+        del X
+
         ravel = False
         if y.ndim == 1:
             y = y[:, None]
@@ -179,9 +184,6 @@ class KernelRidge(_BaseKernelRidge):
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
-
-        self.X_fit_ = X if self.kernel != "precomputed" else None
-        self.n_features_in_ = X.shape[1]
 
         return self
 
@@ -204,11 +206,12 @@ class KernelRidge(_BaseKernelRidge):
                                                                     "csc")
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=2)
-        K = self._get_kernel(X, self.X_fit_)
-
         if X.shape[1] != self.n_features_in_:
             raise ValueError(
                 'Different number of features in X than during fit.')
+
+        K = self._get_kernel(X, self.X_fit_)
+        del X
 
         Y_hat = K @ self.dual_coef_
         return Y_hat
@@ -241,6 +244,8 @@ class KernelRidge(_BaseKernelRidge):
     def _get_kernel(self, X, Y=None):
         backend = get_backend()
         kernel_params = self.kernel_params or {}
+        if Y is not None and not issparse(X):
+            Y = backend.asarray_like(Y, ref=X)
         kernel = pairwise_kernels(X, Y, metric=self.kernel, **kernel_params)
         return backend.asarray(kernel)
 
@@ -358,6 +363,10 @@ class KernelRidgeCV(KernelRidge):
 
         K = self._get_kernel(X)
 
+        self.X_fit_ = _to_cpu(X) if self.kernel != "precomputed" else None
+        self.n_features_in_ = X.shape[1]
+        del X
+
         ravel = False
         if y.ndim == 1:
             y = y[:, None]
@@ -378,9 +387,6 @@ class KernelRidgeCV(KernelRidge):
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
-
-        self.X_fit_ = X if self.kernel != "precomputed" else None
-        self.n_features_in_ = X.shape[1]
 
         return self
 
@@ -416,11 +422,12 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
                                                                      "csc")
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=ndim)
-        Ks = self._get_kernels(X, self.X_fit_)
-
         if X.shape[-1] != self.n_features_in_:
             raise ValueError(
                 'Different number of features in X than during fit.')
+
+        Ks = self._get_kernels(X, self.X_fit_)
+        del X
 
         if self.dual_coef_.ndim == 1:
             Y_hat = predict_weighted_kernel_ridge(
@@ -457,11 +464,12 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=ndim)
         y = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
-        Ks = self._get_kernels(X, self.X_fit_)
-
         if X.shape[-1] != self.n_features_in_:
             raise ValueError(
                 'Different number of features in X than during fit.')
+
+        Ks = self._get_kernels(X, self.X_fit_)
+        del X
 
         if (self.solver_params is not None
                 and "n_targets_batch" in self.solver_params):
@@ -492,6 +500,9 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         else:
             n_kernels = len(self.kernels)
             kernels_params = self.kernels_params or [{}] * n_kernels
+
+            if Y is not None and not issparse(X):
+                Y = backend.asarray_like(Y, ref=X)
 
             kernels = []
             for metric, params in zip(self.kernels, kernels_params):
@@ -627,6 +638,10 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 
         Ks = self._get_kernels(X)
 
+        self.X_fit_ = _to_cpu(X) if self.kernels != "precomputed" else None
+        self.n_features_in_ = X.shape[-1]
+        del X
+
         ravel = False
         if y.ndim == 1:
             y = y[:, None]
@@ -649,9 +664,6 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
             self.deltas_ = self.deltas_[:, 0]
-
-        self.X_fit_ = X if self.kernels != "precomputed" else None
-        self.n_features_in_ = X.shape[-1]
 
         return self
 
@@ -789,6 +801,10 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
 
         Ks = self._get_kernels(X)
 
+        self.X_fit_ = _to_cpu(X) if self.kernels != "precomputed" else None
+        self.n_features_in_ = X.shape[-1]
+        del X
+
         ravel = False
         if y.ndim == 1:
             y = y[:, None]
@@ -821,7 +837,12 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
             self.dual_coef_ = self.dual_coef_[:, 0]
             self.deltas_ = self.deltas_[:, 0]
 
-        self.X_fit_ = X if self.kernels != "precomputed" else None
-        self.n_features_in_ = X.shape[-1]
-
         return self
+
+
+def _to_cpu(X):
+    backend = get_backend()
+    if issparse(X):
+        return X
+    else:
+        return backend.to_cpu(X)

@@ -232,9 +232,10 @@ def solve_multiple_kernel_ridge_random_search(
                             backend.arange(len(used_alphas))[alpha_batch],
                             alphas_indices[mask2])
                         # update corresponding weights
-                        dual_weights[:, batch][:, mask2] = backend.cpu(
-                            weights[alphas_indices, :,
-                                    backend.arange(weights.shape[2])[mask2]]).T
+                        tmp = weights[alphas_indices, :,
+                                      backend.arange(weights.shape[2])[mask2]]
+                        dual_weights[:, batch][:, backend.to_cpu(mask2)] = \
+                            backend.to_cpu(tmp).T
                         del weights, alphas_indices, mask2
                     del matrix
 
@@ -244,12 +245,12 @@ def solve_multiple_kernel_ridge_random_search(
                     # on the scaled features (np.sqrt(g) * Xs)
                     X = backend.concatenate([t * g for t, g in zip(Xs, gamma)],
                                             1)
-                    primal_weights = backend.cpu(X.T) @ dual_weights
-                    refit_weights[:, backend.cpu(mask)] = primal_weights
+                    primal_weights = backend.to_cpu(X.T) @ dual_weights
+                    refit_weights[:, backend.to_cpu(mask)] = primal_weights
                     del X, primal_weights
 
                 elif return_weights == 'dual':
-                    refit_weights[:, backend.cpu(mask)] = dual_weights
+                    refit_weights[:, backend.to_cpu(mask)] = dual_weights
 
                 del dual_weights
             del update_indices
@@ -257,7 +258,7 @@ def solve_multiple_kernel_ridge_random_search(
 
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
-        refit_weights *= backend.cpu(best_alphas)
+        refit_weights *= backend.to_cpu(best_alphas)
 
     return deltas, refit_weights, cv_scores
 

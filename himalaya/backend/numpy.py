@@ -136,7 +136,7 @@ def full_like(array, fill_value, shape=None, dtype=None, device=None):
     return np.full(shape, fill_value, dtype=dtype)
 
 
-def cpu(array):
+def to_cpu(array):
     return array
 
 

@@ -225,12 +225,12 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                         t * g for t, g in zip(
                             Xs, backend.exp(deltas[:, batch][:, tt]))
                     ], 1)
-                    refit_weights[:, batch][:, tt] = backend.cpu(
+                    refit_weights[:, batch][:, tt] = backend.to_cpu(
                         backend.matmul(X.T, dual_weights[:, tt]))
                 del X
 
             elif return_weights == 'dual':
-                refit_weights[:, batch] = backend.cpu(dual_weights)
+                refit_weights[:, batch] = backend.to_cpu(dual_weights)
 
             del dual_weights
 
