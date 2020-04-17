@@ -119,7 +119,8 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                          (kernel_ridge_method, ))
 
     if isinstance(cg_tol, (int, float)):
-        cg_tol = backend.full_like(Y, shape=max_iter, fill_value=cg_tol)
+        cg_tol = backend.full_like(Y, shape=(max_iter, ),
+                                   fill_value=cg_tol)
 
     alpha = 1.0
 

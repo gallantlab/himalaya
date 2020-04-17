@@ -384,6 +384,7 @@ class KernelRidgeCV(KernelRidge):
         # ------------------ call the solver
         tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas)
         self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
+        self.cv_scores_ = self.cv_scores_[0]
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
