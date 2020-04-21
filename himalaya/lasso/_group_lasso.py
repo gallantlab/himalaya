@@ -12,17 +12,19 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
                       debug=False):
     backend = get_backend()
 
+    n_samples, n_features = X.shape
+    n_samples, n_targets = Y.shape
     lipschitz = compute_lipschitz_constants(X[None], kernelize="XTX")[0]
 
     if groups is None:
-        groups = backend.zeros((X.shape[1]))
+        groups = backend.zeros((n_features))
     groups = backend.asarray(groups)[:]
     groups = [groups == u for u in backend.unique(groups) if u >= 0]
 
-    coef = backend.zeros_like(X, shape=(X.shape[1], Y.shape[1]))
+    coef = backend.zeros_like(X, shape=(n_features, n_targets))
 
-    l1_reg = l1_reg * X.shape[0]
-    l21_reg = l21_reg * X.shape[0]
+    l1_reg = l1_reg * n_samples / lipschitz  # as in scikit-learn
+    l21_reg = l21_reg * n_samples / lipschitz
 
     def loss(ww):
         error_sq = 0.5 * ((X @ ww - Y) ** 2).sum(0)
@@ -33,14 +35,17 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
 
         return error_sq
 
-    def grad(ww):
-        return X.T @ (X @ ww - Y)
+    def grad(ww, mask=None):
+        if mask is None:
+            return X.T @ (X @ ww - Y)
+        else:
+            return X.T @ (X @ ww - Y[:, mask])
 
     def prox(ww):
         if l1_reg > 0:
-            ww = _l1_prox(ww, l1_reg / lipschitz)
+            ww = _l1_prox(ww, l1_reg)
         if l21_reg > 0:
-            ww = _l21_prox(ww, l21_reg / lipschitz, groups)
+            ww = _l21_prox(ww, l21_reg, groups)
         return ww
 
     coef = _fista(loss, grad, prox, step_size=1. / lipschitz, x0=coef,
@@ -124,17 +129,22 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=False,
 
     tk = 1.0
     x_hat = backend.copy(x0)
+
+    # auxiliary variables
     x_hat_aux = backend.copy(x_hat)
     grad = backend.zeros_like(x_hat)
     diff = backend.zeros_like(x_hat)
-    for ii in bar(range(max_iter), 'fista', use_it=progress_bar):
 
-        grad[:] = f_grad(x_hat_aux)
+    # not converged targets
+    mask = backend.ones_like(x0, dtype=backend.bool, shape=(x0.shape[1]))
+
+    for ii in bar(range(max_iter), 'fista', use_it=progress_bar):
+        grad = f_grad(x_hat_aux, mask)
         x_hat_aux -= step_size * grad
         x_hat_aux = f_prox(x_hat_aux)
 
-        diff[:] = x_hat_aux - x_hat
-        x_hat[:] = x_hat_aux
+        diff = x_hat_aux - x_hat[:, mask]
+        x_hat[:, mask] = x_hat_aux
 
         if momentum:
             tk_new = (1 + np.sqrt(1 + 4 * tk * tk)) / 2
@@ -144,9 +154,19 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=False,
         if debug:
             losses.append(f_loss(x_hat))
 
-        critertion = backend.norm(diff) / backend.norm(x_hat + 1e-16)
-        if critertion <= tol:
-            break
+        if tol is not None:
+            criterion = (backend.norm(diff, axis=0) /
+                         (backend.norm(x_hat[:, mask], axis=0) + 1e-16))
+            just_converged = criterion <= tol
+
+            if backend.any(just_converged):
+                diff = diff[:, ~just_converged]
+                grad = grad[:, ~just_converged]
+                x_hat_aux = x_hat_aux[:, ~just_converged]
+                mask[mask] = ~just_converged
+
+                if backend.all(just_converged):
+                    break
     else:
         warnings.warn("FISTA did not converge.", RuntimeWarning)
 
