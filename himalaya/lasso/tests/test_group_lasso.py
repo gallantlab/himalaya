@@ -10,7 +10,7 @@ from himalaya.lasso import solve_group_lasso
 
 
 def _create_dataset(backend):
-    n_samples, n_features, n_targets = 10, 5, 2
+    n_samples, n_features, n_targets = 10, 5, 3
 
     X = backend.asarray(backend.randn(n_samples, n_features), backend.float64)
     Y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
@@ -43,8 +43,9 @@ def test_group_lasso_decreasing(backend):
     assert backend.all(losses[1:] - losses[:-1] < 1e-14)
 
 
+@pytest.mark.parametrize('n_targets_batch', [None, 2])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_group_lasso_vs_lasso(backend):
+def test_group_lasso_vs_lasso(backend, n_targets_batch):
     backend = set_backend(backend)
     X, Y = _create_dataset(backend)
 
@@ -52,7 +53,8 @@ def test_group_lasso_vs_lasso(backend):
 
         coef = solve_group_lasso(X, Y, groups=None, l21_reg=0.0, l1_reg=l1_reg,
                                  max_iter=1000, tol=1e-8, progress_bar=False,
-                                 debug=False, momentum=False)
+                                 debug=False, momentum=False,
+                                 n_targets_batch=n_targets_batch)
 
         ols = sklearn.linear_model.Lasso(fit_intercept=False, alpha=l1_reg,
                                          max_iter=1000,

@@ -1,19 +1,36 @@
 import warnings
+import numbers
 
 import numpy as np
+from sklearn.model_selection import check_cv
 
 from ..utils import compute_lipschitz_constants
 from ..progress_bar import bar
 from ..backend import get_backend
 
 
+def solve_group_lasso_cv(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05, cv=5,
+                         max_iter=100, tol=1e-5, momentum=True,
+                         progress_bar=True, debug=False):
+    backend = get_backend()
+
+    cv = check_cv(cv)
+
+    raise NotImplementedError()
+
+    return coef
+
+
 def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
-                      max_iter=100, tol=1e-5, momentum=True, progress_bar=True,
-                      debug=False):
+                      max_iter=100, tol=1e-5, momentum=True,
+                      n_targets_batch=None, progress_bar=True, debug=False):
     backend = get_backend()
 
     n_samples, n_features = X.shape
     n_samples, n_targets = Y.shape
+    if n_targets_batch is None:
+        n_targets_batch = n_targets
+
     lipschitz = compute_lipschitz_constants(X[None], kernelize="XTX")[0]
 
     if groups is None:
@@ -23,42 +40,61 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
 
     coef = backend.zeros_like(X, shape=(n_features, n_targets))
 
-    l1_reg = l1_reg * n_samples / lipschitz  # as in scikit-learn
-    l21_reg = l21_reg * n_samples / lipschitz
+    l1_reg = l1_reg * n_samples  # as in scikit-learn
+    l21_reg = l21_reg * n_samples
 
-    use_l1_reg = backend.any(l1_reg > 0)
-    use_l21_reg = backend.any(l21_reg > 0)
+    if isinstance(l1_reg, numbers.Number) or l1_reg.ndim == 0:
+        l1_reg = backend.ones_like(Y, shape=(1, )) * l1_reg
+    if isinstance(l21_reg, numbers.Number) or l21_reg.ndim == 0:
+        l21_reg = backend.ones_like(Y, shape=(1, )) * l21_reg
+    use_l1_reg = any(l1_reg > 0)
+    use_l21_reg = any(l21_reg > 0)
 
-    def loss(ww):
-        error_sq = 0.5 * ((X @ ww - Y) ** 2).sum(0)
+    use_it = progress_bar and n_targets > n_targets_batch
+    for bb, start in enumerate(
+            bar(range(0, n_targets, n_targets_batch), title="Group Lasso",
+                use_it=use_it)):
+        batch = slice(start, start + n_targets_batch)
 
-        if use_l1_reg:
-            error_sq += l1_reg * backend.abs(ww).sum(0)
+        def loss(ww):
+            error_sq = 0.5 * ((X @ ww - Y[:, batch]) ** 2).sum(0)
 
-        if use_l21_reg:
-            for group in groups:
-                error_sq += l21_reg * backend.sqrt((ww[group] ** 2).sum(0))
+            if use_l1_reg:
+                error_sq += l1_reg * backend.abs(ww).sum(0)
 
-        return error_sq
+            if use_l21_reg:
+                for group in groups:
+                    error_sq += l21_reg * backend.sqrt((ww[group] ** 2).sum(0))
 
-    def grad(ww, mask=None):
-        if mask is None:
-            return X.T @ (X @ ww - Y)
+            return error_sq
+
+        def grad(ww, mask=None):
+            if mask is None:
+                return X.T @ (X @ ww - Y[:, batch])
+            else:
+                return X.T @ (X @ ww - Y[:, batch][:, mask])
+
+        def prox(ww):
+            if use_l1_reg:
+                ww = _l1_prox(ww, l1_reg / lipschitz)
+            if use_l21_reg:
+                ww = _l21_prox(ww, l21_reg / lipschitz, groups)
+            return ww
+
+        tmp = _fista(
+            loss, grad, prox, step_size=1. / lipschitz, x0=coef[:, batch],
+            max_iter=max_iter, momentum=momentum, tol=tol,
+            progress_bar=progress_bar and n_targets <= n_targets_batch,
+            debug=debug)
+        if debug:
+            coef[:, batch], losses = tmp
         else:
-            return X.T @ (X @ ww - Y[:, mask])
+            coef[:, batch] = tmp
 
-    def prox(ww):
-        if use_l1_reg:
-            ww = _l1_prox(ww, l1_reg)
-        if use_l21_reg:
-            ww = _l21_prox(ww, l21_reg, groups)
-        return ww
-
-    coef = _fista(loss, grad, prox, step_size=1. / lipschitz, x0=coef,
-                  max_iter=max_iter, momentum=momentum, tol=tol,
-                  progress_bar=progress_bar, debug=debug)
-
-    return coef
+    if debug:
+        return coef, losses
+    else:
+        return coef
 
 
 def _l1_prox(ww, reg):
@@ -93,7 +129,7 @@ def _l21_prox(ww, reg, groups):
 # fista algorithm
 
 
-def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=False,
+def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
            tol=1e-7, progress_bar=True, debug=False):
     """Proximal Gradient Descent (PGD) and Accelerated PDG.
 
@@ -116,7 +152,7 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=False,
         Maximum number of iterations.
     momentum : bool
         If True, use FISTA instead of ISTA.
-    tol : float
+    tol : float or None
         Tolerance for the stopping criterion.
     progress_bar : bool
         ...
