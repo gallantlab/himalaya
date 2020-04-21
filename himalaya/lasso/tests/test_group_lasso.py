@@ -61,3 +61,29 @@ def test_group_lasso_vs_lasso(backend, n_targets_batch):
                                          tol=1e-8).fit(backend.to_numpy(X),
                                                        backend.to_numpy(Y))
         assert_array_almost_equal(coef, ols.coef_.T)
+
+
+@pytest.mark.parametrize('n_targets_batch', [None, 2])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_group_lasso_regularization_per_target(backend, n_targets_batch):
+    backend = set_backend(backend)
+    X, Y = _create_dataset(backend)
+
+    n_targets = Y.shape[1]
+    l21_reg = backend.rand(n_targets)
+    l1_reg = backend.rand(n_targets)
+
+    coef = solve_group_lasso(X, Y, groups=None, l21_reg=l21_reg, l1_reg=l1_reg,
+                             max_iter=1000, tol=1e-8, progress_bar=False,
+                             debug=False, momentum=False,
+                             n_targets_batch=n_targets_batch)
+
+    for tt in range(n_targets):
+
+        coef_tt = solve_group_lasso(X, Y[:, tt:tt + 1], groups=None,
+                                    l21_reg=l21_reg[tt], l1_reg=l1_reg[tt],
+                                    max_iter=1000, tol=1e-8,
+                                    progress_bar=False, debug=False,
+                                    momentum=False,
+                                    n_targets_batch=n_targets_batch)
+        assert_array_almost_equal(coef[:, tt:tt + 1], coef_tt)

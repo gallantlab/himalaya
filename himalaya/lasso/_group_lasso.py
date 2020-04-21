@@ -1,5 +1,6 @@
 import warnings
 import numbers
+import itertools
 
 import numpy as np
 from sklearn.model_selection import check_cv
@@ -9,21 +10,31 @@ from ..progress_bar import bar
 from ..backend import get_backend
 
 
-def solve_group_lasso_cv(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05, cv=5,
-                         max_iter=100, tol=1e-5, momentum=True,
-                         progress_bar=True, debug=False):
+def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
+                         cv=5, max_iter=100, tol=1e-5, momentum=True,
+                         n_targets_batch=None, progress_bar=True):
     backend = get_backend()
 
     cv = check_cv(cv)
 
-    raise NotImplementedError()
+    X, Y = backend.check_arrays(X, Y)
+    lipschitz = compute_lipschitz_constants(X[None], kernelize="XTX")[0]
+
+    for l21_reg, l1_reg in itertools.product(l21_regs, l1_regs):
+        coef = solve_group_lasso(X, Y, groups=groups, l21_reg=l21_reg,
+                                 l1_reg=l1_reg, max_iter=max_iter, tol=tol,
+                                 momentum=momentum, initial_coef=None,
+                                 lipschitz=lipschitz,
+                                 n_targets_batch=n_targets_batch,
+                                 progress_bar=progress_bar)
 
     return coef
 
 
 def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
-                      max_iter=100, tol=1e-5, momentum=True,
-                      n_targets_batch=None, progress_bar=True, debug=False):
+                      max_iter=100, tol=1e-5, momentum=True, initial_coef=None,
+                      lipschitz=None, n_targets_batch=None, progress_bar=True,
+                      debug=False):
     backend = get_backend()
 
     n_samples, n_features = X.shape
@@ -31,22 +42,30 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
     if n_targets_batch is None:
         n_targets_batch = n_targets
 
-    lipschitz = compute_lipschitz_constants(X[None], kernelize="XTX")[0]
+    X, Y = backend.check_arrays(X, Y)
+
+    if lipschitz is None:
+        lipschitz = compute_lipschitz_constants(X[None], kernelize="XTX")[0]
+    else:
+        lipschitz = backend.asarray_like(lipschitz, ref=X)
 
     if groups is None:
         groups = backend.zeros((n_features))
     groups = backend.asarray(groups)[:]
     groups = [groups == u for u in backend.unique(groups) if u >= 0]
 
-    coef = backend.zeros_like(X, shape=(n_features, n_targets))
+    if initial_coef is None:
+        coef = backend.zeros_like(X, shape=(n_features, n_targets))
+    else:
+        coef = backend.asarray_like(initial_coef, ref=X)
 
     l1_reg = l1_reg * n_samples  # as in scikit-learn
     l21_reg = l21_reg * n_samples
 
     if isinstance(l1_reg, numbers.Number) or l1_reg.ndim == 0:
-        l1_reg = backend.ones_like(Y, shape=(1, )) * l1_reg
+        l1_reg = backend.ones_like(Y, shape=(n_targets, )) * l1_reg
     if isinstance(l21_reg, numbers.Number) or l21_reg.ndim == 0:
-        l21_reg = backend.ones_like(Y, shape=(1, )) * l21_reg
+        l21_reg = backend.ones_like(Y, shape=(n_targets, )) * l21_reg
     use_l1_reg = any(l1_reg > 0)
     use_l21_reg = any(l21_reg > 0)
 
@@ -60,25 +79,23 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
             error_sq = 0.5 * ((X @ ww - Y[:, batch]) ** 2).sum(0)
 
             if use_l1_reg:
-                error_sq += l1_reg * backend.abs(ww).sum(0)
+                error_sq += l1_reg[batch] * backend.abs(ww).sum(0)
 
             if use_l21_reg:
                 for group in groups:
-                    error_sq += l21_reg * backend.sqrt((ww[group] ** 2).sum(0))
+                    error_sq += l21_reg[batch] * backend.sqrt(
+                        (ww[group] ** 2).sum(0))
 
             return error_sq
 
-        def grad(ww, mask=None):
-            if mask is None:
-                return X.T @ (X @ ww - Y[:, batch])
-            else:
-                return X.T @ (X @ ww - Y[:, batch][:, mask])
+        def grad(ww, mask=slice(0, None)):
+            return X.T @ (X @ ww - Y[:, batch][:, mask])
 
-        def prox(ww):
+        def prox(ww, mask=slice(0, None)):
             if use_l1_reg:
-                ww = _l1_prox(ww, l1_reg / lipschitz)
+                ww = _l1_prox(ww, l1_reg[batch][mask] / lipschitz)
             if use_l21_reg:
-                ww = _l21_prox(ww, l21_reg / lipschitz, groups)
+                ww = _l21_prox(ww, l21_reg[batch][mask] / lipschitz, groups)
             return ww
 
         tmp = _fista(
@@ -110,7 +127,7 @@ def _sqrt_l2_prox(ww, reg):
     mask = norm_ww == 0
 
     ww[:, mask] = 0
-    ww[:, ~mask] = backend.clip(1 - reg / norm_ww[~mask], 0,
+    ww[:, ~mask] = backend.clip(1 - reg[~mask] / norm_ww[~mask], 0,
                                 None)[None] * ww[:, ~mask]
     return ww
 
@@ -183,7 +200,7 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
     for ii in bar(range(max_iter), 'fista', use_it=progress_bar):
         grad = f_grad(x_hat_aux, mask)
         x_hat_aux -= step_size * grad
-        x_hat_aux = f_prox(x_hat_aux)
+        x_hat_aux = f_prox(x_hat_aux, mask)
 
         diff = x_hat_aux - x_hat[:, mask]
         x_hat[:, mask] = x_hat_aux
