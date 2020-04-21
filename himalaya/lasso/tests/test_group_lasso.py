@@ -48,13 +48,13 @@ def test_group_lasso_vs_lasso(backend):
     backend = set_backend(backend)
     X, Y = _create_dataset(backend)
 
-    for alpha in backend.logspace(-5, 5, 5):
+    for l1_reg in backend.logspace(-5, 5, 5):
 
-        coef = solve_group_lasso(X, Y, groups=None, l21_reg=0.0, l1_reg=alpha,
+        coef = solve_group_lasso(X, Y, groups=None, l21_reg=0.0, l1_reg=l1_reg,
                                  max_iter=1000, tol=1e-8, progress_bar=False,
                                  debug=False, momentum=False)
 
-        ols = sklearn.linear_model.Lasso(fit_intercept=False, alpha=alpha,
+        ols = sklearn.linear_model.Lasso(fit_intercept=False, alpha=l1_reg,
                                          max_iter=1000,
                                          tol=1e-8).fit(backend.to_numpy(X),
                                                        backend.to_numpy(Y))

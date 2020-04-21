@@ -26,12 +26,18 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
     l1_reg = l1_reg * n_samples / lipschitz  # as in scikit-learn
     l21_reg = l21_reg * n_samples / lipschitz
 
+    use_l1_reg = backend.any(l1_reg > 0)
+    use_l21_reg = backend.any(l21_reg > 0)
+
     def loss(ww):
         error_sq = 0.5 * ((X @ ww - Y) ** 2).sum(0)
 
-        for group in groups:
-            error_sq += l21_reg * backend.sqrt((ww[group] ** 2).sum(0))
-        error_sq += l1_reg * backend.abs(ww).sum(0)
+        if use_l1_reg:
+            error_sq += l1_reg * backend.abs(ww).sum(0)
+
+        if use_l21_reg:
+            for group in groups:
+                error_sq += l21_reg * backend.sqrt((ww[group] ** 2).sum(0))
 
         return error_sq
 
@@ -42,9 +48,9 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
             return X.T @ (X @ ww - Y[:, mask])
 
     def prox(ww):
-        if l1_reg > 0:
+        if use_l1_reg:
             ww = _l1_prox(ww, l1_reg)
-        if l21_reg > 0:
+        if use_l21_reg:
             ww = _l21_prox(ww, l21_reg, groups)
         return ww
 
