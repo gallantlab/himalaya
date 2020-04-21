@@ -97,6 +97,8 @@ einsum = torch.einsum
 tanh = torch.tanh
 power = torch.pow
 prod = torch.prod
+sign = torch.sign
+clip = torch.clamp
 
 
 def diagonal_view(array, axis1=0, axis2=1):

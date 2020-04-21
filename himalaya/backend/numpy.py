@@ -85,6 +85,8 @@ tanh = np.tanh
 power = np.power
 prod = np.prod
 zeros = np.zeros
+clip = np.clip
+sign = np.sign
 
 
 def diagonal_view(array, axis1=0, axis2=1):

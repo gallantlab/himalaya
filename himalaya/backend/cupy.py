@@ -86,7 +86,8 @@ tanh = cupy.tanh
 power = cupy.power
 prod = cupy.prod
 zeros = cupy.zeros
-
+sign = cupy.sign
+clip = cupy.clip
 
 def diagonal_view(array, axis1=0, axis2=1):
     """Return a view of the array diagonal."""
