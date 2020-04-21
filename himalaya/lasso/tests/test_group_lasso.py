@@ -7,6 +7,7 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
 from himalaya.lasso import solve_group_lasso
+from himalaya.lasso import solve_group_lasso_cv
 
 
 def _create_dataset(backend):
@@ -87,3 +88,21 @@ def test_group_lasso_regularization_per_target(backend, n_targets_batch):
                                     momentum=False,
                                     n_targets_batch=n_targets_batch)
         assert_array_almost_equal(coef[:, tt:tt + 1], coef_tt)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_group_lasso_cv(backend):
+    backend = set_backend(backend)
+    X, Y = _create_dataset(backend)
+
+    n_targets = Y.shape[1]
+    l21_regs = backend.rand(2) / 10
+    l1_regs = backend.rand(3) / 10
+
+    coef, best_l21_reg, best_l1_reg = solve_group_lasso_cv(
+        X, Y, cv=2, groups=None, l21_regs=l21_regs, l1_regs=l1_regs,
+        progress_bar=False, tol=1e-2, max_iter=100)
+
+    assert best_l1_reg.shape == (n_targets, )
+    assert best_l21_reg.shape == (n_targets, )
+    assert coef.shape == (X.shape[1], n_targets)

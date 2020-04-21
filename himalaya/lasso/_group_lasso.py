@@ -8,6 +8,7 @@ from sklearn.model_selection import check_cv
 from ..utils import compute_lipschitz_constants
 from ..progress_bar import bar
 from ..backend import get_backend
+from ..scoring import l2_neg_loss
 
 
 def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
@@ -16,19 +17,59 @@ def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
     backend = get_backend()
 
     cv = check_cv(cv)
+    n_splits = cv.get_n_splits()
 
-    X, Y = backend.check_arrays(X, Y)
-    lipschitz = compute_lipschitz_constants(X[None], kernelize="XTX")[0]
+    X, Y, l21_regs, l1_regs = backend.check_arrays(X, Y, l21_regs, l1_regs)
+    n_samples, n_targets = Y.shape
 
+    # precompute all lipschitz constants
+    all_lipschitz_train = backend.zeros((n_splits))
+    for kk, (train, val) in enumerate(cv.split(Y)):
+        if hasattr(Y, "device"):
+            train = backend.asarray(train, device=Y.device)
+
+        all_lipschitz_train[kk] = compute_lipschitz_constants(
+            X[train][None], kernelize="XTX")[0]
+
+    # sort in decreasing order, since it is faster with warm starting
+    l21_regs = backend.flip(backend.sort(l21_regs), 0)
+    l1_regs = backend.flip(backend.sort(l1_regs), 0)
+
+    coef = None
+    current_best_scores = backend.full_like(X, shape=(n_targets, ),
+                                            fill_value=-backend.inf)
+    best_l21_reg = backend.zeros_like(X, shape=(n_targets, ))
+    best_l1_reg = backend.zeros_like(X, shape=(n_targets, ))
     for l21_reg, l1_reg in itertools.product(l21_regs, l1_regs):
-        coef = solve_group_lasso(X, Y, groups=groups, l21_reg=l21_reg,
-                                 l1_reg=l1_reg, max_iter=max_iter, tol=tol,
-                                 momentum=momentum, initial_coef=None,
-                                 lipschitz=lipschitz,
-                                 n_targets_batch=n_targets_batch,
-                                 progress_bar=progress_bar)
 
-    return coef
+        cv_scores = backend.zeros_like(X, shape=(n_splits, n_targets))
+        for kk, (train, val) in enumerate(cv.split(Y)):
+            if hasattr(Y, "device"):
+                val = backend.asarray(val, device=Y.device)
+                train = backend.asarray(train, device=Y.device)
+
+            coef = solve_group_lasso(
+                X[train], Y[train], groups=groups, l21_reg=l21_reg,
+                l1_reg=l1_reg, max_iter=max_iter, tol=tol, momentum=momentum,
+                initial_coef=coef, lipschitz=all_lipschitz_train[kk],
+                n_targets_batch=n_targets_batch, progress_bar=progress_bar)
+
+            Y_val_pred = X[val] @ coef
+            cv_scores[kk] = l2_neg_loss(Y[val], Y_val_pred)
+
+        # check improvement
+        average_scores = cv_scores.mean(0)
+        improved = current_best_scores < average_scores
+        best_l21_reg[improved] = l21_reg
+        best_l1_reg[improved] = l1_reg
+
+    # refit
+    coef = solve_group_lasso(X, Y, groups=groups, l21_reg=best_l21_reg,
+                             l1_reg=best_l1_reg, max_iter=max_iter, tol=tol,
+                             momentum=momentum, initial_coef=None,
+                             lipschitz=None, n_targets_batch=n_targets_batch,
+                             progress_bar=progress_bar)
+    return coef, best_l21_reg, best_l1_reg
 
 
 def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,

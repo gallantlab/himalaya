@@ -87,6 +87,8 @@ prod = np.prod
 zeros = np.zeros
 clip = np.clip
 sign = np.sign
+sort = np.sort
+flip = np.flip
 
 
 def diagonal_view(array, axis1=0, axis2=1):

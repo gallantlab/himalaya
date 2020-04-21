@@ -101,6 +101,14 @@ sign = torch.sign
 clip = torch.clamp
 
 
+def flip(array, axis=0):
+    return torch.flip(array, dims=[axis])
+
+
+def sort(array):
+    return torch.sort(array).values
+
+
 def diagonal_view(array, axis1=0, axis2=1):
     """Return a view of the array diagonal."""
     return torch.diagonal(array, 0, dim1=axis1, dim2=axis2)
