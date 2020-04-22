@@ -123,6 +123,8 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
                 [w * backend.sqrt(g) for w, g, in zip(w1, gamma)])
             assert_array_almost_equal(w1_scaled, refit_weights[:, tt],
                                       decimal=5)
+            import IPython  # noqa 
+            IPython.embed(using=False)
 
         elif return_weights == 'dual':
             # compare dual weights with scipy.linalg.solve

@@ -90,6 +90,7 @@ sign = cupy.sign
 clip = cupy.clip
 sort = cupy.sort
 flip = cupy.flip
+atleast_1d = cupy.atleast_1d
 
 
 def diagonal_view(array, axis1=0, axis2=1):

@@ -101,6 +101,13 @@ sign = torch.sign
 clip = torch.clamp
 
 
+def atleast_1d(array):
+    array = asarray(array)
+    if array.ndim == 0:
+        array = array[None]
+    return array
+
+
 def flip(array, axis=0):
     return torch.flip(array, dims=[axis])
 

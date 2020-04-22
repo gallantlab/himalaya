@@ -99,7 +99,7 @@ def test_group_lasso_cv(backend):
     l21_regs = backend.rand(2) / 10
     l1_regs = backend.rand(3) / 10
 
-    coef, best_l21_reg, best_l1_reg = solve_group_lasso_cv(
+    coef, best_l21_reg, best_l1_reg, all_cv_scores = solve_group_lasso_cv(
         X, Y, cv=2, groups=None, l21_regs=l21_regs, l1_regs=l1_regs,
         progress_bar=False, tol=1e-2, max_iter=100)
 

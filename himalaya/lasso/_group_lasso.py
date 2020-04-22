@@ -1,18 +1,17 @@
 import warnings
-import numbers
 import itertools
 
 import numpy as np
 from sklearn.model_selection import check_cv
 
 from ..utils import compute_lipschitz_constants
-from ..progress_bar import bar
+from ..progress_bar import bar, ProgressBar
 from ..backend import get_backend
-from ..scoring import l2_neg_loss
+from ..scoring import r2_score
 
 
 def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
-                         cv=5, max_iter=100, tol=1e-5, momentum=True,
+                         cv=5, max_iter=300, tol=1e-4, momentum=True,
                          n_targets_batch=None, progress_bar=True):
     backend = get_backend()
 
@@ -22,46 +21,66 @@ def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
     X, Y, l21_regs, l1_regs = backend.check_arrays(X, Y, l21_regs, l1_regs)
     n_samples, n_targets = Y.shape
 
-    # precompute all lipschitz constants
-    all_lipschitz_train = backend.zeros((n_splits))
-    for kk, (train, val) in enumerate(cv.split(Y)):
-        if hasattr(Y, "device"):
-            train = backend.asarray(train, device=Y.device)
-
-        all_lipschitz_train[kk] = compute_lipschitz_constants(
-            X[train][None], kernelize="XTX")[0]
-
+    l21_regs = backend.asarray_like(backend.atleast_1d(l21_regs), ref=Y)
+    l1_regs = backend.asarray_like(backend.atleast_1d(l1_regs), ref=Y)
     # sort in decreasing order, since it is faster with warm starting
-    l21_regs = backend.flip(backend.sort(l21_regs), 0)
-    l1_regs = backend.flip(backend.sort(l1_regs), 0)
+    # l21_regs = backend.flip(backend.sort(l21_regs), 0)
+    # l1_regs = backend.flip(backend.sort(l1_regs), 0)
+
+    n_l21_regs = l21_regs.shape[0]
+    n_l1_regs = l1_regs.shape[0]
+    n_batches = len(range(0, n_targets, n_targets_batch))
+
+    if progress_bar:
+        progress_bar = ProgressBar(
+            "grid search cv",
+            max_value=n_l21_regs * n_l1_regs * n_splits * n_batches)
 
     coef = None
-    current_best_scores = backend.full_like(X, shape=(n_targets, ),
-                                            fill_value=-backend.inf)
+    all_cv_scores = backend.zeros_like(
+        X, shape=(n_l21_regs * n_l1_regs, n_targets))
     best_l21_reg = backend.zeros_like(X, shape=(n_targets, ))
     best_l1_reg = backend.zeros_like(X, shape=(n_targets, ))
-    for l21_reg, l1_reg in itertools.product(l21_regs, l1_regs):
 
-        cv_scores = backend.zeros_like(X, shape=(n_splits, n_targets))
-        for kk, (train, val) in enumerate(cv.split(Y)):
-            if hasattr(Y, "device"):
-                val = backend.asarray(val, device=Y.device)
-                train = backend.asarray(train, device=Y.device)
+    for kk, (train, val) in enumerate(cv.split(Y)):
+        if hasattr(Y, "device"):
+            val = backend.asarray(val, device=Y.device)
+            train = backend.asarray(train, device=Y.device)
 
-            coef = solve_group_lasso(
-                X[train], Y[train], groups=groups, l21_reg=l21_reg,
-                l1_reg=l1_reg, max_iter=max_iter, tol=tol, momentum=momentum,
-                initial_coef=coef, lipschitz=all_lipschitz_train[kk],
-                n_targets_batch=n_targets_batch, progress_bar=progress_bar)
+        lipschitz_train = compute_lipschitz_constants(X[train][None],
+                                                      kernelize="XTX")[0]
 
-            Y_val_pred = X[val] @ coef
-            cv_scores[kk] = l2_neg_loss(Y[val], Y_val_pred)
+        for start in range(0, n_targets, n_targets_batch):
+            batch = slice(start, start + n_targets_batch)
 
-        # check improvement
-        average_scores = cv_scores.mean(0)
-        improved = current_best_scores < average_scores
-        best_l21_reg[improved] = l21_reg
-        best_l1_reg[improved] = l1_reg
+            # reset coef, to avoid leaking info from split to split
+            coef = None
+            for ii, (l21_reg,
+                     l1_reg) in enumerate(itertools.product(l21_regs,
+                                                            l1_regs)):
+
+                coef = solve_group_lasso(
+                    X[train], Y[train][:, batch], groups=groups,
+                    l21_reg=l21_reg, l1_reg=l1_reg, max_iter=max_iter, tol=tol,
+                    momentum=momentum, initial_coef=coef,
+                    lipschitz=lipschitz_train, n_targets_batch=n_targets_batch,
+                    progress_bar=False)
+
+                Y_val_pred = X[val] @ coef
+                scores = r2_score(Y[val][:, batch], Y_val_pred)
+
+                all_cv_scores[ii, batch] += scores
+
+                if progress_bar:
+                    progress_bar.update_with_increment_value(1)
+
+    # select best hyperparameter configuration
+    all_cv_scores /= n_splits
+    argmax = backend.argmax(all_cv_scores, 0)
+    config = backend.asarray(list(itertools.product(l21_regs, l1_regs)))
+    best_config = config[argmax]
+    best_l21_reg = best_config[:, 0]
+    best_l1_reg = best_config[:, 1]
 
     # refit
     coef = solve_group_lasso(X, Y, groups=groups, l21_reg=best_l21_reg,
@@ -69,11 +88,11 @@ def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
                              momentum=momentum, initial_coef=None,
                              lipschitz=None, n_targets_batch=n_targets_batch,
                              progress_bar=progress_bar)
-    return coef, best_l21_reg, best_l1_reg
+    return coef, best_l21_reg, best_l1_reg, all_cv_scores
 
 
 def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
-                      max_iter=100, tol=1e-5, momentum=True, initial_coef=None,
+                      max_iter=300, tol=1e-4, momentum=True, initial_coef=None,
                       lipschitz=None, n_targets_batch=None, progress_bar=True,
                       debug=False):
     backend = get_backend()
@@ -103,10 +122,13 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
     l1_reg = l1_reg * n_samples  # as in scikit-learn
     l21_reg = l21_reg * n_samples
 
-    if isinstance(l1_reg, numbers.Number) or l1_reg.ndim == 0:
-        l1_reg = backend.ones_like(Y, shape=(n_targets, )) * l1_reg
-    if isinstance(l21_reg, numbers.Number) or l21_reg.ndim == 0:
-        l21_reg = backend.ones_like(Y, shape=(n_targets, )) * l21_reg
+    l1_reg = backend.asarray_like(backend.atleast_1d(l1_reg), ref=Y)
+    if l1_reg.shape[0] == 1:
+        l1_reg = backend.ones_like(Y, shape=(n_targets, )) * l1_reg[0]
+    l21_reg = backend.asarray_like(backend.atleast_1d(l21_reg), ref=Y)
+    if l21_reg.shape[0] == 1:
+        l21_reg = backend.ones_like(Y, shape=(n_targets, )) * l21_reg[0]
+
     use_l1_reg = any(l1_reg > 0)
     use_l21_reg = any(l21_reg > 0)
 
@@ -145,9 +167,8 @@ def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
             progress_bar=progress_bar and n_targets <= n_targets_batch,
             debug=debug)
         if debug:
-            coef[:, batch], losses = tmp
-        else:
-            coef[:, batch] = tmp
+            tmp, losses = tmp
+        coef[:, batch] = tmp
 
     if debug:
         return coef, losses
@@ -238,7 +259,9 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
     # not converged targets
     mask = backend.ones_like(x0, dtype=backend.bool, shape=(x0.shape[1]))
 
-    for ii in bar(range(max_iter), 'fista', use_it=progress_bar):
+    if progress_bar:
+        progress_bar = ProgressBar(title='fista', max_value=max_iter)
+    for ii in range(max_iter):
         grad = f_grad(x_hat_aux, mask)
         x_hat_aux -= step_size * grad
         x_hat_aux = f_prox(x_hat_aux, mask)
@@ -267,8 +290,14 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
 
                 if backend.all(just_converged):
                     break
+
+        if progress_bar:
+            progress_bar.update_with_increment_value(1)
     else:
         warnings.warn("FISTA did not converge.", RuntimeWarning)
+
+    if progress_bar:
+        progress_bar.close()
 
     if debug:
         return x_hat, backend.stack(losses)
