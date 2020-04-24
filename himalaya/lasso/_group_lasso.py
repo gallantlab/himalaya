@@ -10,16 +10,20 @@ from ..backend import get_backend
 from ..scoring import r2_score
 
 
-def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
-                         cv=5, max_iter=300, tol=1e-4, momentum=True,
-                         n_targets_batch=None, progress_bar=True):
+def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
+                                l1_regs=[0.05], cv=5, max_iter=300, tol=1e-4,
+                                momentum=True, n_targets_batch=None,
+                                progress_bar=True):
     backend = get_backend()
 
     cv = check_cv(cv)
     n_splits = cv.get_n_splits()
 
     X, Y, l21_regs, l1_regs = backend.check_arrays(X, Y, l21_regs, l1_regs)
+    n_samples, n_features = X.shape
     n_samples, n_targets = Y.shape
+    if n_targets_batch is None:
+        n_targets_batch = n_targets
 
     l21_regs = backend.asarray_like(backend.atleast_1d(l21_regs), ref=Y)
     l1_regs = backend.asarray_like(backend.atleast_1d(l1_regs), ref=Y)
@@ -59,7 +63,7 @@ def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
                      l1_reg) in enumerate(itertools.product(l21_regs,
                                                             l1_regs)):
 
-                coef = solve_group_lasso(
+                coef = solve_sparse_group_lasso(
                     X[train], Y[train][:, batch], groups=groups,
                     l21_reg=l21_reg, l1_reg=l1_reg, max_iter=max_iter, tol=tol,
                     momentum=momentum, initial_coef=coef,
@@ -77,24 +81,33 @@ def solve_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05], l1_regs=[0.05],
     # select best hyperparameter configuration
     all_cv_scores /= n_splits
     argmax = backend.argmax(all_cv_scores, 0)
-    config = backend.asarray(list(itertools.product(l21_regs, l1_regs)))
+    config = backend.asarray(
+        list(
+            itertools.product(backend.to_numpy(l21_regs),
+                              backend.to_numpy(l1_regs))))
     best_config = config[argmax]
     best_l21_reg = best_config[:, 0]
     best_l1_reg = best_config[:, 1]
 
     # refit
-    coef = solve_group_lasso(X, Y, groups=groups, l21_reg=best_l21_reg,
-                             l1_reg=best_l1_reg, max_iter=max_iter, tol=tol,
-                             momentum=momentum, initial_coef=None,
-                             lipschitz=None, n_targets_batch=n_targets_batch,
-                             progress_bar=progress_bar)
-    return coef, best_l21_reg, best_l1_reg, all_cv_scores
+    coef_cpu = backend.zeros_like(X, shape=(n_features, n_targets),
+                                  device="cpu")
+    for start in range(0, n_targets, n_targets_batch):
+        batch = slice(start, start + n_targets_batch)
+        coef = solve_sparse_group_lasso(
+            X, Y[:, batch], groups=groups, l21_reg=best_l21_reg[batch],
+            l1_reg=best_l1_reg[batch], max_iter=max_iter, tol=tol,
+            momentum=momentum, initial_coef=None, lipschitz=None,
+            n_targets_batch=None, progress_bar=False)
+        coef_cpu[:, batch] = backend.to_cpu(coef)
+    return coef_cpu, best_l21_reg, best_l1_reg, all_cv_scores
 
 
-def solve_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
-                      max_iter=300, tol=1e-4, momentum=True, initial_coef=None,
-                      lipschitz=None, n_targets_batch=None, progress_bar=True,
-                      debug=False):
+def solve_sparse_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
+                             max_iter=300, tol=1e-4, momentum=True,
+                             initial_coef=None, lipschitz=None,
+                             n_targets_batch=None, progress_bar=True,
+                             debug=False):
     backend = get_backend()
 
     n_samples, n_features = X.shape
