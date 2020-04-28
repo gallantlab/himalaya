@@ -577,6 +577,12 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     dtype_ : str
         Dtype of input data.
 
+    best_alphas_ : array of shape (n_targets, )
+        Equal to 1. / exp(self.deltas_).sum(0). For the "random_search" solver,
+        it corresponds to the best hyperparameter alphas, assuming that
+        each kernel weight vector sums to one (in particular, it is the case
+        when solver_params['n_iter'] is an integer).
+
     Examples
     --------
     >>> from himalaya.kernel_ridge import MultipleKernelRidgeCV
@@ -661,6 +667,11 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
                                 Xs=None)
         self.deltas_, self.dual_coef_, self.cv_scores_ = tmp
+
+        if self.solver == "random_search":
+            self.best_alphas_ = 1. / backend.exp(self.deltas_).sum(0)
+        else:
+            self.best_alphas_ = None
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
