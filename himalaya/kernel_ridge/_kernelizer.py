@@ -82,7 +82,7 @@ class Kernelizer(TransformerMixin, BaseEstimator):
                                                                     "csc")
         X = check_array(X, accept_sparse=accept_sparse, ndim=2)
 
-        self.X_fit_ = X if self.kernel != "precomputed" else None
+        self.X_fit_ = _to_cpu(X) if self.kernel != "precomputed" else None
         self.dtype_ = _get_string_dtype(X)
         self.n_features_in_ = X.shape[1]
 
@@ -442,3 +442,12 @@ def _end_with_a_kernel(estimator):
         pass
 
     return False
+
+
+def _to_cpu(X):
+    from ..validation import issparse
+    backend = get_backend()
+    if issparse(X):
+        return X
+    else:
+        return backend.to_cpu(X)

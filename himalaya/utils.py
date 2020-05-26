@@ -26,9 +26,11 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
     if kernelize == "XXT":
         XTs = backend.transpose(Xs, (0, 2, 1))
         kernels = backend.matmul(Xs, XTs)
+        del XTs
     elif kernelize == "XTX":
         XTs = backend.transpose(Xs, (0, 2, 1))
         kernels = backend.matmul(XTs, Xs)
+        del XTs
     elif kernelize == "X":
         kernels = Xs
     else:

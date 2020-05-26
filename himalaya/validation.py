@@ -200,7 +200,7 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
     return array
 
 
-def _assert_all_finite(X, force_all_finite, numpy=False):
+def _assert_all_finite(X, force_all_finite, numpy=False, batch_size=2 ** 24):
     """Check infinity and NaNs in X.
 
     Parameters
@@ -213,6 +213,8 @@ def _assert_all_finite(X, force_all_finite, numpy=False):
         If 'allow_nan', raise an error for infinity but not for NaNs.
     numpy : bool
         If True, use numpy for the check, else use the current backend.
+    batch_size : int
+        Batch size to avoid a full memory copy of X.
 
     Return
     ------
@@ -233,10 +235,15 @@ def _assert_all_finite(X, force_all_finite, numpy=False):
     msg = ("Input contains NaN, infinity or a value too large for "
            "dtype(%r)." % X_dtype)
 
-    if backend.any(backend.isinf(X)):
-        raise ValueError(msg)
-    if force_all_finite != 'allow_nan' and backend.any(backend.isnan(X)):
-        raise ValueError(msg)
+    for start in range(0, np.prod(X.shape), batch_size):
+        batch = slice(start, start + batch_size)
+        X_batch = X.flatten()[batch]
+
+        if backend.any(backend.isinf(X_batch)):
+            raise ValueError(msg)
+        if force_all_finite != 'allow_nan' and backend.any(
+                backend.isnan(X_batch)):
+            raise ValueError(msg)
 
 
 def _get_string_dtype(array):
