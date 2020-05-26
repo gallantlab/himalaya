@@ -2,7 +2,6 @@ import pytest
 import sklearn.utils.estimator_checks
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
-from sklearn.model_selection import GridSearchCV
 
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
