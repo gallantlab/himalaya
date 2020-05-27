@@ -14,6 +14,47 @@ def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
                                 l1_regs=[0.05], cv=5, max_iter=300, tol=1e-4,
                                 momentum=True, n_targets_batch=None,
                                 progress_bar=True):
+    """Solves the sparse group Lasso, selecting hyperparameters over
+    cross-validation.
+
+    Parameters
+    ----------
+    X : array of shape (n_samples, n_features)
+        Input features.
+    Y : array of shape (n_samples, n_targets)
+        Target data.
+    groups : array of shape (n_features, ) or None
+        Encoding of the group of each feature. If None, all features are
+        gathered in one group, and the problem is equivalent to the Lasso.
+    l21_regs : array of shape (n_l21_regs, )
+        All the group Lasso regularization parameter tested.
+    l1_regs : array of shape (n_l1_regs, )
+        All the Lasso regularization parameter tested.
+    cv : int or scikit-learn splitter
+        Cross-validation splitter. If an int, KFold is used.
+    max_iter : int > 0
+        Maximum number of iterations.
+    tol : float > 0
+        Tolerance of the stopping criterion.
+    momentum : bool
+        If True, use acceleration in the projected gradient descent.
+    n_targets_batch : int or None
+        Size of the batch for computing predictions. Used for memory reasons.
+        If None, uses all n_targets at once.
+    progress_bar : bool
+        If True, display a progress bar over batches and iterations.
+
+    Returns
+    -------
+    coef : array of shape (n_features, n_targets)
+        Coefficient of the linear model. Always on CPU.
+    best_l21_reg : array of shape (n_targets, )
+        Best hyperparameter per target.
+    best_l1_reg : array of shape (n_targets, )
+        Best hyperparameter per target.
+    all_cv_scores : array of shape (n_l21_regs * n_l1_regs, n_targets)
+        Cross-validation scores of all tested hyperparameters.
+    """
     backend = get_backend()
 
     cv = check_cv(cv)
@@ -108,6 +149,47 @@ def solve_sparse_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
                              initial_coef=None, lipschitz=None,
                              n_targets_batch=None, progress_bar=True,
                              debug=False):
+    """Solves the sparse group Lasso.
+
+    Parameters
+    ----------
+    X : array of shape (n_samples, n_features)
+        Input features.
+    Y : array of shape (n_samples, n_targets)
+        Target data.
+    groups : array of shape (n_features, ) or None
+        Encoding of the group of each feature. If None, all features are
+        gathered in one group, and the problem is equivalent to the Lasso.
+    l21_reg : float, or array of shape (n_targets, )
+        Regularization parameter for the group Lasso.
+    l1_reg : float, or array of shape (n_targets, )
+        Regularization parameter for the Lasso.
+    max_iter : int > 0
+        Maximum number of iterations.
+    tol : float > 0
+        Tolerance of the stopping criterion.
+    momentum : bool
+        If True, use acceleration in the projected gradient descent.
+    initial_coef : None, or array of shape (n_features, n_targets)
+        Initial value for the projected gradient descent.
+    lipschitz : float or None
+        Lipschitz constant of the gradient. If None, it will be estimated from
+        X using power iterations.
+    n_targets_batch : int or None
+        Size of the batch for computing predictions. Used for memory reasons.
+        If None, uses all n_targets at once.
+    progress_bar : bool
+        If True, display a progress bar over batches and iterations.
+    debug : bool
+        If True, compute the objective function at each iteration, and return
+        the list of results (of the last batch) along with the final
+        coefficients.
+
+    Returns
+    -------
+    coef : array of shape (n_features, n_targets)
+        Coefficient of the linear model.
+    """
     backend = get_backend()
 
     n_samples, n_features = X.shape
@@ -231,14 +313,14 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
     Parameters
     ----------
     f_loss : callable
-        ...
+        Objective function. Only used when debug = True.
     f_grad : callable
         Gradient of the objective function.
     f_prox : callable
         Proximal operator.
     step_size : float
         Step size of each update.
-    x0 : array
+    x0 : array of shape (n_features, n_targets)
         Initial point of the optimization.
     max_iter : int
         Maximum number of iterations.
@@ -247,14 +329,17 @@ def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
     tol : float or None
         Tolerance for the stopping criterion.
     progress_bar : bool
-        ...
+        If True, display a progress bar over iterations.
     debug : bool
-        ...
+        If True, compute the objective function at each iteration, and return
+        the list of results along with the final point x_hat.
 
     Returns
     -------
-    x_hat : array
-        The final point after optimization
+    x_hat : array of shape (n_features, n_targets)
+        The final point after optimization.
+    losses : array of shape (n_iter_ + 1, n_targets)
+        Returned only if debug = True. Objective function at each iteration.
     """
     backend = get_backend()
 
