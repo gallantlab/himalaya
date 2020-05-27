@@ -5,6 +5,7 @@ import sklearn.linear_model
 from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
+from himalaya.scoring import r2_score
 
 from himalaya.lasso import solve_sparse_group_lasso
 from himalaya.lasso import solve_sparse_group_lasso_cv
@@ -110,3 +111,40 @@ def test_group_lasso_cv(backend):
     assert best_l1_reg.shape == (n_targets, )
     assert best_l21_reg.shape == (n_targets, )
     assert coef.shape == (X.shape[1], n_targets)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_group_lasso_group_sparsity(backend):
+    backend = set_backend(backend)
+
+    # Set dataset parameters
+    import numpy as np
+    group_sizes = [np.random.randint(10, 20) for i in range(5)]
+    active_groups = [np.random.randint(2) for _ in group_sizes]
+    active_groups[1] = 1  # make sure we have at least one active...
+    active_groups[0] = 0  # ...and one inactive group
+    groups = np.concatenate([size * [i] for i, size in enumerate(group_sizes)])
+    n_features = sum(group_sizes)
+    n_samples = 10000
+    noise_std = 10
+
+    # Generate data matrix
+    X = backend.randn(n_samples, n_features)
+    w = backend.concatenate([
+        backend.randn(group_size) * is_active
+        for group_size, is_active in zip(group_sizes, active_groups)
+    ]).reshape(-1, 1)
+    y = X @ w
+    y = y + backend.randn(*y.shape) * noise_std
+
+    # Generate estimator and train it
+    coef = solve_sparse_group_lasso(X=X, Y=y, groups=groups, l21_reg=0.6,
+                                    l1_reg=0, max_iter=100, tol=1e-4,
+                                    progress_bar=False)
+
+    # check the group sparsity of the result
+    for group, active in enumerate(active_groups):
+        if active:
+            assert backend.all(coef[groups == group] != 0)
+        else:
+            assert backend.all(coef[groups == group] == 0)
