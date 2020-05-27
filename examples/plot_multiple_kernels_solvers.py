@@ -336,5 +336,4 @@ ax.legend([ax.lines[2], ax.collections[0]],
           ['gradient trajectory', 'final point'])
 
 plt.tight_layout()
-fig.savefig("/data1/work/figures/mkl_regression/simulation.png", dpi=300)
 plt.show()
