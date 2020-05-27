@@ -234,6 +234,7 @@ def solve_sparse_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
         batch = slice(start, start + n_targets_batch)
 
         def loss(ww):
+            """Objective function"""
             error_sq = 0.5 * ((X @ ww - Y[:, batch]) ** 2).sum(0)
 
             if use_l1_reg:
@@ -247,16 +248,18 @@ def solve_sparse_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
             return error_sq
 
         def grad(ww, mask=slice(0, None)):
+            """Gradient of the objective function"""
             return X.T @ (X @ ww - Y[:, batch][:, mask])
 
         def prox(ww, mask=slice(0, None)):
+            """Proximal operator for the projected gradient descent"""
             if use_l1_reg:
                 ww = _l1_prox(ww, l1_reg[batch][mask] / lipschitz)
             if use_l21_reg:
                 ww = _l21_prox(ww, l21_reg[batch][mask] / lipschitz, groups)
             return ww
 
-        tmp = _fista(
+        tmp = _proximal_gradient_descent(
             loss, grad, prox, step_size=1. / lipschitz, x0=coef[:, batch],
             max_iter=max_iter, momentum=momentum, tol=tol,
             progress_bar=progress_bar and n_targets <= n_targets_batch,
@@ -272,12 +275,13 @@ def solve_sparse_group_lasso(X, Y, groups=None, l21_reg=0.05, l1_reg=0.05,
 
 
 def _l1_prox(ww, reg):
+    """The proximal operator for reg * ||ww||_1."""
     backend = get_backend()
     return backend.sign(ww) * backend.clip(backend.abs(ww) - reg, 0, None)
 
 
 def _sqrt_l2_prox(ww, reg):
-    """The proximal operator for reg*||w||_2 (not squared)."""
+    """The proximal operator for reg * ||ww||_2 (not squared)."""
     backend = get_backend()
 
     norm_ww = backend.norm(ww, axis=0)
@@ -290,6 +294,7 @@ def _sqrt_l2_prox(ww, reg):
 
 
 def _l21_prox(ww, reg, groups):
+    """The proximal operator for reg * ||ww||_21 for all groups"""
     backend = get_backend()
 
     ww = backend.copy(ww)
@@ -303,8 +308,9 @@ def _l21_prox(ww, reg, groups):
 # fista algorithm
 
 
-def _fista(f_loss, f_grad, f_prox, step_size, x0, max_iter, momentum=True,
-           tol=1e-7, progress_bar=True, debug=False):
+def _proximal_gradient_descent(f_loss, f_grad, f_prox, step_size, x0, max_iter,
+                               momentum=True, tol=1e-7, progress_bar=True,
+                               debug=False):
     """Proximal Gradient Descent (PGD) and Accelerated PDG.
 
     This reduces to ISTA and FISTA when the loss function is the l2 loss and
