@@ -72,7 +72,7 @@ def solve_multiple_kernel_ridge_random_search(
         else, None.
     cv_scores : array of shape (n_iter, n_targets)
         Cross-validation scores per iteration, averaged over splits, for the
-        best alpha.
+        best alpha. Cross-validation scores will always be on CPU memory.
     """
     backend = get_backend()
     if isinstance(n_iter, int):
@@ -109,7 +109,8 @@ def solve_multiple_kernel_ridge_random_search(
     best_gammas = backend.full_like(Ks, fill_value=1.0 / n_kernels,
                                     shape=(n_kernels, n_targets))
     best_alphas = backend.ones_like(Ks, shape=n_targets)
-    cv_scores = backend.zeros_like(Ks, shape=(len(gammas), n_targets))
+    cv_scores = backend.zeros_like(Ks, shape=(len(gammas), n_targets),
+                                   device="cpu")
     current_best_scores = backend.full_like(Ks, fill_value=-backend.inf,
                                             shape=n_targets)
 
@@ -188,12 +189,12 @@ def solve_multiple_kernel_ridge_random_search(
             alphas_argmax = backend.full_like(Ks, shape=scores_mean.shape[1],
                                               dtype=backend.int32,
                                               fill_value=alphas_argmax)
-        cv_scores[ii, :] = backend.apply_argmax(scores_mean, alphas_argmax,
-                                                axis)
+        cv_scores_ii = backend.apply_argmax(scores_mean, alphas_argmax, axis)
+        cv_scores[ii, :] = backend.to_cpu(cv_scores_ii)
 
         # update best_gammas and best_alphas
-        mask = cv_scores[ii, :] > current_best_scores
-        current_best_scores[mask] = cv_scores[ii][mask]
+        mask = cv_scores_ii > current_best_scores
+        current_best_scores[mask] = cv_scores_ii[mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]
 

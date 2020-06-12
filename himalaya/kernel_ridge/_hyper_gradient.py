@@ -78,6 +78,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         else, None.
     cv_scores : array of shape (max_iter * max_iter_inner_hyper, n_targets)
         Cross-validation scores per iteration, averaged over splits.
+        Cross-validation scores will always be on CPU memory.
     """
     backend = get_backend()
 
@@ -119,13 +120,12 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                          (kernel_ridge_method, ))
 
     if isinstance(cg_tol, (int, float)):
-        cg_tol = backend.full_like(Y, shape=(max_iter, ),
-                                   fill_value=cg_tol)
+        cg_tol = backend.full_like(Y, shape=(max_iter, ), fill_value=cg_tol)
 
     alpha = 1.0
 
     cv_scores = backend.zeros_like(
-        Y, shape=(max_iter * max_iter_inner_hyper, n_targets))
+        Y, shape=(max_iter * max_iter_inner_hyper, n_targets), device='cpu')
 
     batch_iterates = range(0, n_targets, n_targets_batch)
     if progress_bar:
@@ -196,7 +196,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                     scores[kk] = score_func(Y_val, predictions)
 
                 it = ii * max_iter_inner_hyper + jj
-                cv_scores[it, batch] = scores.mean(0)
+                cv_scores[it, batch] = backend.to_cpu(scores.mean(0))
 
                 # update deltas, using the minimum step size over splits
                 step_size = backend.min(backend.stack(step_sizes), axis=0)

@@ -176,6 +176,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
             score_func=r2_score, cv=cv,
             hyper_gradient_method=method, initial_deltas=initial_deltas,
             kernel_ridge_method=kernel_ridge, progress_bar=progress_bar)
+    cv_scores = backend.asarray(cv_scores)
     scores_1 = cv_scores[cv_scores.sum(axis=1) != 0][-1]
 
     alphas = backend.logspace(-5, 5, 11)
@@ -185,7 +186,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
         solve_multiple_kernel_ridge_random_search(
             Ks, Y, gammas, alphas, n_targets_batch=n_targets_batch,
             score_func=r2_score, cv=cv, progress_bar=progress_bar)
-    scores_2 = backend.max(cv_scores, axis=0)
+    scores_2 = backend.max(backend.asarray(cv_scores), axis=0)
 
     assert_array_almost_equal(scores_1, scores_2, decimal=1)
 
