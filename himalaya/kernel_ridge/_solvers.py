@@ -518,7 +518,8 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     if eigenvalues[0] < 0:
         if negative_eigenvalues == "nan":
             if alpha < -eigenvalues[0] * 2:
-                return backend.ones_like(Y) * backend.nan
+                return backend.ones_like(Y) * backend.asarray(
+                    backend.nan, dtype=Y.dtype)
             else:
                 pass
         elif negative_eigenvalues == "error":

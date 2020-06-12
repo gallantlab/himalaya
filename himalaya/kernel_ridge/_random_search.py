@@ -393,7 +393,8 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
         if eigenvalues[0] < 0:
             if negative_eigenvalues == "nan":
                 ev_weighting[alphas[batch] < -eigenvalues[0] *
-                             2, :] = backend.nan
+                             2, :] = backend.asarray(backend.nan,
+                                                     dtype=ev_weighting.dtype)
 
             elif negative_eigenvalues == "error":
                 raise RuntimeError(
