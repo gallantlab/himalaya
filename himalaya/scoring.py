@@ -106,10 +106,12 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     between predictions (i.e. Yhat_A*Yhat_B,..., Yhat_A*Yhat_Z).
     The function can also returns an estimate that ignores these correlations.
 
+    This function assumes that y_true is zero-mean over samples.
+
     Parameters
     ----------
     y_true : array of shape (n_samples, n_targets)
-        Observed data.
+        Observed data. Has to be zero-mean over samples.
     y_pred : array of shape (n_kernels, n_samples, n_targets) or
             (n_samples, n_targets)
         Predictions.
@@ -125,6 +127,11 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     """
     backend = get_backend()
     y_pred = _check_finite(y_pred)
+
+    if backend.any(y_true.mean(0) != 0):
+        warnings.warn(
+            'y_true has to be zero-mean over samples to compute '
+            'the split r2 scores.', UserWarning)
 
     sst = (y_true ** 2).sum(0)
 

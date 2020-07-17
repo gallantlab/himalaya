@@ -74,6 +74,18 @@ def test_r2_score_split(backend, dtype_str):
     assert_array_almost_equal(s_1, s_2, decimal=5)
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_r2_score_split_warn_non_zero_mean(backend):
+    # r2_score_split requires y_true to be zero mean
+    backend = set_backend(backend)
+    y_pred, y_true = _create_data(backend, "float32")
+
+    with pytest.warns(UserWarning):
+        _ = r2_score_split(y_true, y_pred, False)
+    with pytest.warns(UserWarning):
+        _ = r2_score_split(y_true, y_pred[0], False)
+
+
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_r2_score_split_include_correlation(backend, dtype_str):
