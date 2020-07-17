@@ -169,16 +169,6 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
     progress_bar = False
 
     # compare bilinear gradient descent and dirichlet sampling
-    _, _, cv_scores = \
-        solve_multiple_kernel_ridge_hyper_gradient(
-            Ks, Y, max_iter=100, n_targets_batch=n_targets_batch,
-            max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=None,
-            score_func=r2_score, cv=cv,
-            hyper_gradient_method=method, initial_deltas=initial_deltas,
-            kernel_ridge_method=kernel_ridge, progress_bar=progress_bar)
-    cv_scores = backend.asarray(cv_scores)
-    scores_1 = cv_scores[cv_scores.sum(axis=1) != 0][-1]
-
     alphas = backend.logspace(-5, 5, 11)
     gammas = generate_dirichlet_samples(50, len(Ks), concentration=[.1, 1.],
                                         random_state=0)
@@ -188,7 +178,27 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
             score_func=r2_score, cv=cv, progress_bar=progress_bar)
     scores_2 = backend.max(backend.asarray(cv_scores), axis=0)
 
-    assert_array_almost_equal(scores_1, scores_2, decimal=1)
+    max_iter = 10
+    for _ in range(3):
+        try:
+            _, _, cv_scores = \
+                solve_multiple_kernel_ridge_hyper_gradient(
+                    Ks, Y, max_iter=max_iter, n_targets_batch=n_targets_batch,
+                    max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=None,
+                    score_func=r2_score, cv=cv,
+                    hyper_gradient_method=method,
+                    initial_deltas=initial_deltas,
+                    kernel_ridge_method=kernel_ridge,
+                    progress_bar=progress_bar)
+            cv_scores = backend.asarray(cv_scores)
+            scores_1 = cv_scores[cv_scores.sum(axis=1) != 0][-1]
+
+            assert_array_almost_equal(scores_1, scores_2, decimal=1)
+            break
+        except AssertionError:
+            max_iter *= 5
+    else:
+        raise AssertionError
 
 
 @pytest.mark.parametrize('n_targets_batch', [None, 3])
