@@ -81,9 +81,9 @@ def test_r2_score_split_warn_non_zero_mean(backend):
     y_pred, y_true = _create_data(backend, "float32")
 
     with pytest.warns(UserWarning):
-        _ = r2_score_split(y_true, y_pred, False)
+        _ = r2_score_split(y_true + 1, y_pred, False)
     with pytest.warns(UserWarning):
-        _ = r2_score_split(y_true, y_pred[0], False)
+        _ = r2_score_split(y_true + 1, y_pred[0], False)
 
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])

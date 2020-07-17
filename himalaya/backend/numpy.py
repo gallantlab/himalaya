@@ -90,6 +90,7 @@ sign = np.sign
 sort = np.sort
 flip = np.flip
 atleast_1d = np.atleast_1d
+finfo = np.finfo
 
 
 def diagonal_view(array, axis1=0, axis2=1):

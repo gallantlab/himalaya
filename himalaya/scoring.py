@@ -128,7 +128,8 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     backend = get_backend()
     y_pred = _check_finite(y_pred)
 
-    if backend.any(y_true.mean(0) != 0):
+    eps = backend.finfo(y_true.dtype).eps
+    if backend.any(backend.abs(y_true.mean(0)) > eps):
         warnings.warn(
             'y_true has to be zero-mean over samples to compute '
             'the split r2 scores.', UserWarning)

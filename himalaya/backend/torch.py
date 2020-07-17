@@ -99,6 +99,7 @@ power = torch.pow
 prod = torch.prod
 sign = torch.sign
 clip = torch.clamp
+finfo = torch.finfo
 
 
 def atleast_1d(array):
