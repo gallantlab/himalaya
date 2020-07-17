@@ -49,6 +49,9 @@ class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
 
         return function(**direct_params, **solver_params)
 
+    def _more_tags(self):
+        return {'requires_y': True}
+
 
 class KernelRidge(_BaseKernelRidge):
     """Kernel ridge regression.
@@ -391,6 +394,14 @@ class KernelRidgeCV(KernelRidge):
 
         return self
 
+    def _more_tags(self):
+        return {
+            '_xfail_checks': {
+                'check_sample_weights_invariance(kind=zeros)':
+                'zero sample_weight is not equivalent to removing samples',
+            }
+        }
+
 
 ###############################################################################
 ###############################################################################
@@ -556,6 +567,9 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
 
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -597,12 +611,14 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     ALL_SOLVERS = MULTIPLE_KERNEL_RIDGE_SOLVERS
 
     def __init__(self, kernels=["linear", "polynomial"], kernels_params=None,
-                 solver="random_search", solver_params=None, cv=5):
+                 solver="random_search", solver_params=None, cv=5,
+                 random_state=None):
         self.kernels = kernels
         self.kernels_params = kernels_params
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
+        self.random_state = random_state
 
     def fit(self, X, y=None, sample_weight=None):
         """Fit the model.
@@ -665,7 +681,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 
         # ------------------ call the solver
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
-                                Xs=None)
+                                Xs=None, random_state=self.random_state)
         self.deltas_, self.dual_coef_, self.cv_scores_ = tmp
 
         if self.solver == "random_search":
@@ -678,6 +694,14 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
             self.deltas_ = self.deltas_[:, 0]
 
         return self
+
+    def _more_tags(self):
+        return {
+            '_xfail_checks': {
+                'check_sample_weights_invariance(kind=zeros)':
+                'zero sample_weight is not equivalent to removing samples',
+            }
+        }
 
 
 class WeightedKernelRidge(_BaseWeightedKernelRidge):
@@ -731,6 +755,9 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
 
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -764,13 +791,15 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
 
     def __init__(self, alpha=1., deltas="zeros",
                  kernels=["linear", "polynomial"], kernels_params=None,
-                 solver="conjugate_gradient", solver_params=None):
+                 solver="conjugate_gradient", solver_params=None,
+                 random_state=None):
         self.alpha = alpha
         self.deltas = deltas
         self.kernels = kernels
         self.kernels_params = kernels_params
         self.solver = solver
         self.solver_params = solver_params
+        self.random_state = random_state
 
     def fit(self, X, y=None, sample_weight=None):
         """Fit kernel ridge regression model
@@ -843,7 +872,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
                 self.deltas_ = self.deltas_[:, None]
 
         # ------------------ call the solver
-        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, deltas=self.deltas_)
+        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, deltas=self.deltas_,
+                                            random_state=self.random_state)
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]

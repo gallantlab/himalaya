@@ -1,9 +1,10 @@
 import numpy as np
 
 from .backend import get_backend
+from .validation import check_random_state
 
 
-def compute_lipschitz_constants(Xs, kernelize="XTX"):
+def compute_lipschitz_constants(Xs, kernelize="XTX", random_state=None):
     """Compute Lipschitz constants of gradients of linear regression problems.
 
     Find the largest eigenvalue of X^TX for several X, using power iteration.
@@ -15,6 +16,8 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
         Multiple linear features or kernels.
     kernelize : str in {"XTX", "XXT", "X"}
         Whether to consider X^TX, XX^T, or directly X.
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
 
     Returns
     -------
@@ -36,7 +39,10 @@ def compute_lipschitz_constants(Xs, kernelize="XTX"):
     else:
         raise ValueError("Unknown parameter kernelize=%r" % (kernelize, ))
 
-    ys = backend.randn(*(kernels.shape[:2] + (1, )))
+    # check the random state
+    random_generator = check_random_state(random_state)
+    ys = random_generator.randn(*(kernels.shape[:2] + (1, )))
+
     ys = backend.asarray_like(ys, Xs)
     for i in range(10):
         ys /= backend.norm(ys, axis=1, keepdims=True) + 1e-16

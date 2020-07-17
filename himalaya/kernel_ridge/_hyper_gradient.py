@@ -15,7 +15,7 @@ from ._random_search import solve_multiple_kernel_ridge_random_search
 
 def solve_multiple_kernel_ridge_hyper_gradient(
         Ks, Y, score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
-        initial_deltas=0, max_iter=100, tol=1e-2, max_iter_inner_dual=1,
+        initial_deltas=0, max_iter=10, tol=1e-2, max_iter_inner_dual=1,
         max_iter_inner_hyper=1, cg_tol=1e-3, n_targets_batch=None,
         hyper_gradient_method="conjugate_gradient",
         kernel_ridge_method="gradient_descent", random_state=None,
@@ -61,10 +61,11 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Method to compute the hypergradient.
     kernel_ridge_method : str, "conjugate_gradient" or "gradient_descent"
         Algorithm used for the inner step.
-    random_state : int, np.random.RandomState, or None
-        Random generator state, used only in the Dirichlet sampling init.
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
     progress_bar : bool
         If True, display a progress bar over batches and iterations.
+
 
     Returns
     -------
@@ -110,11 +111,22 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         raise ValueError("Unknown parameter return_weights=%r." %
                          (return_weights, ))
 
+    lipschitz_constants = None
     name = "hypergradient_" + hyper_gradient_method
     if kernel_ridge_method == "conjugate_gradient":
         inner_function = solve_weighted_kernel_ridge_conjugate_gradient
     elif kernel_ridge_method == "gradient_descent":
         inner_function = solve_weighted_kernel_ridge_gradient_descent
+
+        # precompute the lipschitz constants
+        lipschitz_constants = []
+        for train, _ in cv.split(Y):
+            if hasattr(Y, "device"):
+                train = backend.asarray(train, device=Y.device)
+            Ks_train = Ks[:, train[:, None], train]
+            lipschitz_constants.append(
+                compute_lipschitz_constants(Ks_train,
+                                            random_state=random_state))
     else:
         raise ValueError("Unknown parameter kernel_ridge_method=%r." %
                          (kernel_ridge_method, ))
@@ -128,6 +140,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Y, shape=(max_iter * max_iter_inner_hyper, n_targets), device='cpu')
 
     batch_iterates = range(0, n_targets, n_targets_batch)
+    bar = None
     if progress_bar:
         bar = ProgressBar(title=name, max_value=len(batch_iterates) * max_iter)
     for bb, start in enumerate(batch_iterates):
@@ -161,10 +174,15 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                 Ks_train = Ks[:, train[:, None], train]
                 Y_train = Y[train, batch]
 
+                if kernel_ridge_method == "gradient_descent" and ii != 0:
+                    kwargs = dict(lipschitz_Ks=lipschitz_constants[kk])
+                else:
+                    kwargs = dict()
+
                 dual_weights_cv[kk] = inner_function_(
                     Ks_train, Y_train, deltas[:, batch],
                     initial_dual_weights=dual_weights_cv[kk], alpha=alpha,
-                    max_iter=max_iter_inner_dual_, tol=cg_tol_)
+                    max_iter=max_iter_inner_dual_, tol=cg_tol_, **kwargs)
 
             ###################
             # update the deltas
@@ -187,7 +205,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                      previous_solutions[kk]) = _compute_delta_gradient(
                          Ks_val=Ks_val, Y_val=Y_val, deltas=deltas[:, batch],
                          dual_weights=dual_weights_cv[kk], Ks_train=Ks_train,
-                         tol=cg_tol[ii],
+                         tol=cg_tol[ii], random_state=random_state,
                          hyper_gradient_method=hyper_gradient_method,
                          previous_solution=previous_solutions[kk])
 
@@ -221,6 +239,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                 # multiply by g and not np.sqrt(g), as we then want to use
                 # the primal weights on the unscaled features Xs, and not
                 # on the scaled features (np.sqrt(g) * Xs)
+                X = None
                 for tt in range(refit_weights[:, batch].shape[1]):
                     X = backend.concatenate([
                         t * g for t, g in zip(
@@ -334,7 +353,8 @@ def _compute_delta_loss(Ks_val, Y_val, deltas, dual_weights):
 
 def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
                             tol=None, previous_solution=None,
-                            hyper_gradient_method='conjugate_gradient'):
+                            hyper_gradient_method='conjugate_gradient',
+                            random_state=None):
     """Compute the gradient over deltas on the validation dataset.
 
     Parameters
@@ -358,6 +378,8 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         with the previous solution.
     hyper_gradient_method : str, in {"conjugate_gradient", "neumann", "direct"}
         Method used to compute the hyper gradient.
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
 
     Returns
     -------
@@ -387,7 +409,8 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     # estimate a step size
     XTXs = _compute_deltas_hessian(exp_delta_chi_val, Y_val)
     # (these lipschitz constants only correspond to the direct gradient)
-    lipschitz_1 = compute_lipschitz_constants(XTXs, "X")
+    lipschitz_1 = compute_lipschitz_constants(XTXs, "X",
+                                              random_state=random_state)
     step_size = 1. / (lipschitz_1 + 1e-15)
 
     if hyper_gradient_method == 'direct':

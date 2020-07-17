@@ -63,12 +63,10 @@ def _weighted_kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
         return dual_weight_gradient
 
 
-def solve_weighted_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
-                                                 step_sizes=None,
-                                                 lipschitz_Ks=None,
-                                                 initial_dual_weights=None,
-                                                 max_iter=100, tol=1e-3,
-                                                 double_K=False, debug=False):
+def solve_weighted_kernel_ridge_gradient_descent(
+        Ks, Y, deltas, alpha=1., step_sizes=None, lipschitz_Ks=None,
+        initial_dual_weights=None, max_iter=100, tol=1e-3, double_K=False,
+        random_state=None, debug=False):
     """Solve weighted kernel ridge regression using gradient descent.
 
     Solve the kernel ridge regression
@@ -105,6 +103,8 @@ def solve_weighted_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
     double_K : bool
         If True, multiply the gradient by the kernel to obtain the true
         gradients, which are less well conditionned.
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
     debug : bool
         If True, check some intermediate computations.
 
@@ -133,7 +133,8 @@ def solve_weighted_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
 
     if step_sizes is None:
         if lipschitz_Ks is None:
-            lipschitz_Ks = compute_lipschitz_constants(Ks)
+            lipschitz_Ks = compute_lipschitz_constants(
+                Ks, random_state=random_state)
             if not double_K:
                 lipschitz_Ks = backend.sqrt(lipschitz_Ks)
 
@@ -181,7 +182,8 @@ def solve_weighted_kernel_ridge_gradient_descent(Ks, Y, deltas, alpha=1.,
 
 def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
                                                    initial_dual_weights=None,
-                                                   max_iter=100, tol=1e-3):
+                                                   max_iter=100, tol=1e-4,
+                                                   random_state=None):
     """Solve weighted kernel ridge regression using conjugate gradient.
 
     Solve the kernel ridge regression
@@ -208,6 +210,8 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
         Maximum number of conjugate gradient step.
     tol : float > 0 or None
         Tolerance for the stopping criterion.
+    random_state : int, or None
+        Random generator seed. Not used.
 
     Returns
     -------
@@ -291,7 +295,8 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
 
 def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
                                                max_iter=10, factor=0.0001,
-                                               tol=None, debug=False):
+                                               tol=None, random_state=None,
+                                               debug=False):
     """Solve weighted kernel ridge regression using Neumann series.
 
     Solve the kernel ridge regression
@@ -328,6 +333,8 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
         (factor * K) instead of K, then multiply the result by factor.
     tol : None
         Not used.
+    random_state : int, or None
+        Random generator seed. Not used.
     debug : bool
         If True, check some intermediate computations.
 
@@ -379,7 +386,8 @@ WEIGHTED_KERNEL_RIDGE_SOLVERS = {
 
 def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
                                           initial_dual_weights=None,
-                                          max_iter=100, tol=1e-3):
+                                          max_iter=100, tol=1e-3,
+                                          random_state=None):
     """Solve kernel ridge regression using conjugate gradient.
 
     Solve the kernel ridge regression
@@ -400,6 +408,8 @@ def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
         Maximum number of conjugate gradient step.
     tol : float > 0 or None
         Tolerance for the stopping criterion.
+    random_state : int, or None
+        Random generator seed. Not used.
 
     Returns
     -------
@@ -417,7 +427,7 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
                                         lipschitz_Ks=None,
                                         initial_dual_weights=None,
                                         max_iter=100, tol=1e-3, double_K=False,
-                                        debug=False):
+                                        random_state=None, debug=False):
     """Solve kernel ridge regression using conjugate gradient.
 
     Solve the kernel ridge regression
@@ -448,6 +458,8 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
     double_K : bool
         If True, multiply the gradient by the kernel to obtain the true
         gradients, which are less well conditionned.
+    random_state : int, or None
+        Random generator seed. Use an int for deterministic search.
     debug : bool
         If True, check some intermediate computations.
 
@@ -461,11 +473,13 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
     return solve_weighted_kernel_ridge_gradient_descent(
         K[None], Y=Y, deltas=deltas, alpha=alpha, step_sizes=step_sizes,
         lipschitz_Ks=lipschitz_Ks, initial_dual_weights=initial_dual_weights,
-        max_iter=max_iter, tol=tol, double_K=double_K, debug=debug)
+        max_iter=max_iter, tol=tol, double_K=double_K,
+        random_state=random_state, debug=debug)
 
 
 def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
-                                   negative_eigenvalues="nan"):
+                                   negative_eigenvalues="nan",
+                                   random_state=None):
     """Solve kernel ridge regression using eigenvalues decomposition.
 
     Solve the kernel ridge regression
@@ -488,6 +502,8 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
             - "error" raises an error.
             - "nan" returns nans if the regularization does not compensate
                 twice the smallest negative value, else it ignores the problem.
+    random_state : int, or None
+        Random generator seed. Not used.
 
     Returns
     -------

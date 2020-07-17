@@ -139,7 +139,8 @@ def test_kernel_ridge_solvers(solver, backend):
         assert model.dual_coef_.shape == Y.shape
         assert_array_almost_equal(model.dual_coef_, reference.dual_coef_)
         assert_array_almost_equal(model.predict(X),
-                                  reference.predict(backend.to_numpy(X)))
+                                  reference.predict(backend.to_numpy(X)),
+                                  decimal=5)
 
 
 @pytest.mark.parametrize('solver', ['eigenvalues'])
@@ -164,11 +165,10 @@ def test_multiple_kernel_ridge_cv_precomputed(backend, solver):
     Xs, Ks, Y = _create_dataset(backend)
 
     if solver == "random_search":
-        kwargs = dict(
-            solver="random_search",
-            solver_params=dict(n_iter=2, random_state=0, progress_bar=False))
+        kwargs = dict(solver="random_search", random_state=0,
+                      solver_params=dict(n_iter=2, progress_bar=False))
     elif solver == "hyper_gradient":
-        kwargs = dict(solver="hyper_gradient",
+        kwargs = dict(solver="hyper_gradient", random_state=0,
                       solver_params=dict(max_iter=2, progress_bar=False))
 
     model_1 = MultipleKernelRidgeCV(kernels=["linear"], **kwargs)
@@ -259,6 +259,12 @@ class KernelRidgeCV_(KernelRidgeCV):
     Used for testing only.
     """
 
+    def __init__(self, alphas=(0.1, 1), kernel="linear", kernel_params=None,
+                 solver="eigenvalues", solver_params=None, cv=2):
+        super().__init__(alphas=alphas, kernel=kernel,
+                         kernel_params=kernel_params, solver=solver,
+                         solver_params=solver_params, cv=cv)
+
     def predict(self, X):
         backend = get_backend()
         return backend.to_numpy(super().predict(X))
@@ -284,11 +290,12 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
     Used for testing only.
     """
 
-    def __init__(self, kernels=["linear", "polynomial"], kernels_params=None,
-                 solver="hyper_gradient",
-                 solver_params=dict(progress_bar=False, max_iter=2), cv=5):
+    def __init__(self, kernels=("linear", "polynomial"), kernels_params=None,
+                 solver="hyper_gradient", solver_params=None, cv=2,
+                 random_state=None):
         super().__init__(kernels=kernels, kernels_params=kernels_params,
-                         solver=solver, solver_params=solver_params, cv=cv)
+                         solver=solver, solver_params=solver_params, cv=cv,
+                         random_state=random_state)
 
     def predict(self, X):
         backend = get_backend()
@@ -304,6 +311,15 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     Used for testing only.
     """
+
+    def __init__(self, alpha=1., deltas="zeros",
+                 kernels=("linear", "polynomial"), kernels_params=None,
+                 solver="conjugate_gradient", solver_params=None,
+                 random_state=None):
+        super().__init__(alpha=alpha, deltas=deltas, kernels=kernels,
+                         kernels_params=kernels_params, solver=solver,
+                         solver_params=solver_params,
+                         random_state=random_state)
 
     def predict(self, X):
         backend = get_backend()
