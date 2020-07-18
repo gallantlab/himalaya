@@ -2,6 +2,8 @@ import pytest
 import sklearn.utils.estimator_checks
 from sklearn.pipeline import make_pipeline
 from sklearn.preprocessing import StandardScaler
+from sklearn.exceptions import NotFittedError
+from sklearn.base import clone
 
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
@@ -213,6 +215,49 @@ def test_column_kernelizer_in_pipeline(backend):
                                progress_bar=False)),
     )
     pipe.fit(X, Y)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernelizer_get_X_fit(backend):
+    backend = set_backend(backend)
+    X = backend.randn(10, 5)
+
+    estimator = Kernelizer("linear")
+    with pytest.raises(NotFittedError):
+        estimator.get_X_fit()
+
+    K = estimator.fit_transform(X)
+    X = estimator.get_X_fit()
+    assert len(K) == len(X)  # same number of samples
+
+
+@pytest.mark.parametrize('estimator', [
+    make_column_kernelizer((Kernelizer("linear"), slice(0, 4))),
+    make_column_kernelizer(
+        (Kernelizer("linear"), slice(0, 4)),
+        ("drop", slice(4, 6)),
+        remainder='passthrough',
+    ),
+    make_column_kernelizer(
+        ("passthrough", slice(0, 2)),
+        ("passthrough", slice(0, 4)),
+        ("passthrough", slice(4, 5)),
+    ),
+])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_column_kernelizer_get_X_fit(estimator, backend):
+    backend = set_backend(backend)
+    X = backend.randn(10, 5)
+
+    estimator = clone(estimator)  # pytest reuses the same object over backends
+    with pytest.raises(NotFittedError):
+        estimator.get_X_fit()
+
+    Ks = estimator.fit_transform(X)
+    Xs = estimator.get_X_fit()
+    assert len(Ks) == len(Xs)  # same number of feature spaces
+    for X, K in zip(Xs, Ks):
+        assert X.shape[0] == K.shape[0]  # same number of samples
 
 
 ###############################################################################

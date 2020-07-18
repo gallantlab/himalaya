@@ -142,6 +142,17 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         kernel = pairwise_kernels(X, Y, metric=self.kernel, **kernel_params)
         return backend.asarray(kernel)
 
+    def get_X_fit(self):
+        """Helper to get the input data X seen during the fit.
+
+        Returns
+        -------
+        X : array of shape (n_samples, n_features)
+            Input array for the kernelizer.
+        """
+        check_is_fitted(self)
+        return self.X_fit_
+
     @property
     def _pairwise(self):
         return self.kernel == "precomputed"
@@ -257,8 +268,8 @@ class ColumnKernelizer(ColumnTransformer):
 
     See also
     --------
-    himalaya.kernel_ridge.make_column_transformer : convenience function for
-        combining the outputs of multiple transformer objects applied to
+    himalaya.kernel_ridge.make_column_kernelizer : convenience function for
+        combining the outputs of multiple kernelizer objects applied to
         column subsets of the original feature space.
     sklearn.compose.make_column_selector : convenience function for selecting
         columns based on datatype or the columns name with a regex pattern.
@@ -325,6 +336,26 @@ class ColumnKernelizer(ColumnTransformer):
         """
         backend = get_backend()
         return backend.stack(Xs)
+
+    def get_X_fit(self):
+        """Helper to get the input data X seen during the fit.
+
+        Returns
+        -------
+        Xs : list of arrays of shape (n_samples, n_features_i)
+            Input arrays for each kernelizer.
+        """
+        check_is_fitted(self)
+
+        Xs = []
+        for (_, trans, _, _) in self._iter(fitted=True, replace_strings=True):
+            if hasattr(trans, "get_X_fit"):
+                X = trans.get_X_fit()
+            else:
+                X = trans[-1].get_X_fit()
+
+            Xs.append(X)
+        return Xs
 
 
 def make_column_kernelizer(*transformers, **kwargs):
