@@ -13,6 +13,8 @@ from ._random_search import generate_dirichlet_samples
 from ._random_search import solve_kernel_ridge_cv_eigenvalues
 from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
+from ._predictions import primal_weights_kernel_ridge
+from ._predictions import primal_weights_weighted_kernel_ridge
 from ._sklearn_api import KernelRidge
 from ._sklearn_api import KernelRidgeCV
 from ._sklearn_api import MultipleKernelRidgeCV
@@ -46,6 +48,8 @@ __all__ = [
     generate_dirichlet_samples,
     predict_weighted_kernel_ridge,
     predict_and_score_weighted_kernel_ridge,
+    primal_weights_kernel_ridge,
+    primal_weights_weighted_kernel_ridge,
     # scikit-learn API
     KernelRidge,
     KernelRidgeCV,

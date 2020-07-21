@@ -12,6 +12,7 @@ from ._kernels import pairwise_kernels
 from ._kernels import PAIRWISE_KERNEL_FUNCTIONS
 from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
+from ._predictions import primal_weights_weighted_kernel_ridge
 
 from ..validation import check_array
 from ..validation import issparse
@@ -255,6 +256,46 @@ class KernelRidge(_BaseKernelRidge):
     @property
     def _pairwise(self):
         return self.kernel == "precomputed"
+
+    def get_primal_coef(self, X_fit=None):
+        """Returns the primal coefficients, assuming the kernel is linear.
+
+        When the kernel is linear, kernel ridge regression is equivalent to
+        ridge rergession, and the ridge regression (primal) coefficients can be
+        computed from the kernel ridge regression (dual) coefficients, using
+        the training features X.
+
+        Parameters
+        ----------
+        X_fit : array of shape (n_samples_fit, n_features) or None
+            Training features. Used only if self.kernel == "precomputed".
+            If you used a Kernelizer, you can use the method `get_X_fit`.
+
+        Returns
+        -------
+        primal_coef : array of shape (n_features, n_targets)
+            Coefficient of the equivalent ridge regression. The coefficients
+            are computed on CPU memory, since they can be large.
+        """
+        check_is_fitted(self)
+        backend = get_backend()
+
+        if self.kernel == "linear":
+            X_fit_T = self.X_fit_.T
+        elif self.kernel == "precomputed":
+            if X_fit is None:
+                raise ValueError(
+                    "get_primal_coef requires the training features `X_fit`. "
+                    "If you used a Kernelizer, you can use the method "
+                    "`get_X_fit`.")
+            X_fit_T = X_fit.T
+        else:
+            raise ValueError("The primal coefficients can only be computed "
+                             "when using a linear kernel.")
+
+        X_fit_T = backend.to_cpu(X_fit_T)
+        dual_coef = backend.to_cpu(self.dual_coef_)
+        return X_fit_T @ dual_coef
 
 
 class KernelRidgeCV(KernelRidge):
@@ -523,6 +564,44 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             kernels = backend.stack(kernels)
 
         return kernels
+
+    def get_primal_coef(self, Xs_fit):
+        """Returns the primal coefficients, assuming all kernels are linear.
+
+        When all kernels are linear, weighted kernel ridge regression is
+        equivalent to weighted ridge rergession, and the ridge regression
+        (primal) coefficients can be computed from the kernel ridge regression
+        (dual) coefficients, using the training features Xs.
+
+        This currently only works when self.kernel == "precomputed".
+
+        Parameters
+        ----------
+        Xs_fit : list of array of shape (n_samples_fit, n_features)
+            Training features. If you used a ColumnKernelizer, you can use the
+            method `get_X_fit` to get this list of arrays.
+
+        Returns
+        -------
+        primal_coef : list of array of shape (n_features, n_targets)
+            Coefficient of the equivalent ridge regression. The coefficients
+            are computed on CPU memory, since they can be large.
+        """
+        check_is_fitted(self)
+
+        if self.kernels == "precomputed":
+            if Xs_fit is None:
+                raise ValueError(
+                    "get_primal_coef requires the training features `Xs_fit`. "
+                    "If you used a ColumnKernelizer, you can use the method "
+                    "`get_X_fit`.")
+            primal_coef = primal_weights_weighted_kernel_ridge(
+                self.dual_coef_, self.deltas_, Xs_fit)
+        else:
+            raise ValueError("The primal coefficients can only be computed "
+                             "when using precomputed kernels.")
+
+        return primal_coef
 
 
 class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):

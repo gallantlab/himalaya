@@ -63,8 +63,8 @@ def test_weighted_kernel_ridge_gradient(backend, double_K):
                                                    alpha=alpha,
                                                    double_K=double_K,
                                                    return_objective=True)
-    assert_array_almost_equal(grad, grad2, decimal=1e-3)
-    assert_array_almost_equal(func, func2, decimal=1e-3)
+    assert_array_almost_equal(grad, grad2)
+    assert_array_almost_equal(func, func2)
 
 
 @pytest.mark.parametrize('solver_name', WEIGHTED_KERNEL_RIDGE_SOLVERS)

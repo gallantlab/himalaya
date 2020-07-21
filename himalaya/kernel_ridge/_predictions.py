@@ -89,3 +89,57 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
             scores[batch] = score_batch
 
     return scores
+
+
+def primal_weights_kernel_ridge(dual_weights, X_fit):
+    """Compute the primal weights for kernel ridge regression.
+
+    Parameters
+    ----------
+    dual_weights : array of shape (n_samples_fit, n_targets)
+        Dual coefficient of the kernel ridge regression.
+    X_fit : array of shape (n_samples_fit, n_features)
+        Training features.
+
+    Returns
+    -------
+    primal_weights : array of shape (n_features, n_targets)
+        Primal coefficients of the equivalent ridge regression. The
+        coefficients are computed on CPU memory, since they can be large.
+    """
+    backend = get_backend()
+    X_fit = backend.to_cpu(X_fit)
+    dual_weights = backend.to_cpu(dual_weights)
+
+    return X_fit.T @ dual_weights
+
+
+def primal_weights_weighted_kernel_ridge(dual_weights, deltas, Xs_fit):
+    """Compute the primal weights for weighted kernel ridge regression.
+
+    Parameters
+    ----------
+    dual_weights : array of shape (n_samples_fit, n_targets)
+        Dual coefficient of the kernel ridge regression.
+    deltas : array of shape (n_kernels, n_targets)
+        Log of kernel weights.
+    Xs_fit : list of arrays of shape (n_samples_fit, n_features)
+        Training features. The list should have `n_kernels` elements.
+
+    Returns
+    -------
+    primal_weights : list of arrays of shape (n_features, n_targets)
+        Primal coefficients of the equivalent ridge regression. The
+        coefficients are computed on CPU memory, since they can be large.
+    """
+    backend = get_backend()
+    dual_weights = backend.to_cpu(dual_weights)
+
+    primal_weights = []
+    for X_fit, deltas_i in zip(Xs_fit, deltas):
+        X_fit = backend.to_cpu(X_fit)
+        exp_deltas_i = backend.to_cpu(backend.exp(deltas_i))
+        primal_weights_i = X_fit.T @ dual_weights * exp_deltas_i[None]
+        primal_weights.append(primal_weights_i)
+
+    return primal_weights

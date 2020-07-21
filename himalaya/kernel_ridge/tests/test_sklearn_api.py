@@ -110,6 +110,54 @@ def test_kernel_ridge_precomputed(backend):
                                   model_2.predict(Ks[0]))
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_get_primal_coef(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model = KernelRidge(kernel="linear")
+    model.fit(Xs[0], Y)
+    primal_coef = model.get_primal_coef()
+    predictions_primal = Xs[0] @ backend.asarray(primal_coef)
+    predictions_dual = model.predict(Xs[0])
+    assert_array_almost_equal(predictions_primal, predictions_dual)
+
+    model = KernelRidge(kernel="precomputed")
+    model.fit(Ks[0], Y)
+    primal_coef = model.get_primal_coef(X_fit=Xs[0])
+    predictions_primal = Xs[0] @ backend.asarray(primal_coef)
+    predictions_dual = model.predict(Ks[0])
+    assert_array_almost_equal(predictions_primal, predictions_dual)
+
+    model = KernelRidge(kernel="precomputed")
+    model.fit(Ks[0], Y)
+    with pytest.raises(ValueError):
+        model.get_primal_coef(X_fit=None)
+
+    model = KernelRidge(kernel="poly")
+    model.fit(Xs[0], Y)
+    with pytest.raises(ValueError):
+        model.get_primal_coef()
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_get_primal_coef(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model = WeightedKernelRidge(kernels="precomputed")
+    model.fit(Ks, Y)
+
+    with pytest.raises(ValueError):
+        primal_coef = model.get_primal_coef(Xs_fit=None)
+
+    primal_coef = model.get_primal_coef(Xs_fit=Xs)
+    predictions_primal = backend.stack(
+        [X @ backend.asarray(w) for X, w in zip(Xs, primal_coef)]).sum(0)
+    predictions_dual = model.predict(Ks)
+    assert_array_almost_equal(predictions_primal, predictions_dual)
+
+
 @pytest.mark.parametrize(
     'solver', ['eigenvalues', 'conjugate_gradient', 'gradient_descent'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
