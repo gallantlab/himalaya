@@ -19,6 +19,8 @@ def l2_neg_loss(y_true, y_pred):
     l2 : array of shape (n_predictions, n_targets) or (n_targets, )
         L2 negative losses.
     """
+    backend = get_backend()
+    y_true, y_pred = backend.check_arrays(y_true, y_pred)
     y_pred = _check_finite(y_pred)
 
     # broadcasting if y_pred has more dimensions
@@ -47,6 +49,8 @@ def r2_score(y_true, y_pred):
     r2 : array of shape (n_predictions, n_targets) or (n_targets, )
         R2 scores.
     """
+    backend = get_backend()
+    y_true, y_pred = backend.check_arrays(y_true, y_pred)
     y_pred = _check_finite(y_pred)
 
     # broadcasting if y_pred has more dimensions
@@ -79,6 +83,8 @@ def correlation_score(y_true, y_pred):
     correlations : array of shape (n_predictions, n_targets) or (n_targets, )
         Correlation scores.
     """
+    backend = get_backend()
+    y_true, y_pred = backend.check_arrays(y_true, y_pred)
     y_pred = _check_finite(y_pred)
 
     # broadcasting if y_pred has more dimensions
@@ -126,6 +132,7 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
         Individual feature space R2 scores.
     """
     backend = get_backend()
+    y_true, y_pred = backend.check_arrays(y_true, y_pred)
     y_pred = _check_finite(y_pred)
 
     if backend.any(backend.abs(y_true.mean(0)) > 1e-6):
