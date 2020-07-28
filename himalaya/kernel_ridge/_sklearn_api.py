@@ -454,7 +454,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
     """Private class for shared implementations.
     """
 
-    def predict(self, X):
+    def predict(self, X, split=False):
         """Predict using the model.
 
         Parameters
@@ -463,10 +463,17 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             Samples. If kernels == "precomputed" this is instead a precomputed
             kernel array of shape (n_kernels, n_samples_test, n_samples_train).
 
+        split : bool
+            If True, the prediction is split on each kernel, and this method
+            returns an array with one extra dimension (first dimension).
+            The sum over this extra dimension corresponds to split=False.
+
         Returns
         -------
         Y_hat : array of shape (n_samples,) or (n_samples, n_targets)
             Returns predicted values.
+            If parameter split is True, the array is of shape
+            (n_kernels, n_samples,) or (n_kernels, n_samples, n_targets).
         """
         check_is_fitted(self)
 
@@ -485,11 +492,12 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         if self.dual_coef_.ndim == 1:
             Y_hat = predict_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
-                deltas=self.deltas_[:, None])[:, 0]
+                deltas=self.deltas_[:, None], split=split)[..., 0]
         else:
             Y_hat = predict_weighted_kernel_ridge(Ks=Ks,
                                                   dual_weights=self.dual_coef_,
-                                                  deltas=self.deltas_)
+                                                  deltas=self.deltas_,
+                                                  split=split)
         return Y_hat
 
     def score(self, X, y):

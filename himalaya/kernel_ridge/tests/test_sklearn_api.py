@@ -245,6 +245,30 @@ def test_weighted_kernel_ridge_precomputed(backend, solver):
                               model_2.predict(Ks[0][None]))
 
 
+@pytest.mark.parametrize('Estimator',
+                         [WeightedKernelRidge, MultipleKernelRidgeCV])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_split_predict(backend, Estimator):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    # multiple targets
+    model = Estimator(kernels="precomputed")
+    model.fit(Ks, Y)
+    Y_pred = model.predict(Ks)
+    Y_pred_split = model.predict(Ks, split=True)
+    assert Y_pred.shape == Y.shape
+    assert_array_almost_equal(Y_pred, Y_pred_split.sum(0))
+
+    # single targets
+    model = Estimator(kernels="precomputed")
+    model.fit(Ks, Y[:, 0])
+    Y_pred = model.predict(Ks)
+    Y_pred_split = model.predict(Ks, split=True)
+    assert Y_pred.shape == Y[:, 0].shape
+    assert_array_almost_equal(Y_pred, Y_pred_split.sum(0))
+
+
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_duplicate_solver_parameters(backend):
     backend = set_backend(backend)
