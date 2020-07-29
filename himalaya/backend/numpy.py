@@ -13,8 +13,8 @@ def apply_argmax(array, argmax, axis):
     array[np.argmax(array)] works fine in dimension 1, but not in higher ones.
     This function extends it to higher dimensions.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import numpy as np
     >>> array = np.random.randn(10, 4, 8)
     >>> argmax = np.argmax(array, axis=1)

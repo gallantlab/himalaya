@@ -21,10 +21,10 @@ help:
 
 clean:
 	rm -rf $(BUILDDIR)/*
-	rm -rf auto_examples/
+	rm -rf _auto_examples/
+	rm -rf _generated/
 
 html-noplot:
 	$(SPHINXBUILD) -D plot_gallery=0 -b html "$(SOURCEDIR)" "$(BUILDDIR)" $(SPHINXOPTS) $(O)
 	@echo
 	@echo "Build finished (noplot). The HTML pages are in $(BUILDDIR)/html."
-

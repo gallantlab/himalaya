@@ -22,8 +22,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         progress_bar=True):
     """Solve bilinear kernel ridge regression with cross-validation.
 
-    The hyper-parameters deltas correspond to
-        log(kernel_weights / ridge_regularization).
+    The hyper-parameters deltas correspond to::
+
+        log(kernel_weights / ridge_regularization)
 
     Parameters
     ----------
@@ -43,7 +44,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Initial log kernel weights for each target.
         If a float, initialize the deltas with this value.
         If a str, initialize the deltas with different strategies:
-            - 'ridgecv' : fit a RidgeCV model over the average kernel.
+        - 'ridgecv' : fit a RidgeCV model over the average kernel.
     max_iter : int
         Maximum number of iteration for the outer loop.
     tol : float > 0, or None
@@ -65,7 +66,6 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Random generator seed. Use an int for deterministic search.
     progress_bar : bool
         If True, display a progress bar over batches and iterations.
-
 
     Returns
     -------
@@ -261,6 +261,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     return deltas, refit_weights, cv_scores
 
 
+#: Dictionary with all multiple kernel ridge solvers
 MULTIPLE_KERNEL_RIDGE_SOLVERS = {
     "random_search": solve_multiple_kernel_ridge_random_search,
     "hyper_gradient": solve_multiple_kernel_ridge_hyper_gradient,
@@ -280,7 +281,7 @@ def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, n_targets_batch):
         Initial log kernel weights for each target.
         If a float, initialize the deltas with this value.
         If a str, initialize the deltas with different strategies:
-            - 'ridgecv' : fit a RidgeCV model over the average kernel
+        - 'ridgecv' : fit a RidgeCV model over the average kernel
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
     n_targets_batch : int or None

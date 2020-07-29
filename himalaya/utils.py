@@ -11,7 +11,7 @@ def compute_lipschitz_constants(Xs, kernelize="XTX", random_state=None):
 
     Parameters
     ----------
-    Xs : array of shape (n_kernels, n_samples, n_features) or
+    Xs : array of shape (n_kernels, n_samples, n_features) or \
             (n_kernels, n_samples, n_samples)
         Multiple linear features or kernels.
     kernelize : str in {"XTX", "XXT", "X"}

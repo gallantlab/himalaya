@@ -329,12 +329,18 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
                             method="eigh", negative_eigenvalues="nan"):
     """Precompute resolution matrices for kernel ridge predictions.
 
-    To compute the prediction:
+    To compute the prediction::
+
         Ytest_hat = Ktest @ (Ktrain + alphas * Id)^-1 @ Ytrain
-    this function precomputes:
+
+    this function precomputes::
+
         matrices = Ktest @ (Ktrain + alphas * Id)^-1
-    or just:
+
+    or just::
+
         matrices = (Ktrain + alphas * Id)^-1
+
     if Ktest is None.
 
     Parameters

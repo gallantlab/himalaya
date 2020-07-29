@@ -10,7 +10,7 @@ def l2_neg_loss(y_true, y_pred):
     ----------
     y_true : array or Tensor of shape (n_samples, n_targets)
         Ground truth.
-    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or
+    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or\
             (n_samples, n_targets)
         Predictions.
 
@@ -40,7 +40,7 @@ def r2_score(y_true, y_pred):
     ----------
     y_true : array or Tensor of shape (n_samples, n_targets)
         Ground truth.
-    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or
+    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or\
             (n_samples, n_targets)
         Predictions.
 
@@ -74,7 +74,7 @@ def correlation_score(y_true, y_pred):
     ----------
     y_true : array or Tensor of shape (n_samples, n_targets)
         Ground truth.
-    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or
+    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or\
             (n_samples, n_targets)
         Predictions.
 
@@ -100,12 +100,17 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     """Split variance explained (R2) into individual feature space components.
 
     When estimating a linear joint model, the predictions of
-    each feature space are summed:
+    each feature space are summed::
+
         Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z
-    The joint model R2 can be computed as
+
+    The joint model R2 can be computed as::
+
         R2_joint = R2(Yhat_joint, Y)
+
     This function estimates the contribution of each feature space to the
-    joint model R2 such that:
+    joint model R2 such that::
+
         R2_joint = R2_A + R2_B + ... + R2_Z
 
     Mathematically, this is achieved by taking into account the correlations
@@ -118,7 +123,7 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     ----------
     y_true : array of shape (n_samples, n_targets)
         Observed data. Has to be zero-mean over samples.
-    y_pred : array of shape (n_kernels, n_samples, n_targets) or
+    y_pred : array of shape (n_kernels, n_samples, n_targets) or \
             (n_samples, n_targets)
         Predictions.
     include_correlation : bool

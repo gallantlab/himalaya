@@ -29,7 +29,7 @@ class Kernelizer(TransformerMixin, BaseEstimator):
     kernel_params : dict or None
         Additional parameters for the kernel function.
         See more details in the docstring of the function:
-            Kernelizer.ALL_KERNELS[kernel]
+        Kernelizer.ALL_KERNELS[kernel]
 
     Attributes
     ----------
@@ -186,7 +186,7 @@ class ColumnKernelizer(ColumnTransformer):
             its parameters to be set using ``set_params`` and searched in grid
             search.
         transformer : {'drop', 'passthrough'} or estimator
-            Estimator must support :term:`fit` and :term:`transform`.
+            Estimator must support ``fit`` and ``transform``.
             Special-cased strings 'drop' and 'passthrough' are accepted as
             well, to indicate to drop the columns or to pass them through
             untransformed, respectively. If the transformer does not return a
@@ -213,9 +213,9 @@ class ColumnKernelizer(ColumnTransformer):
         the transformers.
         By setting ``remainder`` to be an estimator, the remaining
         non-specified columns will use the ``remainder`` estimator. The
-        estimator must support :term:`fit` and :term:`transform`.
+        estimator must support ``fit`` and ``transform``.
         Note that using this feature requires that the DataFrame columns
-        input at :term:`fit` and :term:`transform` have identical order.
+        input at ``fit`` and ``transform`` have identical order.
 
     n_jobs : int, default=None
         Number of jobs to run in parallel.
@@ -373,7 +373,7 @@ def make_column_kernelizer(*transformers, **kwargs):
         transformer objects to be applied to subsets of the data.
 
         transformer : {'drop', 'passthrough'} or estimator
-            Estimator must support :term:`fit` and :term:`transform`.
+            Estimator must support ``fit`` and ``transform``.
             Special-cased strings 'drop' and 'passthrough' are accepted as
             well, to indicate to drop the columns or to pass them through
             untransformed, respectively. If the transformer does not return a
@@ -400,7 +400,7 @@ def make_column_kernelizer(*transformers, **kwargs):
         the transformers.
         By setting ``remainder`` to be an estimator, the remaining
         non-specified columns will use the ``remainder`` estimator. The
-        estimator must support :term:`fit` and :term:`transform`.
+        estimator must support ``fit`` and ``transform``.
 
     n_jobs : int, default=None
         Number of jobs to run in parallel.

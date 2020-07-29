@@ -10,13 +10,13 @@ Documentation
 
    getting_started
    models
+   api
 
 Examples
----------
+--------
 .. toctree::
    :includehidden:
    :maxdepth: 2
    
     
-   auto_examples/index
-
+   _auto_examples/index

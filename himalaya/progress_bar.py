@@ -3,10 +3,20 @@ import time
 
 
 def bar(iterable, title='', use_it=True):
-    """simple API for progress_bar.
+    """Simple API for progress_bar.
 
-    Example
-    -------
+    Parameters
+    ----------
+    iterable : iterable
+        Iterable that will make the progress bar progress.
+    title : str
+        Message to include at end of progress bar.
+    use_it : bool
+        If False, return the iterable unchanged, and does not show a progress
+        bar.
+
+    Examples
+    --------
     >>> import time
     >>> from himalaya.progress_bar import bar
     >>> for ii in bar(range(10)):
@@ -19,7 +29,7 @@ def bar(iterable, title='', use_it=True):
 
 
 class ProgressBar():
-    """Class for generating a command-line progressbar.
+    """Generate a command-line progress bar.
 
     Parameters
     ----------
@@ -41,8 +51,8 @@ class ProgressBar():
         increment the progress bar very often.  This provides the user with
         feedback that the progress has not stalled.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import time
     >>> from himalaya.progress_bar import ProgressBar
     >>> for ii in ProgressBar(title="La barre", max_value=10)(range(10)):
@@ -135,6 +145,7 @@ class ProgressBar():
         self.update(self.cur_value, title)
 
     def close(self):
+        """Close the progress bar."""
         if not self.closed:
             sys.stdout.write('\n')
             sys.stdout.flush()

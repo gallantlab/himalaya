@@ -57,7 +57,7 @@ class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
 class KernelRidge(_BaseKernelRidge):
     """Kernel ridge regression.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
@@ -81,7 +81,7 @@ class KernelRidge(_BaseKernelRidge):
     kernel_params : dict or None
         Additional parameters for the kernel function.
         See more details in the docstring of the function:
-            KernelRidge.ALL_KERNELS[kernel]
+        ``KernelRidge.ALL_KERNELS[kernel]``
 
     solver : str
         Algorithm used during the fit, "eigenvalues", "conjugate_gradient", or
@@ -90,7 +90,7 @@ class KernelRidge(_BaseKernelRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            KernelRidge.ALL_SOLVERS[solver]
+        ``KernelRidge.ALL_SOLVERS[solver]``
 
     Attributes
     ----------
@@ -318,7 +318,7 @@ class KernelRidgeCV(KernelRidge):
     kernel_params : dict or None
         Additional parameters for the kernel function.
         See more details in the docstring of the function:
-            KernelRidgeCV.ALL_KERNELS[kernel]
+        ``KernelRidgeCV.ALL_KERNELS[kernel]``
 
     solver : str
         Algorithm used during the fit, "eigenvalues" only for now.
@@ -326,7 +326,7 @@ class KernelRidgeCV(KernelRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            KernelRidgeCV.ALL_SOLVERS[solver]
+        ``KernelRidgeCV.ALL_SOLVERS[solver]``
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -615,17 +615,17 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
 class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     """Multiple-kernel ridge regression with cross-validation.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + (w.T @ K @ w)
 
-    where the kernel K is a weighted sum of multiple kernels Ks:
+    where the kernel K is a weighted sum of multiple kernels Ks::
 
         K = sum_i exp(deltas[i]) Ks[i]
 
-    The solver optimizes the log kernel weight `deltas` over cross-validation,
-    using random search (solver="random_search"), or hyperparameter gradient
-    descent (solver="hyper_gradient").
+    The solver optimizes the log kernel weight ``deltas`` over
+    cross-validation, using random search (``solver="random_search"``), or
+    hyperparameter gradient descent (``solver="hyper_gradient"``).
 
     Parameters
     ----------
@@ -641,7 +641,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     kernels_params : list of dict, or None
         Additional parameters for the kernel functions.
         See more details in the docstring of the function:
-            MultipleKernelRidgeCV.ALL_KERNELS[kernel]
+        ``MultipleKernelRidgeCV.ALL_KERNELS[kernel]``
 
     solver : str
         Algorithm used during the fit, "random_search", or "hyper_gradient".
@@ -649,7 +649,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            MultipleKernelRidgeCV.ALL_SOLVERS[solver]
+        ``MultipleKernelRidgeCV.ALL_SOLVERS[solver]``
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -669,11 +669,11 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         Cross-validation scores, averaged over splits.
 
     X_fit_ : array of shape (n_samples, n_features)
-        Training data. If kernels == "precomputed" this is None.
+        Training data. If ``kernels == "precomputed"`` this is None.
 
     n_features_in_ : int
-        Number of features (or number of samples if kernels == "precomputed")
-        used during the fit.
+        Number of features (or number of samples if
+        ``kernels == "precomputed"``) used during the fit.
 
     dtype_ : str
         Dtype of input data.
@@ -682,7 +682,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         Equal to 1. / exp(self.deltas_).sum(0). For the "random_search" solver,
         it corresponds to the best hyperparameter alphas, assuming that
         each kernel weight vector sums to one (in particular, it is the case
-        when solver_params['n_iter'] is an integer).
+        when ``solver_params['n_iter']`` is an integer).
 
     Examples
     --------
@@ -794,18 +794,18 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 class WeightedKernelRidge(_BaseWeightedKernelRidge):
     """Weighted kernel ridge regression.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
-    where the kernel K is a weighted sum of multiple kernels:
+    where the kernel K is a weighted sum of multiple kernels::
 
         K = sum_i exp(deltas[i]) Ks[i]
 
-    Contrarily to MultipleKernelRidgeCV, this model does not optimize the log
-    kernel weights `deltas`. However, it is not equivalent to KernelRidge,
-    since the log kernel weights `deltas` can be different for each target,
-    therefore the kernel sum is not precomputed.
+    Contrarily to ``MultipleKernelRidgeCV``, this model does not optimize the
+    log kernel weights ``deltas``. However, it is not equivalent to
+    ``KernelRidge``, since the log kernel weights ``deltas`` can be different
+    for each target, therefore the kernel sum is not precomputed.
 
     Parameters
     ----------
@@ -828,7 +828,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     kernels_params : list of dict, or None
         Additional parameters for the kernel functions.
         See more details in the docstring of the function:
-            WeightedKernelRidge.ALL_KERNELS[kernel]
+        ``WeightedKernelRidge.ALL_KERNELS[kernel]``
 
     solver : str
         Algorithm used during the fit, "conjugate_gradient", or
@@ -837,7 +837,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-            WeightedKernelRidge.ALL_SOLVERS[solver]
+        ``WeightedKernelRidge.ALL_SOLVERS[solver]``
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.

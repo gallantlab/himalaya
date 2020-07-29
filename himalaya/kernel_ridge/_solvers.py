@@ -69,11 +69,11 @@ def solve_weighted_kernel_ridge_gradient_descent(
         random_state=None, debug=False):
     """Solve weighted kernel ridge regression using gradient descent.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
-    where the kernel K is a weighted sum of multiple kernels:
+    where the kernel K is a weighted sum of multiple kernels::
 
         K = sum_i exp(deltas[i]) Ks[i]
 
@@ -186,11 +186,11 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
                                                    random_state=None):
     """Solve weighted kernel ridge regression using conjugate gradient.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
-    where the kernel K is a weighted sum of multiple kernels:
+    where the kernel K is a weighted sum of multiple kernels::
 
         K = sum_i exp(deltas[i]) Ks[i]
 
@@ -299,11 +299,11 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
                                                debug=False):
     """Solve weighted kernel ridge regression using Neumann series.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
-    where the kernel K is a weighted sum of multiple kernels:
+    where the kernel K is a weighted sum of multiple kernels::
 
         K = sum_i exp(deltas[i]) Ks[i]
 
@@ -376,6 +376,7 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
     return dual_weights
 
 
+#: Dictionary with all weighted kernel ridge solvers.
 WEIGHTED_KERNEL_RIDGE_SOLVERS = {
     "neumann_series": solve_weighted_kernel_ridge_neumann_series,
     "conjugate_gradient": solve_weighted_kernel_ridge_conjugate_gradient,
@@ -390,7 +391,7 @@ def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1.,
                                           random_state=None):
     """Solve kernel ridge regression using conjugate gradient.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
@@ -482,7 +483,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
                                    random_state=None):
     """Solve kernel ridge regression using eigenvalues decomposition.
 
-    Solve the kernel ridge regression
+    Solve the kernel ridge regression::
 
         w* = argmin_w ||K @ w - Y||^2 + alpha (w.T @ K @ w)
 
@@ -499,9 +500,9 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     negative_eigenvalues : str in {"nan", "error"}
         If the decomposition leads to negative eigenvalues (wrongly emerging
         from float32 errors):
-            - "error" raises an error.
-            - "nan" returns nans if the regularization does not compensate
-                twice the smallest negative value, else it ignores the problem.
+        - "error" raises an error.
+        - "nan" returns nans if the regularization does not compensate
+        twice the smallest negative value, else it ignores the problem.
     random_state : int, or None
         Random generator seed. Not used.
 
@@ -560,6 +561,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     return dual_weights
 
 
+#: Dictionary with all kernel ridge solvers
 KERNEL_RIDGE_SOLVERS = {
     "eigenvalues": solve_kernel_ridge_eigenvalues,
     "conjugate_gradient": solve_kernel_ridge_conjugate_gradient,

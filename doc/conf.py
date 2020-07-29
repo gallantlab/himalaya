@@ -32,6 +32,8 @@ from sphinx_gallery.sorting import FileNameSortKey
 # ones.
 extensions = [
     'sphinx.ext.autodoc',
+    'sphinx.ext.autosummary',
+    'numpydoc',
     'sphinx.ext.intersphinx',
     'sphinx.ext.mathjax',
     'sphinx.ext.viewcode',
@@ -39,13 +41,15 @@ extensions = [
     'sphinx_gallery.gen_gallery',
 ]
 
+# generate autosummary even if no references
+autosummary_generate = True
 
 # Sphinx-gallery
 sphinx_gallery_conf = {
     # path to your examples scripts
     'examples_dirs': '../examples',
     # path where to save gallery generated examples
-    'gallery_dirs': 'auto_examples',
+    'gallery_dirs': '_auto_examples',
     # which files to execute? only those with "plot_"
     'filename_pattern': 'plot_',
     # 'ignore_pattern': 'download',
@@ -56,7 +60,7 @@ sphinx_gallery_conf = {
 }
 
 # Add any paths that contain templates here, relative to this directory.
-templates_path = ['_templates']
+templates_path = ['static']
 
 # The suffix(es) of source filenames.
 # You can specify multiple suffix as a list of string:
@@ -123,7 +127,7 @@ html_theme_options = {
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
-html_static_path = ['_static']
+html_static_path = ['static']
 
 # Custom sidebar templates, must be a dictionary that maps document names
 # to template names.
@@ -138,7 +142,6 @@ html_sidebars = {
         'searchbox.html',
     ]
 }
-
 
 # -- Options for HTMLHelp output ------------------------------------------
 
@@ -169,16 +172,15 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Himalaya.tex', u'Himalaya Documentation',
-     u'Gallant lab', 'manual'),
+    (master_doc, 'Himalaya.tex', u'Himalaya Documentation', u'Gallant lab',
+     'manual'),
 ]
 
 # -- Options for manual page output ---------------------------------------
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, 'himalaya', u'Himalaya Documentation', [author], 1)
-             ]
+man_pages = [(master_doc, 'himalaya', u'Himalaya Documentation', [author], 1)]
 
 # -- Options for Texinfo output -------------------------------------------
 

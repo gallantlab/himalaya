@@ -1,6 +1,7 @@
 import types
 import importlib
 
+#: List of all available backends.
 ALL_BACKENDS = [
     "numpy",
     "cupy",

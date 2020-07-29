@@ -13,5 +13,6 @@ sphinx_gallery
 ```bash
 cd doc
 make html
+# ignore "WARNING: autosummary: stub file not found ..."
 firefox _build/html/index.html
 ```

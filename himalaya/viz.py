@@ -2,9 +2,9 @@ import numpy as np
 
 
 def plot_alphas_diagnostic(best_alphas, alphas, ax=None):
-    """
-    Plot a diagnostic plot for the selected alphas during cross-validation,
-    to figure out whether to increase the range of alphas.
+    """Plot a diagnostic plot for the selected alphas during cross-validation.
+
+    To figure out whether to increase the range of alphas.
 
     Parameters
     ----------

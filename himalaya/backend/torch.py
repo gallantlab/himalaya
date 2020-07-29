@@ -21,8 +21,8 @@ def apply_argmax(array, argmax, axis):
     array[np.argmax(array)] works fine in dimension 1, but not in higher ones.
     This function tackles this issue.
 
-    Example
-    -------
+    Examples
+    --------
     >>> import torch
     >>> array = torch.randn(10, 4, 8)
     >>> argmax = torch.argmax(array, axis=1)
