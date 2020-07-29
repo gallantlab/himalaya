@@ -14,20 +14,20 @@ from himalaya.kernel_ridge import predict_and_score_weighted_kernel_ridge
 from himalaya.scoring import r2_score_split
 from himalaya.viz import plot_alphas_diagnostic
 
-print(__doc__)
-
+# sphinx_gallery_thumbnail_number = 4
 ###############################################################################
-# In this example, we use the cupy backend, and fit the model on GPU.
+# In this example, we use the ``cupy`` backend, and fit the model on GPU.
 
 backend = set_backend("cupy")
 
 ###############################################################################
-# Generate a random dataset.
+# Generate a random dataset
+# -------------------------
 #
-# Xs_train : list of array of shape (n_samples_train, n_features)
-# Xs_test : list of array of shape (n_samples_test, n_features)
-# Y_train : array of shape (n_samples_train, n_targets)
-# Y_test : array of shape (n_repeat, n_samples_test, n_targets)
+# - Xs_train : list of array of shape (n_samples_train, n_features)
+# - Xs_test : list of array of shape (n_samples_test, n_features)
+# - Y_train : array of shape (n_samples_train, n_targets)
+# - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
 
 n_samples_train = 1000
 n_samples_test = 300
@@ -48,14 +48,20 @@ ws = [
 Y_train = backend.stack([X @ w for X, w in zip(Xs_train, ws)]).sum(0)
 Y_test = backend.stack([X @ w for X, w in zip(Xs_test, ws)]).sum(0)
 
+###############################################################################
 # Optional: Add some arbitrary scalings per kernel
 if True:
     scalings = [0.2, 5, 1]
     Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
     Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
 
+Y_train -= Y_train.mean(0)
+Y_test -= Y_test.mean(0)
+
 ###############################################################################
-# Precompute the linear kernels, and cast them to float32.
+# Precompute the linear kernels
+# -----------------------------
+# We also cast them to float32.
 
 Ks_train = backend.stack([X_train @ X_train.T for X_train in Xs_train])
 Ks_train = backend.asarray(Ks_train, dtype=backend.float32)
@@ -67,32 +73,40 @@ Ks_test = backend.asarray(Ks_test, dtype=backend.float32)
 Y_test = backend.asarray(Y_test, dtype=backend.float32)
 
 ###############################################################################
-# Run the solver, using random search. This method should work fine for
+# Run the solver, using random search
+# -----------------------------------
+# This method should work fine for
 # small number of kernels (< 20). The larger the number of kenels, the larger
 # we need to sample the hyperparameter space (i.e. increasing n_iter).
 
+###############################################################################
 # Here we use 100 iterations to have a reasonably fast example (~40 sec).
 # To have a better convergence, we probably need more iterations.
 # Note that there is currently no stopping criterion in this method.
 n_iter = 100
 
+###############################################################################
 # Grid of regularization parameters.
 alphas = np.logspace(-10, 10, 21)
 
+###############################################################################
 # Batch parameters, used to reduce the necessary GPU memory. A larger value
 # will be a bit faster, but the solver might crash if it is out of memory.
 # Optimal values depend on the size of your dataset.
 n_targets_batch = 1000
 n_alphas_batch = 20
 
-# If return_weights == "dual", the solver will use more memory.
-# Too mitigate it, you can reduce `n_targets_batch` in the refit
-# using `n_targets_batch_refit`.
-# If you don't need the dual weights, use return_weights = None.
+###############################################################################
+# If ``return_weights == "dual"``, the solver will use more memory.
+# Too mitigate it, you can reduce ``n_targets_batch`` in the refit
+# using ```n_targets_batch_refit``.
+# If you don't need the dual weights, use ``return_weights = None``.
 return_weights = 'dual'
 n_targets_batch_refit = 200
 
+###############################################################################
 # Run the solver. For each iteration, it will:
+#
 # - sample kernel weights from a Dirichlet distribution
 # - fit (n_splits * n_alphas * n_targets) ridge models
 # - compute the scores on the validation set of each split
@@ -114,16 +128,18 @@ results = solve_multiple_kernel_ridge_random_search(
     jitter_alphas=True,
 )
 
-# As we used the cupy backend, the results are cupy arrays, which are on GPU.
-# Here, we cast the results back to CPU, and to numpy arrays.
+###############################################################################
+# As we used the ``cupy`` backend, the results are ``cupy`` arrays, which are
+# on GPU. Here, we cast the results back to CPU, and to ``numpy`` arrays.
 deltas = backend.to_numpy(results[0])
 dual_weights = backend.to_numpy(results[1])
 cv_scores = backend.to_numpy(results[2])
 
 ###############################################################################
-# Plot the convergence curve.
+# Plot the convergence curve
+# --------------------------
 #
-# `cv_scores` gives the scores for each sampled kernel weights.
+# ``cv_scores`` gives the scores for each sampled kernel weights.
 # The convergence curve is thus the current maximum for each target.
 
 current_max = np.maximum.accumulate(cv_scores, axis=0)
@@ -134,10 +150,12 @@ plt.grid("on")
 plt.xlabel("Number of kernel weights sampled")
 plt.ylabel("L2 negative loss (higher is better)")
 plt.title("Convergence curve, averaged over targets")
+plt.tight_layout()
 plt.show()
 
 ###############################################################################
-# Plot the optimal alphas selected by the solver.
+# Plot the optimal alphas selected by the solver
+# ----------------------------------------------
 #
 # This plot is helpful to refine the alpha grid if the range is too small or
 # too large.
@@ -148,7 +166,9 @@ plt.title("Best alphas selected by cross-validation")
 plt.show()
 
 ###############################################################################
-# Compute the predictions on the test set (requires the dual weights).
+# Compute the predictions on the test set
+# ---------------------------------------
+# (requires the dual weights)
 
 split = False
 scores = predict_and_score_weighted_kernel_ridge(
@@ -162,7 +182,9 @@ plt.title("Histogram over targets")
 plt.show()
 
 ###############################################################################
-# Compute the split predictions on the test set (requires the dual weights).
+# Compute the split predictions on the test set 
+# ---------------------------------------------
+# (requires the dual weights)
 #
 # Here we apply the dual weights on each kernel separately
 # (exp(deltas[i]) * kernel[i]), and we compute the R2 scores

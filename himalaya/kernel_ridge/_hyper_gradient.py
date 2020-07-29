@@ -227,6 +227,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
             if tol is not None:
                 if backend.max(
                         backend.abs(deltas_old - deltas[:, batch])) < tol:
+                    cv_scores = cv_scores[:(ii + 1) * max_iter_inner_hyper]
                     break
 
         ##########################################
