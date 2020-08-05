@@ -27,6 +27,8 @@ def test_set_backend_incorrect():
     for backend in ["wrong", ["numpy"], True, None, 10]:
         with pytest.raises(ValueError):
             set_backend(backend)
+        with pytest.warns(Warning):
+            set_backend(backend, on_error="warn")
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)

@@ -3,11 +3,10 @@ from functools import partial
 try:
     import torch
 except ImportError as error:
-    try:
+    import sys
+    if "pytest" in sys.modules:  # if run through pytest
         import pytest
         pytest.skip("PyTorch not installed.")
-    except ImportError:
-        pass
     raise ImportError("PyTorch not installed.") from error
 
 from .__init__ import _dtype_to_str

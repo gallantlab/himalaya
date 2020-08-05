@@ -1,11 +1,10 @@
 try:
     import cupy
 except ImportError as error:
-    try:
+    import sys
+    if "pytest" in sys.modules:  # if run through pytest
         import pytest
         pytest.skip("Cupy not installed.")
-    except ImportError:
-        pass
     raise ImportError("Cupy not installed.") from error
 
 ###############################################################################

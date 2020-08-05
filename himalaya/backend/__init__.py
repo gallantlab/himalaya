@@ -1,5 +1,6 @@
 import types
 import importlib
+import warnings
 
 #: List of all available backends.
 ALL_BACKENDS = [
@@ -12,13 +13,17 @@ ALL_BACKENDS = [
 CURRENT_BACKEND = "numpy"
 
 
-def set_backend(backend):
+def set_backend(backend, on_error="raise"):
     """Set the backend using a global variable, and return the backend module.
 
     Parameters
     ----------
     backend : str or module
         Name or module of the backend.
+    on_error : str in {"raise", "warn"}
+        Define what is done if the backend fails to be loaded.
+        If "warn", this function only warns, and keeps the previous backend.
+        If "raise", this function raises on errors.
 
     Returns
     -------
@@ -27,14 +32,25 @@ def set_backend(backend):
     """
     global CURRENT_BACKEND
 
-    if isinstance(backend, types.ModuleType):  # get backend name from module
-        backend = backend.name
+    try:
+        if isinstance(backend, types.ModuleType):  # get name from module
+            backend = backend.name
 
-    if backend not in ALL_BACKENDS:
-        raise ValueError("Unknown backend=%r" % (backend, ))
+        if backend not in ALL_BACKENDS:
+            raise ValueError("Unknown backend=%r" % (backend, ))
 
-    module = importlib.import_module(__name__ + "." + backend)
-    CURRENT_BACKEND = backend
+        module = importlib.import_module(__name__ + "." + backend)
+        CURRENT_BACKEND = backend
+    except Exception as error:
+        if on_error == "raise":
+            raise error
+        elif on_error == "warn":
+            warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
+                          f"Falling back to {CURRENT_BACKEND} backend.")
+            module = get_backend()
+        else:
+            raise ValueError('Unknown value on_error=%r' % (on_error, ))
+
     return module
 
 

@@ -341,7 +341,6 @@ def plot_simplex_trajectory(Xs, ax=None):
     return ax
 
 
-
 ###############################################################################
 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
@@ -351,7 +350,7 @@ plot_simplex(kernel_weights_true, ax=axs[0], color='C2',
 
 # Second panel
 plot_simplex(backend.to_numpy(kernel_weights_sampled), ax=axs[1], marker='+',
-             label="random samples")
+             label="random samples", zorder=10)
 plot_simplex(kernel_weights_1, ax=axs[1], label="selected samples")
 
 # Third panel
