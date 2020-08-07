@@ -2,22 +2,46 @@
 
    <h1>Himalaya: Multiple-target machine learning</h1>
 
-``Himalaya`` implements machine learning models in the Python programming language,
-focusing on computational efficiency for large numbers of targets.
+``Himalaya`` implements machine learning models in the Python programming
+language, focusing on computational efficiency for large numbers of targets.
 
 |Github| |Python| |License|
 
-Use ``Himalaya`` if you need a library that:
+Use ``himalaya`` if you need a library that:
 
 - estimates models on large numbers of targets
 - runs on CPU and GPU hardware
+- provides estimators compatible with ``scikit-learn``'s API
+
+Example
+=======
+
+.. code-block:: python
+
+    import numpy as np
+    n_samples, n_features, n_targets = 10, 5, 4
+    X = np.random.randn(n_samples, n_features)
+    Y = np.random.randn(n_samples, n_targets)
+
+    from himalaya.kernel_ridge import KernelRidgeCV
+    model = KernelRidgeCV(alphas=[0.1, 1, 10])
+    model.fit(X, Y)
+    print(model.best_alphas_)
+
+
+- The model ``KernelRidgeCV`` uses the same API than ``scikit-learn``
+  estimators, with methods such as ``fit``, ``predict``, ``score``, etc.
+- The model is able to efficiently fit a large number of targets.
+- The model selects the best hyperparameter ``alpha`` for each target
+  independently.
+
 
 Himalaya backends
 =================
 
-Himalaya can be used seamlessly with different backends.
-The available backends are ``Numpy`` (default), ``Cupy``, and ``PyTorch``.
-To change the backend (e.g. to ``Cupy``), call:
+``Himalaya`` can be used seamlessly with different backends.
+The available backends are ``numpy`` (default), ``cupy``, and ``pytorch``.
+To change the backend (e.g. to ``cupy``), call:
 
 .. code-block:: python
 
@@ -25,15 +49,15 @@ To change the backend (e.g. to ``Cupy``), call:
     backend = set_backend("cupy")
 
 
-and give ``cupy`` arrays inputs to the Himalaya solvers. 
+and give ``cupy`` arrays inputs to the ``himalaya`` solvers. 
 
 GPU acceleration
 ----------------
 
-To run ``Himalaya`` on a graphics processing unit (GPU), you can use both
-``Cupy`` or ``PyTorch`` backends.
+To run ``himalaya`` on a graphics processing unit (GPU), you can use both
+``cupy`` or ``pytorch`` backends.
 
-To use the ``Cupy`` backend, call:
+To use the ``cupy`` backend, call:
 
 .. code-block:: python
 
@@ -43,7 +67,7 @@ To use the ``Cupy`` backend, call:
     data = backend.asarray(data)  # cupy arrays are always on GPU
 
 
-To use the ``PyTorch`` backend, call:
+To use the ``pytorch`` backend, call:
 
 .. code-block:: python
 
@@ -56,6 +80,7 @@ To use the ``PyTorch`` backend, call:
     # or directly use
     set_backend("torch_cuda")
     data = backend.asarray(data)
+
 
 Installation
 ============
@@ -76,8 +101,8 @@ Himalaya requires:
 
 Standard installation
 ---------------------
-You may install the latest version of ``Himalaya`` using the package manager
-``pip``, which will automatically download ``Himalaya`` from the Python Package
+You may install the latest version of ``himalaya`` using the package manager
+``pip``, which will automatically download ``himalaya`` from the Python Package
 Index (PyPI):
 
 .. code-block:: bash
@@ -88,7 +113,7 @@ Index (PyPI):
 Installation from source
 ------------------------
 
-To install ``Himalaya`` from the latest source (``master`` branch), you may
+To install ``himalaya`` from the latest source (``master`` branch), you may
 call:
 
 .. code-block:: bash
@@ -96,7 +121,7 @@ call:
     pip install git+https://github.com/gallantlab/himalaya.git
 
 
-Developers can also install ``Himalaya`` in editable mode via:
+Developers can also install ``himalaya`` in editable mode via:
 
 .. code-block:: bash
 
@@ -108,7 +133,7 @@ Developers can also install ``Himalaya`` in editable mode via:
 
    <h2>Examples</h2>
 
-Check the gallery of example to get examples of use of ``Himalaya``.
+Check the gallery of example to get examples of use of ``himalaya``.
 
 
 .. |Github| image:: https://img.shields.io/badge/github-tutorials-blue
