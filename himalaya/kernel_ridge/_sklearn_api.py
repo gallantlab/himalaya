@@ -263,7 +263,7 @@ class KernelRidge(_BaseKernelRidge):
         When the kernel is linear, kernel ridge regression is equivalent to
         ridge rergession, and the ridge regression (primal) coefficients can be
         computed from the kernel ridge regression (dual) coefficients, using
-        the training features X.
+        the training features X_fit.
 
         Parameters
         ----------
@@ -579,9 +579,9 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         When all kernels are linear, weighted kernel ridge regression is
         equivalent to weighted ridge rergession, and the ridge regression
         (primal) coefficients can be computed from the kernel ridge regression
-        (dual) coefficients, using the training features Xs.
+        (dual) coefficients, using the training features Xs_fit.
 
-        This currently only works when self.kernel == "precomputed".
+        This currently only works when self.kernels == "precomputed".
 
         Parameters
         ----------

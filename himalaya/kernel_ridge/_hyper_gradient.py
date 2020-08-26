@@ -87,10 +87,14 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     if n_targets_batch is None:
         n_targets_batch = n_targets
 
+    Y, Ks = backend.check_arrays(Y, Ks)
+
     cv = check_cv(cv)
     n_splits = cv.get_n_splits()
-
-    Y, Ks = backend.check_arrays(Y, Ks)
+    for train, val in cv.split(Y):
+        if len(val) == 0 or len(train) == 0:
+            raise ValueError("Empty train or validation set. "
+                             "Check that `cv` is correctly defined.")
 
     deltas = _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv,
                                          n_targets_batch)

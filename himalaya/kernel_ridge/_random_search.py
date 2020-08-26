@@ -101,6 +101,10 @@ def solve_multiple_kernel_ridge_random_search(
     cv = check_cv(cv)
     n_splits = cv.get_n_splits()
     n_kernels = len(Ks)
+    for train, val in cv.split(Y):
+        if len(val) == 0 or len(train) == 0:
+            raise ValueError("Empty train or validation set. "
+                             "Check that `cv` is correctly defined.")
 
     if jitter_alphas:
         random_generator = check_random_state(random_state)
