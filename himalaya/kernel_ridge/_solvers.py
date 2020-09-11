@@ -479,7 +479,7 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., step_sizes=None,
 
 
 def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
-                                   negative_eigenvalues="nan",
+                                   negative_eigenvalues="zeros",
                                    random_state=None):
     """Solve kernel ridge regression using eigenvalues decomposition.
 
@@ -497,10 +497,11 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         Regularization parameter.
     method : str in {"eigh", "svd"}
         Method used to diagonalize the kernel.
-    negative_eigenvalues : str in {"nan", "error"}
+    negative_eigenvalues : str in {"nan", "error", "zeros"}
         If the decomposition leads to negative eigenvalues (wrongly emerging
         from float32 errors):
         - "error" raises an error.
+        - "zeros" remplaces them with zeros.
         - "nan" returns nans if the regularization does not compensate
         twice the smallest negative value, else it ignores the problem.
     random_state : int, or None
@@ -539,6 +540,10 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
                     backend.nan, dtype=Y.dtype)
             else:
                 pass
+
+        elif negative_eigenvalues == "zeros":
+            eigenvalues[eigenvalues < 0] = 0
+
         elif negative_eigenvalues == "error":
             raise RuntimeError(
                 "Negative eigenvalues. Make sure the kernel is positive "

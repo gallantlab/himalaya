@@ -183,9 +183,6 @@ class KernelRidge(_BaseKernelRidge):
         # ------------------ call the solver
         self.dual_coef_ = self._call_solver(K=K, Y=y, alpha=self.alpha)
 
-        if self.solver not in self.ALL_SOLVERS:
-            raise ValueError("Unknown solver=%r." % self.solver)
-
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
 

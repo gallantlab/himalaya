@@ -154,7 +154,7 @@ def solve_multiple_kernel_ridge_random_search(
 
             for matrix, alpha_batch in _decompose_kernel_ridge(
                     Ktrain=K[train[:, None], train], alphas=alphas,
-                    Ktest=K[test[:, None], train],
+                    Ktest=K[test[:, None], train], negative_eigenvalues="nan",
                     n_alphas_batch=n_alphas_batch):
                 # n_alphas_batch, n_samples_test, n_samples_train = \
                 # matrix.shape
@@ -213,6 +213,7 @@ def solve_multiple_kernel_ridge_random_search(
                     K, shape=(n_samples, len(update_indices)), device="cpu")
                 for matrix, alpha_batch in _decompose_kernel_ridge(
                         K, used_alphas, Ktest=None,
+                        negative_eigenvalues="zeros",
                         n_alphas_batch=min(len(used_alphas), n_alphas_batch)):
 
                     for start in range(0, len(update_indices),
@@ -330,7 +331,7 @@ def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
 
 
 def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
-                            method="eigh", negative_eigenvalues="nan"):
+                            method="eigh", negative_eigenvalues="zeros"):
     """Precompute resolution matrices for kernel ridge predictions.
 
     To compute the prediction::
@@ -359,10 +360,11 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
         If not None, returns a generator over batches of alphas.
     method : str in {"eigh", "svd"}
         Method used to diagonalize the kernel.
-    negative_eigenvalues : str in {"nan", "error"}
+    negative_eigenvalues : str in {"nan", "error", "zeros"}
         If the decomposition leads to negative eigenvalues (wrongly emerging
         from float32 errors):
             - "error" raises an error.
+            - "zeros" remplaces them with zeros.
             - "nan" returns nans if the regularization does not compensate
                 twice the smallest negative value, else it ignores the problem.
 
@@ -405,6 +407,9 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
                 ev_weighting[alphas[batch] < -eigenvalues[0] *
                              2, :] = backend.asarray(backend.nan,
                                                      dtype=ev_weighting.dtype)
+
+            elif negative_eigenvalues == "zeros":
+                eigenvalues[eigenvalues < 0] = 0
 
             elif negative_eigenvalues == "error":
                 raise RuntimeError(
