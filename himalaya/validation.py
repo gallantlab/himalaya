@@ -151,6 +151,8 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
     # dense case
     else:
 
+        if hasattr(array, 'dtype') and "complex" in str(array.dtype):
+            raise ValueError("Complex data not supported.")
         # convert ComplexWarning into error
         with warnings.catch_warnings():
             try:
@@ -159,7 +161,7 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
                 array = backend.asarray(array, dtype=dtype)
                 ################
             except ComplexWarning:
-                raise ValueError("Complex data not supported")
+                raise ValueError("Complex data not supported.")
 
         if copy:
             array = backend.copy(array)

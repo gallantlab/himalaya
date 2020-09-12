@@ -59,7 +59,6 @@ def solve_multiple_kernel_ridge_random_search(
     progress_bar : bool
         If True, display a progress bar over gammas.
 
-
     Returns
     -------
     deltas : array of shape (n_kernels, n_targets)

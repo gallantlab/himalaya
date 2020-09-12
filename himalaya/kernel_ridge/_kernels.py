@@ -402,7 +402,7 @@ def _euclidean_distances_upcast(X, Y, batch_size=None):
         # least 10MiB)
         maxmem = max(
             ((x_density * n_samples_X + y_density * n_samples_Y) * n_features +
-             (x_density * n_samples_X * y_density * n_samples_Y)) / 10,
+             (x_density * n_samples_X * y_density * n_samples_Y)) / 10.,
             10 * 2 ** 17)
 
         # The increase amount of memory in 8-byte blocks is:

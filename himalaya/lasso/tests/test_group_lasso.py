@@ -5,7 +5,6 @@ import sklearn.linear_model
 from himalaya.backend import set_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
-from himalaya.scoring import r2_score
 
 from himalaya.lasso import solve_sparse_group_lasso
 from himalaya.lasso import solve_sparse_group_lasso_cv
