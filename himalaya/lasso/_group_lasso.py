@@ -27,7 +27,7 @@ def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
         Encoding of the group of each feature. If None, all features are
         gathered in one group, and the problem is equivalent to the Lasso.
     l21_regs : array of shape (n_l21_regs, )
-        All the group Lasso regularization parameter tested.
+        All the Group Lasso regularization parameter tested.
     l1_regs : array of shape (n_l1_regs, )
         All the Lasso regularization parameter tested.
     cv : int or scikit-learn splitter
@@ -68,9 +68,18 @@ def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
 
     l21_regs = backend.asarray_like(backend.atleast_1d(l21_regs), ref=Y)
     l1_regs = backend.asarray_like(backend.atleast_1d(l1_regs), ref=Y)
+
     # sort in decreasing order, since it is faster with warm starting
-    # l21_regs = backend.flip(backend.sort(l21_regs), 0)
-    # l1_regs = backend.flip(backend.sort(l1_regs), 0)
+    decreasing_l21_regs = backend.flip(backend.sort(l21_regs), 0)
+    if not backend.all(decreasing_l21_regs == l21_regs):
+        l21_regs = decreasing_l21_regs
+        warnings.warn("l21_regs has been reordered in decreasing order.")
+
+    # sort in decreasing order, since it is faster with warm starting
+    decreasing_l1_regs = backend.flip(backend.sort(l1_regs), 0)
+    if not backend.all(decreasing_l1_regs == l1_regs):
+        l1_regs = decreasing_l1_regs
+        warnings.warn("l1_regs has been reordered in decreasing order.")
 
     n_l21_regs = l21_regs.shape[0]
     n_l1_regs = l1_regs.shape[0]
@@ -78,7 +87,7 @@ def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
 
     if progress_bar:
         progress_bar = ProgressBar(
-            "grid search cv",
+            f"grid search cv over {n_l21_regs * n_l1_regs} parameters",
             max_value=n_l21_regs * n_l1_regs * n_splits * n_batches)
 
     coef = None
@@ -352,12 +361,12 @@ def _proximal_gradient_descent(f_loss, f_grad, f_prox, step_size, x0, max_iter,
     if debug:
         losses = [f_loss(x0)]
 
-    tk = 1.0
+    t_new = 1.0
     x_hat = backend.copy(x0)
 
     # auxiliary variables
-    x_hat_aux = backend.copy(x_hat)
-    grad = backend.zeros_like(x_hat)
+    x_old = backend.copy(x_hat)
+    x_aux = backend.copy(x_hat)
     diff = backend.zeros_like(x_hat)
 
     # not converged targets
@@ -366,17 +375,18 @@ def _proximal_gradient_descent(f_loss, f_grad, f_prox, step_size, x0, max_iter,
     if progress_bar:
         progress_bar = ProgressBar(title='fista', max_value=max_iter)
     for ii in range(max_iter):
-        grad = f_grad(x_hat_aux, mask)
-        x_hat_aux -= step_size * grad
-        x_hat_aux = f_prox(x_hat_aux, mask)
+        # apply gradient and prox, from x_aux
+        x_old[:] = x_hat[:, mask]
+        x_hat[:, mask] = x_aux - step_size * f_grad(x_aux, mask)
+        x_hat[:, mask] = f_prox(x_hat[:, mask], mask)
+        diff = x_hat[:, mask] - x_old
 
-        diff = x_hat_aux - x_hat[:, mask]
-        x_hat[:, mask] = x_hat_aux
-
+        # apply momentum, from x_hat
+        x_aux[:] = x_hat[:, mask]
         if momentum:
-            tk_new = (1 + np.sqrt(1 + 4 * tk * tk)) / 2
-            x_hat_aux += (tk - 1) / tk_new * diff
-            tk = tk_new
+            t_old = t_new
+            t_new = (1 + np.sqrt(1 + 4 * t_old * t_old)) / 2
+            x_aux += (t_old - 1.) / t_new * diff
 
         if debug:
             losses.append(f_loss(x_hat))
@@ -387,9 +397,8 @@ def _proximal_gradient_descent(f_loss, f_grad, f_prox, step_size, x0, max_iter,
             just_converged = criterion <= tol
 
             if backend.any(just_converged):
-                diff = diff[:, ~just_converged]
-                grad = grad[:, ~just_converged]
-                x_hat_aux = x_hat_aux[:, ~just_converged]
+                x_aux = x_aux[:, ~just_converged]
+                x_old = x_old[:, ~just_converged]
                 mask[mask] = ~just_converged
 
                 if backend.all(just_converged):
