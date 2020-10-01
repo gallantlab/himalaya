@@ -18,12 +18,15 @@ instructions.
 
 ###############################################################################
 # Create a random dataset
+# -----------------------
 import numpy as np
 n_samples, n_features, n_targets = 10, 5, 4
 X = np.random.randn(n_samples, n_features)
 Y = np.random.randn(n_samples, n_targets)
 
 ###############################################################################
+# Change backend
+# --------------
 # To change the backend, you need to call the function
 # ``himalaya.backend.set_backend``. With the option ``on_error="warn"``, the
 # function does not raise an error if the new backend fails to be imported, and
@@ -33,6 +36,8 @@ from himalaya.backend import set_backend
 backend = set_backend("cupy", on_error="warn")
 
 ###############################################################################
+# GPU backend
+# -----------
 # To fit an himalaya model on GPU, you don't need to move the input arrays on
 # GPU, the method ``fit`` will do it for you.
 #

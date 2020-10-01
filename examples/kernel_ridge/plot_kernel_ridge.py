@@ -8,12 +8,15 @@ himalaya's estimator ``KernelRidge`` compatible with scikit-learn's API.
 
 ###############################################################################
 # Create a random dataset
+# -----------------------
 import numpy as np
 n_samples, n_features, n_targets = 10, 5, 4
 X = np.random.randn(n_samples, n_features)
 Y = np.random.randn(n_samples, n_targets)
 
 ###############################################################################
+# Scikit-learn API
+# ----------------
 # Himalaya implements a ``KernelRidge`` estimator, similar to the corresponding
 # scikit-learn estimator, with similar parameters and methods.
 import sklearn.kernel_ridge
@@ -34,9 +37,11 @@ Y_pred_him = model_him.predict(X)
 print(np.max(np.abs(Y_pred_skl - Y_pred_him)))
 
 ###############################################################################
-# *Small API difference*: Since himalaya is focusing on fitting multiple
-# targets, the ``score`` method returns the score on each target separately,
-# while scikit-learn returns the average score over targets.
+# Small API difference
+# --------------------
+# Since himalaya is focusing on fitting multiple targets, the ``score`` method
+# returns the score on each target separately, while scikit-learn returns the
+# average score over targets.
 
 print(model_skl.score(X, Y))
 print(model_him.score(X, Y))
