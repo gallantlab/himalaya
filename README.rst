@@ -9,9 +9,9 @@ language, focusing on computational efficiency for large numbers of targets.
 
 Use ``himalaya`` if you need a library that:
 
-- estimates models on large numbers of targets
-- runs on CPU and GPU hardware
-- provides estimators compatible with ``scikit-learn``'s API
+- estimates models on large numbers of targets,
+- runs on CPU and GPU hardware,
+- provides estimators compatible with ``scikit-learn``'s API.
 
 Example
 =======
@@ -20,18 +20,20 @@ Example
 
     import numpy as np
     n_samples, n_features, n_targets = 10, 5, 4
+    np.random.seed(0)
     X = np.random.randn(n_samples, n_features)
     Y = np.random.randn(n_samples, n_targets)
 
     from himalaya.kernel_ridge import KernelRidgeCV
-    model = KernelRidgeCV(alphas=[0.1, 1, 10])
+    model = KernelRidgeCV(alphas=[1, 10, 100])
     model.fit(X, Y)
-    print(model.best_alphas_)
+    print(model.best_alphas_)  # [ 10. 100.  10. 100.]
 
 
 - The model ``KernelRidgeCV`` uses the same API than ``scikit-learn``
   estimators, with methods such as ``fit``, ``predict``, ``score``, etc.
-- The model is able to efficiently fit a large number of targets.
+- The model is able to efficiently fit a large number of targets (routinely
+  used with 100k targets).
 - The model selects the best hyperparameter ``alpha`` for each target
   independently.
 
@@ -49,7 +51,9 @@ To change the backend (e.g. to ``cupy``), call:
     backend = set_backend("cupy")
 
 
-and give ``cupy`` arrays inputs to the ``himalaya`` solvers. 
+and give ``cupy`` arrays inputs to the ``himalaya`` solvers. For convenience,
+estimators implementing ``scikit-learn``'s API can cast arrays to the correct
+input type.
 
 GPU acceleration
 ----------------
