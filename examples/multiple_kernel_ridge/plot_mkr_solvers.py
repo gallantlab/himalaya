@@ -294,14 +294,25 @@ def _create_simplex_projection_and_edges(ax):
                                                 random_state=0)
     pca = PCA(2).fit(backend.to_numpy(kernel_weights))
 
+    # add simplex edges
     edges = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1], [1, 0, 0]])
     edges = pca.transform(edges).T
 
+    # add tripod at origin
     tripod_length = 0.15
     tripod = np.array([[0, 0, 0], [tripod_length, 0, 0], [0, 0, 0],
                        [0, tripod_length, 0], [0, 0, 0], [0, 0,
                                                           tripod_length]])
     tripod = pca.transform(tripod).T
+
+    # add point legend
+    points = np.array([[1, 0, 0], [0, 1, 0],
+                       [0, 0, 1]])
+    labels = points.copy()
+    points = pca.transform(points * 1.15).T
+    for (xx, yy), label in zip(points.T, labels):
+        ax.text(xx, yy, str(label), horizontalalignment='center',
+                verticalalignment='center')
 
     if ax is None:
         plt.figure(figsize=(8, 8))
@@ -345,19 +356,25 @@ def plot_simplex_trajectory(Xs, ax=None):
 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
 # First panel
-plot_simplex(kernel_weights_true, ax=axs[0], color='C2',
+ax = axs[0]
+ax.set_title("(a) Simulation", y=0)
+plot_simplex(kernel_weights_true, ax=ax, color='C2',
              label="simulated weights")
 
 # Second panel
-plot_simplex(backend.to_numpy(kernel_weights_sampled), ax=axs[1], marker='+',
+ax = axs[1]
+ax.set_title("(b) Random search", y=0)
+plot_simplex(backend.to_numpy(kernel_weights_sampled), ax=ax, marker='+',
              label="random samples", zorder=10)
 plot_simplex(kernel_weights_1, ax=axs[1], label="selected samples")
 
 # Third panel
 ax = axs[2]
+ax.set_title("(c) Gradient descent", y=0)
 plot_simplex_trajectory(all_kernel_weights_2, ax=ax)
 ax.legend([ax.lines[2], ax.collections[0]],
           ['gradient trajectory', 'final point'])
 
 plt.tight_layout()
+# fig.savefig('simulation.pdf', dpi=150, bbox_inches='tight', pad_inches=0)
 plt.show()
