@@ -140,8 +140,8 @@ Developers can also install ``himalaya`` in editable mode via:
 Check the gallery of example to get examples of use of ``himalaya``.
 
 
-.. |Github| image:: https://img.shields.io/badge/github-tutorials-blue
-   :target: https://github.com/gallantlab/tutorials
+.. |Github| image:: https://img.shields.io/badge/github-himalaya-blue
+   :target: https://github.com/gallantlab/himalaya
 
 .. |Python| image:: https://img.shields.io/badge/python-3.7%2B-blue
    :target: https://www.python.org/downloads/release/python-370
