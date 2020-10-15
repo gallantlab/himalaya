@@ -14,7 +14,7 @@ def solve_multiple_kernel_ridge_random_search(
         score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
-        progress_bar=True):
+        progress_bar=True, Ks_in_cpu=False):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -58,6 +58,9 @@ def solve_multiple_kernel_ridge_random_search(
         If None, uses all n_alphas at once.
     progress_bar : bool
         If True, display a progress bar over gammas.
+    Ks_in_cpu : bool
+        If True, keep Ks in CPU memory to limit GPU memory (slower).
+        This feature is not available through the scikit-learn API. 
 
     Returns
     -------
@@ -87,7 +90,10 @@ def solve_multiple_kernel_ridge_random_search(
 
     if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
         alphas = backend.ones_like(Y, shape=(1, )) * alphas
-    Ks, Y, gammas, alphas, Xs = backend.check_arrays(Ks, Y, gammas, alphas, Xs)
+
+    Y, gammas, alphas, Xs = backend.check_arrays(Y, gammas, alphas, Xs)
+    if not Ks_in_cpu:
+        Y, Ks = backend.check_arrays(Y, Ks)
 
     n_samples, n_targets = Y.shape
     if n_targets_batch is None:
@@ -109,12 +115,12 @@ def solve_multiple_kernel_ridge_random_search(
         random_generator = check_random_state(random_state)
         given_alphas = backend.copy(alphas)
 
-    best_gammas = backend.full_like(Ks, fill_value=1.0 / n_kernels,
+    best_gammas = backend.full_like(Y, fill_value=1.0 / n_kernels,
                                     shape=(n_kernels, n_targets))
-    best_alphas = backend.ones_like(Ks, shape=n_targets)
-    cv_scores = backend.zeros_like(Ks, shape=(len(gammas), n_targets),
+    best_alphas = backend.ones_like(Y, shape=n_targets)
+    cv_scores = backend.zeros_like(Y, shape=(len(gammas), n_targets),
                                    device="cpu")
-    current_best_scores = backend.full_like(Ks, fill_value=-backend.inf,
+    current_best_scores = backend.full_like(Y, fill_value=-backend.inf,
                                             shape=n_targets)
 
     # initialize refit ridge weights
@@ -122,11 +128,11 @@ def solve_multiple_kernel_ridge_random_search(
         if Xs is None:
             raise ValueError("Xs is needed to compute the primal weights.")
         n_features = sum(X.shape[1] for X in Xs)
-        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets),
+        refit_weights = backend.zeros_like(Y, shape=(n_features, n_targets),
                                            device="cpu")
 
     elif return_weights == 'dual':
-        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets),
+        refit_weights = backend.zeros_like(Y, shape=(n_samples, n_targets),
                                            device="cpu")
     elif return_weights is None:
         refit_weights = None
@@ -138,7 +144,11 @@ def solve_multiple_kernel_ridge_random_search(
             bar(gammas, '%d random sampling with cv' % len(gammas),
                 use_it=progress_bar)):
 
-        K = (gamma[:, None, None] * Ks).sum(0)
+        if Ks_in_cpu:
+            K = (backend.to_cpu(gamma[:, None, None]) * Ks).sum(0)
+            K = backend.asarray(K, device=Y.device)
+        else:
+            K = (gamma[:, None, None] * Ks).sum(0)
 
         if jitter_alphas:
             noise = backend.asarray_like(random_generator.rand(), alphas)
@@ -189,7 +199,7 @@ def solve_multiple_kernel_ridge_random_search(
             alphas_argmax = backend.argmax(scores_mean, axis)
         else:
             alphas_argmax = backend.argmax(scores_mean.mean(1))
-            alphas_argmax = backend.full_like(Ks, shape=scores_mean.shape[1],
+            alphas_argmax = backend.full_like(Y, shape=scores_mean.shape[1],
                                               dtype=backend.int32,
                                               fill_value=alphas_argmax)
         cv_scores_ii = backend.apply_argmax(scores_mean, alphas_argmax, axis)
