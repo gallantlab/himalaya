@@ -14,7 +14,7 @@ def solve_multiple_kernel_ridge_random_search(
         score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
-        progress_bar=True, Ks_in_cpu=False):
+        progress_bar=True, Ks_in_cpu=False, conservative=False):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -60,7 +60,11 @@ def solve_multiple_kernel_ridge_random_search(
         If True, display a progress bar over gammas.
     Ks_in_cpu : bool
         If True, keep Ks in CPU memory to limit GPU memory (slower).
-        This feature is not available through the scikit-learn API. 
+        This feature is not available through the scikit-learn API.
+    conservative : bool
+        If True, when selecting the hyperparameter alpha, take the largest one
+        that is less than one standard deviation away from the best.
+        If False, take the best.
 
     Returns
     -------
@@ -188,21 +192,9 @@ def solve_multiple_kernel_ridge_random_search(
                 del matrix, predictions
             del train, test
 
-        # average scores over splits
-        scores_mean = backend.mean_float64(scores, axis=0)
-        # add epsilon slope to select larger alphas if scores are equal
-        scores_mean += (backend.log(alphas) * 1e-10)[:, None]
-
-        # compute the max over alphas
-        axis = 0
-        if local_alpha:
-            alphas_argmax = backend.argmax(scores_mean, axis)
-        else:
-            alphas_argmax = backend.argmax(scores_mean.mean(1))
-            alphas_argmax = backend.full_like(Y, shape=scores_mean.shape[1],
-                                              dtype=backend.int32,
-                                              fill_value=alphas_argmax)
-        cv_scores_ii = backend.apply_argmax(scores_mean, alphas_argmax, axis)
+        # select best alphas
+        alphas_argmax, cv_scores_ii = _select_best_alphas(
+            scores, alphas, local_alpha, conservative)
         cv_scores[ii, :] = backend.to_cpu(cv_scores_ii)
 
         # update best_gammas and best_alphas
@@ -276,6 +268,65 @@ def solve_multiple_kernel_ridge_random_search(
         refit_weights *= backend.to_cpu(best_alphas)
 
     return deltas, refit_weights, cv_scores
+
+
+def _select_best_alphas(scores, alphas, local_alpha, conservative):
+    """Helper to select the best alphas
+
+    Parameters
+    ----------
+    scores : array of shape (n_splits, n_alphas, n_targets)
+        Cross validation scores.
+    alphas :array of shape (n_alphas, )
+        Regularization parameters.
+    local_alpha : bool
+        If True, alphas are selected per target, else shared over all targets.
+    conservative : bool
+        If True, when selecting the hyperparameter alpha, take the largest one
+        that is less than one standard deviation away from the best.
+        If False, take the best.
+
+    Returns
+    -------
+    alphas_argmax : array of shape (n_targets, )
+        Indices of the best alphas.
+    best_scores_mean : arrya of shape (n_targets, )
+        Scores, averaged over splits, and maximized over alphas.
+    """
+    backend = get_backend()
+
+    # average scores over splits
+    scores_mean = backend.mean_float64(scores, axis=0)
+    # add epsilon slope to select larger alphas if scores are equal
+    scores_mean += (backend.log(alphas) * 1e-10)[:, None]
+
+    # compute the max over alphas
+    axis = 0
+    if local_alpha:
+        alphas_argmax = backend.argmax(scores_mean, axis)
+
+        if conservative:
+            # take a conservative alpha, the largest that beats the best
+            # score minus one standard deviation
+            scores_std = scores.std(0)
+            to_beat = backend.apply_argmax(scores_mean - scores_std,
+                                           alphas_argmax, axis)
+            does_beat = backend.asarray(scores_mean > to_beat, dtype="float32")
+            # add bias toward large alphas (scaled to be << 1)
+            does_beat += backend.log(alphas)[:, None] * 1e-4
+            alphas_argmax = backend.argmax(does_beat, axis)
+    else:
+        if conservative:
+            raise NotImplementedError()
+        else:
+            alphas_argmax = backend.argmax(scores_mean.mean(1))
+            alphas_argmax = backend.full_like(alphas,
+                                              shape=scores_mean.shape[1],
+                                              dtype=backend.int32,
+                                              fill_value=alphas_argmax)
+    best_scores_mean = backend.apply_argmax(scores_mean, alphas_argmax, axis)
+
+    return alphas_argmax, best_scores_mean
 
 
 def generate_dirichlet_samples(n_samples, n_kernels, concentration=[.1, 1.],
@@ -446,7 +497,7 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
                                       cv=5, local_alpha=True,
                                       n_targets_batch=None,
                                       n_targets_batch_refit=None,
-                                      n_alphas_batch=None):
+                                      n_alphas_batch=None, conservative=False):
     """Solve kernel ridge regression with a grid search over alphas.
 
     Parameters
@@ -472,6 +523,10 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
     n_alphas_batch : int or None
         Size of the batch for over alphas. Used for memory reasons.
         If None, uses all n_alphas at once.
+    conservative : bool
+        If True, when selecting the hyperparameter alpha, take the largest one
+        that is less than one standard deviation away from the best.
+        If False, take the best.
 
     Returns
     -------
@@ -494,7 +549,8 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
                          local_alpha=local_alpha,
                          n_targets_batch=n_targets_batch,
                          n_targets_batch_refit=n_targets_batch_refit,
-                         n_alphas_batch=n_alphas_batch)
+                         n_alphas_batch=n_alphas_batch,
+                         conservative=conservative)
 
     deltas, dual_weights, cv_scores = \
         solve_multiple_kernel_ridge_random_search(
