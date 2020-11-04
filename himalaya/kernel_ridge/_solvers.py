@@ -135,8 +135,8 @@ def solve_weighted_kernel_ridge_gradient_descent(
         if lipschitz_Ks is None:
             lipschitz_Ks = compute_lipschitz_constants(
                 Ks, random_state=random_state)
-            if not double_K:
-                lipschitz_Ks = backend.sqrt(lipschitz_Ks)
+        if not double_K:
+            lipschitz_Ks = backend.sqrt(lipschitz_Ks)
 
         total_lip = backend.matmul(lipschitz_Ks[None, :],
                                    exp_deltas)[0] + alpha
