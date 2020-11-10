@@ -14,7 +14,8 @@ def solve_multiple_kernel_ridge_random_search(
         score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
-        progress_bar=True, Ks_in_cpu=False, conservative=False):
+        progress_bar=True, Ks_in_cpu=False, conservative=False,
+        Y_in_cpu=False):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -65,6 +66,8 @@ def solve_multiple_kernel_ridge_random_search(
         If True, when selecting the hyperparameter alpha, take the largest one
         that is less than one standard deviation away from the best.
         If False, take the best.
+    Y_in_cpu : bool
+        If True, keep the target values ``Y`` in CPU memory (slower).
 
     Returns
     -------
@@ -95,9 +98,13 @@ def solve_multiple_kernel_ridge_random_search(
     if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
         alphas = backend.ones_like(Y, shape=(1, )) * alphas
 
-    Y, gammas, alphas, Xs = backend.check_arrays(Y, gammas, alphas, Xs)
+    gammas = backend.asarray(gammas, dtype=Ks.dtype)
+    device = getattr(gammas, "device", None)
+    gammas, alphas, Xs = backend.check_arrays(gammas, alphas, Xs)
+    if not Y_in_cpu:
+        gammas, Y = backend.check_arrays(gammas, Y)
     if not Ks_in_cpu:
-        Y, Ks = backend.check_arrays(Y, Ks)
+        gammas, Ks = backend.check_arrays(gammas, Ks)
 
     n_samples, n_targets = Y.shape
     if n_targets_batch is None:
@@ -119,12 +126,12 @@ def solve_multiple_kernel_ridge_random_search(
         random_generator = check_random_state(random_state)
         given_alphas = backend.copy(alphas)
 
-    best_gammas = backend.full_like(Y, fill_value=1.0 / n_kernels,
+    best_gammas = backend.full_like(gammas, fill_value=1.0 / n_kernels,
                                     shape=(n_kernels, n_targets))
-    best_alphas = backend.ones_like(Y, shape=n_targets)
-    cv_scores = backend.zeros_like(Y, shape=(len(gammas), n_targets),
+    best_alphas = backend.ones_like(gammas, shape=n_targets)
+    cv_scores = backend.zeros_like(gammas, shape=(len(gammas), n_targets),
                                    device="cpu")
-    current_best_scores = backend.full_like(Y, fill_value=-backend.inf,
+    current_best_scores = backend.full_like(gammas, fill_value=-backend.inf,
                                             shape=n_targets)
 
     # initialize refit ridge weights
@@ -132,11 +139,13 @@ def solve_multiple_kernel_ridge_random_search(
         if Xs is None:
             raise ValueError("Xs is needed to compute the primal weights.")
         n_features = sum(X.shape[1] for X in Xs)
-        refit_weights = backend.zeros_like(Y, shape=(n_features, n_targets),
+        refit_weights = backend.zeros_like(gammas,
+                                           shape=(n_features, n_targets),
                                            device="cpu")
 
     elif return_weights == 'dual':
-        refit_weights = backend.zeros_like(Y, shape=(n_samples, n_targets),
+        refit_weights = backend.zeros_like(gammas,
+                                           shape=(n_samples, n_targets),
                                            device="cpu")
     elif return_weights is None:
         refit_weights = None
@@ -150,7 +159,7 @@ def solve_multiple_kernel_ridge_random_search(
 
         if Ks_in_cpu:
             K = (backend.to_cpu(gamma[:, None, None]) * Ks).sum(0)
-            K = backend.asarray(K, device=Y.device)
+            K = backend.to_gpu(K, device=device)
         else:
             K = (gamma[:, None, None] * Ks).sum(0)
 
@@ -158,12 +167,11 @@ def solve_multiple_kernel_ridge_random_search(
             noise = backend.asarray_like(random_generator.rand(), alphas)
             alphas = given_alphas * (10 ** (noise - 0.5))
 
-        scores = backend.zeros_like(Y,
+        scores = backend.zeros_like(gammas,
                                     shape=(n_splits, len(alphas), n_targets))
         for jj, (train, test) in enumerate(cv.split(K)):
-            if hasattr(K, "device"):
-                train = backend.asarray(train, device=K.device)
-                test = backend.asarray(test, device=K.device)
+            train = backend.to_gpu(train, device=device)
+            test = backend.to_gpu(test, device=device)
 
             for matrix, alpha_batch in _decompose_kernel_ridge(
                     Ktrain=K[train[:, None], train], alphas=alphas,
@@ -174,15 +182,16 @@ def solve_multiple_kernel_ridge_random_search(
 
                 for start in range(0, n_targets, n_targets_batch):
                     batch = slice(start, start + n_targets_batch)
+                    Y_batch = backend.to_gpu(Y[:, batch], device=device)
 
-                    predictions = backend.matmul(matrix, Y[train, batch])
+                    predictions = backend.matmul(matrix, Y_batch[train])
                     # n_alphas_batch, n_samples_test, n_targets_batch = \
                     # predictions.shape
 
                     with warnings.catch_warnings():
                         warnings.filterwarnings("ignore", category=UserWarning)
                         scores[jj, alpha_batch, batch] = score_func(
-                            Y[test, batch], predictions)
+                            Y_batch[test], predictions)
                         # n_alphas_batch, n_targets_batch = score.shape
 
                 # make small alphas impossible to select
@@ -206,6 +215,8 @@ def solve_multiple_kernel_ridge_random_search(
         # compute primal or dual weights on the entire dataset (nocv)
         if return_weights is not None:
             update_indices = backend.flatnonzero(mask)
+            if Y_in_cpu:
+                update_indices = backend.to_cpu(update_indices)
             if len(update_indices) > 0:
 
                 # refit weights only for alphas used by at least one target
@@ -221,8 +232,10 @@ def solve_multiple_kernel_ridge_random_search(
                                        n_targets_batch_refit):
                         batch = slice(start, start + n_targets_batch_refit)
 
-                        weights = backend.matmul(matrix,
-                                                 Y[:, update_indices[batch]])
+                        weights = backend.matmul(
+                            matrix,
+                            backend.to_gpu(Y[:, update_indices[batch]],
+                                           device=device))
                         # used_n_alphas_batch, n_samples, n_targets_batch = \
                         # weights.shape
 
@@ -497,7 +510,8 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
                                       cv=5, local_alpha=True,
                                       n_targets_batch=None,
                                       n_targets_batch_refit=None,
-                                      n_alphas_batch=None, conservative=False):
+                                      n_alphas_batch=None, conservative=False,
+                                      Y_in_cpu=False):
     """Solve kernel ridge regression with a grid search over alphas.
 
     Parameters
@@ -527,6 +541,8 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
         If True, when selecting the hyperparameter alpha, take the largest one
         that is less than one standard deviation away from the best.
         If False, take the best.
+    Y_in_cpu : bool
+        If True, keep the target values ``Y`` in CPU memory (slower).
 
     Returns
     -------
@@ -534,7 +550,7 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
         Selected best hyperparameter alphas.
     dual_weights : array of shape (n_samples, n_targets)
         Kernel ridge coefficients refit on the entire dataset, using selected
-        best hyperparameters alpha.
+        best hyperparameters alpha. Always stored on CPU memory.
     cv_scores : array of shape (n_targets, )
         Cross-validation scores averaged over splits, for the best alpha.
     """
@@ -550,14 +566,13 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
                          n_targets_batch=n_targets_batch,
                          n_targets_batch_refit=n_targets_batch_refit,
                          n_alphas_batch=n_alphas_batch,
-                         conservative=conservative)
+                         conservative=conservative, Y_in_cpu=Y_in_cpu)
 
     deltas, dual_weights, cv_scores = \
         solve_multiple_kernel_ridge_random_search(
             K[None], Y, **copied_params, **fixed_params)
 
     best_alphas = backend.exp(-deltas[0])
-    dual_weights = backend.asarray_like(dual_weights, ref=K)
-    dual_weights /= best_alphas
+    dual_weights /= backend.to_cpu(best_alphas)
 
     return best_alphas, dual_weights, cv_scores

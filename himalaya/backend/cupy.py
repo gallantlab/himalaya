@@ -154,10 +154,14 @@ def to_cpu(array):
     return cupy.asnumpy(array)
 
 
+def to_gpu(array, device=None):
+    return cupy.asarray(array)
+
+
 def asarray(a, dtype=None, order=None, device=None):
     if device == "cpu":
         import numpy as np
-        return np.asarray(a, dtype, order)
+        return np.asarray(cupy.asnumpy(a), dtype, order)
     else:
         return cupy.asarray(a, dtype, order)
 

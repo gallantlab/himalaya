@@ -39,7 +39,7 @@ def check_random_state(seed):
 
 def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
                 copy=False, force_all_finite=True, ndim=2,
-                ensure_min_samples=1, ensure_min_features=1):
+                ensure_min_samples=1, ensure_min_features=1, device="default"):
     """Input validation on an array, list, sparse matrix or similar.
 
     By default, the input is checked to be a non-empty 2D array containing
@@ -90,6 +90,11 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
         dimensions or is originally 1D and ``ensure_2d`` is True. Setting to 0
         disables this check.
 
+    device : misc (default="default")
+        Parameter passed to ``backend.asarray``. If "default", does not pass
+        any parameter, to get the function's default. If "cpu", force the
+        array to be in CPU memory.
+
     Returns
     -------
     array_converted : object
@@ -114,6 +119,11 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
             dtype = dtype[0]
     else:
         raise ValueError("Unknown dtype=%r" % dtype)
+
+    if not isinstance(device, str) or device != "default":
+        kwargs = dict(device=device)
+    else:
+        kwargs = dict()
 
     #############
     # sparse case
@@ -158,7 +168,7 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
             try:
                 warnings.simplefilter('error', ComplexWarning)
                 ################
-                array = backend.asarray(array, dtype=dtype)
+                array = backend.asarray(array, dtype=dtype, **kwargs)
                 ################
             except ComplexWarning:
                 raise ValueError("Complex data not supported.")
@@ -179,7 +189,8 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
             if array.__array_interface__['data'][0] % 8 != 0:
                 array = backend.copy(array)
 
-        _assert_all_finite(array, force_all_finite)
+        numpy = backend.name == 'cupy' and device == "cpu"
+        _assert_all_finite(array, force_all_finite, numpy=numpy)
 
     #####################
     # check minimum sizes

@@ -131,7 +131,6 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         if X.shape[1] != self.n_features_in_:
             raise ValueError(
                 'Different number of features in X than during fit.')
-
         K = self._get_kernel(X, self.X_fit_)
         return K
 

@@ -203,6 +203,7 @@ class KernelRidge(_BaseKernelRidge):
             Returns predicted values.
         """
         check_is_fitted(self)
+        backend = get_backend()
         accept_sparse = False if self.kernel == "precomputed" else ("csr",
                                                                     "csc")
         X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
@@ -214,7 +215,7 @@ class KernelRidge(_BaseKernelRidge):
         K = self._get_kernel(X, self.X_fit_)
         del X
 
-        Y_hat = K @ self.dual_coef_
+        Y_hat = backend.to_cpu(K) @ backend.to_cpu(self.dual_coef_)
         return Y_hat
 
     def score(self, X, y):
@@ -328,6 +329,9 @@ class KernelRidgeCV(KernelRidge):
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
 
+    Y_in_cpu : bool
+        If True, keep the target values ``y`` in CPU memory (slower).
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -360,13 +364,15 @@ class KernelRidgeCV(KernelRidge):
     ALL_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues)
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None, cv=5):
+                 solver="eigenvalues", solver_params=None, cv=5,
+                 Y_in_cpu=False):
         self.alphas = alphas
         self.kernel = kernel
         self.kernel_params = kernel_params
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
+        self.Y_in_cpu = Y_in_cpu
 
     def fit(self, X, y=None, sample_weight=None):
         """Fit kernel ridge regression model
@@ -390,7 +396,9 @@ class KernelRidgeCV(KernelRidge):
         backend = get_backend()
         X = check_array(X, accept_sparse=("csr", "csc"), ndim=2)
         self.dtype_ = _get_string_dtype(X)
-        y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
+        device = "cpu" if self.Y_in_cpu else None
+        y = check_array(y, dtype=self.dtype_, ndim=[1, 2],
+                        device=device)
         if X.shape[0] != y.shape[0]:
             raise ValueError("Inconsistent number of samples.")
 
@@ -417,13 +425,14 @@ class KernelRidgeCV(KernelRidge):
             # We need to support sample_weight directly because K might be a
             # pre-computed kernel.
             sw = backend.sqrt(sample_weight)[:, None]
-            y = y * sw
+            y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             K *= sw @ sw.T
 
         cv = check_cv(self.cv)
 
         # ------------------ call the solver
-        tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas)
+        tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas,
+                                Y_in_cpu=self.Y_in_cpu)
         self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
         self.cv_scores_ = self.cv_scores_[0]
 
@@ -654,6 +663,9 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
 
+    Y_in_cpu : bool
+        If True, keep the target values ``y`` in CPU memory (slower).
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -696,13 +708,14 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 
     def __init__(self, kernels=["linear", "polynomial"], kernels_params=None,
                  solver="random_search", solver_params=None, cv=5,
-                 random_state=None):
+                 random_state=None, Y_in_cpu=False):
         self.kernels = kernels
         self.kernels_params = kernels_params
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
         self.random_state = random_state
+        self.Y_in_cpu = Y_in_cpu
 
     def fit(self, X, y=None, sample_weight=None):
         """Fit the model.
@@ -731,7 +744,8 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
                                                                      "csc")
         X = check_array(X, accept_sparse=accept_sparse, ndim=ndim)
         self.dtype_ = _get_string_dtype(X)
-        y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
+        device = "cpu" if self.Y_in_cpu else None
+        y = check_array(y, dtype=self.dtype_, ndim=[1, 2], device=device)
 
         n_samples = X.shape[1] if self.kernels == "precomputed" else X.shape[0]
         if n_samples != y.shape[0]:
@@ -758,14 +772,15 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
             # We need to support sample_weight directly because K might be a
             # precomputed kernel.
             sw = backend.sqrt(sample_weight)[:, None]
-            y = y * sw
+            y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             Ks *= (sw @ sw.T)[None]
 
         cv = check_cv(self.cv)
 
         # ------------------ call the solver
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
-                                Xs=None, random_state=self.random_state)
+                                Xs=None, random_state=self.random_state,
+                                Y_in_cpu=self.Y_in_cpu)
         self.deltas_, self.dual_coef_, self.cv_scores_ = tmp
 
         if self.solver == "random_search":

@@ -69,7 +69,6 @@ bool = np.bool
 float32 = np.float32
 float64 = np.float64
 int32 = np.int32
-asarray = np.asarray
 eigh = linalg.eigh
 svd = linalg.svd
 norm = linalg.norm
@@ -146,6 +145,10 @@ def to_cpu(array):
     return array
 
 
+def to_gpu(array, device=None):
+    return array
+
+
 def asarray_like(x, ref):
     return np.asarray(x, dtype=ref.dtype)
 
@@ -167,3 +170,7 @@ def check_arrays(*all_inputs):
             tensor = np.asarray(tensor, dtype=all_arrays[0].dtype)
         all_arrays.append(tensor)
     return all_arrays
+
+
+def asarray(a, dtype=None, order=None, device=None):
+    return np.asarray(a, dtype=dtype, order=order)

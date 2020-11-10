@@ -132,6 +132,10 @@ def to_cpu(array):
     return array.cpu()
 
 
+def to_gpu(array, device=None):
+    return array
+
+
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())
