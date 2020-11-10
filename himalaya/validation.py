@@ -11,6 +11,7 @@ except ImportError:
     def issparse(X):
         return False
 
+from sklearn import get_config
 
 from .backend import get_backend
 from .backend import _dtype_to_str
@@ -237,6 +238,9 @@ def _assert_all_finite(X, force_all_finite, numpy=False, batch_size=2 ** 24):
         backend = np
     else:
         backend = get_backend()
+
+    if get_config()['assume_finite']:
+        return
 
     if force_all_finite not in (True, False, 'allow-nan'):
         raise ValueError('force_all_finite should be a bool or "allow-nan"'
