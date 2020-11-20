@@ -33,14 +33,13 @@ def asarray(x, dtype=None, device="cuda"):
             dtype = x.dtype
         if hasattr(x, "dtype") and hasattr(x.dtype, "name"):
             dtype = x.dtype.name
-    if isinstance(dtype, str):
-        dtype = getattr(torch, dtype)
+    dtype = _dtype_to_str(dtype)
+    dtype = getattr(torch, dtype)
     if device is None:
         if isinstance(x, torch.Tensor):
             device = x.device
         else:
             device = "cuda"
-
     try:
         tensor = torch.as_tensor(x, dtype=dtype, device=device)
     except Exception:
