@@ -15,7 +15,7 @@ def solve_multiple_kernel_ridge_random_search(
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
         progress_bar=True, Ks_in_cpu=False, conservative=False,
-        Y_in_cpu=False):
+        Y_in_cpu=False, diagonalize_method="eigh"):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -68,6 +68,8 @@ def solve_multiple_kernel_ridge_random_search(
         If False, take the best.
     Y_in_cpu : bool
         If True, keep the target values ``Y`` in CPU memory (slower).
+    diagonalize_method : str in {"eigh", "svd"}
+        Method used to diagonalize the kernel.
 
     Returns
     -------
@@ -176,7 +178,7 @@ def solve_multiple_kernel_ridge_random_search(
             for matrix, alpha_batch in _decompose_kernel_ridge(
                     Ktrain=K[train[:, None], train], alphas=alphas,
                     Ktest=K[test[:, None], train], negative_eigenvalues="nan",
-                    n_alphas_batch=n_alphas_batch):
+                    n_alphas_batch=n_alphas_batch, method=diagonalize_method):
                 # n_alphas_batch, n_samples_test, n_samples_train = \
                 # matrix.shape
 
@@ -226,7 +228,8 @@ def solve_multiple_kernel_ridge_random_search(
                 for matrix, alpha_batch in _decompose_kernel_ridge(
                         K, used_alphas, Ktest=None,
                         negative_eigenvalues="zeros",
-                        n_alphas_batch=min(len(used_alphas), n_alphas_batch)):
+                        n_alphas_batch=min(len(used_alphas), n_alphas_batch),
+                        method=diagonalize_method):
 
                     for start in range(0, len(update_indices),
                                        n_targets_batch_refit):
@@ -458,15 +461,17 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
     if method == "eigh":
         # diagonalization: K = V @ np.diag(eigenvalues) @ V.T
         eigenvalues, V = backend.eigh(Ktrain)
+        # match SVD notations: K = U @ np.diag(eigenvalues) @ Vt
         U = V
+        Vt = V.T
     elif method == "svd":
-        # SVD: K = U @ np.diag(eigenvalues) @ V.T
-        U, eigenvalues, V = backend.svd(Ktrain)
+        # SVD: K = U @ np.diag(eigenvalues) @ Vt
+        U, eigenvalues, Vt = backend.svd(Ktrain)
     else:
         raise ValueError("Unknown method=%r." % (method, ))
 
     if Ktest is not None:
-        Ktest_V = backend.matmul(Ktest, V)
+        Ktest_V = backend.matmul(Ktest, Vt.T)
 
     for start in range(0, len(alphas), n_alphas_batch):
         batch = slice(start, start + n_alphas_batch)
@@ -496,7 +501,7 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
         if Ktest is not None:
             matrices = backend.matmul(Ktest_V, ev_weighting[:, :, None] * U.T)
         else:
-            matrices = backend.matmul(V, ev_weighting[:, :, None] * U.T)
+            matrices = backend.matmul(Vt.T, ev_weighting[:, :, None] * U.T)
 
         if use_alpha_batch:
             yield matrices, batch

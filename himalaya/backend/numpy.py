@@ -1,8 +1,10 @@
 import numpy as np
 try:
     import scipy.linalg as linalg
+    use_scipy = True
 except ImportError:
-    import np.linalg as linalg
+    import numpy.linalg as linalg
+    use_scipy = False
 
 ###############################################################################
 
@@ -70,7 +72,6 @@ float32 = np.float32
 float64 = np.float64
 int32 = np.int32
 eigh = linalg.eigh
-svd = linalg.svd
 norm = linalg.norm
 log = np.log
 exp = np.exp
@@ -174,3 +175,16 @@ def check_arrays(*all_inputs):
 
 def asarray(a, dtype=None, order=None, device=None):
     return np.asarray(a, dtype=dtype, order=order)
+
+
+def svd(X, full_matrices=True):
+    if X.ndim == 2 or not use_scipy:
+        return linalg.svd(X, full_matrices=full_matrices)
+
+    elif X.ndim == 3:
+        UsV_list = [
+            linalg.svd(Xi, full_matrices=full_matrices) for Xi in X
+        ]
+        return map(np.stack, zip(*UsV_list))
+    else:
+        raise NotImplementedError()

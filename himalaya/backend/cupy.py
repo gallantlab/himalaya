@@ -73,7 +73,6 @@ float32 = cupy.float32
 float64 = cupy.float64
 int32 = cupy.int32
 eigh = cupy.linalg.eigh
-svd = cupy.linalg.svd
 norm = cupy.linalg.norm
 log = cupy.log
 exp = cupy.exp
@@ -188,3 +187,15 @@ def check_arrays(*all_inputs):
             tensor = cupy.asarray(tensor, dtype=all_arrays[0].dtype)
         all_arrays.append(tensor)
     return all_arrays
+
+
+def svd(X, full_matrices=True):
+    if X.ndim == 2:
+        return cupy.linalg.svd(X, full_matrices=full_matrices)
+    elif X.ndim == 3:
+        UsV_list = [
+            cupy.linalg.svd(Xi, full_matrices=full_matrices) for Xi in X
+        ]
+        return map(cupy.stack, zip(*UsV_list))
+    else:
+        raise NotImplementedError()

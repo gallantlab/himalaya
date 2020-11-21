@@ -63,10 +63,19 @@ def test_solve_multiple_kernel_ridge_random_search_return_weights(
         backend=backend, return_weights=return_weights)
 
 
+@pytest.mark.parametrize('diagonalize_method', ['eigh', 'svd'])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_random_search_diagonalize_method(
+        backend, diagonalize_method):
+    _test_solve_multiple_kernel_ridge_random_search(
+        backend=backend, diagonalize_method=diagonalize_method)
+
+
 def _test_solve_multiple_kernel_ridge_random_search(backend,
                                                     n_targets_batch=None,
                                                     n_alphas_batch=None,
-                                                    return_weights="dual"):
+                                                    return_weights="dual",
+                                                    diagonalize_method="eigh"):
     backend = set_backend(backend)
 
     Ks, Y, gammas, Xs = _create_dataset(backend)
@@ -79,7 +88,8 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
     results = solve_multiple_kernel_ridge_random_search(
         Ks, Y, n_iter=gammas, alphas=alphas, score_func=r2_score, cv=cv,
         n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
-        return_weights=return_weights, n_alphas_batch=n_alphas_batch)
+        return_weights=return_weights, n_alphas_batch=n_alphas_batch,
+        diagonalize_method=diagonalize_method)
     best_deltas, refit_weights, cv_scores = results
 
     #########################################

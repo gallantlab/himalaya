@@ -1,3 +1,4 @@
+from functools import partial
 import pytest
 
 import numpy as np
@@ -11,6 +12,9 @@ from himalaya.utils import assert_array_almost_equal
 from himalaya.kernel_ridge import WEIGHTED_KERNEL_RIDGE_SOLVERS
 from himalaya.kernel_ridge import KERNEL_RIDGE_SOLVERS
 from himalaya.kernel_ridge._solvers import _weighted_kernel_ridge_gradient
+
+KERNEL_RIDGE_SOLVERS['eigenvalues_svd'] = partial(
+    KERNEL_RIDGE_SOLVERS['eigenvalues'], method="svd")
 
 
 def _create_dataset(backend):
@@ -122,7 +126,7 @@ def test_solve_kernel_ridge(solver_name, backend):
 
     for alpha in alphas:
         alpha = backend.full_like(K, fill_value=alpha, shape=Y.shape[1])
-        if solver_name == "eigenvalues":
+        if "eigenvalues" in solver_name:
             c2 = solver(K, Y, alpha=alpha)
         else:
             c2 = solver(K, Y, alpha=alpha, max_iter=3000, tol=1e-6)

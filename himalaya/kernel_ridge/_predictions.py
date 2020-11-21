@@ -1,4 +1,5 @@
 from ..backend import get_backend
+from ..progress_bar import bar
 
 
 def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
@@ -37,7 +38,8 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
 
 def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
                                             score_func, split=False,
-                                            n_targets_batch=None):
+                                            n_targets_batch=None,
+                                            progress_bar=False):
     """
     Compute predictions, typically on a test set, and compute the score.
 
@@ -58,6 +60,8 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
     n_targets_batch : int or None
         Size of the batch for computing predictions. Used for memory reasons.
         If None, uses all n_targets at once.
+    progress_bar : bool
+        If True, display a progress bar over batches and iterations.
 
     Returns
     -------
@@ -76,7 +80,8 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
 
     if n_targets_batch is None:
         n_targets_batch = n_targets
-    for start in range(0, n_targets, n_targets_batch):
+    for start in bar(list(range(0, n_targets, n_targets_batch)),
+                     title='predict_and_score', use_it=progress_bar):
         batch = slice(start, start + n_targets_batch)
         predictions = predict_weighted_kernel_ridge(Ks, dual_weights[:, batch],
                                                     deltas[:, batch],
