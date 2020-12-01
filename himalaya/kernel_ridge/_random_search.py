@@ -14,8 +14,8 @@ def solve_multiple_kernel_ridge_random_search(
         score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
-        progress_bar=True, Ks_in_cpu=False, conservative=False,
-        Y_in_cpu=False, diagonalize_method="eigh"):
+        progress_bar=True, Ks_in_cpu=False, conservative=False, Y_in_cpu=False,
+        diagonalize_method="eigh"):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -100,13 +100,13 @@ def solve_multiple_kernel_ridge_random_search(
     if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
         alphas = backend.ones_like(Y, shape=(1, )) * alphas
 
-    gammas = backend.asarray(gammas, dtype=Ks.dtype)
+    dtype = Ks.dtype
+    gammas = backend.asarray(gammas, dtype=dtype)
     device = getattr(gammas, "device", None)
     gammas, alphas, Xs = backend.check_arrays(gammas, alphas, Xs)
-    if not Y_in_cpu:
-        gammas, Y = backend.check_arrays(gammas, Y)
-    if not Ks_in_cpu:
-        gammas, Ks = backend.check_arrays(gammas, Ks)
+    Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
+    Ks = backend.asarray(Ks, dtype=dtype,
+                         device="cpu" if Ks_in_cpu else device)
 
     n_samples, n_targets = Y.shape
     if n_targets_batch is None:

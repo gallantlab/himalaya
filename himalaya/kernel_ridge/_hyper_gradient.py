@@ -89,9 +89,10 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     if n_targets_batch is None:
         n_targets_batch = n_targets
 
-    if not Y_in_cpu:
-        Y, Ks = backend.check_arrays(Y, Ks)
+    Ks = backend.asarray(Ks)
+    dtype = Ks.dtype
     device = getattr(Ks, "device", None)
+    Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
 
     cv = check_cv(cv)
     n_splits = cv.get_n_splits()
