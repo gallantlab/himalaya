@@ -412,7 +412,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     assert direct_gradient.shape == deltas.shape
 
     # estimate a step size
-    XTXs = _compute_deltas_hessian(exp_delta_chi_val, Y_val)
+    XTXs = _compute_deltas_hessian(exp_delta_chi_val, residuals)
     # (these lipschitz constants only correspond to the direct gradient)
     lipschitz_1 = compute_lipschitz_constants(XTXs, "X",
                                               random_state=random_state)
@@ -462,7 +462,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     return gradient, step_size, predictions, solution
 
 
-def _compute_deltas_hessian(exp_delta_chi, Y):
+def _compute_deltas_hessian(exp_delta_chi, residuals):
     """Compute the hessian of the direct gradient.
 
     The direct gradient correponds to a linear problem:
@@ -476,8 +476,8 @@ def _compute_deltas_hessian(exp_delta_chi, Y):
     ----------
     exp_delta_chi : array of shape (n_kernels, n_samples, n_targets)
         Precomputation of exp(delta) * (Ks @ dual_weights).
-    Y : array of shape (n_samples, n_targets)
-        Target data on the validation split.
+    residuals : array of shape (n_samples, n_targets)
+        Difference between prediction and target on the validation split.
 
     Returns
     -------
@@ -489,7 +489,8 @@ def _compute_deltas_hessian(exp_delta_chi, Y):
     XTXs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
                           backend.transpose(exp_delta_chi, (2, 1, 0)))
     XTbs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
-                          backend.transpose(Y, (1, 0))[:, :, None])[:, :, 0]
+                          backend.transpose(residuals,
+                                            (1, 0))[:, :, None])[:, :, 0]
     diagonal_view = backend.diagonal_view(XTXs, axis1=1, axis2=2)
-    diagonal_view += diagonal_view + XTbs
+    diagonal_view += XTbs
     return XTXs
