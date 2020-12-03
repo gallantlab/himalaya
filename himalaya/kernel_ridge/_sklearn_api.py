@@ -397,8 +397,7 @@ class KernelRidgeCV(KernelRidge):
         X = check_array(X, accept_sparse=("csr", "csc"), ndim=2)
         self.dtype_ = _get_string_dtype(X)
         device = "cpu" if self.Y_in_cpu else None
-        y = check_array(y, dtype=self.dtype_, ndim=[1, 2],
-                        device=device)
+        y = check_array(y, dtype=self.dtype_, ndim=[1, 2], device=device)
         if X.shape[0] != y.shape[0]:
             raise ValueError("Inconsistent number of samples.")
 
@@ -444,8 +443,9 @@ class KernelRidgeCV(KernelRidge):
     def _more_tags(self):
         return {
             '_xfail_checks': {
-                'check_sample_weights_invariance(kind=zeros)':
-                'zero sample_weight is not equivalent to removing samples',
+                'check_sample_weights_invariance':
+                'zero sample_weight is not equivalent to removing samples, '
+                'because of the cross-validation splits.',
             }
         }
 
@@ -797,8 +797,9 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     def _more_tags(self):
         return {
             '_xfail_checks': {
-                'check_sample_weights_invariance(kind=zeros)':
-                'zero sample_weight is not equivalent to removing samples',
+                'check_sample_weights_invariance':
+                'zero sample_weight is not equivalent to removing samples, '
+                'because of the cross-validation splits.',
             }
         }
 
