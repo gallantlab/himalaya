@@ -74,5 +74,7 @@ def _dtype_to_str(dtype):
         return dtype.name
     elif "torch." in str(dtype):  # works for torch
         return str(dtype)[6:]
+    elif dtype is None:
+        return None
     else:
         raise NotImplementedError()

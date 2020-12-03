@@ -33,8 +33,9 @@ def asarray(x, dtype=None, device="cuda"):
             dtype = x.dtype
         if hasattr(x, "dtype") and hasattr(x.dtype, "name"):
             dtype = x.dtype.name
-    dtype = _dtype_to_str(dtype)
-    dtype = getattr(torch, dtype)
+    if dtype is not None:
+        dtype = _dtype_to_str(dtype)
+        dtype = getattr(torch, dtype)
     if device is None:
         if isinstance(x, torch.Tensor):
             device = x.device
