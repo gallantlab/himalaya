@@ -118,7 +118,7 @@ html_theme_options = {
     'github_repo': 'himalaya',
     'github_type': 'star',
     'page_width': '1200px',
-    'logo': 'logo.png',
+    'logo': 'logo.svg',
     'logo_name': 'himalaya',
     # 'description': 'Himalaya',
     'fixed_sidebar': 'True',

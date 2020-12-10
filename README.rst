@@ -38,6 +38,8 @@ Example
   independently.
 
 
+Check more examples of use of ``himalaya`` in the gallery of examples.
+
 Himalaya backends
 =================
 
@@ -132,12 +134,6 @@ Developers can also install ``himalaya`` in editable mode via:
     git clone https://github.com/gallantlab/himalaya
     cd himalaya
     pip install --editable .
-
-.. raw:: html
-
-   <h2>Examples</h2>
-
-Check the gallery of example to get examples of use of ``himalaya``.
 
 
 .. |Github| image:: https://img.shields.io/badge/github-himalaya-blue
