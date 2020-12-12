@@ -40,6 +40,17 @@ Example
 
 Check more examples of use of ``himalaya`` in the gallery of examples.
 
+Models
+======
+
+``Himalaya`` implements the following models:
+
+- KernelRidge
+- KernelRidgeCV
+- WeightedKernelRidge
+- MultipleKernelRidgeCV
+- SparseGroupLassoCV
+
 Himalaya backends
 =================
 
