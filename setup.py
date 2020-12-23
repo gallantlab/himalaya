@@ -2,6 +2,7 @@ import re
 from setuptools import find_packages, setup
 
 # get version from himalaya/__init__.py
+__version__ = 0.0
 with open('himalaya/__init__.py') as f:
     infos = f.readlines()
 for line in infos:
