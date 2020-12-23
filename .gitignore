@@ -5,6 +5,7 @@
 .vscode
 .pytest_cache
 __pycache__
+.coverage
 
 # Documentation build
 doc/_build/
