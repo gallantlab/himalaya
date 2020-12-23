@@ -473,7 +473,7 @@ class BandedRidgeCV(_BaseRidge):
         backend = get_backend()
         check_is_fitted(self)
 
-        Xs = self._split_groups(X, check=True)
+        Xs = self._split_groups(X, dtype=self.dtype_, check=True)
 
         n_features = sum(Xi.shape[1] for Xi in Xs)
         if n_features != self.n_features_in_:
@@ -513,18 +513,18 @@ class BandedRidgeCV(_BaseRidge):
         else:
             return r2_score(y_true, y_pred)
 
-    def _split_groups(self, X, check=True):
+    def _split_groups(self, X, check=True, **check_kwargs):
         backend = get_backend()
 
         # groups defined in X
         if self.groups == "input":
             if check:
-                X = [check_array(Xi, ndim=2) for Xi in X]
+                X = [check_array(Xi, ndim=2, **check_kwargs) for Xi in X]
             return X
 
         # groups defined in self.groups
         if check:
-            X = check_array(X, ndim=2)
+            X = check_array(X, ndim=2, **check_kwargs)
         if self.groups is None:
             groups = backend.zeros((X.shape[1]))
         else:
