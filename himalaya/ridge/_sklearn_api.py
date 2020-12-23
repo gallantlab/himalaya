@@ -298,7 +298,7 @@ class BandedRidgeCV(_BaseRidge):
 
     Solve the banded ridge regression::
 
-        b* = argmin_b ||Z @ b - Y||^2 + (w.T @ K @ w)
+        b* = argmin_b ||Z @ b - Y||^2 + ||b||^2
 
     where the feature space X_i is scaled by a group scaling ::
 
@@ -350,21 +350,10 @@ class BandedRidgeCV(_BaseRidge):
         Dtype of input data.
 
     best_alphas_ : array of shape (n_targets, )
-        Equal to 1. / exp(self.deltas_).sum(0). For the "random_search" solver,
-        it corresponds to the best hyperparameter alphas, assuming that
+        Equal to ``1. / exp(self.deltas_).sum(0)``. For the "random_search"
+        solver, it corresponds to the best hyperparameter alphas, assuming that
         each squared group scaling vector sums to one (in particular, it is the
         case when ``solver_params['n_iter']`` is an integer).
-
-    Examples
-    --------
-    >>> from himalaya.ridge import BandedRidgeCV
-    >>> import numpy as np
-    >>> n_samples, n_features, n_targets = 10, 5, 3
-    >>> X = np.random.randn(n_samples, n_features)
-    >>> Y = np.random.randn(n_samples, n_targets)
-    >>> model = BandedRidgeCV()
-    >>> model.fit(X, Y)
-    BandedRidgeCV()
 
     Examples
     --------
@@ -385,7 +374,7 @@ class BandedRidgeCV(_BaseRidge):
     ...     [("group_1", StandardScaler(), [0, 1, 2]),
     ...      ("group_2", StandardScaler(), slice(3, 5))])
 
-    >>> # A model with automatic groups, as output by ColumnTransformer
+    >>> # A model with automatic groups, as output by ColumnTransformerNoStack
     >>> model = BandedRidgeCV(groups="input")
     >>> pipe = make_pipeline(ct, model)
     >>> _ = pipe.fit(X, Y)

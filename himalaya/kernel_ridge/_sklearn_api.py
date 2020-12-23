@@ -688,8 +688,8 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         Dtype of input data.
 
     best_alphas_ : array of shape (n_targets, )
-        Equal to 1. / exp(self.deltas_).sum(0). For the "random_search" solver,
-        it corresponds to the best hyperparameter alphas, assuming that
+        Equal to ``1. / exp(self.deltas_).sum(0)``. For the "random_search"
+        solver, it corresponds to the best hyperparameter alphas, assuming that
         each kernel weight vector sums to one (in particular, it is the case
         when ``solver_params['n_iter']`` is an integer).
 

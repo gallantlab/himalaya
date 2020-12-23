@@ -5,9 +5,9 @@ from ..backend import get_backend
 
 def solve_ridge_svd(X, Y, alpha=1., method="svd",
                     negative_eigenvalues="zeros"):
-    """Solve kernel ridge regression using eigenvalues decomposition.
+    """Solve ridge regression using SVD decomposition.
 
-    Solve the kernel ridge regression::
+    Solve the ridge regression::
 
         b* = argmin_B ||X @ b - Y||^2 + alpha ||b||^2
 
