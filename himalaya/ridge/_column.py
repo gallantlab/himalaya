@@ -129,15 +129,6 @@ class ColumnTransformerNoStack(ColumnTransformer):
     (2, 4, 4)
     """
 
-    def __init__(self, transformers, remainder='drop', n_jobs=None,
-                 transformer_weights=None, verbose=False):
-        self.transformers = transformers
-        self.remainder = remainder
-        self.sparse_threshold = 0
-        self.n_jobs = n_jobs
-        self.transformer_weights = transformer_weights
-        self.verbose = verbose
-
     def _hstack(self, Xs):
         """Do *not* stack the feature spaces.
 
