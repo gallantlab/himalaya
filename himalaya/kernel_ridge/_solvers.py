@@ -562,7 +562,6 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         dual_weights = Vt.T @ (
             backend.transpose(iUT, (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
 
-    assert dual_weights.shape == Y.shape
     return dual_weights
 
 

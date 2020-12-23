@@ -696,13 +696,26 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     Examples
     --------
     >>> from himalaya.kernel_ridge import MultipleKernelRidgeCV
+    >>> from himalaya.kernel_ridge import ColumnKernelizer
+    >>> from himalaya.kernel_ridge import Kernelizer
+    >>> from sklearn.pipeline import make_pipeline
+
+    >>> # create a dataset
     >>> import numpy as np
     >>> n_samples, n_features, n_targets = 10, 5, 3
     >>> X = np.random.randn(n_samples, n_features)
     >>> Y = np.random.randn(n_samples, n_targets)
-    >>> model = MultipleKernelRidgeCV()
-    >>> model.fit(X, Y)
-    MultipleKernelRidgeCV()
+
+    >>> # Kernelize separately the first three columns and the last two
+    >>> # columns, creating two kernels of shape (n_samples, n_samples).
+    >>> ck = ColumnKernelizer(
+    ...     [("kernel_1", Kernelizer(kernel="linear"), [0, 1, 2]),
+    ...      ("kernel_2", Kernelizer(kernel="polynomial"), slice(3, 5))])
+
+    >>> # A model with precomputed kernels, as output by ColumnKernelizer
+    >>> model = MultipleKernelRidgeCV(kernels="precomputed")
+    >>> pipe = make_pipeline(ck, model)
+    >>> _ = pipe.fit(X, Y)
     """
     ALL_SOLVERS = MULTIPLE_KERNEL_RIDGE_SOLVERS
 
@@ -879,13 +892,26 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     Examples
     --------
     >>> from himalaya.kernel_ridge import WeightedKernelRidge
+    >>> from himalaya.kernel_ridge import ColumnKernelizer
+    >>> from himalaya.kernel_ridge import Kernelizer
+    >>> from sklearn.pipeline import make_pipeline
+
+    >>> # create a dataset
     >>> import numpy as np
     >>> n_samples, n_features, n_targets = 10, 5, 3
     >>> X = np.random.randn(n_samples, n_features)
     >>> Y = np.random.randn(n_samples, n_targets)
-    >>> model = WeightedKernelRidge()
-    >>> model.fit(X, Y)
-    WeightedKernelRidge()
+
+    >>> # Kernelize separately the first three columns and the last two
+    >>> # columns, creating two kernels of shape (n_samples, n_samples).
+    >>> ck = ColumnKernelizer(
+    ...     [("kernel_1", Kernelizer(kernel="linear"), [0, 1, 2]),
+    ...      ("kernel_2", Kernelizer(kernel="polynomial"), slice(3, 5))])
+
+    >>> # A model with precomputed kernels, as output by ColumnKernelizer
+    >>> model = WeightedKernelRidge(kernels="precomputed")
+    >>> pipe = make_pipeline(ck, model)
+    >>> pipe.fit(X, Y)
     """
     ALL_SOLVERS = WEIGHTED_KERNEL_RIDGE_SOLVERS
 

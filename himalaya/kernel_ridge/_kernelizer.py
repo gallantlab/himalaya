@@ -220,7 +220,7 @@ class ColumnKernelizer(ColumnTransformer):
         Number of jobs to run in parallel.
         ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.
         ``-1`` means using all processors.
-        n_jobs does not work with with GPU backends.
+        n_jobs does not work with GPU backends.
 
     transformer_weights : dict, default=None
         Multiplicative weights for features per transformer. The output of the
@@ -289,7 +289,6 @@ class ColumnKernelizer(ColumnTransformer):
     >>> # columns, creating two kernels of shape (n_samples, n_samples).
     >>> ck.fit_transform(X).shape
     (2, 4, 4)
-
     """
     # This is not a kernelizer, since it returns multiple kernels
     kernelizer = False
@@ -423,16 +422,20 @@ def make_column_kernelizer(*transformers, **kwargs):
 
     Examples
     --------
-    >>> from sklearn.preprocessing import StandardScaler, OneHotEncoder
+    >>> import numpy as np
     >>> from himalaya.kernel_ridge import make_column_kernelizer
-    >>> make_column_kernelizer(
-    ...     (StandardScaler(), ['numerical_column']),
-    ...     (OneHotEncoder(), ['categorical_column']))
-    ColumnKernelizer(transformers=[('standardscaler', StandardScaler(...),
-                                     ['numerical_column']),
-                                    ('onehotencoder', OneHotEncoder(...),
-                                     ['categorical_column'])])
-
+    >>> from himalaya.kernel_ridge import Kernelizer
+    >>> ck = make_column_kernelizer(
+    ...     (Kernelizer(kernel="linear"), [0, 1, 2]),
+    ...     (Kernelizer(kernel="polynomial"), slice(3, 5)))
+    >>> X = np.array([[0., 1., 2., 2., 3.],
+                      [0., 2., 0., 0., 3.],
+                      [0., 0., 1., 0., 3.],
+    ...               [1., 1., 0., 1., 2.]])
+    >>> # Kernelize separately the first three columns and the last two
+    >>> # columns, creating two kernels of shape (n_samples, n_samples).
+    >>> ck.fit_transform(X).shape
+    (2, 4, 4)
     """
     # transformer_weights keyword is not passed through because the user
     # would need to know the automatically generated names of the transformers

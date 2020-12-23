@@ -110,6 +110,82 @@ Kernels
 _____
 
 
+Lasso
+=====
+
+Public functions and classes in ``himalaya.lasso``.
+
+.. currentmodule:: himalaya.lasso
+
+Estimators
+----------
+Estimators compatible with the ``scikit-learn`` API.
+
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+
+   :template: class.rst
+   SparseGroupLassoCV
+
+Solver functions
+----------------
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+   :template: function.rst
+
+   solve_sparse_group_lasso
+   solve_sparse_group_lasso_cv
+
+
+|
+
+_____
+
+Ridge
+=====
+
+Public functions and classes in ``himalaya.ridge``.
+
+.. currentmodule:: himalaya.ridge
+
+Estimators
+----------
+Estimators compatible with the ``scikit-learn`` API.
+
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+
+   :template: class.rst
+   Ridge
+   RidgeCV
+   BandedRidgeCV
+
+   ColumnTransformerNoStack
+   :template: function.rst
+   make_column_transformer_no_stack
+
+Solver functions
+----------------
+.. autosummary::
+   :toctree: _generated/
+   :nosignatures:
+   :template: function.rst
+
+   RIDGE_SOLVERS
+   solve_ridge_svd
+   solve_ridge_cv_svd
+   BANDED_RIDGE_SOLVERS
+   solve_banded_ridge_random_search
+
+
+|
+
+_____
+
+
 Other modules
 =============
 

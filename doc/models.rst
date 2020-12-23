@@ -3,8 +3,8 @@ Model descriptions
 
 This package implements a number of models.
 
-KernelRidge
------------
+Ridge
+-----
 
 Let :math:`X\in \mathbb{R}^{n\times p}` be a feature matrix with :math:`n`
 samples and :math:`p` features,  :math:`y\in \mathbb{R}^n` a target vector, and
@@ -15,8 +15,16 @@ samples and :math:`p` features,  :math:`y\in \mathbb{R}^n` a target vector, and
     b^* = \arg\min_b \|Xb - y\|_2^2 + \alpha \|b\|_2^2.
 
 The equation has a  closed-form solution :math:`b^* = M y`, where :math:`M =
-(X^\top X + \alpha I_p)^{-1}X^\top \in  \mathbb{R}^{p \times n}`. By the
-Woodbury matrix identity, :math:`b^*` can be written :math:`b^* =
+(X^\top X + \alpha I_p)^{-1}X^\top \in  \mathbb{R}^{p \times n}`.
+
+This model is implemented in a scikit-learn-compatible estimator
+:class:`~himalaya.ridge.Ridge`, or through the functions
+:func:`~himalaya.ridge.solve_ridge_svd`.
+
+KernelRidge
+-----------
+
+By the Woodbury matrix identity, :math:`b^*` can be written :math:`b^* =
 X^\top(XX^\top + \alpha I_n)^{-1}y`, or :math:`b^* = X^\top w^*` for some
 :math:`w^*\in \mathbb{R}^n`. Noting the linear kernel :math:`K = X X^\top \in
 \mathbb{R}^{n\times n}`, this leads to the \emph{equivalent} formulation
@@ -34,23 +42,30 @@ This model is implemented in a scikit-learn-compatible estimator
 :func:`~himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient`.
 
 
-KernelRidgeCV
+RidgeCV and KernelRidgeCV
+-------------------------
+
+In practice in ridge regression and kernel ridge regression, because the
+hyperparameter :math:`\alpha` is unknown, it is typically selected through a
+grid-search with cross-validation. In cross-validation, we split the data set
+into a training set :math:`(X_{train}, y_{train})` and a validation set
+:math:`(X_{val}, y_{val})`. Then, we train the model on the training set, and
+evaluate the generalization performances on the validation set. We perform this
+process for multiple hyperparameter candidates :math:`\alpha`, typically
+defined over a grid of log-spaced values. Finally, we keep the candidate
+leading to the best generalization performance, as measured by the validation
+loss, averaged over all cross-validation splits.
+
+These models are implemented in scikit-learn-compatible estimators
+:class:`~himalaya.ridge.RidgeCV` and
+:class:`~himalaya.kernel_ridge.KernelRidgeCV`, or through the function
+:func:`~himalaya.ridge.solve_ridge_cv_svd` and
+:func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues`.
+
+BandedRidgeCV
 -------------
 
-In practice in kernel ridge regression, because the hyperparameter
-:math:`\alpha` is unknown, it is typically selected through a grid-search with
-cross-validation. In cross-validation, we split the data set into a training
-set :math:`(X_{train}, y_{train})` and a validation set :math:`(X_{val},
-y_{val})`. Then, we train the model on the training set, and evaluate the
-generalization performances on the validation set. We perform this process for
-multiple hyperparameter candidates :math:`\alpha`, typically defined over a
-grid of log-spaced values. Finally, we keep the candidate leading to the best
-generalization performance, as measured by the validation loss, averaged over
-all cross-validation splits.
-
-This model is implemented in a scikit-learn-compatible estimator
-:class:`~himalaya.kernel_ridge.KernelRidgeCV`, or through the function
-:func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues`.
+...
 
 WeightedKernelRidge
 -------------------

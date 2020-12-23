@@ -45,6 +45,9 @@ Models
 
 ``Himalaya`` implements the following models:
 
+- Ridge
+- RidgeCV
+- BandedRidgeCV
 - KernelRidge
 - KernelRidgeCV
 - WeightedKernelRidge
