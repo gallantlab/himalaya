@@ -9,7 +9,7 @@ Ridge
 Let :math:`X\in \mathbb{R}^{n\times p}` be a feature matrix with :math:`n`
 samples and :math:`p` features,  :math:`y\in \mathbb{R}^n` a target vector, and
 :math:`\alpha > 0` a fixed regularization hyperparameter. Ridge regression
-[1]_ considers the weight vector :math:`b^*\in \mathbb{R}^p` defined as
+[1]_ defines the weight vector :math:`b^*\in \mathbb{R}^p` as
 
 .. math::
     b^* = \arg\min_b \|Xb - y\|_2^2 + \alpha \|b\|_2^2.
@@ -24,10 +24,10 @@ This model is implemented in a scikit-learn-compatible estimator
 KernelRidge
 -----------
 
-By the Woodbury matrix identity, :math:`b^*` can be written :math:`b^* =
+By the Woodbury matrix identity, :math:`b^*` can be written as :math:`b^* =
 X^\top(XX^\top + \alpha I_n)^{-1}y`, or :math:`b^* = X^\top w^*` for some
 :math:`w^*\in \mathbb{R}^n`. Noting the linear kernel :math:`K = X X^\top \in
-\mathbb{R}^{n\times n}`, this leads to the \emph{equivalent} formulation
+\mathbb{R}^{n\times n}`, this leads to the *equivalent* formulation
 
 .. math::
     w^* = \arg\min_w \|Kw - y\|_2^2 + \alpha w^\top Kw.
@@ -45,12 +45,12 @@ This model is implemented in a scikit-learn-compatible estimator
 RidgeCV and KernelRidgeCV
 -------------------------
 
-In practice in ridge regression and kernel ridge regression, because the
+In practice, because the ridge regression and kernel ridge regression
 hyperparameter :math:`\alpha` is unknown, it is typically selected through a
 grid-search with cross-validation. In cross-validation, we split the data set
 into a training set :math:`(X_{train}, y_{train})` and a validation set
 :math:`(X_{val}, y_{val})`. Then, we train the model on the training set, and
-evaluate the generalization performances on the validation set. We perform this
+evaluate the generalization performance on the validation set. We perform this
 process for multiple hyperparameter candidates :math:`\alpha`, typically
 defined over a grid of log-spaced values. Finally, we keep the candidate
 leading to the best generalization performance, as measured by the validation
