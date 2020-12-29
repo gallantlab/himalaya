@@ -24,8 +24,8 @@ backend = set_backend("cupy")
 # Generate a random dataset
 # -------------------------
 #
-# - Xs_train : list of array of shape (n_samples_train, n_features)
-# - Xs_test : list of array of shape (n_samples_test, n_features)
+# - Xs_train : list of arrays of shape (n_samples_train, n_features)
+# - Xs_test : list of arrays of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
 # - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
 
@@ -77,7 +77,7 @@ Y_test = backend.asarray(Y_test, dtype=backend.float32)
 # -----------------------------------
 # This method should work fine for
 # small number of kernels (< 20). The larger the number of kenels, the larger
-# we need to sample the hyperparameter space (i.e. increasing n_iter).
+# we need to sample the hyperparameter space (i.e. increasing ``n_iter``).
 
 ###############################################################################
 # Here we use 100 iterations to have a reasonably fast example (~40 sec).
@@ -90,15 +90,15 @@ n_iter = 100
 alphas = np.logspace(-10, 10, 21)
 
 ###############################################################################
-# Batch parameters, used to reduce the necessary GPU memory. A larger value
-# will be a bit faster, but the solver might crash if it is out of memory.
+# Batch parameters are used to reduce the necessary GPU memory. A larger value
+# will be a bit faster, but the solver might crash if it runs out of memory.
 # Optimal values depend on the size of your dataset.
 n_targets_batch = 1000
 n_alphas_batch = 20
 
 ###############################################################################
 # If ``return_weights == "dual"``, the solver will use more memory.
-# Too mitigate it, you can reduce ``n_targets_batch`` in the refit
+# To mitigate this, you can reduce ``n_targets_batch`` in the refit
 # using ```n_targets_batch_refit``.
 # If you don't need the dual weights, use ``return_weights = None``.
 return_weights = 'dual'
@@ -187,7 +187,7 @@ plt.show()
 # (requires the dual weights)
 #
 # Here we apply the dual weights on each kernel separately
-# (exp(deltas[i]) * kernel[i]), and we compute the R2 scores
+# (``exp(deltas[i]) * kernel[i]``), and we compute the R\ :sup:`2` scores
 # (corrected for correlations) of each prediction.
 
 split = True
