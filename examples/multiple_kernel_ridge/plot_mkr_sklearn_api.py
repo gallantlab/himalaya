@@ -161,8 +161,9 @@ plt.show()
 ###############################################################################
 # Compare to ``KernelRidgeCV``
 # ----------------------------
-# Compare to a model with all features concatenated, using the prediction
-# scores on the test set.
+# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated features.
+# Comparison is performed using the prediction scores on the test set.
+
 
 ###############################################################################
 # Fit the baseline model ``KernelRidgeCV``
