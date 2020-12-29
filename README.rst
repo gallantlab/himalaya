@@ -30,7 +30,7 @@ Example
     print(model.best_alphas_)  # [ 10. 100.  10. 100.]
 
 
-- The model ``KernelRidgeCV`` uses the same API than ``scikit-learn``
+- The model ``KernelRidgeCV`` uses the same API as ``scikit-learn``
   estimators, with methods such as ``fit``, ``predict``, ``score``, etc.
 - The model is able to efficiently fit a large number of targets (routinely
   used with 100k targets).
