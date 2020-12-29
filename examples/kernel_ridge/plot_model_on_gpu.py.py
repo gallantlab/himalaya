@@ -38,11 +38,12 @@ backend = set_backend("cupy", on_error="warn")
 ###############################################################################
 # GPU backend
 # -----------
-# To fit an himalaya model on GPU, you don't need to move the input arrays on
-# GPU, the method ``fit`` will do it for you.
+# To fit an himalaya model on GPU, you don't need to move the input arrays to
+# GPU, the method ``fit`` will do it for you. However, the float precision will
+# not be changed.
 #
-# However, the float precision will not be changed. To make the most of GPU
-# computational speed, you might want to change the float precision to float32.
+# To make the most of GPU memory and computational speed, you might want to
+# change the float precision to float32.
 X = X.astype("float32")
 
 from himalaya.kernel_ridge import KernelRidge
