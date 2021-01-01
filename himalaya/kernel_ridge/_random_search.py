@@ -14,7 +14,7 @@ def solve_multiple_kernel_ridge_random_search(
         score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
-        progress_bar=True, Ks_in_cpu=False, conservative=False):
+        progress_bar=True, Ks_in_cpu=False, conservative=False, return_alphas=False):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -266,8 +266,10 @@ def solve_multiple_kernel_ridge_random_search(
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
         refit_weights *= backend.to_cpu(best_alphas)
-
-    return deltas, refit_weights, cv_scores
+    if return_alphas:
+     return deltas, refit_weights, cv_scores, best_alphas
+    else:
+        return deltas, refit_weights, cv_scores
 
 
 def _select_best_alphas(scores, alphas, local_alpha, conservative):
