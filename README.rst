@@ -2,8 +2,8 @@
 
    <h1>Himalaya: Multiple-target machine learning</h1>
 
-``Himalaya`` implements machine learning models in the Python programming
-language, focusing on computational efficiency for large numbers of targets.
+``Himalaya`` implements machine learning models in Python, focusing on
+computational efficiency for large numbers of targets.
 
 |Github| |Python| |License|
 
@@ -37,6 +37,22 @@ Example
 - The model selects the best hyperparameter ``alpha`` for each target
   independently.
 
+
+Check more examples of use of ``himalaya`` in the gallery of examples.
+
+Models
+======
+
+``Himalaya`` implements the following models:
+
+- Ridge
+- RidgeCV
+- BandedRidgeCV
+- KernelRidge
+- KernelRidgeCV
+- WeightedKernelRidge
+- MultipleKernelRidgeCV
+- SparseGroupLassoCV
 
 Himalaya backends
 =================
@@ -78,7 +94,7 @@ To use the ``pytorch`` backend, call:
     from himalaya.backend import set_backend
     set_backend("torch")
 
-    data = backend.asarray(data)  # torch tensors are on CPU by default...
+    data = backend.asarray(data)  # torch tensors are on CPU by default...
     data = data.cuda()  # ...and you can move them to GPU with the `cuda` method.
 
     # or directly use
@@ -92,7 +108,7 @@ Installation
 Dependencies
 ------------
 
-Himalaya requires:
+``Himalaya`` requires:
 
 - Python 3
 - Numpy
@@ -132,12 +148,6 @@ Developers can also install ``himalaya`` in editable mode via:
     git clone https://github.com/gallantlab/himalaya
     cd himalaya
     pip install --editable .
-
-.. raw:: html
-
-   <h2>Examples</h2>
-
-Check the gallery of example to get examples of use of ``himalaya``.
 
 
 .. |Github| image:: https://img.shields.io/badge/github-himalaya-blue

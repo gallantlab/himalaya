@@ -33,11 +33,14 @@ def asarray(x, dtype=None, device="cuda"):
             dtype = x.dtype
         if hasattr(x, "dtype") and hasattr(x.dtype, "name"):
             dtype = x.dtype.name
-    if isinstance(dtype, str):
+    if dtype is not None:
+        dtype = _dtype_to_str(dtype)
         dtype = getattr(torch, dtype)
-    if device is None and isinstance(x, torch.Tensor):
-        device = x.device
-
+    if device is None:
+        if isinstance(x, torch.Tensor):
+            device = x.device
+        else:
+            device = "cuda"
     try:
         tensor = torch.as_tensor(x, dtype=dtype, device=device)
     except Exception:
@@ -53,3 +56,11 @@ def zeros(shape, dtype="float32", device="cuda"):
     if isinstance(dtype, str):
         dtype = getattr(torch, dtype)
     return torch.zeros(shape, dtype=dtype, device=device)
+
+
+def to_cpu(array):
+    return array.cpu()
+
+
+def to_gpu(array, device="cuda"):
+    return asarray(array, device=device)

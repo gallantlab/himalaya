@@ -135,8 +135,8 @@ def solve_weighted_kernel_ridge_gradient_descent(
         if lipschitz_Ks is None:
             lipschitz_Ks = compute_lipschitz_constants(
                 Ks, random_state=random_state)
-            if not double_K:
-                lipschitz_Ks = backend.sqrt(lipschitz_Ks)
+        if not double_K:
+            lipschitz_Ks = backend.sqrt(lipschitz_Ks)
 
         total_lip = backend.matmul(lipschitz_Ks[None, :],
                                    exp_deltas)[0] + alpha
@@ -521,12 +521,12 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     if method == "eigh":
         # diagonalization: K = V @ np.diag(eigenvalues) @ V.T
         eigenvalues, V = backend.eigh(K)
-        # match SVD notations: K = U @ np.diag(eigenvalues) @ V
+        # match SVD notations: K = U @ np.diag(eigenvalues) @ Vt
         U = V
-        V = V.T
+        Vt = V.T
     elif method == "svd":
-        # SVD: K = U @ np.diag(eigenvalues) @ V
-        U, eigenvalues, V = backend.svd(K)
+        # SVD: K = U @ np.diag(eigenvalues) @ Vt
+        U, eigenvalues, Vt = backend.svd(K)
     else:
         raise ValueError("Unknown method=%r." % (method, ))
 
@@ -556,13 +556,12 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     iUT = inverse[:, None, :] * U.T[:, :, None]
     if Y.shape[0] < Y.shape[1]:
         dual_weights = (
-            backend.transpose(V.T @ iUT,
+            backend.transpose(Vt.T @ iUT,
                               (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
     else:
-        dual_weights = V.T @ (
+        dual_weights = Vt.T @ (
             backend.transpose(iUT, (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
 
-    assert dual_weights.shape == Y.shape
     return dual_weights
 
 

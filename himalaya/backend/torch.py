@@ -87,7 +87,6 @@ int32 = torch.int32
 float32 = torch.float32
 float64 = torch.float64
 eigh = partial(torch.symeig, eigenvectors=True)
-svd = torch.svd
 log = torch.log
 exp = torch.exp
 arange = torch.arange
@@ -132,6 +131,10 @@ def to_cpu(array):
     return array.cpu()
 
 
+def to_gpu(array, device=None):
+    return array
+
+
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())
@@ -154,7 +157,8 @@ def asarray(x, dtype=None, device=None):
             dtype = x.dtype
         if hasattr(x, "dtype") and hasattr(x.dtype, "name"):
             dtype = x.dtype.name
-    if isinstance(dtype, str):
+    if dtype is not None:
+        dtype = _dtype_to_str(dtype)
         dtype = getattr(torch, dtype)
     if device is None and isinstance(x, torch.Tensor):
         device = x.device
@@ -276,3 +280,8 @@ def check_arrays(*all_inputs):
                                      device=all_tensors[0].device)
         all_tensors.append(tensor)
     return all_tensors
+
+
+def svd(X, full_matrices=True):
+    U, s, V = torch.svd(X, some=not full_matrices)
+    return U, s, V.transpose(-2, -1)

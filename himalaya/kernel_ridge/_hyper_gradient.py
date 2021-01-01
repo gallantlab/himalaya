@@ -19,7 +19,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         max_iter_inner_hyper=1, cg_tol=1e-3, n_targets_batch=None,
         hyper_gradient_method="conjugate_gradient",
         kernel_ridge_method="gradient_descent", random_state=None,
-        progress_bar=True):
+        progress_bar=True, Y_in_cpu=False):
     """Solve bilinear kernel ridge regression with cross-validation.
 
     The hyper-parameters deltas correspond to::
@@ -66,6 +66,8 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Random generator seed. Use an int for deterministic search.
     progress_bar : bool
         If True, display a progress bar over batches and iterations.
+    Y_in_cpu : bool
+        If True, keep the target values ``Y`` in CPU memory (slower).
 
     Returns
     -------
@@ -87,7 +89,10 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     if n_targets_batch is None:
         n_targets_batch = n_targets
 
-    Y, Ks = backend.check_arrays(Y, Ks)
+    Ks = backend.asarray(Ks)
+    dtype = Ks.dtype
+    device = getattr(Ks, "device", None)
+    Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
 
     cv = check_cv(cv)
     n_splits = cv.get_n_splits()
@@ -97,7 +102,8 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                              "Check that `cv` is correctly defined.")
 
     deltas = _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv,
-                                         n_targets_batch)
+                                         n_targets_batch=n_targets_batch,
+                                         Y_in_cpu=Y_in_cpu)
 
     if return_weights == 'primal':
         if Xs is None:
@@ -125,8 +131,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         # precompute the lipschitz constants
         lipschitz_constants = []
         for train, _ in cv.split(Y):
-            if hasattr(Y, "device"):
-                train = backend.asarray(train, device=Y.device)
+            train = backend.to_gpu(train, device=device)
             Ks_train = Ks[:, train[:, None], train]
             lipschitz_constants.append(
                 compute_lipschitz_constants(Ks_train,
@@ -141,7 +146,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     alpha = 1.0
 
     cv_scores = backend.zeros_like(
-        Y, shape=(max_iter * max_iter_inner_hyper, n_targets), device='cpu')
+        Ks, shape=(max_iter * max_iter_inner_hyper, n_targets), device='cpu')
 
     batch_iterates = range(0, n_targets, n_targets_batch)
     bar = None
@@ -149,6 +154,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         bar = ProgressBar(title=name, max_value=len(batch_iterates) * max_iter)
     for bb, start in enumerate(batch_iterates):
         batch = slice(start, start + n_targets_batch)
+        Y_batch = backend.to_gpu(Y[:, batch], device=device)
 
         previous_solutions = [None] * n_splits
         step_sizes = [None] * n_splits
@@ -173,10 +179,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                 inner_function_ = inner_function
 
             for kk, (train, val) in enumerate(cv.split(Y)):
-                if hasattr(Y, "device"):
-                    train = backend.asarray(train, device=Y.device)
+                train = backend.to_gpu(train, device=device)
                 Ks_train = Ks[:, train[:, None], train]
-                Y_train = Y[train, batch]
+                Y_train = Y_batch[train]
 
                 if kernel_ridge_method == "gradient_descent" and ii != 0:
                     kwargs = dict(lipschitz_Ks=lipschitz_constants[kk])
@@ -195,15 +200,14 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
                 gradients = backend.zeros_like(deltas[:, batch])
                 scores = backend.zeros_like(
-                    Y, shape=(n_splits, deltas[:, batch].shape[1]))
+                    Ks, shape=(n_splits, deltas[:, batch].shape[1]))
                 for kk, (train, val) in enumerate(cv.split(Y)):
-                    if hasattr(Y, "device"):
-                        val = backend.asarray(val, device=Y.device)
-                        train = backend.asarray(train, device=Y.device)
+                    val = backend.to_gpu(val, device=device)
+                    train = backend.to_gpu(train, device=device)
 
                     Ks_val = Ks[:, val[:, None], train]
                     Ks_train = Ks[:, train[:, None], train]
-                    Y_val = Y[val, batch]
+                    Y_val = Y_batch[val]
 
                     (gradients_kk, step_sizes[kk], predictions,
                      previous_solutions[kk]) = _compute_delta_gradient(
@@ -238,7 +242,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         # refit dual weights on the entire dataset
         if return_weights in ["primal", "dual"]:
             dual_weights = solve_weighted_kernel_ridge_conjugate_gradient(
-                Ks, Y[:, batch], deltas[:, batch], initial_dual_weights=None,
+                Ks, Y_batch, deltas[:, batch], initial_dual_weights=None,
                 alpha=alpha, max_iter=100, tol=1e-4)
             if return_weights == 'primal':
                 # multiply by g and not np.sqrt(g), as we then want to use
@@ -272,7 +276,7 @@ MULTIPLE_KERNEL_RIDGE_SOLVERS = {
 }
 
 
-def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, n_targets_batch):
+def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, **ridgecv_kwargs):
     """Initialize deltas, i.e. log kernel weights.
 
     Parameters
@@ -288,9 +292,8 @@ def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, n_targets_batch):
         - 'ridgecv' : fit a RidgeCV model over the average kernel
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
-    n_targets_batch : int or None
-        Size of the batch for computing predictions. Used for memory reasons.
-        If None, uses all n_targets at once.
+    ridgecv_kwargs : dict
+        Other parameters if initial_deltas == 'ridgecv'.
 
     Returns
     -------
@@ -302,9 +305,6 @@ def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, n_targets_batch):
     n_kernels = Ks.shape[0]
     n_targets = Y.shape[1]
 
-    if n_targets_batch is None:
-        n_targets_batch = n_targets
-
     if initial_deltas is None:
         initial_deltas = 0
 
@@ -313,18 +313,17 @@ def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, n_targets_batch):
         gammas = backend.full_like(Y, shape=n_kernels,
                                    fill_value=1. / n_kernels)[None]
         deltas, _, _ = solve_multiple_kernel_ridge_random_search(
-            Ks, Y, n_iter=gammas, alphas=alphas, cv=cv,
-            n_targets_batch=n_targets_batch, n_alphas_batch=5,
-            return_weights=None, progress_bar=False)
+            Ks, Y, n_iter=gammas, alphas=alphas, cv=cv, n_alphas_batch=5,
+            return_weights=None, progress_bar=False, **ridgecv_kwargs)
 
     elif isinstance(initial_deltas, numbers.Number):
-        deltas = backend.full_like(Y, shape=(n_kernels, n_targets),
+        deltas = backend.full_like(Ks, shape=(n_kernels, n_targets),
                                    fill_value=initial_deltas)
 
     else:
-        deltas = backend.copy(backend.asarray_like(initial_deltas, Y))
+        deltas = backend.copy(backend.asarray_like(initial_deltas, ref=Ks))
 
-    Y, deltas = backend.check_arrays(Y, deltas)
+    Ks, deltas = backend.check_arrays(Ks, deltas)
     return deltas
 
 
@@ -413,7 +412,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     assert direct_gradient.shape == deltas.shape
 
     # estimate a step size
-    XTXs = _compute_deltas_hessian(exp_delta_chi_val, Y_val)
+    XTXs = _compute_deltas_hessian(exp_delta_chi_val, residuals)
     # (these lipschitz constants only correspond to the direct gradient)
     lipschitz_1 = compute_lipschitz_constants(XTXs, "X",
                                               random_state=random_state)
@@ -463,7 +462,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     return gradient, step_size, predictions, solution
 
 
-def _compute_deltas_hessian(exp_delta_chi, Y):
+def _compute_deltas_hessian(exp_delta_chi, residuals):
     """Compute the hessian of the direct gradient.
 
     The direct gradient correponds to a linear problem:
@@ -477,8 +476,8 @@ def _compute_deltas_hessian(exp_delta_chi, Y):
     ----------
     exp_delta_chi : array of shape (n_kernels, n_samples, n_targets)
         Precomputation of exp(delta) * (Ks @ dual_weights).
-    Y : array of shape (n_samples, n_targets)
-        Target data on the validation split.
+    residuals : array of shape (n_samples, n_targets)
+        Difference between prediction and target on the validation split.
 
     Returns
     -------
@@ -490,7 +489,8 @@ def _compute_deltas_hessian(exp_delta_chi, Y):
     XTXs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
                           backend.transpose(exp_delta_chi, (2, 1, 0)))
     XTbs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
-                          backend.transpose(Y, (1, 0))[:, :, None])[:, :, 0]
+                          backend.transpose(residuals,
+                                            (1, 0))[:, :, None])[:, :, 0]
     diagonal_view = backend.diagonal_view(XTXs, axis1=1, axis2=2)
-    diagonal_view += diagonal_view + XTbs
+    diagonal_view += XTbs
     return XTXs

@@ -296,6 +296,40 @@ def test_kernel_ridge_cv_predict(backend):
     assert_array_almost_equal(model_0.predict(Ks.sum(0)), model_1.predict(Ks))
 
 
+@pytest.mark.parametrize('solver', ['eigenvalues'])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_cv_Y_in_cpu(backend, solver):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model_1 = KernelRidgeCV(solver=solver, Y_in_cpu=True)
+    model_1.fit(Xs[0], Y)
+    model_2 = KernelRidgeCV(solver=solver, Y_in_cpu=False)
+    model_2.fit(Xs[0], Y)
+
+    assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
+    assert_array_almost_equal(model_1.predict(Xs[0]), model_2.predict(Xs[0]))
+
+
+@pytest.mark.parametrize('solver', ['random_search', 'hyper_gradient'])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_multiple_kernel_ridge_cv_Y_in_cpu(backend, solver):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model_1 = MultipleKernelRidgeCV(kernels="precomputed", solver=solver,
+                                    Y_in_cpu=True, random_state=0)
+    model_1.fit(Ks, Y)
+    model_2 = MultipleKernelRidgeCV(kernels="precomputed", solver=solver,
+                                    Y_in_cpu=False, random_state=0)
+    model_2.fit(Ks, Y)
+
+    assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
+    assert_array_almost_equal(model_1.predict(Ks), model_2.predict(Ks))
+
+
+###############################################################################
+###############################################################################
 ###############################################################################
 # scikit-learn.utils.estimator_checks
 

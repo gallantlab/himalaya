@@ -68,11 +68,13 @@ def get_backend():
 
 def _dtype_to_str(dtype):
     """Cast dtype to string, such as "float32", or "float64"."""
-    if hasattr(dtype, "name"):  # works for numpy and cupy
+    if isinstance(dtype, str):
+        return dtype
+    elif hasattr(dtype, "name"):  # works for numpy and cupy
         return dtype.name
-    elif "float32" in str(dtype):  # works for torch
-        return "float32"
-    elif "float64" in str(dtype):
-        return "float64"
+    elif "torch." in str(dtype):  # works for torch
+        return str(dtype)[6:]
+    elif dtype is None:
+        return None
     else:
         raise NotImplementedError()

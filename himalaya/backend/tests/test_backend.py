@@ -130,3 +130,42 @@ def test_eigh(backend):
             assert_array_almost_equal(vectors[:, ii], vectors_ref[:, ii])
         except AssertionError:
             assert_array_almost_equal(vectors[:, ii], -vectors_ref[:, ii])
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize('full_matrices', [True, False])
+@pytest.mark.parametrize('three_dim', [True, False])
+def test_svd(backend, full_matrices, three_dim):
+    import numpy.linalg
+    backend = set_backend(backend)
+
+    if three_dim:
+        array = backend.randn(3, 5, 7)
+    else:
+        array = backend.randn(5, 7)
+
+    array = backend.asarray(array, dtype='float64')
+
+    U, s, V = backend.svd(array, full_matrices=full_matrices)
+    U_ref, s_ref, V_ref = numpy.linalg.svd(backend.to_numpy(array),
+                                           full_matrices=full_matrices)
+
+    assert_array_almost_equal(s, s_ref)
+
+    if not three_dim:
+        U_ref = U_ref[None]
+        U = U[None]
+        V_ref = V_ref[None]
+        V = V[None]
+
+    # vectors can be flipped in sign
+    assert U.shape == U_ref.shape
+    assert V.shape == V_ref.shape
+    for kk in range(U.shape[0]):
+        for ii in range(U.shape[2]):
+            try:
+                assert_array_almost_equal(U[kk, :, ii], U_ref[kk, :, ii])
+                assert_array_almost_equal(V[kk, ii, :], V_ref[kk, ii, :])
+            except AssertionError:
+                assert_array_almost_equal(U[kk, :, ii], -U_ref[kk, :, ii])
+                assert_array_almost_equal(V[kk, ii, :], -V_ref[kk, ii, :])

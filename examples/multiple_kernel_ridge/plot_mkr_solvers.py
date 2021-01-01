@@ -287,6 +287,9 @@ def _create_simplex_projection_and_edges(ax):
     """Create a projection on the 3D simplex, and plot edges."""
     n_kernels = 3
 
+    if ax is None:
+        ax = plt.gca()
+
     # create a projection in 2D
     from sklearn.decomposition import PCA
     kernel_weights = generate_dirichlet_samples(10000, n_kernels,
@@ -357,16 +360,16 @@ fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
 # First panel
 ax = axs[0]
-ax.set_title("(a) Simulation", y=0)
+ax.set_title("(a) Ground truth", y=0)
 plot_simplex(kernel_weights_true, ax=ax, color='C2',
-             label="simulated weights")
+             label="true weights")
 
 # Second panel
 ax = axs[1]
 ax.set_title("(b) Random search", y=0)
 plot_simplex(backend.to_numpy(kernel_weights_sampled), ax=ax, marker='+',
-             label="random samples", zorder=10)
-plot_simplex(kernel_weights_1, ax=axs[1], label="selected samples")
+             label="random candidates", zorder=10)
+plot_simplex(kernel_weights_1, ax=axs[1], label="selected candidates")
 
 # Third panel
 ax = axs[2]

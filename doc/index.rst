@@ -10,6 +10,7 @@ Documentation
 
    getting_started
    models
+   troubleshooting
    api
 
 Examples
