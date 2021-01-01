@@ -283,7 +283,7 @@ def solve_multiple_kernel_ridge_random_search(
     if return_weights == 'dual':
         refit_weights *= backend.to_cpu(best_alphas)
     if return_alphas:
-     return deltas, refit_weights, cv_scores, best_alphas
+        return deltas, refit_weights, cv_scores, best_alphas
     else:
         return deltas, refit_weights, cv_scores
 
