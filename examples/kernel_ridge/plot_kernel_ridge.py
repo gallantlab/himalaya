@@ -39,7 +39,7 @@ print(np.max(np.abs(Y_pred_skl - Y_pred_him)))
 ###############################################################################
 # Small API difference
 # --------------------
-# Since himalaya is focusing on fitting multiple targets, the ``score`` method
+# Since himalaya focuses on fitting multiple targets, the ``score`` method
 # returns the score on each target separately, while scikit-learn returns the
 # average score over targets.
 
