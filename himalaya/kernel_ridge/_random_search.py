@@ -15,7 +15,7 @@ def solve_multiple_kernel_ridge_random_search(
         local_alpha=True, jitter_alphas=False, random_state=None,
         n_targets_batch=None, n_targets_batch_refit=None, n_alphas_batch=None,
         progress_bar=True, Ks_in_cpu=False, conservative=False, Y_in_cpu=False,
-        diagonalize_method="eigh"):
+        diagonalize_method="eigh", return_alphas=False):
     """Solve multiple kernel ridge regression using random search.
 
     Parameters
@@ -70,6 +70,8 @@ def solve_multiple_kernel_ridge_random_search(
         If True, keep the target values ``Y`` in CPU memory (slower).
     diagonalize_method : str in {"eigh", "svd"}
         Method used to diagonalize the kernel.
+    return_alphas : bool
+        If True, return the best alpha value for each voxel.
 
     Returns
     -------
@@ -84,6 +86,8 @@ def solve_multiple_kernel_ridge_random_search(
     cv_scores : array of shape (n_iter, n_targets)
         Cross-validation scores per iteration, averaged over splits, for the
         best alpha. Cross-validation scores will always be on CPU memory.
+    best_alphas : array of shape (n_targets, )
+        Best alpha value for each voxel. Only returned if return_alphas is True.
     """
     backend = get_backend()
     if isinstance(n_iter, int):
@@ -282,8 +286,10 @@ def solve_multiple_kernel_ridge_random_search(
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
         refit_weights *= backend.to_cpu(best_alphas)
-
-    return deltas, refit_weights, cv_scores
+    if return_alphas:
+        return deltas, refit_weights, cv_scores, best_alphas
+    else:
+        return deltas, refit_weights, cv_scores
 
 
 def _select_best_alphas(scores, alphas, local_alpha, conservative):
