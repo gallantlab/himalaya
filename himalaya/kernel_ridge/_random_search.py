@@ -70,6 +70,8 @@ def solve_multiple_kernel_ridge_random_search(
         If True, keep the target values ``Y`` in CPU memory (slower).
     diagonalize_method : str in {"eigh", "svd"}
         Method used to diagonalize the kernel.
+    return_alphas : bool
+        If True, return the best alpha value for each voxel.
 
     Returns
     -------
@@ -84,6 +86,8 @@ def solve_multiple_kernel_ridge_random_search(
     cv_scores : array of shape (n_iter, n_targets)
         Cross-validation scores per iteration, averaged over splits, for the
         best alpha. Cross-validation scores will always be on CPU memory.
+    best_alphas : array of shape (n_targets, )
+        Best alpha value for each voxel. Only returned if return_alphas is True.
     """
     backend = get_backend()
     if isinstance(n_iter, int):
