@@ -7,7 +7,7 @@ ridge regression: the *random search*, and the *hyper-gradient descent*.
 The *random-search* strategy samples some kernel weights vectors from a Dirichlet
 distribution, then for each vector, it fits a ``KernelRidgeCV`` model and
 computes a cross-validation score for all targets. Then it selects for each
-target the kernel weight vector leading to the lowest cross-validation score
+target the kernel weight vector leading to the highest cross-validation score
 (e.g. the highest R\ :sup:`2` value).
 Extensively sampling the kernel weights space is exponentially expensive with
 the number of kernels, therefore this method is computationally expensive for a

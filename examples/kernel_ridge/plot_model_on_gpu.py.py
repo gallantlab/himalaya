@@ -38,7 +38,7 @@ backend = set_backend("cupy", on_error="warn")
 ###############################################################################
 # GPU backend
 # -----------
-# To fit an himalaya model on GPU, you don't need to move the input arrays to
+# To fit a himalaya model on GPU, you don't need to move the input arrays to
 # GPU, the method ``fit`` will do it for you. However, the float precision will
 # not be changed.
 #
