@@ -24,20 +24,24 @@ def _create_dataset(backend):
 
 
 @pytest.mark.parametrize('multitarget', [True, False])
+@pytest.mark.parametrize('fit_intercept', [True, False])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_ridge_vs_scikit_learn(backend, multitarget):
+def test_ridge_vs_scikit_learn(backend, multitarget, fit_intercept):
     backend = set_backend(backend)
     X, Y = _create_dataset(backend)
 
     if not multitarget:
         Y = Y[:, 0]
+    if fit_intercept:
+        Y += 10
+        X += 10
 
     for alpha in backend.asarray_like(backend.logspace(0, 3, 7), Y):
-        model = Ridge(alpha=alpha)
+        model = Ridge(alpha=alpha, fit_intercept=fit_intercept)
         model.fit(X, Y)
 
         reference = sklearn.linear_model.Ridge(alpha=backend.to_numpy(alpha),
-                                               fit_intercept=False)
+                                               fit_intercept=fit_intercept)
         reference.fit(backend.to_numpy(X), backend.to_numpy(Y))
 
         if multitarget:
@@ -46,32 +50,41 @@ def test_ridge_vs_scikit_learn(backend, multitarget):
             assert model.coef_.shape == (X.shape[1], )
 
         assert_array_almost_equal(model.coef_, reference.coef_.T)
+        if fit_intercept:
+            assert_array_almost_equal(model.intercept_, reference.intercept_,
+                                      decimal=5)
         assert_array_almost_equal(model.predict(X),
-                                  reference.predict(backend.to_numpy(X)))
+                                  reference.predict(backend.to_numpy(X)),
+                                  decimal=5)
         assert_array_almost_equal(
             model.score(X, Y).mean(),
             reference.score(backend.to_numpy(X), backend.to_numpy(Y)))
 
 
+@pytest.mark.parametrize('fit_intercept', [True, False])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_ridge_cv_vs_scikit_learn(backend):
+def test_ridge_cv_vs_scikit_learn(backend, fit_intercept):
     backend = set_backend(backend)
     X, Y = _create_dataset(backend)
     y = Y[:, 0]
     del Y
+    if fit_intercept:
+        y += 10
+        X += 1
 
     alphas = backend.asarray_like(backend.logspace(-2, 3, 21), y)
 
-    model = RidgeCV(alphas=alphas, cv=5,
+    model = RidgeCV(alphas=alphas, cv=5, fit_intercept=fit_intercept,
                     solver_params=dict(score_func=r2_score))
     model.fit(X, y)
 
     reference = sklearn.linear_model.RidgeCV(alphas=backend.to_numpy(alphas),
-                                             fit_intercept=False, cv=5)
+                                             fit_intercept=fit_intercept, cv=5)
     reference.fit(backend.to_numpy(X), backend.to_numpy(y))
     assert model.coef_.shape == (X.shape[1], )
 
-    assert_array_almost_equal(model.best_alphas_[0], reference.alpha_)
+    assert_array_almost_equal(model.best_alphas_[0], reference.alpha_,
+                              decimal=5)
     assert_array_almost_equal(model.coef_, reference.coef_.T)
     assert_array_almost_equal(model.predict(X),
                               reference.predict(backend.to_numpy(X)))
@@ -80,16 +93,20 @@ def test_ridge_cv_vs_scikit_learn(backend):
         reference.score(backend.to_numpy(X), backend.to_numpy(y)))
 
 
+@pytest.mark.parametrize('fit_intercept', [True, False])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_banded_ridge_cv_vs_ridge_cv(backend):
+def test_banded_ridge_cv_vs_ridge_cv(backend, fit_intercept):
     backend = set_backend(backend)
     X, Y = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-2, 3, 21), Y)
+    if fit_intercept:
+        Y += 10
 
-    ref = RidgeCV(alphas=alphas, cv=5)
+    ref = RidgeCV(alphas=alphas, cv=5, fit_intercept=fit_intercept)
     ref.fit(X, Y)
 
-    model = BandedRidgeCV(groups=None, solver_params=dict(alphas=alphas), cv=5)
+    model = BandedRidgeCV(groups=None, solver_params=dict(alphas=alphas), cv=5,
+                          fit_intercept=fit_intercept)
     model.fit(X, Y)
 
     assert_array_almost_equal(model.best_alphas_, ref.best_alphas_)

@@ -57,6 +57,10 @@ class Ridge(_BaseRidge):
     alpha : float, or array of shape (n_targets, )
         L2 regularization parameter.
 
+    fit_intercept : boolean
+        Wether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     solver : str
         Algorithm used during the fit, in {"svd"}.
 
@@ -69,6 +73,9 @@ class Ridge(_BaseRidge):
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
+
+    intercept_ : array of shape (n_targets,)
+        Intercept. Only present if fit_intercept is True.
 
     n_features_in_ : int
         Number of features used during the fit.
@@ -89,8 +96,10 @@ class Ridge(_BaseRidge):
     """
     ALL_SOLVERS = RIDGE_SOLVERS
 
-    def __init__(self, alpha=1, solver="svd", solver_params=None):
+    def __init__(self, alpha=1, fit_intercept=False, solver="svd",
+                 solver_params=None):
         self.alpha = alpha
+        self.fit_intercept = fit_intercept
         self.solver = solver
         self.solver_params = solver_params
 
@@ -124,10 +133,17 @@ class Ridge(_BaseRidge):
             ravel = True
 
         # ------------------ call the solver
-        self.coef_ = self._call_solver(X=X, Y=y, alpha=self.alpha)
+        tmp = self._call_solver(X=X, Y=y, alpha=self.alpha,
+                                fit_intercept=self.fit_intercept)
+        if self.fit_intercept:
+            self.coef_, self.intercept_ = tmp
+        else:
+            self.coef_ = tmp
 
         if ravel:
             self.coef_ = self.coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
@@ -152,6 +168,8 @@ class Ridge(_BaseRidge):
                 'Different number of features in X than during fit.')
 
         Y_hat = backend.to_cpu(X) @ backend.to_cpu(self.coef_)
+        if self.fit_intercept:
+            Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
     def score(self, X, y):
@@ -192,6 +210,10 @@ class RidgeCV(Ridge):
     ----------
     alphas : array of shape (n_alphas, )
         List of L2 regularization parameter to try.
+
+    fit_intercept : boolean
+        Wether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
 
     solver : str
         Algorithm used during the fit, "svd" only for now.
@@ -234,9 +256,10 @@ class RidgeCV(Ridge):
     """
     ALL_SOLVERS = dict(svd=solve_ridge_cv_svd)
 
-    def __init__(self, alphas=[0.1, 1], solver="svd", solver_params=None, cv=5,
-                 Y_in_cpu=False):
+    def __init__(self, alphas=[0.1, 1], fit_intercept=False, solver="svd",
+                 solver_params=None, cv=5, Y_in_cpu=False):
         self.alphas = alphas
+        self.fit_intercept = fit_intercept
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
@@ -277,12 +300,20 @@ class RidgeCV(Ridge):
 
         # ------------------ call the solver
         tmp = self._call_solver(X=X, Y=y, cv=cv, alphas=alphas,
+                                fit_intercept=self.fit_intercept,
                                 Y_in_cpu=self.Y_in_cpu)
-        self.best_alphas_, self.coef_, self.cv_scores_ = tmp
+        if self.fit_intercept:
+            self.best_alphas_, self.coef_, self.cv_scores_ = tmp[:3]
+            self.intercept_, = tmp[3:]
+        else:
+            self.best_alphas_, self.coef_, self.cv_scores_ = tmp
+
         self.cv_scores_ = self.cv_scores_[0]
 
         if ravel:
             self.coef_ = self.coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
@@ -322,6 +353,10 @@ class BandedRidgeCV(_BaseRidge):
         Additional parameters for the solver.
         See more details in the docstring of the function:
         ``BandedRidgeCV.ALL_SOLVERS[solver]``
+
+    fit_intercept : boolean
+        Wether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -382,11 +417,12 @@ class BandedRidgeCV(_BaseRidge):
     ALL_SOLVERS = BANDED_RIDGE_SOLVERS
 
     def __init__(self, groups=None, solver="random_search", solver_params=None,
-                 cv=5, random_state=None, Y_in_cpu=False):
+                 fit_intercept=False, cv=5, random_state=None, Y_in_cpu=False):
 
         self.groups = groups
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
         self.cv = cv
         self.random_state = random_state
         self.Y_in_cpu = Y_in_cpu
@@ -433,8 +469,13 @@ class BandedRidgeCV(_BaseRidge):
         # ------------------ call the solver
         tmp = self._call_solver(Xs=Xs, Y=y, cv=cv, return_weights=True,
                                 random_state=self.random_state,
+                                fit_intercept=self.fit_intercept,
                                 Y_in_cpu=self.Y_in_cpu)
-        self.deltas_, self.coef_, self.cv_scores_ = tmp
+        if self.fit_intercept:
+            self.deltas_, self.coef_, self.cv_scores_ = tmp[:3]
+            self.intercept_, = tmp[3:]
+        else:
+            self.deltas_, self.coef_, self.cv_scores_ = tmp
 
         if self.solver == "random_search":
             self.best_alphas_ = 1. / backend.exp(self.deltas_).sum(0)
@@ -444,6 +485,8 @@ class BandedRidgeCV(_BaseRidge):
         if ravel:
             self.coef_ = self.coef_[:, 0]
             self.deltas_ = self.deltas_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
@@ -484,6 +527,8 @@ class BandedRidgeCV(_BaseRidge):
         del Xs
 
         Y_hat = X @ backend.to_cpu(self.coef_)
+        if self.fit_intercept:
+            Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
     def score(self, X, y):

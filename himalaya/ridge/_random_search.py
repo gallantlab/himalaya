@@ -13,7 +13,8 @@ from ..kernel_ridge._random_search import _select_best_alphas
 
 
 def solve_banded_ridge_random_search(
-        Xs, Y, n_iter=100, concentration=[0.1, 1.0], alphas=1.0,
+        Xs, Y, n_iter=100, concentration=[0.1, 1.0
+                                          ], alphas=1.0, fit_intercept=False,
         score_func=l2_neg_loss, cv=5, return_weights=False, local_alpha=True,
         jitter_alphas=False, random_state=None, n_targets_batch=None,
         n_targets_batch_refit=None, n_alphas_batch=None, progress_bar=True,
@@ -36,6 +37,9 @@ def solve_banded_ridge_random_search(
         Not used if n_iter is an array.
     alphas : float or array of shape (n_alphas, )
         Range of ridge regularization parameter.
+    fit_intercept : boolean
+        Wether to fit an intercept.
+        If False, Xs and Y must be zero-mean over samples.
     score_func : callable
         Function used to compute the score of predictions versus Y.
     cv : int or scikit-learn splitter
@@ -78,6 +82,8 @@ def solve_banded_ridge_random_search(
     cv_scores : array of shape (n_iter, n_targets)
         Cross-validation scores per iteration, averaged over splits, for the
         best alpha. Cross-validation scores will always be on CPU memory.
+    intercept : array of shape (n_targets,)
+        Intercept. Only returned when fit_intercept is True.
     """
     backend = get_backend()
     n_spaces = len(Xs)
@@ -112,6 +118,13 @@ def solve_banded_ridge_random_search(
         for start, end in zip(start_and_end[:-1], start_and_end[1:])
     ]
     del Xs
+
+    X_offset, Y_offset = None, None
+    if fit_intercept:
+        X_offset = X_.mean(0)
+        Y_offset = Y.mean(0)
+        X_ = X_ - X_offset
+        Y = Y - Y_offset
 
     n_samples, n_targets = Y.shape
     if n_targets_batch is None:
@@ -164,38 +177,49 @@ def solve_banded_ridge_random_search(
         for jj, (train, test) in enumerate(cv.split(X_)):
             train = backend.to_gpu(train, device=device)
             test = backend.to_gpu(test, device=device)
+            Xtrain, Xtest = X_[train], X_[test]
+
+            if fit_intercept:
+                Xtrain_mean = X_[train].mean(0)
+                Xtrain = X_[train] - Xtrain_mean
+                Xtest = X_[test] - Xtrain_mean
 
             for matrix, alpha_batch in _decompose_ridge(
-                    Xtrain=X_[train], alphas=alphas,
-                    negative_eigenvalues="nan", n_alphas_batch=n_alphas_batch,
-                    method=diagonalize_method):
+                    Xtrain=Xtrain, alphas=alphas, negative_eigenvalues="nan",
+                    n_alphas_batch=n_alphas_batch, method=diagonalize_method):
                 # n_alphas_batch, n_features, n_samples_train = \
                 # matrix.shape
-                matrix = backend.matmul(X_[test], matrix)
+                matrix = backend.matmul(Xtest, matrix)
                 # n_alphas_batch, n_samples_test, n_samples_train = \
                 # matrix.shape
 
                 predictions = None
                 for start in range(0, n_targets, n_targets_batch):
                     batch = slice(start, start + n_targets_batch)
-                    Y_batch = backend.to_gpu(Y[:, batch], device=device)
+                    Ytrain = backend.to_gpu(Y[:, batch][train], device=device)
+                    Ytest = backend.to_gpu(Y[:, batch][test], device=device)
+                    if fit_intercept:
+                        Ytrain_mean = Ytrain.mean(0)
+                        Ytrain = Ytrain - Ytrain_mean
+                        Ytest = Ytest - Ytrain_mean
 
-                    predictions = backend.matmul(matrix, Y_batch[train])
+                    predictions = backend.matmul(matrix, Ytrain)
                     # n_alphas_batch, n_samples_test, n_targets_batch = \
                     # predictions.shape
 
                     with warnings.catch_warnings():
                         warnings.filterwarnings("ignore", category=UserWarning)
                         scores[jj, alpha_batch, batch] = score_func(
-                            Y_batch[test], predictions)
+                            Ytest, predictions)
                         # n_alphas_batch, n_targets_batch = score.shape
+                    del Ytrain, Ytest
 
                 # make small alphas impossible to select
                 too_small_alphas = backend.isnan(matrix[:, 0, 0])
                 scores[jj, alpha_batch, :][too_small_alphas] = -1e5
 
                 del matrix, predictions
-            del train, test
+            del train, test, Xtrain, Xtest
 
         # select best alphas
         alphas_argmax, cv_scores_ii = _select_best_alphas(
@@ -272,7 +296,14 @@ def solve_banded_ridge_random_search(
             X_[:, slices[kk]] /= backend.sqrt(gamma[kk])
 
     deltas = backend.log(best_gammas / best_alphas[None, :])
-    return deltas, refit_weights, cv_scores
+
+    if fit_intercept:
+        intercept = (backend.to_cpu(Y_offset) -
+                     backend.to_cpu(X_offset) @ refit_weights
+                     ) if return_weights else None
+        return deltas, refit_weights, cv_scores, intercept
+    else:
+        return deltas, refit_weights, cv_scores
 
 
 def _decompose_ridge(Xtrain, alphas, n_alphas_batch=None, method="svd",
@@ -367,10 +398,11 @@ BANDED_RIDGE_SOLVERS = {
 }
 
 
-def solve_ridge_cv_svd(X, Y, alphas=1.0, score_func=l2_neg_loss, cv=5,
-                       local_alpha=True, n_targets_batch=None,
-                       n_targets_batch_refit=None, n_alphas_batch=None,
-                       conservative=False, Y_in_cpu=False):
+def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
+                       score_func=l2_neg_loss, cv=5, local_alpha=True,
+                       n_targets_batch=None, n_targets_batch_refit=None,
+                       n_alphas_batch=None, conservative=False,
+                       Y_in_cpu=False):
     """Solve ridge regression with a grid search over alphas.
 
     Parameters
@@ -381,6 +413,9 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, score_func=l2_neg_loss, cv=5,
         Target data.
     alphas : float or array of shape (n_alphas, )
         Range of ridge regularization parameter.
+    fit_intercept : boolean
+        Wether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
     score_func : callable
         Function used to compute the score of predictions versus Y.
     cv : int or scikit-learn splitter
@@ -421,15 +456,20 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, score_func=l2_neg_loss, cv=5,
                         random_state=None, n_iter=n_iter)
 
     copied_params = dict(alphas=alphas, score_func=score_func, cv=cv,
-                         local_alpha=local_alpha,
+                         local_alpha=local_alpha, fit_intercept=fit_intercept,
                          n_targets_batch=n_targets_batch,
                          n_targets_batch_refit=n_targets_batch_refit,
                          n_alphas_batch=n_alphas_batch,
                          conservative=conservative, Y_in_cpu=Y_in_cpu)
 
-    deltas, coefs, cv_scores = \
-        solve_banded_ridge_random_search(
-            [X], Y, **copied_params, **fixed_params)
+    tmp = solve_banded_ridge_random_search([X], Y, **copied_params,
+                                           **fixed_params)
 
-    best_alphas = backend.exp(-deltas[0])
-    return best_alphas, coefs, cv_scores
+    if fit_intercept:
+        deltas, coefs, cv_scores, intercept = tmp
+        best_alphas = backend.exp(-deltas[0])
+        return best_alphas, coefs, cv_scores, intercept
+    else:
+        deltas, coefs, cv_scores = tmp
+        best_alphas = backend.exp(-deltas[0])
+        return best_alphas, coefs, cv_scores
