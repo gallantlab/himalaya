@@ -1,3 +1,5 @@
+import numpy as np
+
 from ..backend import get_backend
 from ..progress_bar import bar
 
@@ -39,7 +41,8 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
 def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
                                             score_func, split=False,
                                             n_targets_batch=None,
-                                            progress_bar=False):
+                                            progress_bar=False,
+                                            do_permute=False):
     """
     Compute predictions, typically on a test set, and compute the score.
 
@@ -62,6 +65,9 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
         If None, uses all n_targets at once.
     progress_bar : bool
         If True, display a progress bar over batches and iterations.
+    permutation_block_size : int
+        If > 0, computes score on permuted predictions.
+        Permutes blocks of length permutation_block_size.
 
     Returns
     -------
@@ -80,12 +86,22 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
 
     if n_targets_batch is None:
         n_targets_batch = n_targets
+
+    if do_permute:
+        permutation_splits_is_set = False
+
     for start in bar(list(range(0, n_targets, n_targets_batch)),
                      title='predict_and_score', use_it=progress_bar):
         batch = slice(start, start + n_targets_batch)
         predictions = predict_weighted_kernel_ridge(Ks, dual_weights[:, batch],
-                                                    deltas[:, batch],
-                                                    split=split)
+            deltas[:, batch],
+            split=split)
+        if do_permute:
+            if not permutation_splits_is_set:  # Share permutation blocks across voxels.
+                permutation_splits_is_set = True
+                num_TRs = predictions.shape[0]
+                permutation_order = np.random.permutation(range(num_TRs))
+            predictions = predictions[permutation_order]
         score_batch = score_func(Y[:, batch], predictions)
 
         if split:
