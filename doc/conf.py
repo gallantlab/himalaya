@@ -68,8 +68,8 @@ templates_path = ['static']
 # source_suffix = ['.rst', '.md']
 source_suffix = '.rst'
 
-# The master toctree document.
-master_doc = 'index'
+# The main toctree document.
+main_doc = 'index'
 
 # General information about the project.
 project = u'Himalaya'
@@ -172,7 +172,7 @@ latex_elements = {
 # (source start file, target name, title,
 #  author, documentclass [howto, manual, or own class]).
 latex_documents = [
-    (master_doc, 'Himalaya.tex', u'Himalaya Documentation', u'Gallant lab',
+    (main_doc, 'Himalaya.tex', u'Himalaya Documentation', u'Gallant lab',
      'manual'),
 ]
 
@@ -180,7 +180,7 @@ latex_documents = [
 
 # One entry per manual page. List of tuples
 # (source start file, name, description, authors, manual section).
-man_pages = [(master_doc, 'himalaya', u'Himalaya Documentation', [author], 1)]
+man_pages = [(main_doc, 'himalaya', u'Himalaya Documentation', [author], 1)]
 
 # -- Options for Texinfo output -------------------------------------------
 
@@ -188,7 +188,7 @@ man_pages = [(master_doc, 'himalaya', u'Himalaya Documentation', [author], 1)]
 # (source start file, target name, title, author,
 #  dir menu entry, description, category)
 texinfo_documents = [
-    (master_doc, 'Himalaya', u'Himalaya Documentation', author, 'Himalaya',
+    (main_doc, 'Himalaya', u'Himalaya Documentation', author, 'Himalaya',
      'One line description of project.', 'Miscellaneous'),
 ]
 

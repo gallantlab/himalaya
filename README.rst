@@ -133,7 +133,7 @@ Index (PyPI):
 Installation from source
 ------------------------
 
-To install ``himalaya`` from the latest source (``master`` branch), you may
+To install ``himalaya`` from the latest source (``main`` branch), you may
 call:
 
 .. code-block:: bash
