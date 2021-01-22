@@ -22,7 +22,7 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
     method : str in {"svd"}
         Method used to diagonalize the input feature matrix.
     fit_intercept : boolean
-        Wether to fit an intercept.
+        Whether to fit an intercept.
         If False, X and Y must be zero-mean over samples.
     negative_eigenvalues : str in {"nan", "error", "zeros"}
         If the decomposition leads to negative eigenvalues (wrongly emerging

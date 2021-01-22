@@ -17,13 +17,17 @@ KERNEL_RIDGE_SOLVERS['eigenvalues_svd'] = partial(
     KERNEL_RIDGE_SOLVERS['eigenvalues'], method="svd")
 
 
-def _create_dataset(backend):
+def _create_dataset(backend, intercept):
     n_samples, n_targets = 30, 3
 
     Xs = [
         backend.asarray(backend.randn(n_samples, n_features), backend.float64)
         for n_features in [100, 200]
     ]
+    if intercept:
+        Xs[0] += 1.1
+        Xs[1] += 1.2
+
     Ks = backend.stack([backend.matmul(X, X.T) for X in Xs])
     Y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
     dual_weights = backend.asarray(backend.randn(n_samples, n_targets),
@@ -31,6 +35,9 @@ def _create_dataset(backend):
     exp_deltas = backend.asarray(backend.rand(Ks.shape[0], n_targets),
                                  backend.float64)
     deltas = backend.log(exp_deltas)
+
+    if intercept:
+        Y += -8
 
     return Xs, Ks, Y, deltas, dual_weights
 
@@ -40,7 +47,7 @@ def _create_dataset(backend):
 def test_weighted_kernel_ridge_gradient(backend, double_K):
     backend = set_backend(backend)
 
-    _, Ks, Y, deltas, dual_weights = _create_dataset(backend)
+    _, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
     exp_deltas = backend.exp(deltas)
     alpha = 1.
 
@@ -79,7 +86,7 @@ def test_solve_weighted_kernel_ridge(solver_name, backend):
     solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
     decimal = 1 if solver_name == "neumann_series" else 3
 
-    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
     exp_deltas = backend.exp(deltas)
 
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
@@ -110,12 +117,48 @@ def test_solve_weighted_kernel_ridge(solver_name, backend):
                                           decimal=decimal)
 
 
+@pytest.mark.parametrize('solver_name', WEIGHTED_KERNEL_RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_weighted_kernel_ridge_intercept(solver_name, backend):
+    backend = set_backend(backend)
+
+    solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
+    if solver_name == "neumann_series":
+        pytest.skip()
+
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=True)
+    exp_deltas = backend.exp(deltas)
+
+    # torch with cuda has more limited precision in mean
+    decimal = 1 if backend.name == "torch_cuda" else 5
+
+    for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
+        c2, i2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=100, tol=1e-6,
+                        fit_intercept=True)
+
+        n_targets = Y.shape[1]
+        for ii in range(n_targets):
+            K = backend.matmul(Ks.T, exp_deltas[:, ii]).T
+            # compare predictions with sklearn.linear_model.Ridge
+            X_scaled = backend.concatenate(
+                [t * backend.sqrt(g) for t, g in zip(Xs, exp_deltas[:, ii])],
+                1)
+            prediction = backend.matmul(K, c2[:, ii]) + i2[ii]
+            model = sklearn.linear_model.Ridge(alpha=backend.to_numpy(alpha),
+                                               solver="lsqr", max_iter=1000,
+                                               tol=1e-6, fit_intercept=True)
+            model.fit(backend.to_numpy(X_scaled), backend.to_numpy(Y[:, ii]))
+            prediction_sklearn = model.predict(backend.to_numpy(X_scaled))
+            assert_array_almost_equal(prediction, prediction_sklearn,
+                                      decimal=decimal)
+
+
 @pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
 
-    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
     solver = KERNEL_RIDGE_SOLVERS[solver_name]
@@ -149,4 +192,45 @@ def test_solve_kernel_ridge(solver_name, backend):
             model.fit(backend.to_numpy(X_scaled), backend.to_numpy(Y[:, ii]))
             prediction_sklearn = model.predict(backend.to_numpy(X_scaled))
             assert_array_almost_equal(prediction, prediction_sklearn,
-                                      decimal=3)
+                                      decimal=5)
+
+
+@pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_kernel_ridge_intercept(solver_name, backend):
+    backend = set_backend(backend)
+
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=True)
+
+    alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
+
+    solver = KERNEL_RIDGE_SOLVERS[solver_name]
+
+    deltas = deltas[:, 0]
+    exp_deltas = backend.exp(deltas)
+    K = backend.matmul(Ks.T, exp_deltas).T
+
+    # torch with cuda has more limited precision in mean
+    decimal = 1 if backend.name == "torch_cuda" else 5
+
+    for alpha in alphas:
+        alpha = backend.full_like(K, fill_value=alpha, shape=Y.shape[1])
+        if "eigenvalues" in solver_name:
+            c2, i2 = solver(K, Y, alpha=alpha, fit_intercept=True)
+        else:
+            c2, i2 = solver(K, Y, alpha=alpha, fit_intercept=True,
+                            max_iter=100, tol=1e-5)
+
+        n_targets = Y.shape[1]
+        for ii in range(n_targets):
+            # compare predictions with sklearn.linear_model.Ridge
+            X_scaled = backend.concatenate(
+                [t * backend.sqrt(g) for t, g in zip(Xs, exp_deltas)], 1)
+            prediction = backend.matmul(K, c2[:, ii]) + i2[ii]
+            model = sklearn.linear_model.Ridge(
+                alpha=backend.to_numpy(alpha[ii]), solver="lsqr",
+                max_iter=1000, tol=1e-6, fit_intercept=True)
+            model.fit(backend.to_numpy(X_scaled), backend.to_numpy(Y[:, ii]))
+            prediction_sklearn = model.predict(backend.to_numpy(X_scaled))
+            assert_array_almost_equal(prediction, prediction_sklearn,
+                                      decimal=decimal)

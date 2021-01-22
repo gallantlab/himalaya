@@ -38,7 +38,7 @@ def solve_banded_ridge_random_search(
     alphas : float or array of shape (n_alphas, )
         Range of ridge regularization parameter.
     fit_intercept : boolean
-        Wether to fit an intercept.
+        Whether to fit an intercept.
         If False, Xs and Y must be zero-mean over samples.
     score_func : callable
         Function used to compute the score of predictions versus Y.
@@ -414,7 +414,7 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
     alphas : float or array of shape (n_alphas, )
         Range of ridge regularization parameter.
     fit_intercept : boolean
-        Wether to fit an intercept.
+        Whether to fit an intercept.
         If False, X and Y must be zero-mean over samples.
     score_func : callable
         Function used to compute the score of predictions versus Y.
@@ -447,6 +447,8 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
         best hyperparameters alpha. Always stored on CPU memory.
     cv_scores : array of shape (n_targets, )
         Cross-validation scores averaged over splits, for the best alpha.
+    intercept : array of shape (n_targets,)
+        Intercept. Only returned when fit_intercept is True.
     """
     backend = get_backend()
 

@@ -14,10 +14,10 @@ from ._random_search import solve_multiple_kernel_ridge_random_search
 
 
 def solve_multiple_kernel_ridge_hyper_gradient(
-        Ks, Y, score_func=l2_neg_loss, cv=5, return_weights=None, Xs=None,
-        initial_deltas=0, max_iter=10, tol=1e-2, max_iter_inner_dual=1,
-        max_iter_inner_hyper=1, cg_tol=1e-3, n_targets_batch=None,
-        hyper_gradient_method="conjugate_gradient",
+        Ks, Y, score_func=l2_neg_loss, cv=5, fit_intercept=False,
+        return_weights=None, Xs=None, initial_deltas=0, max_iter=10, tol=1e-2,
+        max_iter_inner_dual=1, max_iter_inner_hyper=1, cg_tol=1e-3,
+        n_targets_batch=None, hyper_gradient_method="conjugate_gradient",
         kernel_ridge_method="gradient_descent", random_state=None,
         progress_bar=True, Y_in_cpu=False):
     """Solve bilinear kernel ridge regression with cross-validation.
@@ -36,6 +36,10 @@ def solve_multiple_kernel_ridge_hyper_gradient(
         Function used to compute the score of predictions.
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
+    fit_intercept : boolean
+        Whether to fit an intercept. If False, Ks should be centered
+        (see KernelCenterer), and Y must be zero-mean over samples.
+        Only available if return_weights == 'dual'.
     return_weights : None, 'primal', or 'dual'
         Whether to refit on the entire dataset and return the weights.
     Xs : array of shape (n_kernels, n_samples, n_features) or None
@@ -82,6 +86,8 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     cv_scores : array of shape (max_iter * max_iter_inner_hyper, n_targets)
         Cross-validation scores per iteration, averaged over splits.
         Cross-validation scores will always be on CPU memory.
+    intercept : array of shape (n_targets,)
+        Intercept. Only returned when fit_intercept is True.
     """
     backend = get_backend()
 
@@ -93,6 +99,9 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     dtype = Ks.dtype
     device = getattr(Ks, "device", None)
     Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
+
+    if fit_intercept:
+        raise NotImplementedError('Coming soon.')
 
     cv = check_cv(cv)
     n_splits = cv.get_n_splits()
@@ -266,7 +275,10 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     if progress_bar:
         bar.update(bar.max_value)
 
-    return deltas, refit_weights, cv_scores
+    results = [deltas, refit_weights, cv_scores]
+    if fit_intercept:
+        results.append(intercept)
+    return results
 
 
 #: Dictionary with all multiple kernel ridge solvers

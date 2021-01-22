@@ -58,7 +58,7 @@ class Ridge(_BaseRidge):
         L2 regularization parameter.
 
     fit_intercept : boolean
-        Wether to fit an intercept.
+        Whether to fit an intercept.
         If False, X and Y must be zero-mean over samples.
 
     solver : str
@@ -74,7 +74,7 @@ class Ridge(_BaseRidge):
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
 
-    intercept_ : array of shape (n_targets,)
+    intercept_ : float or array of shape (n_targets, )
         Intercept. Only present if fit_intercept is True.
 
     n_features_in_ : int
@@ -212,7 +212,7 @@ class RidgeCV(Ridge):
         List of L2 regularization parameter to try.
 
     fit_intercept : boolean
-        Wether to fit an intercept.
+        Whether to fit an intercept.
         If False, X and Y must be zero-mean over samples.
 
     solver : str
@@ -233,6 +233,9 @@ class RidgeCV(Ridge):
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only returned when fit_intercept is True.
 
     best_alphas_ : array of shape (n_targets, )
         Selected best hyperparameter alphas.
@@ -355,7 +358,7 @@ class BandedRidgeCV(_BaseRidge):
         ``BandedRidgeCV.ALL_SOLVERS[solver]``
 
     fit_intercept : boolean
-        Wether to fit an intercept.
+        Whether to fit an intercept.
         If False, X and Y must be zero-mean over samples.
 
     cv : int or scikit-learn splitter
@@ -371,6 +374,9 @@ class BandedRidgeCV(_BaseRidge):
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only returned when fit_intercept is True.
 
     deltas_ : array of shape (n_groups, n_targets)
         Log of the group scalings.

@@ -92,10 +92,17 @@ class KernelRidge(_BaseKernelRidge):
         See more details in the docstring of the function:
         ``KernelRidge.ALL_SOLVERS[solver]``
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
         Representation of weight vectors in kernel space.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only present if fit_intercept is True.
 
     X_fit_ : array of shape (n_samples, n_features)
         Training data. If kernel == "precomputed" this is None.
@@ -121,12 +128,14 @@ class KernelRidge(_BaseKernelRidge):
     ALL_SOLVERS = KERNEL_RIDGE_SOLVERS
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None):
+                 solver="eigenvalues", solver_params=None,
+                 fit_intercept=False):
         self.alpha = alpha
         self.kernel = kernel
         self.kernel_params = kernel_params
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
 
     def fit(self, X, y=None, sample_weight=None):
         """Fit the model.
@@ -181,10 +190,17 @@ class KernelRidge(_BaseKernelRidge):
             K *= sw @ sw.T
 
         # ------------------ call the solver
-        self.dual_coef_ = self._call_solver(K=K, Y=y, alpha=self.alpha)
+        tmp = self._call_solver(K=K, Y=y, alpha=self.alpha,
+                                fit_intercept=self.fit_intercept)
+        if self.fit_intercept:
+            self.dual_coef_, self.intercept_ = tmp
+        else:
+            self.dual_coef_ = tmp
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
@@ -216,6 +232,8 @@ class KernelRidge(_BaseKernelRidge):
         del X
 
         Y_hat = backend.to_cpu(K) @ backend.to_cpu(self.dual_coef_)
+        if self.fit_intercept:
+            Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
     def score(self, X, y):
@@ -326,6 +344,10 @@ class KernelRidgeCV(KernelRidge):
         See more details in the docstring of the function:
         ``KernelRidgeCV.ALL_SOLVERS[solver]``
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
 
@@ -364,13 +386,14 @@ class KernelRidgeCV(KernelRidge):
     ALL_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues)
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None, cv=5,
-                 Y_in_cpu=False):
+                 solver="eigenvalues", solver_params=None, fit_intercept=False,
+                 cv=5, Y_in_cpu=False):
         self.alphas = alphas
         self.kernel = kernel
         self.kernel_params = kernel_params
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
         self.cv = cv
         self.Y_in_cpu = Y_in_cpu
 
@@ -431,12 +454,19 @@ class KernelRidgeCV(KernelRidge):
 
         # ------------------ call the solver
         tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas,
-                                Y_in_cpu=self.Y_in_cpu)
-        self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
+                                Y_in_cpu=self.Y_in_cpu,
+                                fit_intercept=self.fit_intercept)
+        if self.fit_intercept:
+            self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp[:3]
+            self.intercept_, = tmp[3:]
+        else:
+            self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
         self.cv_scores_ = self.cv_scores_[0]
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 

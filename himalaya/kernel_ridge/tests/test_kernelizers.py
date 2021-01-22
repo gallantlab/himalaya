@@ -16,6 +16,7 @@ from himalaya.kernel_ridge import make_column_kernelizer
 from himalaya.kernel_ridge._kernelizer import _end_with_a_kernel
 from himalaya.kernel_ridge import KernelRidge
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
+from himalaya.kernel_ridge import KernelCenterer
 
 
 @pytest.mark.parametrize('kernel', Kernelizer.ALL_KERNELS)
@@ -258,6 +259,22 @@ def test_column_kernelizer_get_X_fit(estimator, backend):
     assert len(Ks) == len(Xs)  # same number of feature spaces
     for X, K in zip(Xs, Ks):
         assert X.shape[0] == K.shape[0]  # same number of samples
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_centerer(backend):
+    backend = set_backend(backend)
+    X = backend.randn(10, 5) + 1
+    K = X @ X.T
+
+    X_centered = X - X.mean(0)
+    K_centered = X_centered @ X_centered.T
+    with pytest.raises(AssertionError):
+        assert_array_almost_equal(K, K_centered, decimal=5)
+
+    centerer = KernelCenterer()
+    K2 = centerer.fit_transform(K)
+    assert_array_almost_equal(K2, K_centered, decimal=5)
 
 
 ###############################################################################
