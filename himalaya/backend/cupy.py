@@ -175,16 +175,15 @@ def check_arrays(*all_inputs):
     precision as the first one. Some arrays can be None.
     """
     all_arrays = []
-    all_arrays.append(cupy.asarray(all_inputs[0]))
+    all_arrays.append(asarray(all_inputs[0]))
+    dtype = all_arrays[0].dtype
     for tensor in all_inputs[1:]:
         if tensor is None:
             pass
         elif isinstance(tensor, list):
-            tensor = [
-                cupy.asarray(tt, dtype=all_arrays[0].dtype) for tt in tensor
-            ]
+            tensor = [asarray(tt, dtype=dtype) for tt in tensor]
         else:
-            tensor = cupy.asarray(tensor, dtype=all_arrays[0].dtype)
+            tensor = asarray(tensor, dtype=dtype)
         all_arrays.append(tensor)
     return all_arrays
 
