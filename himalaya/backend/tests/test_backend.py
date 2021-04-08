@@ -3,7 +3,7 @@ import pytest
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
-from himalaya.backend import _dtype_to_str
+from himalaya.backend._utils import _dtype_to_str
 from himalaya.utils import assert_array_almost_equal
 
 

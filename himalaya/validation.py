@@ -14,7 +14,7 @@ except ImportError:
 from sklearn import get_config
 
 from .backend import get_backend
-from .backend import _dtype_to_str
+from .backend._utils import _dtype_to_str
 
 
 def check_random_state(seed):

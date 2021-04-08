@@ -12,7 +12,7 @@ except AssertionError as error:
         pytest.skip("PyTorch not compiled with CUDA enabled.")
     raise AssertionError("PyTorch not compiled with CUDA enabled.") from error
 
-from .__init__ import _dtype_to_str
+from ._utils import _dtype_to_str
 
 ###############################################################################
 

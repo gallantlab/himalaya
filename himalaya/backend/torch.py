@@ -9,7 +9,7 @@ except ImportError as error:
         pytest.skip("PyTorch not installed.")
     raise ImportError("PyTorch not installed.") from error
 
-from .__init__ import _dtype_to_str
+from ._utils import _dtype_to_str
 
 ###############################################################################
 
