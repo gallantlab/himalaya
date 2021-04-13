@@ -384,9 +384,8 @@ def _select_best_alphas(scores, alphas, local_alpha, conservative):
             raise NotImplementedError()
         else:
             alphas_argmax = backend.argmax(scores_mean.mean(1))
-            alphas_argmax = backend.full_like(alphas,
+            alphas_argmax = backend.full_like(alphas_argmax,
                                               shape=scores_mean.shape[1],
-                                              dtype=backend.int32,
                                               fill_value=alphas_argmax)
     best_scores_mean = backend.apply_argmax(scores_mean, alphas_argmax, axis)
 
