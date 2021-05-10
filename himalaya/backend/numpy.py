@@ -189,7 +189,8 @@ def asarray(a, dtype=None, order=None, device=None):
         return np.asarray(a.cpu(), dtype=dtype, order=order)
     except Exception:
         pass
-    raise RuntimeError()
+
+    return np.asarray(a, dtype=dtype, order=order)
 
 
 def svd(X, full_matrices=True):

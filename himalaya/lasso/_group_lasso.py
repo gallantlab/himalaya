@@ -399,7 +399,7 @@ def _proximal_gradient_descent(f_loss, f_grad, f_prox, step_size, x0, max_iter,
             if backend.any(just_converged):
                 x_aux = x_aux[:, ~just_converged]
                 x_old = x_old[:, ~just_converged]
-                mask[mask] = ~just_converged
+                mask[backend.copy(mask)] = ~just_converged
 
                 if backend.all(just_converged):
                     break
