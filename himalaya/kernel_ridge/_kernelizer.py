@@ -302,7 +302,7 @@ class ColumnKernelizer(ColumnTransformer):
         self.transformer_weights = transformer_weights
         self.verbose = verbose
 
-    def _iter(self, fitted=False, replace_strings=False):
+    def _iter(self, fitted=False, *args, **kwargs):
         """
         Generate (name, trans, column, weight) tuples.
 
@@ -310,7 +310,7 @@ class ColumnKernelizer(ColumnTransformer):
         with a Kernelizer.
         """
         for name, trans, column, weight in super()._iter(
-                fitted=fitted, replace_strings=replace_strings):
+                fitted=fitted, *args, **kwargs):
 
             if not fitted:
                 if trans == 'drop':
