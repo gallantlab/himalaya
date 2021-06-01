@@ -1,15 +1,15 @@
 .. raw:: html
 
-   <h1>Himalaya: Multiple-target machine learning</h1>
+   <h1>Himalaya: Multiple-target linear models</h1>
 
-``Himalaya`` implements machine learning models in Python, focusing on
+``Himalaya`` implements machine learning linear models in Python, focusing on
 computational efficiency for large numbers of targets.
 
 |Github| |Python| |License|
 
 Use ``himalaya`` if you need a library that:
 
-- estimates models on large numbers of targets,
+- estimates linear models on large numbers of targets,
 - runs on CPU and GPU hardware,
 - provides estimators compatible with ``scikit-learn``'s API.
 
@@ -24,13 +24,13 @@ Example
     X = np.random.randn(n_samples, n_features)
     Y = np.random.randn(n_samples, n_targets)
 
-    from himalaya.kernel_ridge import KernelRidgeCV
-    model = KernelRidgeCV(alphas=[1, 10, 100])
+    from himalaya.ridge import RidgeCV
+    model = RidgeCV(alphas=[1, 10, 100])
     model.fit(X, Y)
     print(model.best_alphas_)  # [ 10. 100.  10. 100.]
 
 
-- The model ``KernelRidgeCV`` uses the same API as ``scikit-learn``
+- The model ``RidgeCV`` uses the same API as ``scikit-learn``
   estimators, with methods such as ``fit``, ``predict``, ``score``, etc.
 - The model is able to efficiently fit a large number of targets (routinely
   used with 100k targets).
@@ -84,7 +84,7 @@ To use the ``cupy`` backend, call:
     from himalaya.backend import set_backend
     backend = set_backend("cupy")
 
-    data = backend.asarray(data)  # cupy arrays are always on GPU
+    data = backend.asarray(data)  # cupy arrays are always on GPU
 
 
 To use the ``pytorch`` backend, call:
@@ -113,8 +113,8 @@ Dependencies
 - Python 3
 - Numpy
 - Scikit-learn
-- PyTorch (optional backend)
-- Cupy (optional backend)
+- PyTorch (optional GPU backend)
+- Cupy (optional GPU backend)
 - Matplotlib (optional, for visualization only)
 - Pytest (optional, for testing only)
 

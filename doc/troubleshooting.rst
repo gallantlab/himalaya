@@ -12,7 +12,7 @@ CUDA out of memory
 
 The GPU memory is often smaller than the CPU memory, so it requires more
 attention to avoid running out of memory. Himalaya implements a series of
-options to limit the GPU memory, at the cost of computational speed:
+options to limit the GPU memory, often at the cost of computational speed:
 
 - Some solvers implement computations over batches, to limit the size of
   intermediate arrays. See for instance ``n_targets_batch``, or
