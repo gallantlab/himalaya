@@ -12,14 +12,22 @@ from ..kernel_ridge import generate_dirichlet_samples
 from ..kernel_ridge._random_search import _select_best_alphas
 
 
-def solve_banded_ridge_random_search(
+def solve_group_ridge_random_search(
         Xs, Y, n_iter=100, concentration=[0.1, 1.0
                                           ], alphas=1.0, fit_intercept=False,
         score_func=l2_neg_loss, cv=5, return_weights=False, local_alpha=True,
         jitter_alphas=False, random_state=None, n_targets_batch=None,
         n_targets_batch_refit=None, n_alphas_batch=None, progress_bar=True,
         conservative=False, Y_in_cpu=False, diagonalize_method="svd"):
-    """Solve banded ridge regression using random search on the simplex.
+    """Solve group ridge regression using random search on the simplex.
+
+    Solve the group-regularized ridge regression::
+
+        b* = argmin_b ||Z @ b - Y||^2 + ||b||^2
+
+    where the feature space X_i is scaled by a group scaling ::
+
+        Z_i = exp(deltas[i] / 2) X_i
 
     Parameters
     ----------
@@ -36,7 +44,10 @@ def solve_banded_ridge_random_search(
         If a list, iteratively cycle through the list.
         Not used if n_iter is an array.
     alphas : float or array of shape (n_alphas, )
-        Range of ridge regularization parameter.
+        Range of ridge regularization parameter. The log group-weights
+        ``deltas`` are equal to log(gamma/alpha), where gamma is randomly
+        sampled on the simplex, and alpha is selected from a list of
+        candidates.
     fit_intercept : boolean
         Whether to fit an intercept.
         If False, Xs and Y must be zero-mean over samples.
@@ -392,9 +403,9 @@ def _decompose_ridge(Xtrain, alphas, n_alphas_batch=None, method="svd",
         del matrices
 
 
-#: Dictionary with all banded ridge solvers
-BANDED_RIDGE_SOLVERS = {
-    "random_search": solve_banded_ridge_random_search,
+#: Dictionary with all group ridge solvers
+GROUP_RIDGE_SOLVERS = {
+    "random_search": solve_group_ridge_random_search,
 }
 
 
@@ -464,8 +475,8 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
                          n_alphas_batch=n_alphas_batch,
                          conservative=conservative, Y_in_cpu=Y_in_cpu)
 
-    tmp = solve_banded_ridge_random_search([X], Y, **copied_params,
-                                           **fixed_params)
+    tmp = solve_group_ridge_random_search([X], Y, **copied_params,
+                                          **fixed_params)
 
     if fit_intercept:
         deltas, coefs, cv_scores, intercept = tmp

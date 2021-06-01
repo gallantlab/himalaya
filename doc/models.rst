@@ -62,8 +62,8 @@ These models are implemented in scikit-learn-compatible estimators
 :func:`~himalaya.ridge.solve_ridge_cv_svd` and
 :func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues`.
 
-BandedRidgeCV
--------------
+GroupRidgeCV
+------------
 
 ...
 

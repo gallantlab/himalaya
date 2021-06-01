@@ -47,7 +47,7 @@ Models
 
 - Ridge
 - RidgeCV
-- BandedRidgeCV
+- GroupRidgeCV
 - KernelRidge
 - KernelRidgeCV
 - WeightedKernelRidge

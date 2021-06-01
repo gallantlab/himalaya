@@ -11,8 +11,9 @@ from ..scoring import r2_score
 
 
 class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
-    """Solves the sparse group Lasso, with hyperparameter grid-search over
-    cross-validation.
+    """Sparse group Lasso
+
+    Solved with hyperparameter grid-search over cross-validation.
 
     Parameters
     ----------

@@ -10,8 +10,8 @@ from himalaya.utils import assert_array_almost_equal
 
 from himalaya.ridge import Ridge
 from himalaya.ridge import RidgeCV
-from himalaya.ridge import BandedRidgeCV
-from himalaya.ridge import solve_banded_ridge_random_search
+from himalaya.ridge import GroupRidgeCV
+from himalaya.ridge import solve_group_ridge_random_search
 
 
 def _create_dataset(backend):
@@ -105,7 +105,7 @@ def test_banded_ridge_cv_vs_ridge_cv(backend, fit_intercept):
     ref = RidgeCV(alphas=alphas, cv=5, fit_intercept=fit_intercept)
     ref.fit(X, Y)
 
-    model = BandedRidgeCV(groups=None, solver_params=dict(alphas=alphas), cv=5,
+    model = GroupRidgeCV(groups=None, solver_params=dict(alphas=alphas), cv=5,
                           fit_intercept=fit_intercept)
     model.fit(X, Y)
 
@@ -178,12 +178,12 @@ class RidgeCV_(RidgeCV):
 
 # Dirty monkey-patch of n_iter,
 # since check_estimator does not allow dict parameters
-new_defaults = list(solve_banded_ridge_random_search.__defaults__)
+new_defaults = list(solve_group_ridge_random_search.__defaults__)
 new_defaults[0] = 1
-solve_banded_ridge_random_search.__defaults__ = tuple(new_defaults)
+solve_group_ridge_random_search.__defaults__ = tuple(new_defaults)
 
 
-class BandedRidgeCV_(BandedRidgeCV):
+class GroupRidgeCV_(GroupRidgeCV):
     """Cast predictions to numpy arrays, to be used in scikit-learn tests.
 
     Used for testing only.
@@ -207,7 +207,7 @@ class BandedRidgeCV_(BandedRidgeCV):
 @sklearn.utils.estimator_checks.parametrize_with_checks([
     Ridge_(),
     RidgeCV_(),
-    BandedRidgeCV_(),
+    GroupRidgeCV_(),
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):

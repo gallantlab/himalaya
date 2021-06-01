@@ -859,8 +859,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         K = sum_i exp(deltas[i]) Ks[i]
 
     Contrarily to ``MultipleKernelRidgeCV``, this model does not optimize the
-    log kernel weights ``deltas``. However, it is not equivalent to
-    ``KernelRidge``, since the log kernel weights ``deltas`` can be different
+    log kernel-weights ``deltas``. However, it is not equivalent to
+    ``KernelRidge``, since the log kernel-weights ``deltas`` can be different
     for each target, therefore the kernel sum is not precomputed.
 
     Parameters

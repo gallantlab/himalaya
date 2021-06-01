@@ -161,7 +161,7 @@ Estimators compatible with the ``scikit-learn`` API.
    :template: class.rst
    Ridge
    RidgeCV
-   BandedRidgeCV
+   GroupRidgeCV
 
    ColumnTransformerNoStack
    :template: function.rst
@@ -177,8 +177,8 @@ Solver functions
    RIDGE_SOLVERS
    solve_ridge_svd
    solve_ridge_cv_svd
-   BANDED_RIDGE_SOLVERS
-   solve_banded_ridge_random_search
+   GROUP_RIDGE_SOLVERS
+   solve_group_ridge_random_search
 
 
 |

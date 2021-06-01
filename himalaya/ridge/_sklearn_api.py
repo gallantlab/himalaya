@@ -5,7 +5,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.model_selection import check_cv
 
 from ._solvers import RIDGE_SOLVERS
-from ._random_search import BANDED_RIDGE_SOLVERS
+from ._random_search import GROUP_RIDGE_SOLVERS
 from ._random_search import solve_ridge_cv_svd
 
 from ..validation import check_array
@@ -327,10 +327,10 @@ class RidgeCV(Ridge):
 ###############################################################################
 
 
-class BandedRidgeCV(_BaseRidge):
-    """Banded ridge regression with cross-validation.
+class GroupRidgeCV(_BaseRidge):
+    """Group ridge regression with cross-validation.
 
-    Solve the banded ridge regression::
+    Solve the group-regularized ridge regression::
 
         b* = argmin_b ||Z @ b - Y||^2 + ||b||^2
 
@@ -355,7 +355,7 @@ class BandedRidgeCV(_BaseRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-        ``BandedRidgeCV.ALL_SOLVERS[solver]``
+        ``GroupRidgeCV.ALL_SOLVERS[solver]``
 
     fit_intercept : boolean
         Whether to fit an intercept.
@@ -398,7 +398,7 @@ class BandedRidgeCV(_BaseRidge):
 
     Examples
     --------
-    >>> from himalaya.ridge import BandedRidgeCV
+    >>> from himalaya.ridge import GroupRidgeCV
     >>> from himalaya.ridge import ColumnTransformerNoStack
     >>> from sklearn.pipeline import make_pipeline
 
@@ -416,11 +416,11 @@ class BandedRidgeCV(_BaseRidge):
     ...      ("group_2", StandardScaler(), slice(3, 5))])
 
     >>> # A model with automatic groups, as output by ColumnTransformerNoStack
-    >>> model = BandedRidgeCV(groups="input")
+    >>> model = GroupRidgeCV(groups="input")
     >>> pipe = make_pipeline(ct, model)
     >>> _ = pipe.fit(X, Y)
     """
-    ALL_SOLVERS = BANDED_RIDGE_SOLVERS
+    ALL_SOLVERS = GROUP_RIDGE_SOLVERS
 
     def __init__(self, groups=None, solver="random_search", solver_params=None,
                  fit_intercept=False, cv=5, random_state=None, Y_in_cpu=False):

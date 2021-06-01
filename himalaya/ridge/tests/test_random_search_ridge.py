@@ -9,7 +9,7 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 from himalaya.scoring import r2_score
 
-from himalaya.ridge import solve_banded_ridge_random_search
+from himalaya.ridge import solve_group_ridge_random_search
 
 
 def _create_dataset(backend):
@@ -39,21 +39,21 @@ def _create_dataset(backend):
 
 @pytest.mark.parametrize('n_targets_batch', [None, 3])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_banded_ridge_random_search_n_targets_batch(
+def test_solve_group_ridge_random_search_n_targets_batch(
         backend, n_targets_batch):
-    _test_solve_banded_ridge_random_search(backend=backend,
+    _test_solve_group_ridge_random_search(backend=backend,
                                            n_targets_batch=n_targets_batch)
 
 
 @pytest.mark.parametrize('n_alphas_batch', [None, 2])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_banded_ridge_random_search_n_alphas_batch(
+def test_solve_group_ridge_random_search_n_alphas_batch(
         backend, n_alphas_batch):
-    _test_solve_banded_ridge_random_search(backend=backend,
+    _test_solve_group_ridge_random_search(backend=backend,
                                            n_alphas_batch=n_alphas_batch)
 
 
-def _test_solve_banded_ridge_random_search(backend, n_targets_batch=None,
+def _test_solve_group_ridge_random_search(backend, n_targets_batch=None,
                                            n_alphas_batch=None):
     backend = set_backend(backend)
 
@@ -64,7 +64,7 @@ def _test_solve_banded_ridge_random_search(backend, n_targets_batch=None,
 
     ############
     # run solver
-    results = solve_banded_ridge_random_search(
+    results = solve_group_ridge_random_search(
         Xs, Y, n_iter=gammas, alphas=alphas, score_func=r2_score, cv=cv,
         n_targets_batch=n_targets_batch, progress_bar=False,
         return_weights=True, n_alphas_batch=n_alphas_batch,

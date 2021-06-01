@@ -9,7 +9,7 @@ from himalaya.utils import assert_array_almost_equal
 
 from himalaya.ridge import ColumnTransformerNoStack
 from himalaya.ridge import make_column_transformer_no_stack
-from himalaya.ridge import BandedRidgeCV
+from himalaya.ridge import GroupRidgeCV
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -108,7 +108,7 @@ def test_column_transformer_in_pipeline(backend):
     )
     pipe = make_pipeline(
         ct,
-        BandedRidgeCV(
+        GroupRidgeCV(
             groups="input", solver_params=dict(n_iter=np.ones((1, 2)),
                                                progress_bar=False)))
     pipe.fit(X, Y)
