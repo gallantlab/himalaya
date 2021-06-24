@@ -86,7 +86,6 @@ bool = torch.bool
 int32 = torch.int32
 float32 = torch.float32
 float64 = torch.float64
-eigh = partial(torch.symeig, eigenvectors=True)
 log = torch.log
 exp = torch.exp
 arange = torch.arange
@@ -283,3 +282,10 @@ def check_arrays(*all_inputs):
 def svd(X, full_matrices=True):
     U, s, V = torch.svd(X, some=not full_matrices)
     return U, s, V.transpose(-2, -1)
+
+
+try:
+    eigh = torch.linalg.eigh
+except AttributeError:
+    # torch.__version__ < 1.8
+    eigh = partial(torch.symeig, eigenvectors=True)
