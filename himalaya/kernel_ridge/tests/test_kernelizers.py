@@ -51,6 +51,19 @@ def test_kernelizer_callable(backend):
     assert_array_almost_equal(function(X2, X1), ker.transform(X2))
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernelizer_wrong_input(backend):
+    backend = set_backend(backend)
+    X1 = backend.randn(10, 5)
+    X2 = backend.randn(10, 4)
+
+    with pytest.raises(ValueError, match="Unknown metric"):
+        Kernelizer(kernel="wrong").fit(X1)
+
+    with pytest.raises(ValueError, match="Different number of features"):
+        Kernelizer().fit(X1).transform(X2)
+
+
 @pytest.mark.parametrize('kernel', Kernelizer.ALL_KERNELS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_column_kernelizer_all_columns(backend, kernel):
@@ -292,6 +305,16 @@ def test_kernel_centerer(backend):
     centerer = KernelCenterer()
     K2 = centerer.fit_transform(K)
     assert_array_almost_equal(K2, K_centered, decimal=5)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_centerer_wrong_input(backend):
+    backend = set_backend(backend)
+    X = backend.randn(10, 5)
+
+    centerer = KernelCenterer()
+    with pytest.raises(ValueError, match="must be a square matrix"):
+        centerer.fit_transform(X)
 
 
 ###############################################################################
