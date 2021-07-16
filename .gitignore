@@ -6,6 +6,7 @@
 .pytest_cache
 __pycache__
 .coverage
+htmlcov/
 
 # Documentation build
 doc/_build/

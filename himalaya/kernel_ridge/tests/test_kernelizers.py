@@ -34,6 +34,23 @@ def test_kernelizer(backend, kernel):
     assert_array_almost_equal(function(X2, X1), ker.transform(X2))
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernelizer_callable(backend):
+    backend = set_backend(backend)
+
+    X1 = backend.randn(10, 5)
+    X2 = backend.randn(8, 5)
+
+    def _callable_linear_kernel(x, y):
+        return x @ y
+
+    function = Kernelizer.ALL_KERNELS["linear"]
+    ker = Kernelizer(kernel=_callable_linear_kernel)
+
+    assert_array_almost_equal(function(X1), ker.fit_transform(X1))
+    assert_array_almost_equal(function(X2, X1), ker.transform(X2))
+
+
 @pytest.mark.parametrize('kernel', Kernelizer.ALL_KERNELS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_column_kernelizer_all_columns(backend, kernel):
