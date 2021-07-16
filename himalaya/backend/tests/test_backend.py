@@ -28,8 +28,12 @@ def test_set_backend_incorrect():
     for backend in ["wrong", ["numpy"], True, None, 10]:
         with pytest.raises(ValueError):
             set_backend(backend)
+        with pytest.raises(ValueError):
+            set_backend(backend, on_error="raise")
         with pytest.warns(Warning):
             set_backend(backend, on_error="warn")
+        with pytest.raises(ValueError):
+            set_backend(backend, on_error="foo")
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -215,3 +219,10 @@ def test_asarray_dtype(backend_in, backend_out, dtype_in, dtype_out):
     backend = set_backend(backend_out)
     array_out = backend.asarray(array_in, dtype=dtype_out)
     assert _dtype_to_str(array_out.dtype) == dtype_out
+
+
+def test_dtype_to_str_wrong_input():
+    assert _dtype_to_str(None) is None
+
+    with pytest.raises(NotImplementedError):
+        _dtype_to_str(42)
