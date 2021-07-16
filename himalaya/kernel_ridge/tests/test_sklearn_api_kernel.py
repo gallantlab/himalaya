@@ -243,6 +243,17 @@ def test_kernel_ridge_solvers(solver, backend):
                                   decimal=5)
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_wrong_solver(backend):
+    backend = set_backend(backend)
+    Xs, _, Y = _create_dataset(backend)
+    X = Xs[0]
+
+    model = KernelRidge(solver="wrong")
+    with pytest.raises(ValueError, match="Unknown solver"):
+        model.fit(X, Y)
+
+
 @pytest.mark.parametrize('solver', ['eigenvalues'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_cv_precomputed(backend, solver):
