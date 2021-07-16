@@ -391,6 +391,32 @@ def test_multiple_kernel_ridge_cv_Y_in_cpu(backend, solver):
     assert_array_almost_equal(model_1.predict(Ks), model_2.predict(Ks))
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_cv_array_deltas(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    # correct deltas array
+    deltas = backend.zeros_like(Ks, shape=(len(Ks), ))
+    model_1 = WeightedKernelRidge(kernels="precomputed", deltas=deltas,
+                                  random_state=0)
+    model_1.fit(Ks, Y)
+
+    # wrong number of kernels
+    deltas = backend.zeros_like(Ks, shape=(len(Ks) + 1, ))
+    model_1 = WeightedKernelRidge(kernels="precomputed", deltas=deltas,
+                                  random_state=0)
+    with pytest.raises(ValueError, match="Inconsistent number of kernels"):
+        model_1.fit(Ks, Y)
+
+    # wrong number of targets
+    deltas = backend.zeros_like(Ks, shape=(len(Ks), Y.shape[1] + 1))
+    model_1 = WeightedKernelRidge(kernels="precomputed", deltas=deltas,
+                                  random_state=0)
+    with pytest.raises(ValueError, match="Inconsistent number of targets"):
+        model_1.fit(Ks, Y)
+
+
 ###############################################################################
 ###############################################################################
 ###############################################################################

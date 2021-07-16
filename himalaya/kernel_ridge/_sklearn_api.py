@@ -1021,7 +1021,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
             self.deltas_ = check_array(self.deltas, ndim=[1, 2])
             if self.deltas_.shape[0] != n_kernels:
                 raise ValueError("Inconsistent number of kernels.")
-            if (self.deltas_ndim == 2 and y.ndim == 2
+            if (self.deltas.ndim == 2 and y.ndim == 2
                     and self.deltas_.shape[1] != y.shape[1]):
                 raise ValueError("Inconsistent number of targets.")
             if self.deltas_.ndim == 1:
