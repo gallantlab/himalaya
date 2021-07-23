@@ -1,9 +1,11 @@
 import warnings
 import numbers
 
+import numpy as np
 from sklearn.model_selection import check_cv
 
 from ..backend import get_backend
+from ..backend._utils import _dtype_to_str
 from ..progress_bar import bar
 from ..scoring import l2_neg_loss
 from ..validation import check_random_state
@@ -245,7 +247,8 @@ def solve_multiple_kernel_ridge_random_search(
         cv_scores[ii, :] = backend.to_cpu(cv_scores_ii)
 
         # update best_gammas and best_alphas
-        mask = cv_scores_ii > current_best_scores
+        epsilon = np.finfo(_dtype_to_str(dtype)).eps
+        mask = cv_scores_ii > current_best_scores + epsilon
         current_best_scores[mask] = cv_scores_ii[mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]
