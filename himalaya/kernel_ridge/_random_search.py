@@ -103,6 +103,7 @@ def solve_multiple_kernel_ridge_random_search(
                                             n_kernels=len(Ks),
                                             concentration=concentration,
                                             random_state=random_state)
+        gammas[0] = 1 / len(Ks)
     elif n_iter.ndim == 2:
         gammas = n_iter
         assert gammas.shape[1] == Ks.shape[0]

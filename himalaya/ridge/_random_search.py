@@ -103,6 +103,7 @@ def solve_group_ridge_random_search(
                                             n_kernels=n_spaces,
                                             concentration=concentration,
                                             random_state=random_state)
+        gammas[0] = 1 / n_spaces
     elif n_iter.ndim == 2:
         gammas = n_iter
         assert gammas.shape[1] == n_spaces
