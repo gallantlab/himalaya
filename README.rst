@@ -161,7 +161,7 @@ Developers can also install ``himalaya`` in editable mode via:
 
 
 Cite this package
------------------
+=================
 
 If you use ``himalaya`` in your work, please cite our (future) publication:
 
