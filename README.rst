@@ -158,3 +158,12 @@ Developers can also install ``himalaya`` in editable mode via:
 
 .. |License| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
+
+
+Cite this package
+-----------------
+
+If you use ``himalaya`` in your work, please cite our (future) publication:
+
+.. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
+	Variance decomposition with banded ridge regression. *In preparation*.
