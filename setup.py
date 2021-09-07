@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 from setuptools import find_packages, setup
 
 # get version from himalaya/__init__.py
@@ -9,6 +10,10 @@ for line in infos:
     if "__version__" in line:
         match = re.search(r"__version__ = '([^']*)'", line)
         __version__ = match.groups()[0]
+
+# read the contents of the README file
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.rst").read_text()
 
 requirements = [
     "numpy",
@@ -30,4 +35,6 @@ if __name__ == "__main__":
         packages=find_packages(),
         url="https://github.com/gallantlab/himalaya",
         install_requires=requirements,
+        long_description=long_description,
+        long_description_content_type='text/x-rst',
     )
