@@ -1,4 +1,4 @@
-Troobleshooting
+Troubleshooting
 ===============
 We detail here common issues encountered with ``himalaya``, and how to fix
 them.
