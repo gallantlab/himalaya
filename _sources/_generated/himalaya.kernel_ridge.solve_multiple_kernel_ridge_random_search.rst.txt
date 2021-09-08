@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.solve\_multiple\_kernel\_ridge\_random\_search
+=====================================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: solve_multiple_kernel_ridge_random_search

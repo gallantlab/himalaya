@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.PAIRWISE\_KERNEL\_FUNCTIONS
+==================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autodata:: PAIRWISE_KERNEL_FUNCTIONS

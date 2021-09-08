@@ -1,0 +1,6 @@
+﻿himalaya.ridge.Ridge
+====================
+
+.. currentmodule:: himalaya.ridge
+
+.. autoclass:: Ridge

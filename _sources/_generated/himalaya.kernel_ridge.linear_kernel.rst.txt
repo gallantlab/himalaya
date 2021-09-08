@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.linear\_kernel
+=====================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: linear_kernel

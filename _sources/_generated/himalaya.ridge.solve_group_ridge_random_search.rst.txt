@@ -1,0 +1,6 @@
+﻿himalaya.ridge.solve\_group\_ridge\_random\_search
+==================================================
+
+.. currentmodule:: himalaya.ridge
+
+.. autofunction:: solve_group_ridge_random_search

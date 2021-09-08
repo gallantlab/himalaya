@@ -1,0 +1,6 @@
+﻿himalaya.ridge.ColumnTransformerNoStack
+=======================================
+
+.. currentmodule:: himalaya.ridge
+
+.. autoclass:: ColumnTransformerNoStack

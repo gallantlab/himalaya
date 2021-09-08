@@ -1,0 +1,354 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>himalaya.ridge._column &#8212; Himalaya 0.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troobleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_auto_examples/index.html">Gallery of examples</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for himalaya.ridge._column</h1><div class="highlight"><pre>
+<span></span><span class="kn">from</span> <span class="nn">sklearn.compose</span> <span class="kn">import</span> <span class="n">ColumnTransformer</span>
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">_name_estimators</span>
+
+
+<div class="viewcode-block" id="ColumnTransformerNoStack"><a class="viewcode-back" href="../../../_generated/himalaya.ridge.ColumnTransformerNoStack.html#himalaya.ridge.ColumnTransformerNoStack">[docs]</a><span class="k">class</span> <span class="nc">ColumnTransformerNoStack</span><span class="p">(</span><span class="n">ColumnTransformer</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Applies transformers to columns of an array, and does not stack them.</span>
+
+<span class="sd">    This estimator allows different columns or column subsets of the input to</span>
+<span class="sd">    be transformed separately. The different groups of features generated are</span>
+<span class="sd">    *not* stacked together, to be used e.g. in a GroupRidgeCV(groups=&quot;auto&quot;).</span>
+<span class="sd">    This is useful to perform separate transformations on different feature</span>
+<span class="sd">    spaces.</span>
+
+<span class="sd">    Warning : This class does not perfectly abide by scikit-learn&#39;s API.</span>
+<span class="sd">    Indeed, it returns a list of ``n_groups`` matrices of shape (n_samples,</span>
+<span class="sd">    n_features_i), while scikit-learn&#39;s API only allows arrays of shape</span>
+<span class="sd">    (n_samples, n_features). This class is intended to be used in a</span>
+<span class="sd">    scikit-learn pipeline *just* before a GroupRidgeCV(groups=&quot;auto&quot;).</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transformers : list of tuples</span>
+<span class="sd">        List of (name, transformer, columns) tuples specifying the</span>
+<span class="sd">        transformer objects to be applied to subsets of the data.</span>
+
+<span class="sd">        name : str</span>
+<span class="sd">            Like in Pipeline and FeatureUnion, this allows the transformer and</span>
+<span class="sd">            its parameters to be set using ``set_params`` and searched in grid</span>
+<span class="sd">            search.</span>
+<span class="sd">        transformer : {&#39;drop&#39;, &#39;passthrough&#39;} or estimator</span>
+<span class="sd">            Estimator must support ``fit`` and ``transform``.</span>
+<span class="sd">            Special-cased strings &#39;drop&#39; and &#39;passthrough&#39; are accepted as</span>
+<span class="sd">            well, to indicate to drop the columns or to pass them through</span>
+<span class="sd">            untransformed, respectively.</span>
+<span class="sd">        columns :  str, array-like of str, int, array-like of int, \</span>
+<span class="sd">                array-like of bool, slice or callable</span>
+<span class="sd">            Indexes the data on its second axis. Integers are interpreted as</span>
+<span class="sd">            positional columns, while strings can reference DataFrame columns</span>
+<span class="sd">            by name.  A scalar string or int should be used where</span>
+<span class="sd">            ``transformer`` expects X to be a 1d array-like (vector),</span>
+<span class="sd">            otherwise a 2d array will be passed to the transformer.</span>
+<span class="sd">            A callable is passed the input data `X` and can return any of the</span>
+<span class="sd">            above. To select multiple columns by name or dtype, you can use</span>
+<span class="sd">            :obj:`make_column_selector`.</span>
+
+<span class="sd">    remainder : {&#39;drop&#39;, &#39;passthrough&#39;} or estimator, default=&#39;drop&#39;</span>
+<span class="sd">        By default, only the specified columns in `transformers` are</span>
+<span class="sd">        transformed and combined in the output, and the non-specified</span>
+<span class="sd">        columns are dropped. (default of ``&#39;drop&#39;``).</span>
+<span class="sd">        By specifying ``remainder=&#39;passthrough&#39;``, all remaining columns that</span>
+<span class="sd">        were not specified in `transformers` will be automatically passed</span>
+<span class="sd">        through. This subset of columns is concatenated with the output of</span>
+<span class="sd">        the transformers.</span>
+<span class="sd">        By setting ``remainder`` to be an estimator, the remaining</span>
+<span class="sd">        non-specified columns will use the ``remainder`` estimator. The</span>
+<span class="sd">        estimator must support ``fit`` and ``transform``.</span>
+<span class="sd">        Note that using this feature requires that the DataFrame columns</span>
+<span class="sd">        input at ``fit`` and ``transform`` have identical order.</span>
+
+<span class="sd">    n_jobs : int, default=None</span>
+<span class="sd">        Number of jobs to run in parallel.</span>
+<span class="sd">        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.</span>
+<span class="sd">        ``-1`` means using all processors.</span>
+<span class="sd">        n_jobs does not work with GPU backends.</span>
+
+<span class="sd">    transformer_weights : dict, default=None</span>
+<span class="sd">        Multiplicative weights for features per transformer. The output of the</span>
+<span class="sd">        transformer is multiplied by these weights. Keys are transformer names,</span>
+<span class="sd">        values the weights.</span>
+
+<span class="sd">    verbose : bool, default=False</span>
+<span class="sd">        If True, the time elapsed while fitting each transformer will be</span>
+<span class="sd">        printed as it is completed.</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    transformers_ : list</span>
+<span class="sd">        The collection of fitted transformers as tuples of</span>
+<span class="sd">        (name, fitted_transformer, column). `fitted_transformer` can be an</span>
+<span class="sd">        estimator, &#39;drop&#39;, or &#39;passthrough&#39;. In case there were no columns</span>
+<span class="sd">        selected, this will be the unfitted transformer.</span>
+<span class="sd">        If there are remaining columns, the final element is a tuple of the</span>
+<span class="sd">        form:</span>
+<span class="sd">        (&#39;remainder&#39;, transformer, remaining_columns) corresponding to the</span>
+<span class="sd">        ``remainder`` parameter. If there are remaining columns, then</span>
+<span class="sd">        ``len(transformers_)==len(transformers)+1``, otherwise</span>
+<span class="sd">        ``len(transformers_)==len(transformers)``.</span>
+
+<span class="sd">    named_transformers_ : :class:`~sklearn.utils.Bunch`</span>
+<span class="sd">        Read-only attribute to access any transformer by given name.</span>
+<span class="sd">        Keys are transformer names and values are the fitted transformer</span>
+<span class="sd">        objects.</span>
+
+<span class="sd">    n_features_in_ : int</span>
+<span class="sd">        Number of features used during the fit.</span>
+
+<span class="sd">    sparse_output_ : False</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    The order of the columns in the transformed feature matrix follows the</span>
+<span class="sd">    order of how the columns are specified in the `transformers` list.</span>
+<span class="sd">    Columns of the original feature matrix that are not specified are</span>
+<span class="sd">    dropped from the resulting transformed feature matrix, unless specified</span>
+<span class="sd">    in the `passthrough` keyword. Those columns specified with `passthrough`</span>
+<span class="sd">    are added at the right to the output of the transformers.</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    himalaya.ridge.make_column_transform_no_stack : convenience function for</span>
+<span class="sd">        combining the outputs of multiple pipelines applied to</span>
+<span class="sd">        column subsets of the original feature space.</span>
+<span class="sd">    sklearn.compose.make_column_selector : convenience function for selecting</span>
+<span class="sd">        columns based on datatype or the columns name with a regex pattern.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import numpy as np</span>
+<span class="sd">    &gt;&gt;&gt; from himalaya.ridge import ColumnTransformerNoStack</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.preprocessing import StandardScaler</span>
+<span class="sd">    &gt;&gt;&gt; ct = ColumnTransformerNoStack(</span>
+<span class="sd">    ...     [(&quot;group_1&quot;, StandardScaler(), [0, 1, 2]),</span>
+<span class="sd">    ...      (&quot;group_2&quot;, StandardScaler(), slice(3, 5))])</span>
+<span class="sd">    &gt;&gt;&gt; X = np.random.randn(10, 5)</span>
+<span class="sd">    &gt;&gt;&gt; # Group separately the first three columns and the last two</span>
+<span class="sd">    &gt;&gt;&gt; # columns, creating two feature spaces.</span>
+<span class="sd">    &gt;&gt;&gt; Xs = ct.fit_transform(X)</span>
+<span class="sd">    &gt;&gt;&gt; print(Xi.shape for Xi in Xs)</span>
+<span class="sd">    (2, 4, 4)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="nf">_hstack</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Do *not* stack the feature spaces.</span>
+
+<span class="sd">        In ColumnTransformer, this methods stacks Xs horizontally.</span>
+<span class="sd">        Here instead, we return the list of Xs.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        Xs : list of arrays of shape (n_samples, n_features_i)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="n">Xs</span></div>
+
+
+<div class="viewcode-block" id="make_column_transformer_no_stack"><a class="viewcode-back" href="../../../_generated/himalaya.ridge.make_column_transformer_no_stack.html#himalaya.ridge.make_column_transformer_no_stack">[docs]</a><span class="k">def</span> <span class="nf">make_column_transformer_no_stack</span><span class="p">(</span><span class="o">*</span><span class="n">transformers</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Construct a ColumnTransformerNoStack from the given transformers.</span>
+
+<span class="sd">    This is a shorthand for the ColumnTransformerNoStack constructor; it does</span>
+<span class="sd">    not require, and does not permit, naming the transformers. Instead, they</span>
+<span class="sd">    will be given names automatically based on their types. It also does not</span>
+<span class="sd">    allow weighting with ``transformer_weights``.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    *transformers : tuples</span>
+<span class="sd">        Tuples of the form (transformer, columns) specifying the</span>
+<span class="sd">        transformer objects to be applied to subsets of the data.</span>
+
+<span class="sd">        transformer : {&#39;drop&#39;, &#39;passthrough&#39;} or estimator</span>
+<span class="sd">            Estimator must support ``fit`` and ``transform``.</span>
+<span class="sd">            Special-cased strings &#39;drop&#39; and &#39;passthrough&#39; are accepted as</span>
+<span class="sd">            well, to indicate to drop the columns or to pass them through</span>
+<span class="sd">            untransformed, respectively.</span>
+<span class="sd">        columns : str,  array-like of str, int, array-like of int, slice, \</span>
+<span class="sd">                array-like of bool or callable</span>
+<span class="sd">            Indexes the data on its second axis. Integers are interpreted as</span>
+<span class="sd">            positional columns, while strings can reference DataFrame columns</span>
+<span class="sd">            by name. A scalar string or int should be used where</span>
+<span class="sd">            ``transformer`` expects X to be a 1d array-like (vector),</span>
+<span class="sd">            otherwise a 2d array will be passed to the transformer.</span>
+<span class="sd">            A callable is passed the input data `X` and can return any of the</span>
+<span class="sd">            above. To select multiple columns by name or dtype, you can use</span>
+<span class="sd">            :obj:`make_column_selector`.</span>
+
+<span class="sd">    remainder : {&#39;drop&#39;, &#39;passthrough&#39;} or estimator, default=&#39;drop&#39;</span>
+<span class="sd">        By default, only the specified columns in `transformers` are</span>
+<span class="sd">        transformed and combined in the output, and the non-specified</span>
+<span class="sd">        columns are dropped. (default of ``&#39;drop&#39;``).</span>
+<span class="sd">        By specifying ``remainder=&#39;passthrough&#39;``, all remaining columns that</span>
+<span class="sd">        were not specified in `transformers` will be automatically passed</span>
+<span class="sd">        through. This subset of columns is concatenated with the output of</span>
+<span class="sd">        the transformers.</span>
+<span class="sd">        By setting ``remainder`` to be an estimator, the remaining</span>
+<span class="sd">        non-specified columns will use the ``remainder`` estimator. The</span>
+<span class="sd">        estimator must support ``fit`` and ``transform``.</span>
+
+<span class="sd">    n_jobs : int, default=None</span>
+<span class="sd">        Number of jobs to run in parallel.</span>
+<span class="sd">        ``None`` means 1 unless in a :obj:`joblib.parallel_backend` context.</span>
+<span class="sd">        ``-1`` means using all processors.</span>
+<span class="sd">        n_jobs does not work with with GPU backends.</span>
+
+<span class="sd">    verbose : bool, default=False</span>
+<span class="sd">        If True, the time elapsed while fitting each transformer will be</span>
+<span class="sd">        printed as it is completed.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    column_transformer_no_stack : ColumnTransformerNoStack</span>
+
+<span class="sd">    See also</span>
+<span class="sd">    --------</span>
+<span class="sd">    himalaya.ridge.ColumnTransformerNoStack : Class that allows combining the</span>
+<span class="sd">        outputs of multiple transformer objects used on column subsets of the</span>
+<span class="sd">        data into a single feature space.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from sklearn.preprocessing import StandardScaler</span>
+<span class="sd">    &gt;&gt;&gt; from himalaya.ridge import make_column_transformer_no_stack</span>
+<span class="sd">    &gt;&gt;&gt; ct = make_column_transformer_no_stack(</span>
+<span class="sd">    ...     (StandardScaler(), [0, 1, 2]),</span>
+<span class="sd">    ...     (StandardScaler(), slice(3, 5)))</span>
+<span class="sd">    &gt;&gt;&gt; # Group separately the first three columns and the last two</span>
+<span class="sd">    &gt;&gt;&gt; # columns, creating two feature spaces.</span>
+<span class="sd">    &gt;&gt;&gt; Xs = ct.fit_transform(X)</span>
+<span class="sd">    &gt;&gt;&gt; print([Xi.shape for Xi in Xs])</span>
+<span class="sd">    [(4, 3), (4, 2)]</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># transformer_weights keyword is not passed through because the user</span>
+    <span class="c1"># would need to know the automatically generated names of the transformers</span>
+    <span class="n">n_jobs</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;n_jobs&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">remainder</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;remainder&#39;</span><span class="p">,</span> <span class="s1">&#39;drop&#39;</span><span class="p">)</span>
+    <span class="n">verbose</span> <span class="o">=</span> <span class="n">kwargs</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="s1">&#39;verbose&#39;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">kwargs</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span><span class="s1">&#39;Unknown keyword arguments: &quot;</span><span class="si">{}</span><span class="s1">&quot;&#39;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+            <span class="nb">list</span><span class="p">(</span><span class="n">kwargs</span><span class="o">.</span><span class="n">keys</span><span class="p">())[</span><span class="mi">0</span><span class="p">]))</span>
+    <span class="n">transformer_list</span> <span class="o">=</span> <span class="n">_get_transformer_list</span><span class="p">(</span><span class="n">transformers</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">ColumnTransformerNoStack</span><span class="p">(</span><span class="n">transformer_list</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="n">n_jobs</span><span class="p">,</span>
+                                    <span class="n">remainder</span><span class="o">=</span><span class="n">remainder</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span></div>
+
+
+<span class="k">def</span> <span class="nf">_get_transformer_list</span><span class="p">(</span><span class="n">estimators</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Construct (name, trans, column) tuples from list</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">transformers</span><span class="p">,</span> <span class="n">columns</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">estimators</span><span class="p">)</span>
+    <span class="n">names</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="nb">zip</span><span class="p">(</span><span class="o">*</span><span class="n">_name_estimators</span><span class="p">(</span><span class="n">transformers</span><span class="p">))</span>
+
+    <span class="n">transformer_list</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">zip</span><span class="p">(</span><span class="n">names</span><span class="p">,</span> <span class="n">transformers</span><span class="p">,</span> <span class="n">columns</span><span class="p">))</span>
+    <span class="k">return</span> <span class="n">transformer_list</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, Gallant lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

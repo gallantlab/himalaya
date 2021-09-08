@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.sigmoid\_kernel
+======================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: sigmoid_kernel

@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.MULTIPLE\_KERNEL\_RIDGE\_SOLVERS
+=======================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autodata:: MULTIPLE_KERNEL_RIDGE_SOLVERS

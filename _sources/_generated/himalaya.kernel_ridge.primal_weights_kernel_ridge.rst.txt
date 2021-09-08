@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.primal\_weights\_kernel\_ridge
+=====================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: primal_weights_kernel_ridge

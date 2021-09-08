@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.polynomial\_kernel
+=========================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: polynomial_kernel

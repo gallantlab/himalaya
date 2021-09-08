@@ -1,0 +1,6 @@
+﻿himalaya.scoring.r2\_score\_split
+=================================
+
+.. currentmodule:: himalaya.scoring
+
+.. autofunction:: r2_score_split

@@ -1,0 +1,509 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Refine multiple-kernel ridge results &#8212; Himalaya 0.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-rendered-html.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="prev" title="Multiple kernel ridge solvers" href="plot_mkr_solvers.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Gallery of examples</a><ul>
+      <li>Previous: <a href="plot_mkr_solvers.html" title="previous chapter">Multiple kernel ridge solvers</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troobleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery of examples</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../index.html#kernel-ridge-regression">Kernel ridge regression</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../index.html#multiple-kernel-ridge-regression">Multiple kernel ridge regression</a></li>
+</ul>
+</li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <div class="sphx-glr-download-link-note admonition note">
+<p class="admonition-title">Note</p>
+<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-refine-results-py"><span class="std std-ref">here</span></a>
+to download the full example code</p>
+</div>
+<section class="sphx-glr-example-title" id="refine-multiple-kernel-ridge-results">
+<span id="sphx-glr-auto-examples-multiple-kernel-ridge-plot-refine-results-py"></span><h1>Refine multiple-kernel ridge results<a class="headerlink" href="#refine-multiple-kernel-ridge-results" title="Permalink to this headline">¶</a></h1>
+<p>This example demonstrates how to solve multiple-kernel ridge regression with
+hyperparameter random search, then refine the results with hyperparameter
+gradient descent.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="kn">from</span> <span class="nn">himalaya.backend</span> <span class="kn">import</span> <span class="n">set_backend</span>
+<span class="kn">from</span> <span class="nn">himalaya.kernel_ridge</span> <span class="kn">import</span> <span class="n">MultipleKernelRidgeCV</span>
+<span class="kn">from</span> <span class="nn">himalaya.kernel_ridge</span> <span class="kn">import</span> <span class="n">Kernelizer</span>
+<span class="kn">from</span> <span class="nn">himalaya.kernel_ridge</span> <span class="kn">import</span> <span class="n">ColumnKernelizer</span>
+<span class="kn">from</span> <span class="nn">himalaya.kernel_ridge</span> <span class="kn">import</span> <span class="n">generate_dirichlet_samples</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.pipeline</span> <span class="kn">import</span> <span class="n">make_pipeline</span>
+</pre></div>
+</div>
+<p>In this example, we use the <code class="docutils literal notranslate"><span class="pre">cupy</span></code> backend (GPU).</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can display the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> pipeline with an HTML diagram.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">sklearn</span> <span class="kn">import</span> <span class="n">set_config</span>
+<span class="n">set_config</span><span class="p">(</span><span class="n">display</span><span class="o">=</span><span class="s1">&#39;diagram&#39;</span><span class="p">)</span>  <span class="c1"># requires scikit-learn 0.23</span>
+</pre></div>
+</div>
+<section id="generate-a-random-dataset">
+<h2>Generate a random dataset<a class="headerlink" href="#generate-a-random-dataset" title="Permalink to this headline">¶</a></h2>
+<ul class="simple">
+<li><p>Xs_train : list of arrays of shape (n_samples_train, n_features)</p></li>
+<li><p>Xs_test : list of arrays of shape (n_samples_test, n_features)</p></li>
+<li><p>Y_train : array of shape (n_samples_train, n_targets)</p></li>
+<li><p>Y_test : array of shape (n_repeat, n_samples_test, n_targets)</p></li>
+</ul>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_kernels</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">n_targets</span> <span class="o">=</span> <span class="mi">500</span>
+
+<span class="c1"># We create a few kernel weights</span>
+<span class="n">rng</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">RandomState</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">kernel_weights_true</span> <span class="o">=</span> <span class="n">generate_dirichlet_samples</span><span class="p">(</span><span class="n">n_targets</span><span class="p">,</span> <span class="n">n_kernels</span><span class="p">,</span>
+                                                 <span class="n">concentration</span><span class="o">=</span><span class="p">[</span><span class="mf">.3</span><span class="p">],</span>
+                                                 <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">kernel_weights_true</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">kernel_weights_true</span><span class="p">)</span>
+
+<span class="c1"># Then, we generate a random dataset, using the arbitrary scalings.</span>
+<span class="n">n_samples_train</span> <span class="o">=</span> <span class="mi">1000</span>
+<span class="n">n_samples_test</span> <span class="o">=</span> <span class="mi">400</span>
+<span class="n">n_features_list</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">full</span><span class="p">(</span><span class="n">n_kernels</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mi">1000</span><span class="p">)</span>
+
+<span class="n">Xs_train</span><span class="p">,</span> <span class="n">Xs_test</span> <span class="o">=</span> <span class="p">[],</span> <span class="p">[]</span>
+<span class="n">Y_train</span><span class="p">,</span> <span class="n">Y_test</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
+<span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_kernels</span><span class="p">):</span>
+    <span class="n">n_features</span> <span class="o">=</span> <span class="n">n_features_list</span><span class="p">[</span><span class="n">ii</span><span class="p">]</span>
+
+    <span class="n">X_train</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples_train</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+    <span class="n">X_test</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples_test</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+    <span class="n">X_train</span> <span class="o">-=</span> <span class="n">X_train</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">Xs_train</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_train</span><span class="p">)</span>
+    <span class="n">Xs_test</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">X_test</span><span class="p">)</span>
+
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span> <span class="o">/</span> <span class="n">n_features</span>
+    <span class="n">weights</span> <span class="o">*=</span> <span class="n">kernel_weights_true</span><span class="p">[:,</span> <span class="n">ii</span><span class="p">]</span> <span class="o">**</span> <span class="mf">0.5</span>
+
+    <span class="k">if</span> <span class="n">ii</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
+        <span class="n">Y_train</span> <span class="o">=</span> <span class="n">X_train</span> <span class="o">@</span> <span class="n">weights</span>
+        <span class="n">Y_test</span> <span class="o">=</span> <span class="n">X_test</span> <span class="o">@</span> <span class="n">weights</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Y_train</span> <span class="o">+=</span> <span class="n">X_train</span> <span class="o">@</span> <span class="n">weights</span>
+        <span class="n">Y_test</span> <span class="o">+=</span> <span class="n">X_test</span> <span class="o">@</span> <span class="n">weights</span>
+
+<span class="n">std</span> <span class="o">=</span> <span class="n">Y_train</span><span class="o">.</span><span class="n">std</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="kc">None</span><span class="p">]</span>
+<span class="n">Y_train</span> <span class="o">/=</span> <span class="n">std</span>
+<span class="n">Y_test</span> <span class="o">/=</span> <span class="n">std</span>
+
+<span class="n">noise</span> <span class="o">=</span> <span class="mf">0.1</span>
+<span class="n">Y_train</span> <span class="o">+=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples_train</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span> <span class="o">*</span> <span class="n">noise</span>
+<span class="n">Y_test</span> <span class="o">+=</span> <span class="n">rng</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples_test</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span> <span class="o">*</span> <span class="n">noise</span>
+<span class="n">Y_test</span> <span class="o">-=</span> <span class="n">Y_test</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">Y_train</span> <span class="o">-=</span> <span class="n">Y_train</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+<span class="c1"># Concatenate the feature spaces.</span>
+<span class="n">X_train</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">Xs_train</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+<span class="n">X_test</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span><span class="n">Xs_test</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="n">dtype</span><span class="o">=</span><span class="s2">&quot;float32&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="prepare-the-pipeline">
+<h2>Prepare the pipeline<a class="headerlink" href="#prepare-the-pipeline" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># Find the start and end of each feature space X in Xs</span>
+<span class="n">start_and_end</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([[</span><span class="mi">0</span><span class="p">],</span> <span class="n">np</span><span class="o">.</span><span class="n">cumsum</span><span class="p">(</span><span class="n">n_features_list</span><span class="p">)])</span>
+<span class="n">slices</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">end</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">start_and_end</span><span class="p">[:</span><span class="o">-</span><span class="mi">1</span><span class="p">],</span> <span class="n">start_and_end</span><span class="p">[</span><span class="mi">1</span><span class="p">:])</span>
+<span class="p">]</span>
+
+<span class="c1"># Create a different ``Kernelizer`` for each feature space.</span>
+<span class="n">kernelizers</span> <span class="o">=</span> <span class="p">[(</span><span class="s2">&quot;space </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span> <span class="n">ii</span><span class="p">,</span> <span class="n">Kernelizer</span><span class="p">(),</span> <span class="n">slice_</span><span class="p">)</span>
+               <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="n">slice_</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">slices</span><span class="p">)]</span>
+<span class="n">column_kernelizer</span> <span class="o">=</span> <span class="n">ColumnKernelizer</span><span class="p">(</span><span class="n">kernelizers</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="define-the-random-search-model">
+<h2>Define the random-search model<a class="headerlink" href="#define-the-random-search-model" title="Permalink to this headline">¶</a></h2>
+<p>We use very few iteration on purpose, to make the random search suboptimal,
+and refine it with hyperparameter gradient descent.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solver_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">n_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">alphas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">41</span><span class="p">),</span>
+<span class="p">)</span>
+
+<span class="n">model_1</span> <span class="o">=</span> <span class="n">MultipleKernelRidgeCV</span><span class="p">(</span><span class="n">kernels</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;random_search&quot;</span><span class="p">,</span>
+                                <span class="n">solver_params</span><span class="o">=</span><span class="n">solver_params</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">rng</span><span class="p">)</span>
+<span class="n">pipe_1</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">column_kernelizer</span><span class="p">,</span> <span class="n">model_1</span><span class="p">)</span>
+
+<span class="c1"># Fit the model on all targets</span>
+<span class="n">pipe_1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | 5 random sampling with cv |
+[........                                ] 20% | 0.64 sec | 5 random sampling with cv |
+[................                        ] 40% | 1.10 sec | 5 random sampling with cv |
+[........................                ] 60% | 1.56 sec | 5 random sampling with cv |
+[................................        ] 80% | 2.02 sec | 5 random sampling with cv |
+[........................................] 100% | 2.47 sec | 5 random sampling with cv |
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>#sk-96b31474-69c8-40de-93a2-217f492204ac {color: black;background-color: white;}#sk-96b31474-69c8-40de-93a2-217f492204ac pre{padding: 0;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-toggleable {background-color: white;}#sk-96b31474-69c8-40de-93a2-217f492204ac label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.2em 0.3em;box-sizing: border-box;text-align: center;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-96b31474-69c8-40de-93a2-217f492204ac input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-96b31474-69c8-40de-93a2-217f492204ac input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-estimator {font-family: monospace;background-color: #f0f8ff;margin: 0.25em 0.25em;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-estimator:hover {background-color: #d4ebff;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-item {z-index: 1;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-parallel-item:only-child::after {width: 0;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0.2em;box-sizing: border-box;padding-bottom: 0.1em;background-color: white;position: relative;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-96b31474-69c8-40de-93a2-217f492204ac div.sk-container {display: inline-block;position: relative;}</style><div id="sk-96b31474-69c8-40de-93a2-217f492204ac" class"sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ffdf0efa-340e-4e8a-9c3f-345897c14c2c" type="checkbox" ><label class="sk-toggleable__label" for="ffdf0efa-340e-4e8a-9c3f-345897c14c2c">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('columnkernelizer',
+                 ColumnKernelizer(transformers=[('space 0', Kernelizer(),
+                                                 slice(0, 1000, None)),
+                                                ('space 1', Kernelizer(),
+                                                 slice(1000, 2000, None)),
+                                                ('space 2', Kernelizer(),
+                                                 slice(2000, 3000, None)),
+                                                ('space 3', Kernelizer(),
+                                                 slice(3000, 4000, None))])),
+                ('multiplekernelridgecv',
+                 MultipleKernelRidgeCV(kernels='precomputed',
+                                       random_state=RandomState(MT199...
+       1.00000000e-02, 3.16227766e-02, 1.00000000e-01, 3.16227766e-01,
+       1.00000000e+00, 3.16227766e+00, 1.00000000e+01, 3.16227766e+01,
+       1.00000000e+02, 3.16227766e+02, 1.00000000e+03, 3.16227766e+03,
+       1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
+       1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
+       1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
+       1.00000000e+10]),
+                                                      'n_iter': 5}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="14e3fafc-0bdd-4e1f-b903-b1b4b0e04723" type="checkbox" ><label class="sk-toggleable__label" for="14e3fafc-0bdd-4e1f-b903-b1b4b0e04723">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[('space 0', Kernelizer(), slice(0, 1000, None)),
+                               ('space 1', Kernelizer(),
+                                slice(1000, 2000, None)),
+                               ('space 2', Kernelizer(),
+                                slice(2000, 3000, None)),
+                               ('space 3', Kernelizer(),
+                                slice(3000, 4000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="58f4de6e-f91e-4aec-8d49-34f1bfba8bab" type="checkbox" ><label class="sk-toggleable__label" for="58f4de6e-f91e-4aec-8d49-34f1bfba8bab">space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="eda99926-ba7d-4243-aabd-ebe816fb502c" type="checkbox" ><label class="sk-toggleable__label" for="eda99926-ba7d-4243-aabd-ebe816fb502c">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c3e1c50f-e166-4f27-83c8-666a84822a5a" type="checkbox" ><label class="sk-toggleable__label" for="c3e1c50f-e166-4f27-83c8-666a84822a5a">space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9b5ed8ed-51ab-422a-b610-605a71a71109" type="checkbox" ><label class="sk-toggleable__label" for="9b5ed8ed-51ab-422a-b610-605a71a71109">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="acced10a-1e97-436a-8720-d00ada23bbac" type="checkbox" ><label class="sk-toggleable__label" for="acced10a-1e97-436a-8720-d00ada23bbac">space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="e4611dc7-aedb-4998-b5a3-02e4381d349c" type="checkbox" ><label class="sk-toggleable__label" for="e4611dc7-aedb-4998-b5a3-02e4381d349c">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9d2da2a5-e742-4e2d-95f2-58fca475e402" type="checkbox" ><label class="sk-toggleable__label" for="9d2da2a5-e742-4e2d-95f2-58fca475e402">space 3</label><div class="sk-toggleable__content"><pre>slice(3000, 4000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a7ae73ef-be25-4586-a6d8-527e3f86e2a5" type="checkbox" ><label class="sk-toggleable__label" for="a7ae73ef-be25-4586-a6d8-527e3f86e2a5">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="28f333da-16ab-4c48-87b4-885b434dcaf4" type="checkbox" ><label class="sk-toggleable__label" for="28f333da-16ab-4c48-87b4-885b434dcaf4">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels='precomputed',
+                      random_state=RandomState(MT19937) at 0x7F4789ACAE40,
+                      solver_params={'alphas': array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+       1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
+       1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
+       1.00000000e-04, 3.16227766e-04, 1.00000000e-03,...
+       1.00000000e-02, 3.16227766e-02, 1.00000000e-01, 3.16227766e-01,
+       1.00000000e+00, 3.16227766e+00, 1.00000000e+01, 3.16227766e+01,
+       1.00000000e+02, 3.16227766e+02, 1.00000000e+03, 3.16227766e+03,
+       1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
+       1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
+       1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
+       1.00000000e+10]),
+                                     'n_iter': 5})</pre></div></div></div></div></div></div></div>
+</div>
+<br />
+<br /></section>
+<section id="define-the-gradient-descent-model">
+<h2>Define the gradient-descent model<a class="headerlink" href="#define-the-gradient-descent-model" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">solver_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+    <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="s2">&quot;direct&quot;</span><span class="p">,</span>
+    <span class="n">max_iter_inner_hyper</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">initial_deltas</span><span class="o">=</span><span class="s2">&quot;here_will_go_the_previous_deltas&quot;</span>
+<span class="p">)</span>
+
+<span class="n">model_2</span> <span class="o">=</span> <span class="n">MultipleKernelRidgeCV</span><span class="p">(</span><span class="n">kernels</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;hyper_gradient&quot;</span><span class="p">,</span>
+                                <span class="n">solver_params</span><span class="o">=</span><span class="n">solver_params</span><span class="p">)</span>
+<span class="n">pipe_2</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">column_kernelizer</span><span class="p">,</span> <span class="n">model_2</span><span class="p">)</span>
+</pre></div>
+</div>
+</section>
+<section id="use-the-random-search-to-initialize-the-gradient-descent">
+<h2>Use the random-search to initialize the gradient-descent<a class="headerlink" href="#use-the-random-search-to-initialize-the-gradient-descent" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="c1"># We might want to refine only the best predicting targets, since the</span>
+<span class="c1"># hyperparameter gradient descent is less efficient over many targets.</span>
+<span class="n">top</span> <span class="o">=</span> <span class="mi">60</span>  <span class="c1"># top 60%</span>
+<span class="n">best_cv_scores</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">pipe_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">cv_scores_</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+<span class="n">mask</span> <span class="o">=</span> <span class="n">best_cv_scores</span> <span class="o">&gt;</span> <span class="n">np</span><span class="o">.</span><span class="n">percentile</span><span class="p">(</span><span class="n">best_cv_scores</span><span class="p">,</span> <span class="mi">100</span> <span class="o">-</span> <span class="n">top</span><span class="p">)</span>
+
+<span class="n">pipe_2</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">solver_params</span><span class="p">[</span><span class="s1">&#39;initial_deltas&#39;</span><span class="p">]</span> <span class="o">=</span> <span class="n">pipe_1</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span><span class="o">.</span><span class="n">deltas_</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span>
+<span class="n">pipe_2</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">])</span>
+</pre></div>
+</div>
+<p class="sphx-glr-script-out">Out:</p>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | hypergradient_direct |
+[                                        ] 0% | 0.00 sec | hypergradient_direct |
+[                                        ] 1% | 2.73 sec | hypergradient_direct |
+[                                        ] 2% | 3.29 sec | hypergradient_direct |
+[.                                       ] 3% | 3.51 sec | hypergradient_direct |
+[.                                       ] 4% | 3.73 sec | hypergradient_direct |
+[..                                      ] 5% | 3.95 sec | hypergradient_direct |
+[..                                      ] 6% | 4.16 sec | hypergradient_direct |
+[..                                      ] 7% | 4.38 sec | hypergradient_direct |
+[...                                     ] 8% | 4.60 sec | hypergradient_direct |
+[...                                     ] 9% | 4.82 sec | hypergradient_direct |
+[....                                    ] 10% | 5.03 sec | hypergradient_direct |
+[....                                    ] 11% | 5.25 sec | hypergradient_direct |
+[....                                    ] 12% | 5.47 sec | hypergradient_direct |
+[.....                                   ] 13% | 5.69 sec | hypergradient_direct |
+[.....                                   ] 14% | 5.90 sec | hypergradient_direct |
+[......                                  ] 15% | 6.12 sec | hypergradient_direct |
+[......                                  ] 16% | 6.34 sec | hypergradient_direct |
+[......                                  ] 17% | 6.56 sec | hypergradient_direct |
+[.......                                 ] 18% | 6.78 sec | hypergradient_direct |
+[.......                                 ] 19% | 6.99 sec | hypergradient_direct |
+[........                                ] 20% | 7.21 sec | hypergradient_direct |
+[........                                ] 21% | 7.43 sec | hypergradient_direct |
+[........                                ] 22% | 7.65 sec | hypergradient_direct |
+[.........                               ] 23% | 7.86 sec | hypergradient_direct |
+[.........                               ] 24% | 8.08 sec | hypergradient_direct |
+[..........                              ] 25% | 8.30 sec | hypergradient_direct |
+[..........                              ] 26% | 8.52 sec | hypergradient_direct |
+[..........                              ] 27% | 8.74 sec | hypergradient_direct |
+[...........                             ] 28% | 8.95 sec | hypergradient_direct |
+[...........                             ] 29% | 9.17 sec | hypergradient_direct |
+[............                            ] 30% | 9.39 sec | hypergradient_direct |
+[............                            ] 31% | 9.61 sec | hypergradient_direct |
+[............                            ] 32% | 9.83 sec | hypergradient_direct |
+[.............                           ] 33% | 10.04 sec | hypergradient_direct |
+[.............                           ] 34% | 10.26 sec | hypergradient_direct |
+[..............                          ] 35% | 10.48 sec | hypergradient_direct |
+[..............                          ] 36% | 10.70 sec | hypergradient_direct |
+[..............                          ] 37% | 10.92 sec | hypergradient_direct |
+[...............                         ] 38% | 11.13 sec | hypergradient_direct |
+[...............                         ] 39% | 11.35 sec | hypergradient_direct |
+[................                        ] 40% | 11.57 sec | hypergradient_direct |
+[................                        ] 41% | 11.79 sec | hypergradient_direct |
+[................                        ] 42% | 12.01 sec | hypergradient_direct |
+[.................                       ] 43% | 12.22 sec | hypergradient_direct |
+[.................                       ] 44% | 12.44 sec | hypergradient_direct |
+[..................                      ] 45% | 12.66 sec | hypergradient_direct |
+[..................                      ] 46% | 12.88 sec | hypergradient_direct |
+[..................                      ] 47% | 13.10 sec | hypergradient_direct |
+[...................                     ] 48% | 13.31 sec | hypergradient_direct |
+[...................                     ] 49% | 13.53 sec | hypergradient_direct |
+[....................                    ] 50% | 13.75 sec | hypergradient_direct |
+[....................                    ] 51% | 13.97 sec | hypergradient_direct |
+[....................                    ] 52% | 14.18 sec | hypergradient_direct |
+[.....................                   ] 53% | 14.40 sec | hypergradient_direct |
+[.....................                   ] 54% | 14.66 sec | hypergradient_direct |
+[......................                  ] 55% | 14.88 sec | hypergradient_direct |
+[......................                  ] 56% | 15.10 sec | hypergradient_direct |
+[......................                  ] 57% | 15.31 sec | hypergradient_direct |
+[.......................                 ] 58% | 15.53 sec | hypergradient_direct |
+[.......................                 ] 59% | 15.75 sec | hypergradient_direct |
+[........................                ] 60% | 15.97 sec | hypergradient_direct |
+[........................                ] 61% | 16.18 sec | hypergradient_direct |
+[........................                ] 62% | 16.41 sec | hypergradient_direct |
+[.........................               ] 63% | 16.66 sec | hypergradient_direct |
+[.........................               ] 64% | 16.91 sec | hypergradient_direct |
+[..........................              ] 65% | 17.17 sec | hypergradient_direct |
+[..........................              ] 66% | 17.42 sec | hypergradient_direct |
+[..........................              ] 67% | 17.64 sec | hypergradient_direct |
+[...........................             ] 68% | 17.86 sec | hypergradient_direct |
+[...........................             ] 69% | 18.08 sec | hypergradient_direct |
+[............................            ] 70% | 18.30 sec | hypergradient_direct |
+[............................            ] 71% | 18.51 sec | hypergradient_direct |
+[............................            ] 72% | 18.73 sec | hypergradient_direct |
+[.............................           ] 73% | 18.95 sec | hypergradient_direct |
+[.............................           ] 74% | 19.17 sec | hypergradient_direct |
+[..............................          ] 75% | 19.38 sec | hypergradient_direct |
+[..............................          ] 76% | 19.60 sec | hypergradient_direct |
+[..............................          ] 77% | 19.82 sec | hypergradient_direct |
+[...............................         ] 78% | 20.04 sec | hypergradient_direct |
+[...............................         ] 79% | 20.25 sec | hypergradient_direct |
+[................................        ] 80% | 20.47 sec | hypergradient_direct |
+[................................        ] 81% | 20.69 sec | hypergradient_direct |
+[................................        ] 82% | 20.90 sec | hypergradient_direct |
+[.................................       ] 83% | 21.12 sec | hypergradient_direct |
+[.................................       ] 84% | 21.34 sec | hypergradient_direct |
+[..................................      ] 85% | 21.56 sec | hypergradient_direct |
+[..................................      ] 86% | 21.82 sec | hypergradient_direct |
+[..................................      ] 87% | 22.07 sec | hypergradient_direct |
+[...................................     ] 88% | 22.33 sec | hypergradient_direct |
+[...................................     ] 89% | 22.55 sec | hypergradient_direct |
+[....................................    ] 90% | 22.77 sec | hypergradient_direct |
+[....................................    ] 91% | 22.99 sec | hypergradient_direct |
+[....................................    ] 92% | 23.21 sec | hypergradient_direct |
+[.....................................   ] 93% | 23.42 sec | hypergradient_direct |
+[.....................................   ] 94% | 23.64 sec | hypergradient_direct |
+[......................................  ] 95% | 23.86 sec | hypergradient_direct |
+[......................................  ] 96% | 24.08 sec | hypergradient_direct |
+[......................................  ] 97% | 24.30 sec | hypergradient_direct |
+[....................................... ] 98% | 24.51 sec | hypergradient_direct |
+[....................................... ] 99% | 24.73 sec | hypergradient_direct |
+[........................................] 100% | 25.39 sec | hypergradient_direct |
+</pre></div>
+</div>
+<div class="output_subarea output_html rendered_html output_result">
+<style>#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 {color: black;background-color: white;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 pre{padding: 0;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-toggleable {background-color: white;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.2em 0.3em;box-sizing: border-box;text-align: center;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;margin: 0.25em 0.25em;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-estimator:hover {background-color: #d4ebff;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-item {z-index: 1;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-parallel-item:only-child::after {width: 0;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0.2em;box-sizing: border-box;padding-bottom: 0.1em;background-color: white;position: relative;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3 div.sk-container {display: inline-block;position: relative;}</style><div id="sk-5acccdd8-0737-49b5-8881-8872f0f1a3a3" class"sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="05a2bfe4-c154-41ac-8ae5-fd869bad4f99" type="checkbox" ><label class="sk-toggleable__label" for="05a2bfe4-c154-41ac-8ae5-fd869bad4f99">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('columnkernelizer',
+                 ColumnKernelizer(transformers=[('space 0', Kernelizer(),
+                                                 slice(0, 1000, None)),
+                                                ('space 1', Kernelizer(),
+                                                 slice(1000, 2000, None)),
+                                                ('space 2', Kernelizer(),
+                                                 slice(2000, 3000, None)),
+                                                ('space 3', Kernelizer(),
+                                                 slice(3000, 4000, None))])),
+                ('multiplekernelridgecv',
+                 MultipleKernelRidgeCV(kernels='precomputed',
+                                       solver='hyper_gradient',
+                                       solver...
+                                                      'initial_deltas': array([[ -3.5570416,  20.620102 ,   9.443474 , ..., -13.436336 ,
+         -5.859627 ,  20.620102 ],
+       [ -3.7483635,  20.42878  ,   6.1138997, ..., -19.43912  ,
+         -6.0509486,  20.42878  ],
+       [ -1.3853505,  22.791794 ,   9.041862 , ...,  -5.145227 ,
+         -3.6879356,  22.791794 ],
+       [ -4.2749796,  19.902164 ,   9.219863 , ...,  -5.4795074,
+         -6.5775647,  19.902164 ]], dtype=float32),
+                                                      'max_iter': 100,
+                                                      'max_iter_inner_hyper': 10}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="3950530d-dc26-415b-90f8-472ee30618b8" type="checkbox" ><label class="sk-toggleable__label" for="3950530d-dc26-415b-90f8-472ee30618b8">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[('space 0', Kernelizer(), slice(0, 1000, None)),
+                               ('space 1', Kernelizer(),
+                                slice(1000, 2000, None)),
+                               ('space 2', Kernelizer(),
+                                slice(2000, 3000, None)),
+                               ('space 3', Kernelizer(),
+                                slice(3000, 4000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7671c9eb-fbe2-4553-b5ab-ab24ddc29271" type="checkbox" ><label class="sk-toggleable__label" for="7671c9eb-fbe2-4553-b5ab-ab24ddc29271">space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4a4d8448-9d1a-4580-8953-d779aa872680" type="checkbox" ><label class="sk-toggleable__label" for="4a4d8448-9d1a-4580-8953-d779aa872680">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7f88b49d-0c4c-4388-ac2d-375837e66c94" type="checkbox" ><label class="sk-toggleable__label" for="7f88b49d-0c4c-4388-ac2d-375837e66c94">space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="b73f7159-235c-4905-8a08-b73614f5b503" type="checkbox" ><label class="sk-toggleable__label" for="b73f7159-235c-4905-8a08-b73614f5b503">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ecb0ea11-ed6a-436c-b74e-d72a1c577108" type="checkbox" ><label class="sk-toggleable__label" for="ecb0ea11-ed6a-436c-b74e-d72a1c577108">space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="47b54a77-d55c-4a4f-b3fe-86a82cbe7473" type="checkbox" ><label class="sk-toggleable__label" for="47b54a77-d55c-4a4f-b3fe-86a82cbe7473">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="31728fb7-9931-42bf-8157-c041fe7b35d7" type="checkbox" ><label class="sk-toggleable__label" for="31728fb7-9931-42bf-8157-c041fe7b35d7">space 3</label><div class="sk-toggleable__content"><pre>slice(3000, 4000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="96c53ade-6835-42db-b583-53cf04cffa16" type="checkbox" ><label class="sk-toggleable__label" for="96c53ade-6835-42db-b583-53cf04cffa16">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7ced3955-dd6a-4d35-99a6-36fc5ceef79b" type="checkbox" ><label class="sk-toggleable__label" for="7ced3955-dd6a-4d35-99a6-36fc5ceef79b">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels='precomputed', solver='hyper_gradient',
+                      solver_params={'hyper_gradient_method': 'direct',
+                                     'initial_deltas': array([[ -3.5570416,  20.620102 ,   9.443474 , ..., -13.436336 ,
+         -5.859627 ,  20.620102 ],
+       [ -3.7483635,  20.42878  ,   6.1138997, ..., -19.43912  ,
+         -6.0509486,  20.42878  ],
+       [ -1.3853505,  22.791794 ,   9.041862 , ...,  -5.145227 ,
+         -3.6879356,  22.791794 ],
+       [ -4.2749796,  19.902164 ,   9.219863 , ...,  -5.4795074,
+         -6.5775647,  19.902164 ]], dtype=float32),
+                                     'max_iter': 100,
+                                     'max_iter_inner_hyper': 10})</pre></div></div></div></div></div></div></div>
+</div>
+<br />
+<br /></section>
+<section id="compute-predictions-on-a-test-set">
+<h2>Compute predictions on a test set<a class="headerlink" href="#compute-predictions-on-a-test-set" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># use the first model for all targets</span>
+<span class="n">test_scores_1</span> <span class="o">=</span> <span class="n">pipe_1</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">)</span>
+
+<span class="c1"># use the second model for the refined targets</span>
+<span class="n">test_scores_2</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">test_scores_1</span><span class="p">)</span>
+<span class="n">test_scores_2</span><span class="p">[</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">pipe_2</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X_test</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">])</span>
+
+<span class="n">test_scores_1</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">test_scores_1</span><span class="p">)</span>
+<span class="n">test_scores_2</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">test_scores_2</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">4</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">scatter</span><span class="p">(</span><span class="n">test_scores_1</span><span class="p">,</span> <span class="n">test_scores_2</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.3</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(),</span> <span class="n">plt</span><span class="o">.</span><span class="n">xlim</span><span class="p">(),</span> <span class="n">color</span><span class="o">=</span><span class="s1">&#39;k&#39;</span><span class="p">,</span> <span class="n">lw</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Base model&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;Refined model&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;$R^2$ generalization score&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">tight_layout</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+<img alt="$R^2$ generalization score" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_refine_results_001.png" />
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  29.943 seconds)</p>
+<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-refine-results-py">
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/2d5879470451ebf61b93da365508fdfb/plot_refine_results.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_refine_results.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/4d1d218f8eb560a28e2ea747f31cbfe5/plot_refine_results.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_refine_results.ipynb</span></code></a></p>
+</div>
+</div>
+<p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
+</section>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, Gallant lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../../_sources/_auto_examples/multiple_kernel_ridge/plot_refine_results.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

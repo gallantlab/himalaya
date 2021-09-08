@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.MultipleKernelRidgeCV
+============================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autoclass:: MultipleKernelRidgeCV

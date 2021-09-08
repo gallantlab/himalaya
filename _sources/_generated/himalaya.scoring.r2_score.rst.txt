@@ -1,0 +1,6 @@
+﻿himalaya.scoring.r2\_score
+==========================
+
+.. currentmodule:: himalaya.scoring
+
+.. autofunction:: r2_score

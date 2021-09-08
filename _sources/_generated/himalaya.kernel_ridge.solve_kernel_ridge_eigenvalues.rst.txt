@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.solve\_kernel\_ridge\_eigenvalues
+========================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: solve_kernel_ridge_eigenvalues

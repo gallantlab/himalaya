@@ -1,0 +1,6 @@
+﻿himalaya.viz.plot\_alphas\_diagnostic
+=====================================
+
+.. currentmodule:: himalaya.viz
+
+.. autofunction:: plot_alphas_diagnostic

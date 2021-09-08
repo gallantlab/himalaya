@@ -1,0 +1,6 @@
+﻿himalaya.progress\_bar.bar
+==========================
+
+.. currentmodule:: himalaya.progress_bar
+
+.. autofunction:: bar

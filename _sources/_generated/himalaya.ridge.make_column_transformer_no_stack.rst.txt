@@ -1,0 +1,6 @@
+﻿himalaya.ridge.make\_column\_transformer\_no\_stack
+===================================================
+
+.. currentmodule:: himalaya.ridge
+
+.. autofunction:: make_column_transformer_no_stack

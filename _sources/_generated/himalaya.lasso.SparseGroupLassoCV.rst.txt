@@ -1,0 +1,6 @@
+﻿himalaya.lasso.SparseGroupLassoCV
+=================================
+
+.. currentmodule:: himalaya.lasso
+
+.. autoclass:: SparseGroupLassoCV

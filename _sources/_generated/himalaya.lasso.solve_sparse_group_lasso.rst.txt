@@ -1,0 +1,6 @@
+﻿himalaya.lasso.solve\_sparse\_group\_lasso
+==========================================
+
+.. currentmodule:: himalaya.lasso
+
+.. autofunction:: solve_sparse_group_lasso

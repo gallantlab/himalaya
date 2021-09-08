@@ -1,0 +1,6 @@
+﻿himalaya.ridge.RIDGE\_SOLVERS
+=============================
+
+.. currentmodule:: himalaya.ridge
+
+.. autodata:: RIDGE_SOLVERS

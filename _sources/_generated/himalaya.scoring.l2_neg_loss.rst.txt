@@ -1,0 +1,6 @@
+﻿himalaya.scoring.l2\_neg\_loss
+==============================
+
+.. currentmodule:: himalaya.scoring
+
+.. autofunction:: l2_neg_loss

@@ -1,0 +1,6 @@
+﻿himalaya.backend.get\_backend
+=============================
+
+.. currentmodule:: himalaya.backend
+
+.. autofunction:: get_backend

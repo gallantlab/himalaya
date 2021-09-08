@@ -1,0 +1,274 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>himalaya.progress_bar &#8212; Himalaya 0.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-rendered-html.css" />
+    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
+    <script src="../../_static/jquery.js"></script>
+    <script src="../../_static/underscore.js"></script>
+    <script src="../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troobleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../_auto_examples/index.html">Gallery of examples</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for himalaya.progress_bar</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+
+
+<div class="viewcode-block" id="bar"><a class="viewcode-back" href="../../_generated/himalaya.progress_bar.bar.html#himalaya.progress_bar.bar">[docs]</a><span class="k">def</span> <span class="nf">bar</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">use_it</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Simple API for progress_bar.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    iterable : iterable</span>
+<span class="sd">        Iterable that will make the progress bar progress.</span>
+<span class="sd">    title : str</span>
+<span class="sd">        Message to include at end of progress bar.</span>
+<span class="sd">    use_it : bool</span>
+<span class="sd">        If False, return the iterable unchanged, and does not show a progress</span>
+<span class="sd">        bar.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import time</span>
+<span class="sd">    &gt;&gt;&gt; from himalaya.progress_bar import bar</span>
+<span class="sd">    &gt;&gt;&gt; for ii in bar(range(10)):</span>
+<span class="sd">    &gt;&gt;&gt;     time.sleep(0.5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">use_it</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="n">title</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="nb">len</span><span class="p">(</span><span class="n">iterable</span><span class="p">))(</span><span class="n">iterable</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">iterable</span></div>
+
+
+<div class="viewcode-block" id="ProgressBar"><a class="viewcode-back" href="../../_generated/himalaya.progress_bar.ProgressBar.html#himalaya.progress_bar.ProgressBar">[docs]</a><span class="k">class</span> <span class="nc">ProgressBar</span><span class="p">():</span>
+    <span class="sd">&quot;&quot;&quot;Generate a command-line progress bar.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    max_value : int</span>
+<span class="sd">        Maximum value of process (e.g. number of samples to process, bytes to</span>
+<span class="sd">        download, etc.).</span>
+<span class="sd">    initial_value : int</span>
+<span class="sd">        Initial value of process, useful when resuming process from a specific</span>
+<span class="sd">        value, defaults to 0.</span>
+<span class="sd">    title : str</span>
+<span class="sd">        Message to include at end of progress bar.</span>
+<span class="sd">    max_chars : int</span>
+<span class="sd">        Number of characters to use for progress bar (be sure to save some room</span>
+<span class="sd">        for the message and % complete as well).</span>
+<span class="sd">    progress_character : char</span>
+<span class="sd">        Character in the progress bar that indicates the portion completed.</span>
+<span class="sd">    spinner : bool</span>
+<span class="sd">        Show a spinner.  Useful for long-running processes that may not</span>
+<span class="sd">        increment the progress bar very often.  This provides the user with</span>
+<span class="sd">        feedback that the progress has not stalled.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; import time</span>
+<span class="sd">    &gt;&gt;&gt; from himalaya.progress_bar import ProgressBar</span>
+<span class="sd">    &gt;&gt;&gt; for ii in ProgressBar(title=&quot;La barre&quot;, max_value=10)(range(10)):</span>
+<span class="sd">    &gt;&gt;&gt;     time.sleep(0.5)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="n">spinner_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">]</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\r</span><span class="s1">[</span><span class="si">{0}{1}</span><span class="s1">] </span><span class="si">{2:0.0f}</span><span class="s1">% </span><span class="si">{3}</span><span class="s1"> </span><span class="si">{4:.02f}</span><span class="s1"> sec | </span><span class="si">{5}</span><span class="s1"> | &#39;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_chars</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+                 <span class="n">progress_character</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">spinner</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span> <span class="o">=</span> <span class="n">initial_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">max_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">max_chars</span> <span class="o">=</span> <span class="n">max_chars</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">progress_character</span> <span class="o">=</span> <span class="n">progress_character</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinner</span> <span class="o">=</span> <span class="n">spinner</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">spinner_index</span> <span class="o">=</span> <span class="mi">0</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">n_spinner</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinner_symbols</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_do_print</span> <span class="o">=</span> <span class="n">verbose_bool</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">start</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">initial_value</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">update</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cur_value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update progressbar with current value of process.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        cur_value : number</span>
+<span class="sd">            Current value of process.  Should be &lt;= max_value (but this is not</span>
+<span class="sd">            enforced).  The percent of the progressbar will be computed as</span>
+<span class="sd">            (cur_value / max_value) * 100</span>
+<span class="sd">        title : str</span>
+<span class="sd">            Message to display to the right of the progressbar.  If None, the</span>
+<span class="sd">            last message provided will be used.  To clear the current message,</span>
+<span class="sd">            pass a null string, &#39;&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c1"># Ensure floating-point division so we can get fractions of a percent</span>
+        <span class="c1"># for the progressbar.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span> <span class="o">=</span> <span class="n">cur_value</span>
+        <span class="n">max_value</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="ow">or</span> <span class="mi">1</span>
+        <span class="n">progress</span> <span class="o">=</span> <span class="nb">min</span><span class="p">(</span><span class="nb">float</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span><span class="p">)</span> <span class="o">/</span> <span class="n">max_value</span><span class="p">,</span> <span class="mf">1.</span><span class="p">)</span>
+        <span class="n">num_chars</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">progress</span> <span class="o">*</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_chars</span><span class="p">)</span>
+        <span class="n">num_left</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">max_chars</span> <span class="o">-</span> <span class="n">num_chars</span>
+
+        <span class="c1"># Update the message</span>
+        <span class="k">if</span> <span class="n">title</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
+
+        <span class="c1"># time from start</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+        <span class="c1"># The \r tells the cursor to return to the beginning of the line rather</span>
+        <span class="c1"># than starting a new line.  This allows us to have a progressbar-style</span>
+        <span class="c1"># display in the console window.</span>
+        <span class="n">bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">progress_character</span> <span class="o">*</span> <span class="n">num_chars</span><span class="p">,</span>
+                                   <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">num_left</span><span class="p">,</span> <span class="n">progress</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
+                                   <span class="bp">self</span><span class="o">.</span><span class="n">spinner_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spinner_index</span><span class="p">],</span>
+                                   <span class="n">duration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+        <span class="c1"># Force a flush because sometimes when using bash scripts and pipes,</span>
+        <span class="c1"># the output is not printed until after the program exits.</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_print</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">bar</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+        <span class="c1"># Increment the spinner</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">spinner</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">spinner_index</span> <span class="o">=</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">spinner_index</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">%</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_spinner</span>
+
+        <span class="k">if</span> <span class="n">progress</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">def</span> <span class="nf">update_with_increment_value</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">increment_value</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Update progressbar with the value of the increment instead of the</span>
+<span class="sd">        current value of process as in update().</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        increment_value : int</span>
+<span class="sd">            Value of the increment of process.  The percent of the progressbar</span>
+<span class="sd">            will be computed as</span>
+<span class="sd">            (self.cur_value + increment_value / max_value) * 100</span>
+<span class="sd">        title : str</span>
+<span class="sd">            Message to display to the right of the progressbar.  If None, the</span>
+<span class="sd">            last message provided will be used.  To clear the current message,</span>
+<span class="sd">            pass a null string, &#39;&#39;.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span> <span class="o">+=</span> <span class="n">increment_value</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span><span class="p">,</span> <span class="n">title</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">close</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Close the progress bar.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">closed</span><span class="p">:</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s1">&#39;</span><span class="se">\n</span><span class="s1">&#39;</span><span class="p">)</span>
+            <span class="n">sys</span><span class="o">.</span><span class="n">stdout</span><span class="o">.</span><span class="n">flush</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">closed</span> <span class="o">=</span> <span class="kc">True</span>
+
+    <span class="k">def</span> <span class="fm">__call__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">sequence</span><span class="p">):</span>
+        <span class="n">sequence</span> <span class="o">=</span> <span class="nb">iter</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+        <span class="k">while</span> <span class="kc">True</span><span class="p">:</span>
+            <span class="k">try</span><span class="p">:</span>
+                <span class="k">yield</span> <span class="nb">next</span><span class="p">(</span><span class="n">sequence</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">update_with_increment_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+            <span class="k">except</span> <span class="ne">StopIteration</span><span class="p">:</span>
+                <span class="k">return</span></div>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, Gallant lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

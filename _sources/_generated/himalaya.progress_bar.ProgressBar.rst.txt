@@ -1,0 +1,6 @@
+﻿himalaya.progress\_bar.ProgressBar
+==================================
+
+.. currentmodule:: himalaya.progress_bar
+
+.. autoclass:: ProgressBar

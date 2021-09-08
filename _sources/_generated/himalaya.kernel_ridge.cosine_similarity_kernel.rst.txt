@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.cosine\_similarity\_kernel
+=================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: cosine_similarity_kernel

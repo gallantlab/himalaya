@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.generate\_dirichlet\_samples
+===================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: generate_dirichlet_samples

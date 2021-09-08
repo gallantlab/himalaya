@@ -1,0 +1,6 @@
+﻿himalaya.utils.compute\_lipschitz\_constants
+============================================
+
+.. currentmodule:: himalaya.utils
+
+.. autofunction:: compute_lipschitz_constants

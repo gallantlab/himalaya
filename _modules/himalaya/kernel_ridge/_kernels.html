@@ -1,0 +1,775 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>himalaya.kernel_ridge._kernels &#8212; Himalaya 0.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troobleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_auto_examples/index.html">Gallery of examples</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for himalaya.kernel_ridge._kernels</h1><div class="highlight"><pre>
+<span></span><span class="sd">&quot;&quot;&quot;Adapt functions from scikit-learn to use different backends.&quot;&quot;&quot;</span>
+
+<span class="kn">import</span> <span class="nn">itertools</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">partial</span>
+<span class="kn">import</span> <span class="nn">math</span>
+
+<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">TransformerMixin</span>
+<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="n">check_is_fitted</span>
+
+<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">_get_string_dtype</span>
+<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_array</span>
+<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">issparse</span>
+
+
+<span class="k">def</span> <span class="nf">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">precomputed</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                          <span class="n">accept_sparse</span><span class="o">=</span><span class="s1">&#39;csr&#39;</span><span class="p">,</span> <span class="n">force_all_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Set X and Y appropriately and checks inputs</span>
+
+<span class="sd">    If Y is None, it is set as a pointer to X (i.e. not a copy).</span>
+<span class="sd">    If Y is given, this does not happen.</span>
+<span class="sd">    All distance metrics should use this function first to assert that the</span>
+<span class="sd">    given parameters are correct and safe to use.</span>
+
+<span class="sd">    Specifically, this function first ensures that both X and Y are arrays,</span>
+<span class="sd">    then checks that they are at least two dimensional while ensuring that</span>
+<span class="sd">    their elements are floats (or dtype if provided). Finally, the function</span>
+<span class="sd">    checks that the size of the second dimension of the two arrays is equal, or</span>
+<span class="sd">    the equivalent check for a precomputed distance matrix.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : {array-like, sparse matrix}, shape (n_samples_X, n_features)</span>
+
+<span class="sd">    Y : {array-like, sparse matrix}, shape (n_samples_Y, n_features)</span>
+
+<span class="sd">    precomputed : bool</span>
+<span class="sd">        True if X is to be treated as precomputed distances to the samples in</span>
+<span class="sd">        Y.</span>
+
+<span class="sd">    dtype : string, type, list of types or None (default=None)</span>
+<span class="sd">        Data type required for X and Y. If None, the dtype will be an</span>
+<span class="sd">        appropriate float type selected by _return_float_dtype.</span>
+
+<span class="sd">    accept_sparse : string, boolean or list/tuple of strings</span>
+<span class="sd">        String[s] representing allowed sparse matrix formats, such as &#39;csc&#39;,</span>
+<span class="sd">        &#39;csr&#39;, etc. If the input is sparse but not in the allowed format,</span>
+<span class="sd">        it will be converted to the first listed format. True allows the input</span>
+<span class="sd">        to be any format. False means that a sparse matrix input will</span>
+<span class="sd">        raise an error.</span>
+
+<span class="sd">    force_all_finite : boolean or &#39;allow-nan&#39;, (default=True)</span>
+<span class="sd">        Whether to raise an error on np.inf and np.nan in array. The</span>
+<span class="sd">        possibilities are:</span>
+
+<span class="sd">        - True: Force all values of array to be finite.</span>
+<span class="sd">        - False: accept both np.inf and np.nan in array.</span>
+<span class="sd">        - &#39;allow-nan&#39;: accept only np.nan values in array. Values cannot</span>
+<span class="sd">          be infinite.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    X : {array-like, sparse matrix}, shape (n_samples_X, n_features)</span>
+<span class="sd">        An array equal to X.</span>
+
+<span class="sd">    Y : {array-like, sparse matrix}, shape (n_samples_Y, n_features)</span>
+<span class="sd">        An array equal to Y if Y was not None.</span>
+<span class="sd">        If Y was None, Y will be a pointer to X.</span>
+
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="n">_return_float_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="n">X</span> <span class="ow">or</span> <span class="n">Y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                            <span class="n">force_all_finite</span><span class="o">=</span><span class="n">force_all_finite</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                        <span class="n">force_all_finite</span><span class="o">=</span><span class="n">force_all_finite</span><span class="p">)</span>
+        <span class="n">Y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span>
+                        <span class="n">force_all_finite</span><span class="o">=</span><span class="n">force_all_finite</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">precomputed</span><span class="p">:</span>
+        <span class="k">pass</span>
+    <span class="k">elif</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Incompatible dimension for X and Y matrices: &quot;</span>
+                         <span class="s2">&quot;X.shape[1] == </span><span class="si">%d</span><span class="s2"> while Y.shape[1] == </span><span class="si">%d</span><span class="s2">&quot;</span> <span class="o">%</span>
+                         <span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">return</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span>
+
+
+<span class="k">def</span> <span class="nf">_return_float_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    1. If dtype of X and Y is float32, then dtype float32 is returned.</span>
+<span class="sd">    2. Else dtype float64 is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">X_dtype</span> <span class="o">=</span> <span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">Y_dtype</span> <span class="o">=</span> <span class="n">X_dtype</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Y_dtype</span> <span class="o">=</span> <span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">X_dtype</span> <span class="o">==</span> <span class="n">Y_dtype</span> <span class="o">==</span> <span class="s2">&quot;float32&quot;</span><span class="p">:</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="s2">&quot;float32&quot;</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">dtype</span> <span class="o">=</span> <span class="s2">&quot;float64&quot;</span>
+
+    <span class="k">return</span> <span class="n">dtype</span>
+
+
+<span class="k">def</span> <span class="nf">_row_norms</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Row-wise (squared) Euclidean norm of X.</span>
+
+<span class="sd">    Equivalent to np.sqrt((X * X).sum(axis=1)), but also supports sparse</span>
+<span class="sd">    matrices and does not create an X.shape-sized temporary.</span>
+
+<span class="sd">    Performs no input validation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array_like</span>
+<span class="sd">        The input array</span>
+<span class="sd">    squared : bool, optional (default = False)</span>
+<span class="sd">        If True, return squared norms.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    array_like</span>
+<span class="sd">        The row-wise (squared) Euclidean norm of X.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="kn">import</span> <span class="nn">scipy.sparse</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">):</span>
+            <span class="n">X</span> <span class="o">=</span> <span class="n">scipy</span><span class="o">.</span><span class="n">sparse</span><span class="o">.</span><span class="n">csr_matrix</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="kn">from</span> <span class="nn">sklearn.utils.sparsefuncs_fast</span> <span class="kn">import</span> <span class="n">csr_row_norms</span>
+        <span class="n">norms</span> <span class="o">=</span> <span class="n">csr_row_norms</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">norms</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">einsum</span><span class="p">(</span><span class="s1">&#39;ij,ij-&gt;i&#39;</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">squared</span><span class="p">:</span>
+        <span class="n">backend</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">norms</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">norms</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">norms</span>
+
+
+<span class="k">def</span> <span class="nf">_normalize</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;L2 normalizer with copy.&quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">copy</span><span class="p">()</span>
+        <span class="kn">from</span> <span class="nn">sklearn.utils.sparsefuncs_fast</span> <span class="kn">import</span> <span class="n">inplace_csr_row_normalize_l2</span>
+        <span class="n">inplace_csr_row_normalize_l2</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">norms</span> <span class="o">=</span> <span class="n">_row_norms</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+        <span class="n">norms</span><span class="p">[</span><span class="n">norms</span> <span class="o">==</span> <span class="mf">0.0</span><span class="p">]</span> <span class="o">=</span> <span class="mf">1.0</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">X</span> <span class="o">/</span> <span class="n">norms</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">X</span>
+
+
+<span class="c1">###############################################################################</span>
+
+
+<div class="viewcode-block" id="linear_kernel"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.linear_kernel.html#himalaya.kernel_ridge.linear_kernel">[docs]</a><span class="k">def</span> <span class="nf">linear_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the linear kernel between X and Y.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_features)</span>
+<span class="sd">        Train or test features.</span>
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        Train features.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : array of shape (n_samples_X, n_samples_Y)</span>
+<span class="sd">        Computed kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">K</span></div>
+
+
+<div class="viewcode-block" id="polynomial_kernel"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.polynomial_kernel.html#himalaya.kernel_ridge.polynomial_kernel">[docs]</a><span class="k">def</span> <span class="nf">polynomial_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">degree</span><span class="o">=</span><span class="mi">3</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the polynomial kernel between X and Y::</span>
+
+<span class="sd">        K(X, Y) = (gamma &lt;X, Y&gt; + coef0)^degree</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_features)</span>
+<span class="sd">        Train or test features.</span>
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        Train features.</span>
+<span class="sd">    degree : int, default 3</span>
+<span class="sd">        Degree of the polynomial.</span>
+<span class="sd">    gamma : float, default None</span>
+<span class="sd">        if None, defaults to 1.0 / n_features</span>
+<span class="sd">    coef0 : float, default 1</span>
+<span class="sd">        Intercept.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : array of shape (n_samples_X, n_samples_Y)</span>
+<span class="sd">        Computed kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gamma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">*=</span> <span class="n">gamma</span>
+    <span class="n">K</span> <span class="o">+=</span> <span class="n">coef0</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">power</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">degree</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">K</span></div>
+
+
+<div class="viewcode-block" id="sigmoid_kernel"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.sigmoid_kernel.html#himalaya.kernel_ridge.sigmoid_kernel">[docs]</a><span class="k">def</span> <span class="nf">sigmoid_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">coef0</span><span class="o">=</span><span class="mi">1</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the sigmoid kernel between X and Y::</span>
+
+<span class="sd">        K(X, Y) = tanh(gamma &lt;X, Y&gt; + coef0)</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_features)</span>
+<span class="sd">        Train or test features.</span>
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        Train features.</span>
+<span class="sd">    gamma : float, default None</span>
+<span class="sd">        If None, defaults to 1.0 / n_features</span>
+<span class="sd">    coef0 : float, default 1</span>
+<span class="sd">        Intercept.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : array of shape (n_samples_X, n_samples_Y)</span>
+<span class="sd">        Computed kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gamma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">X</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span>
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">*=</span> <span class="n">gamma</span>
+    <span class="n">K</span> <span class="o">+=</span> <span class="n">coef0</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">tanh</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">K</span></div>
+
+
+<div class="viewcode-block" id="rbf_kernel"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.rbf_kernel.html#himalaya.kernel_ridge.rbf_kernel">[docs]</a><span class="k">def</span> <span class="nf">rbf_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">gamma</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Compute the rbf (gaussian) kernel between X and Y::</span>
+
+<span class="sd">        K(x, y) = exp(-gamma ||x-y||^2)</span>
+
+<span class="sd">    for each pair of rows x in X and y in Y.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_features)</span>
+<span class="sd">        Train or test features.</span>
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        Train features.</span>
+<span class="sd">    gamma : float, default None</span>
+<span class="sd">        If None, defaults to 1.0 / n_features</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : array of shape (n_samples_X, n_samples_Y)</span>
+<span class="sd">        Computed kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">gamma</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">gamma</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">euclidean_distances</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+    <span class="n">K</span> <span class="o">*=</span> <span class="o">-</span><span class="n">gamma</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">K</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">K</span></div>
+
+
+<div class="viewcode-block" id="cosine_similarity_kernel"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.cosine_similarity_kernel.html#himalaya.kernel_ridge.cosine_similarity_kernel">[docs]</a><span class="k">def</span> <span class="nf">cosine_similarity_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute cosine similarity between samples in X and Y.</span>
+
+<span class="sd">    Cosine similarity, or the cosine kernel, computes similarity as the</span>
+<span class="sd">    normalized dot product of X and Y:</span>
+
+<span class="sd">        K(X, Y) = &lt;X, Y&gt; / (||X||*||Y||)</span>
+
+<span class="sd">    On L2-normalized data, this function is equivalent to linear_kernel.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_features)</span>
+<span class="sd">        Train or test features.</span>
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        Train features.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : array of shape (n_samples_X, n_samples_Y)</span>
+<span class="sd">        Computed kernel.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="n">X_normalized</span> <span class="o">=</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="n">Y</span><span class="p">:</span>
+        <span class="n">Y_normalized</span> <span class="o">=</span> <span class="n">X_normalized</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Y_normalized</span> <span class="o">=</span> <span class="n">_normalize</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span>
+
+    <span class="n">K</span> <span class="o">=</span> <span class="n">X_normalized</span> <span class="o">@</span> <span class="n">Y_normalized</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">K</span><span class="p">):</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">K</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+    <span class="n">K</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">K</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">K</span></div>
+
+
+<span class="n">PAIRWISE_KERNEL_FUNCTIONS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s1">&#39;linear&#39;</span><span class="p">:</span> <span class="n">linear_kernel</span><span class="p">,</span>
+    <span class="s1">&#39;polynomial&#39;</span><span class="p">:</span> <span class="n">polynomial_kernel</span><span class="p">,</span>
+    <span class="s1">&#39;poly&#39;</span><span class="p">:</span> <span class="n">polynomial_kernel</span><span class="p">,</span>
+    <span class="s1">&#39;rbf&#39;</span><span class="p">:</span> <span class="n">rbf_kernel</span><span class="p">,</span>
+    <span class="s1">&#39;sigmoid&#39;</span><span class="p">:</span> <span class="n">sigmoid_kernel</span><span class="p">,</span>
+    <span class="s1">&#39;cosine&#39;</span><span class="p">:</span> <span class="n">cosine_similarity_kernel</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1">###############################################################################</span>
+
+
+<span class="k">def</span> <span class="nf">euclidean_distances</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Considering the rows of X (and Y=X) as vectors, compute the</span>
+<span class="sd">    distance matrix between each pair of vectors.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_features)</span>
+<span class="sd">        Train or test features.</span>
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        Train features.</span>
+<span class="sd">    squared : boolean, optional</span>
+<span class="sd">        Whether to return squared distances.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    distances : array, shape (n_samples_X, n_samples_Y)</span>
+<span class="sd">        Computed distances.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="n">distances</span> <span class="o">=</span> <span class="n">_euclidean_distances_upcast</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">squared</span><span class="p">:</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">distances</span><span class="p">,</span> <span class="n">out</span><span class="o">=</span><span class="n">distances</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distances</span>
+
+
+<span class="k">def</span> <span class="nf">_euclidean_distances_upcast</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">batch_size</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Euclidean distances between X and Y.</span>
+
+<span class="sd">    X and Y are upcast to float64 by chunks, which size is chosen to limit</span>
+<span class="sd">    memory increase by approximately 10% (at least 10MiB).</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="n">n_samples_X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_samples_Y</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros</span><span class="p">(</span><span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samples_X</span><span class="p">,</span> <span class="n">n_samples_Y</span><span class="p">),</span>
+                                  <span class="n">dtype</span><span class="o">=</span><span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">distances</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samples_X</span><span class="p">,</span> <span class="n">n_samples_Y</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">batch_size</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">X_size</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="n">Y_size</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">prod</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">))</span>
+        <span class="n">x_density</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">nnz</span> <span class="o">/</span> <span class="n">X_size</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+        <span class="n">y_density</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">nnz</span> <span class="o">/</span> <span class="n">Y_size</span> <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">Y</span><span class="p">)</span> <span class="k">else</span> <span class="mi">1</span>
+
+        <span class="c1"># Allow 10% more memory than X, Y and the distance matrix take (at</span>
+        <span class="c1"># least 10MiB)</span>
+        <span class="n">maxmem</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span>
+            <span class="p">((</span><span class="n">x_density</span> <span class="o">*</span> <span class="n">n_samples_X</span> <span class="o">+</span> <span class="n">y_density</span> <span class="o">*</span> <span class="n">n_samples_Y</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_features</span> <span class="o">+</span>
+             <span class="p">(</span><span class="n">x_density</span> <span class="o">*</span> <span class="n">n_samples_X</span> <span class="o">*</span> <span class="n">y_density</span> <span class="o">*</span> <span class="n">n_samples_Y</span><span class="p">))</span> <span class="o">/</span> <span class="mf">10.</span><span class="p">,</span>
+            <span class="mi">10</span> <span class="o">*</span> <span class="mi">2</span> <span class="o">**</span> <span class="mi">17</span><span class="p">)</span>
+
+        <span class="c1"># The increase amount of memory in 8-byte blocks is:</span>
+        <span class="c1"># - x_density * batch_size * n_features (copy of chunk of X)</span>
+        <span class="c1"># - y_density * batch_size * n_features (copy of chunk of Y)</span>
+        <span class="c1"># - batch_size * batch_size (chunk of distance matrix)</span>
+        <span class="c1"># Hence x² + (xd+yd)kx = M, where x=batch_size, k=n_features, M=maxmem</span>
+        <span class="c1">#                                 xd=x_density and yd=y_density</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="p">(</span><span class="n">x_density</span> <span class="o">+</span> <span class="n">y_density</span><span class="p">)</span> <span class="o">*</span> <span class="n">n_features</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="p">(</span><span class="o">-</span><span class="n">tmp</span> <span class="o">+</span> <span class="n">math</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="n">tmp</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">maxmem</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+        <span class="n">batch_size</span> <span class="o">=</span> <span class="nb">max</span><span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">batch_size</span><span class="p">),</span> <span class="mi">1</span><span class="p">)</span>
+
+    <span class="k">for</span> <span class="n">x_start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_samples_X</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+        <span class="n">x_batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">x_start</span><span class="p">,</span> <span class="n">x_start</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+            <span class="n">X_chunk</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">x_batch</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">X_chunk</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">x_batch</span><span class="p">],</span> <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+        <span class="n">XX_chunk</span> <span class="o">=</span> <span class="n">_row_norms</span><span class="p">(</span><span class="n">X_chunk</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">True</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">y_start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_samples_Y</span><span class="p">,</span> <span class="n">batch_size</span><span class="p">):</span>
+            <span class="n">y_batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">y_start</span><span class="p">,</span> <span class="n">y_start</span> <span class="o">+</span> <span class="n">batch_size</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="n">Y</span> <span class="ow">and</span> <span class="n">y_batch</span> <span class="o">&lt;</span> <span class="n">x_batch</span><span class="p">:</span>
+                <span class="c1"># when X is Y the distance matrix is symmetric so we only need</span>
+                <span class="c1"># to compute half of it.</span>
+                <span class="n">d</span> <span class="o">=</span> <span class="n">distances</span><span class="p">[</span><span class="n">y_batch</span><span class="p">,</span> <span class="n">x_batch</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">Y</span><span class="p">):</span>
+                    <span class="n">Y_chunk</span> <span class="o">=</span> <span class="n">Y</span><span class="p">[</span><span class="n">y_batch</span><span class="p">]</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="s2">&quot;float64&quot;</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+                <span class="k">else</span><span class="p">:</span>
+                    <span class="n">Y_chunk</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">y_batch</span><span class="p">],</span>
+                                              <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+                <span class="n">YY_chunk</span> <span class="o">=</span> <span class="n">_row_norms</span><span class="p">(</span><span class="n">Y_chunk</span><span class="p">,</span> <span class="n">squared</span><span class="o">=</span><span class="kc">True</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+                <span class="n">d</span> <span class="o">=</span> <span class="o">-</span><span class="mi">2</span> <span class="o">*</span> <span class="n">X_chunk</span> <span class="o">@</span> <span class="n">Y_chunk</span><span class="o">.</span><span class="n">T</span>
+                <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">d</span><span class="p">):</span>
+                    <span class="n">d</span> <span class="o">=</span> <span class="n">d</span><span class="o">.</span><span class="n">toarray</span><span class="p">()</span>
+                <span class="n">d</span> <span class="o">+=</span> <span class="n">XX_chunk</span>
+                <span class="n">d</span> <span class="o">+=</span> <span class="n">YY_chunk</span>
+
+            <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+                <span class="n">distances</span><span class="p">[</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">d</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">distances</span><span class="p">[</span><span class="n">x_batch</span><span class="p">,</span> <span class="n">y_batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">d</span><span class="p">,</span> <span class="n">X</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">distances</span>
+
+
+<span class="k">def</span> <span class="nf">_pairwise_callable</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">metric</span><span class="p">,</span> <span class="n">force_all_finite</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Handle the callable case for pairwise_{distances,kernels}.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">force_all_finite</span><span class="o">=</span><span class="n">force_all_finite</span><span class="p">)</span>
+    <span class="n">out</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="n">dtype</span><span class="o">=</span><span class="s1">&#39;float&#39;</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">X</span> <span class="ow">is</span> <span class="n">Y</span><span class="p">:</span>
+        <span class="c1"># Only calculate metric for upper triangle</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">combinations</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="mi">2</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+        <span class="c1"># Make symmetric</span>
+        <span class="n">out</span> <span class="o">=</span> <span class="n">out</span> <span class="o">+</span> <span class="n">out</span><span class="o">.</span><span class="n">T</span>
+
+        <span class="c1"># Calculate diagonal</span>
+        <span class="c1"># NB: nonzero diagonals are allowed for both metrics and kernels</span>
+        <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]):</span>
+            <span class="n">x</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">]</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">x</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">else</span><span class="p">:</span>
+        <span class="c1"># Calculate all cells</span>
+        <span class="n">iterator</span> <span class="o">=</span> <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]),</span> <span class="nb">range</span><span class="p">(</span><span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]))</span>
+        <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">j</span> <span class="ow">in</span> <span class="n">iterator</span><span class="p">:</span>
+            <span class="n">out</span><span class="p">[</span><span class="n">i</span><span class="p">,</span> <span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">metric</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">i</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">j</span><span class="p">],</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">out</span>
+
+
+<span class="k">def</span> <span class="nf">pairwise_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">n_jobs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Compute the kernel between arrays X and optional array Y.</span>
+
+<span class="sd">    This method takes either a vector array or a kernel matrix, and returns</span>
+<span class="sd">    a kernel matrix. If the input is a vector array, the kernels are</span>
+<span class="sd">    computed. If the input is a kernel matrix, it is returned instead.</span>
+
+<span class="sd">    This method provides a safe way to take a kernel matrix as input, while</span>
+<span class="sd">    preserving compatibility with many other algorithms that take a vector</span>
+<span class="sd">    array.</span>
+
+<span class="sd">    If Y is given (default is None), then the returned matrix is the pairwise</span>
+<span class="sd">    kernel between the arrays from both X and Y.</span>
+
+<span class="sd">    Valid values for metric are:</span>
+<span class="sd">        [&#39;additive_chi2&#39;, &#39;chi2&#39;, &#39;linear&#39;, &#39;poly&#39;, &#39;polynomial&#39;, &#39;rbf&#39;,</span>
+<span class="sd">        &#39;laplacian&#39;, &#39;sigmoid&#39;, &#39;cosine&#39;]</span>
+
+<span class="sd">    Read more in the :ref:`User Guide &lt;metrics&gt;`.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples_X, n_samples_X) if metric == &quot;precomputed&quot;, \</span>
+<span class="sd">             (n_samples_X, n_features) otherwise</span>
+<span class="sd">        Array of pairwise kernels between samples, or a feature array.</span>
+
+<span class="sd">    Y : array of shape (n_samples_Y, n_features)</span>
+<span class="sd">        A second feature array only if X metric != &quot;precomputed&quot;.</span>
+
+<span class="sd">    metric : string, or callable</span>
+<span class="sd">        The metric to use when calculating kernel between instances in a</span>
+<span class="sd">        feature array. If metric is a string, it must be one of the metrics</span>
+<span class="sd">        in PAIRWISE_KERNEL_FUNCTIONS.</span>
+<span class="sd">        If metric is &quot;precomputed&quot;, X is assumed to be a kernel matrix.</span>
+<span class="sd">        Alternatively, if metric is a callable function, it is called on each</span>
+<span class="sd">        pair of instances (rows) and the resulting value recorded. The callable</span>
+<span class="sd">        should take two rows from X as input and return the corresponding</span>
+<span class="sd">        kernel value as a single number. This means that callables from</span>
+<span class="sd">        :mod:`sklearn.metrics.pairwise` are not allowed, as they operate on</span>
+<span class="sd">        matrices, not single samples. Use the string identifying the kernel</span>
+<span class="sd">        instead.</span>
+
+<span class="sd">    **params : optional keyword parameters</span>
+<span class="sd">        Any further parameters are passed directly to the kernel function.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    K : array [n_samples_X, n_samples_X] or [n_samples_X, n_samples_Y]</span>
+<span class="sd">        A kernel matrix K such that K_{i, j} is the kernel between the</span>
+<span class="sd">        ith and jth vectors of the given matrix X, if Y is None.</span>
+<span class="sd">        If Y is not None, then K_{i, j} is the kernel between the ith array</span>
+<span class="sd">        from X and the jth array from Y.</span>
+
+<span class="sd">    Notes</span>
+<span class="sd">    -----</span>
+<span class="sd">    If metric is &#39;precomputed&#39;, Y is ignored and X is returned.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">metric</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span><span class="p">:</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">check_pairwise_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">precomputed</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">X</span>
+
+    <span class="k">elif</span> <span class="n">metric</span> <span class="ow">in</span> <span class="n">PAIRWISE_KERNEL_FUNCTIONS</span><span class="p">:</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">PAIRWISE_KERNEL_FUNCTIONS</span><span class="p">[</span><span class="n">metric</span><span class="p">]</span>
+    <span class="k">elif</span> <span class="n">callable</span><span class="p">(</span><span class="n">metric</span><span class="p">):</span>
+        <span class="n">func</span> <span class="o">=</span> <span class="n">partial</span><span class="p">(</span><span class="n">_pairwise_callable</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="n">metric</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown metric=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="n">metric</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="o">**</span><span class="n">params</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">KernelCenterer</span><span class="p">(</span><span class="n">TransformerMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Center a kernel matrix.</span>
+
+<span class="sd">    Adapt sklearn.preprocessing.KernelCenterer to use other backends.</span>
+
+<span class="sd">    Let K(x, z) be a kernel defined by phi(x)^T phi(z), where phi is a</span>
+<span class="sd">    function mapping x to a Hilbert space. KernelCenterer centers (i.e.,</span>
+<span class="sd">    normalize to have zero mean) the data without explicitly computing phi(x).</span>
+<span class="sd">    It is equivalent to centering phi(x) with</span>
+<span class="sd">    sklearn.preprocessing.StandardScaler(with_std=False).</span>
+
+<span class="sd">    Attributes</span>
+<span class="sd">    ----------</span>
+<span class="sd">    K_fit_rows_ : array of shape (n_samples,)</span>
+<span class="sd">        Average of each column of kernel matrix.</span>
+
+<span class="sd">    K_fit_all_ : float</span>
+<span class="sd">        Average of kernel matrix.</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; from himalaya.kernel_ridge import KernelCenterer</span>
+<span class="sd">    &gt;&gt;&gt; from himalaya.kernel_ridge import pairwise_kernels</span>
+<span class="sd">    &gt;&gt;&gt; X = [[ 1., -2.,  2.],</span>
+<span class="sd">    ...      [ -2.,  1.,  3.],</span>
+<span class="sd">    ...      [ 4.,  1., -2.]]</span>
+<span class="sd">    &gt;&gt;&gt; K = pairwise_kernels(X, metric=&#39;linear&#39;)</span>
+<span class="sd">    &gt;&gt;&gt; K</span>
+<span class="sd">    array([[  9.,   2.,  -2.],</span>
+<span class="sd">           [  2.,  14., -13.],</span>
+<span class="sd">           [ -2., -13.,  21.]])</span>
+<span class="sd">    &gt;&gt;&gt; transformer = KernelCenterer().fit(K)</span>
+<span class="sd">    &gt;&gt;&gt; transformer</span>
+<span class="sd">    KernelCenterer()</span>
+<span class="sd">    &gt;&gt;&gt; transformer.transform(K)</span>
+<span class="sd">    array([[  5.,   0.,  -5.],</span>
+<span class="sd">           [  0.,  14., -14.],</span>
+<span class="sd">           [ -5., -14.,  19.]])</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">pass</span>
+
+    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Fit KernelCenterer</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        K : ndarray of shape (n_samples, n_samples)</span>
+<span class="sd">            Kernel matrix.</span>
+
+<span class="sd">        y : None</span>
+<span class="sd">            Ignored.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        self : object</span>
+<span class="sd">            Fitted transformer.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Kernel matrix must be a square matrix.&quot;</span>
+                             <span class="s2">&quot; Input is a </span><span class="si">{}</span><span class="s2">x</span><span class="si">{}</span><span class="s2"> matrix.&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                                 <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">K</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_fit_rows_</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">mean_float64</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">K_fit_all_</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">mean_float64</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">K_fit_rows_</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span>
+
+    <span class="k">def</span> <span class="nf">transform</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">K</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot;Center kernel matrix.</span>
+
+<span class="sd">        Parameters</span>
+<span class="sd">        ----------</span>
+<span class="sd">        K : ndarray of shape (n_samples1, n_samples2)</span>
+<span class="sd">            Kernel matrix.</span>
+
+<span class="sd">        copy : bool, default=True</span>
+<span class="sd">            Set to False to perform inplace computation.</span>
+
+<span class="sd">        Returns</span>
+<span class="sd">        -------</span>
+<span class="sd">        K_new : ndarray of shape (n_samples1, n_samples2)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">check_is_fitted</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+        <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+        <span class="n">K</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">copy</span><span class="o">=</span><span class="n">copy</span><span class="p">)</span>
+
+        <span class="n">K_pred_cols</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">mean_float64</span><span class="p">(</span><span class="n">K</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+
+        <span class="n">K</span> <span class="o">-=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_fit_rows_</span>
+        <span class="n">K</span> <span class="o">-=</span> <span class="n">K_pred_cols</span>
+        <span class="n">K</span> <span class="o">+=</span> <span class="bp">self</span><span class="o">.</span><span class="n">K_fit_all_</span>
+
+        <span class="k">return</span> <span class="n">K</span>
+
+    <span class="k">def</span> <span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;pairwise&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, Gallant lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

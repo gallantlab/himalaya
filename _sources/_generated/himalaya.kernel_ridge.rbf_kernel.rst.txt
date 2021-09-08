@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.rbf\_kernel
+==================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: rbf_kernel

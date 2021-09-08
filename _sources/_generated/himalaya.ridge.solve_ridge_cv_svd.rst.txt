@@ -1,0 +1,6 @@
+﻿himalaya.ridge.solve\_ridge\_cv\_svd
+====================================
+
+.. currentmodule:: himalaya.ridge
+
+.. autofunction:: solve_ridge_cv_svd

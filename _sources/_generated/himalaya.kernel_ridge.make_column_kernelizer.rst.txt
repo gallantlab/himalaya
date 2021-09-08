@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.make\_column\_kernelizer
+===============================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: make_column_kernelizer

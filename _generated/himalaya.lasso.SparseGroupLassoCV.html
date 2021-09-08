@@ -1,0 +1,209 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>himalaya.lasso.SparseGroupLassoCV &#8212; Himalaya 0.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="himalaya.lasso.solve_sparse_group_lasso" href="himalaya.lasso.solve_sparse_group_lasso.html" />
+    <link rel="prev" title="himalaya.kernel_ridge.cosine_similarity_kernel" href="himalaya.kernel_ridge.cosine_similarity_kernel.html" />
+   
+  <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../index.html">
+    <img class="logo" src="../_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../index.html">Documentation overview</a><ul>
+  <li><a href="../api.html">API Documentation</a><ul>
+      <li>Previous: <a href="himalaya.kernel_ridge.cosine_similarity_kernel.html" title="previous chapter">himalaya.kernel_ridge.cosine_similarity_kernel</a></li>
+      <li>Next: <a href="himalaya.lasso.solve_sparse_group_lasso.html" title="next chapter">himalaya.lasso.solve_sparse_group_lasso</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troobleshooting</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../api.html">API Documentation</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../api.html#backend">Backend</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#kernel-ridge">Kernel ridge</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="../api.html#lasso">Lasso</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#ridge">Ridge</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api.html#other-modules">Other modules</a></li>
+</ul>
+</li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../_auto_examples/index.html">Gallery of examples</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="himalaya-lasso-sparsegrouplassocv">
+<h1>himalaya.lasso.SparseGroupLassoCV<a class="headerlink" href="#himalaya-lasso-sparsegrouplassocv" title="Permalink to this headline">¶</a></h1>
+<dl class="py class">
+<dt class="sig sig-object py" id="himalaya.lasso.SparseGroupLassoCV">
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.lasso.</span></span><span class="sig-name descname"><span class="pre">SparseGroupLassoCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l1_regs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">l21_regs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'proximal_gradient'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/lasso/_sklearn_api.html#SparseGroupLassoCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.lasso.SparseGroupLassoCV" title="Permalink to this definition">¶</a></dt>
+<dd><p>Sparse group Lasso</p>
+<p>Solved with hyperparameter grid-search over cross-validation.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>groups</strong><span class="classifier">array of shape (n_features, ) or None</span></dt><dd><p>Encoding of the group of each feature. If None, all features are
+gathered in one group, and the problem is equivalent to the Lasso.</p>
+</dd>
+<dt><strong>l21_regs</strong><span class="classifier">array of shape (n_l21_regs, )</span></dt><dd><p>All the Group Lasso regularization parameter tested.</p>
+</dd>
+<dt><strong>l1_regs</strong><span class="classifier">array of shape (n_l1_regs, )</span></dt><dd><p>All the Lasso regularization parameter tested.</p>
+</dd>
+<dt><strong>solver</strong><span class="classifier">str</span></dt><dd><p>Algorithm used during the fit, “proximal_gradient” only for now.</p>
+</dd>
+<dt><strong>solver_params</strong><span class="classifier">dict or None</span></dt><dd><p>Additional parameters for the solver.
+See more details in the docstring of the function:
+<code class="docutils literal notranslate"><span class="pre">SparseGroupLassoCV.ALL_SOLVERS[solver]</span></code></p>
+</dd>
+<dt><strong>cv</strong><span class="classifier">int or scikit-learn splitter</span></dt><dd><p>Cross-validation splitter. If an int, KFold is used.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Examples</p>
+<div class="doctest highlight-default notranslate"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">himalaya.lasso</span> <span class="kn">import</span> <span class="n">SparseGroupLassoCV</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">3</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span> <span class="o">=</span> <span class="n">SparseGroupLassoCV</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">clf</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+<span class="go">SparseGroupLassoCV()</span>
+</pre></div>
+</div>
+<dl class="field-list simple">
+<dt class="field-odd">Attributes</dt>
+<dd class="field-odd"><dl class="simple">
+<dt><strong>coef_</strong><span class="classifier">array of shape (n_samples) or (n_samples, n_targets)</span></dt><dd><p>Coefficient of the linear model. Always on CPU.</p>
+</dd>
+<dt><strong>best_l21_reg_</strong><span class="classifier">array of shape (n_targets, )</span></dt><dd><p>Best hyperparameter per target.</p>
+</dd>
+<dt><strong>best_l1_reg_</strong><span class="classifier">array of shape (n_targets, )</span></dt><dd><p>Best hyperparameter per target.</p>
+</dd>
+<dt><strong>cv_scores_</strong><span class="classifier">array of shape (n_l21_regs * n_l1_regs, n_targets)</span></dt><dd><p>Cross-validation scores of all tested hyperparameters.</p>
+</dd>
+<dt><strong>n_features_in_</strong><span class="classifier">int</span></dt><dd><p>Number of features used during the fit.</p>
+</dd>
+</dl>
+</dd>
+</dl>
+<p class="rubric">Methods</p>
+<table class="longtable docutils align-default">
+<colgroup>
+<col style="width: 10%" />
+<col style="width: 90%" />
+</colgroup>
+<tbody>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">fit</span></code>(X, y)</p></td>
+<td><p>Fit the model</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<td><p>Get parameters for this estimator.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">predict</span></code>(X)</p></td>
+<td><p>Predict using the model.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">score</span></code>(X, y)</p></td>
+<td><p>Return the coefficient of determination R^2 of the prediction.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**params)</p></td>
+<td><p>Set the parameters of this estimator.</p></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, Gallant lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+      |
+      <a href="../_sources/_generated/himalaya.lasso.SparseGroupLassoCV.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

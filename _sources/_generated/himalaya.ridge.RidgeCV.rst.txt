@@ -1,0 +1,6 @@
+﻿himalaya.ridge.RidgeCV
+======================
+
+.. currentmodule:: himalaya.ridge
+
+.. autoclass:: RidgeCV

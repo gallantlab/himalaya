@@ -1,0 +1,6 @@
+﻿himalaya.backend.ALL\_BACKENDS
+==============================
+
+.. currentmodule:: himalaya.backend
+
+.. autodata:: ALL_BACKENDS

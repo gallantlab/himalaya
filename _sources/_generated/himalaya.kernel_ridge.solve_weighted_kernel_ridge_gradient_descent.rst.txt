@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.solve\_weighted\_kernel\_ridge\_gradient\_descent
+========================================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: solve_weighted_kernel_ridge_gradient_descent

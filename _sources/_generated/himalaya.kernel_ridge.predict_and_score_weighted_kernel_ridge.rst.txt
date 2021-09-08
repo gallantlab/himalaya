@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.predict\_and\_score\_weighted\_kernel\_ridge
+===================================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: predict_and_score_weighted_kernel_ridge

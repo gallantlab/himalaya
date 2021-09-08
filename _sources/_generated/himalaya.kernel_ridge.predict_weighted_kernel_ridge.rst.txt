@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.predict\_weighted\_kernel\_ridge
+=======================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autofunction:: predict_weighted_kernel_ridge

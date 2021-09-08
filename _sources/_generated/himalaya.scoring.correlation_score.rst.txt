@@ -1,0 +1,6 @@
+﻿himalaya.scoring.correlation\_score
+===================================
+
+.. currentmodule:: himalaya.scoring
+
+.. autofunction:: correlation_score

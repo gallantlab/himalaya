@@ -1,0 +1,6 @@
+﻿himalaya.kernel\_ridge.WEIGHTED\_KERNEL\_RIDGE\_SOLVERS
+=======================================================
+
+.. currentmodule:: himalaya.kernel_ridge
+
+.. autodata:: WEIGHTED_KERNEL_RIDGE_SOLVERS

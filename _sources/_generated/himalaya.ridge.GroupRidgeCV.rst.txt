@@ -1,0 +1,6 @@
+﻿himalaya.ridge.GroupRidgeCV
+===========================
+
+.. currentmodule:: himalaya.ridge
+
+.. autoclass:: GroupRidgeCV

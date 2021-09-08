@@ -1,0 +1,531 @@
+
+<!DOCTYPE html>
+
+<html>
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>himalaya.lasso._group_lasso &#8212; Himalaya 0.3.1 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
+    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
+    <script src="../../../_static/jquery.js"></script>
+    <script src="../../../_static/underscore.js"></script>
+    <script src="../../../_static/doctools.js"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+  
+  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../../index.html">
+    <img class="logo" src="../../../_static/logo.svg" alt="Logo"/>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troobleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../_auto_examples/index.html">Gallery of examples</a></li>
+</ul>
+
+
+<div id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</div>
+<script>$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for himalaya.lasso._group_lasso</h1><div class="highlight"><pre>
+<span></span><span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">itertools</span>
+
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">from</span> <span class="nn">sklearn.model_selection</span> <span class="kn">import</span> <span class="n">check_cv</span>
+
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">compute_lipschitz_constants</span>
+<span class="kn">from</span> <span class="nn">..progress_bar</span> <span class="kn">import</span> <span class="n">bar</span><span class="p">,</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">r2_score</span>
+
+
+<div class="viewcode-block" id="solve_sparse_group_lasso_cv"><a class="viewcode-back" href="../../../_generated/himalaya.lasso.solve_sparse_group_lasso_cv.html#himalaya.lasso.solve_sparse_group_lasso_cv">[docs]</a><span class="k">def</span> <span class="nf">solve_sparse_group_lasso_cv</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l21_regs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.05</span><span class="p">],</span>
+                                <span class="n">l1_regs</span><span class="o">=</span><span class="p">[</span><span class="mf">0.05</span><span class="p">],</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+                                <span class="n">momentum</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                                <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Solves the sparse group Lasso, selecting hyperparameters over</span>
+<span class="sd">    cross-validation.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples, n_features)</span>
+<span class="sd">        Input features.</span>
+<span class="sd">    Y : array of shape (n_samples, n_targets)</span>
+<span class="sd">        Target data.</span>
+<span class="sd">    groups : array of shape (n_features, ) or None</span>
+<span class="sd">        Encoding of the group of each feature. If None, all features are</span>
+<span class="sd">        gathered in one group, and the problem is equivalent to the Lasso.</span>
+<span class="sd">    l21_regs : array of shape (n_l21_regs, )</span>
+<span class="sd">        All the Group Lasso regularization parameter tested.</span>
+<span class="sd">    l1_regs : array of shape (n_l1_regs, )</span>
+<span class="sd">        All the Lasso regularization parameter tested.</span>
+<span class="sd">    cv : int or scikit-learn splitter</span>
+<span class="sd">        Cross-validation splitter. If an int, KFold is used.</span>
+<span class="sd">    max_iter : int &gt; 0</span>
+<span class="sd">        Maximum number of iterations.</span>
+<span class="sd">    tol : float &gt; 0</span>
+<span class="sd">        Tolerance of the stopping criterion.</span>
+<span class="sd">    momentum : bool</span>
+<span class="sd">        If True, use acceleration in the projected gradient descent.</span>
+<span class="sd">    n_targets_batch : int or None</span>
+<span class="sd">        Size of the batch for computing predictions. Used for memory reasons.</span>
+<span class="sd">        If None, uses all n_targets at once.</span>
+<span class="sd">    progress_bar : bool</span>
+<span class="sd">        If True, display a progress bar over batches and iterations.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coef : array of shape (n_features, n_targets)</span>
+<span class="sd">        Coefficient of the linear model. Always on CPU.</span>
+<span class="sd">    best_l21_reg : array of shape (n_targets, )</span>
+<span class="sd">        Best hyperparameter per target.</span>
+<span class="sd">    best_l1_reg : array of shape (n_targets, )</span>
+<span class="sd">        Best hyperparameter per target.</span>
+<span class="sd">    all_cv_scores : array of shape (n_l21_regs * n_l1_regs, n_targets)</span>
+<span class="sd">        Cross-validation scores of all tested hyperparameters.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="n">cv</span> <span class="o">=</span> <span class="n">check_cv</span><span class="p">(</span><span class="n">cv</span><span class="p">)</span>
+    <span class="n">n_splits</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">get_n_splits</span><span class="p">()</span>
+
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">l21_regs</span><span class="p">,</span> <span class="n">l1_regs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">l21_regs</span><span class="p">,</span> <span class="n">l1_regs</span><span class="p">)</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">n_targets_batch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_targets_batch</span> <span class="o">=</span> <span class="n">n_targets</span>
+
+    <span class="n">l21_regs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">l21_regs</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+    <span class="n">l1_regs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">l1_regs</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+
+    <span class="c1"># sort in decreasing order, since it is faster with warm starting</span>
+    <span class="n">decreasing_l21_regs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">l21_regs</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">backend</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">decreasing_l21_regs</span> <span class="o">==</span> <span class="n">l21_regs</span><span class="p">):</span>
+        <span class="n">l21_regs</span> <span class="o">=</span> <span class="n">decreasing_l21_regs</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;l21_regs has been reordered in decreasing order.&quot;</span><span class="p">)</span>
+
+    <span class="c1"># sort in decreasing order, since it is faster with warm starting</span>
+    <span class="n">decreasing_l1_regs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">flip</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">sort</span><span class="p">(</span><span class="n">l1_regs</span><span class="p">),</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">backend</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">decreasing_l1_regs</span> <span class="o">==</span> <span class="n">l1_regs</span><span class="p">):</span>
+        <span class="n">l1_regs</span> <span class="o">=</span> <span class="n">decreasing_l1_regs</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;l1_regs has been reordered in decreasing order.&quot;</span><span class="p">)</span>
+
+    <span class="n">n_l21_regs</span> <span class="o">=</span> <span class="n">l21_regs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_l1_regs</span> <span class="o">=</span> <span class="n">l1_regs</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">n_batches</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">&quot;grid search cv over </span><span class="si">{</span><span class="n">n_l21_regs</span> <span class="o">*</span> <span class="n">n_l1_regs</span><span class="si">}</span><span class="s2"> parameters&quot;</span><span class="p">,</span>
+            <span class="n">max_value</span><span class="o">=</span><span class="n">n_l21_regs</span> <span class="o">*</span> <span class="n">n_l1_regs</span> <span class="o">*</span> <span class="n">n_splits</span> <span class="o">*</span> <span class="n">n_batches</span><span class="p">)</span>
+
+    <span class="n">coef</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">all_cv_scores</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
+        <span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_l21_regs</span> <span class="o">*</span> <span class="n">n_l1_regs</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">))</span>
+    <span class="n">best_l21_reg</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_targets</span><span class="p">,</span> <span class="p">))</span>
+    <span class="n">best_l1_reg</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_targets</span><span class="p">,</span> <span class="p">))</span>
+
+    <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">Y</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="s2">&quot;device&quot;</span><span class="p">):</span>
+            <span class="n">val</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">Y</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+            <span class="n">train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">Y</span><span class="o">.</span><span class="n">device</span><span class="p">)</span>
+
+        <span class="n">lipschitz_train</span> <span class="o">=</span> <span class="n">compute_lipschitz_constants</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">train</span><span class="p">][</span><span class="kc">None</span><span class="p">],</span>
+                                                      <span class="n">kernelize</span><span class="o">=</span><span class="s2">&quot;XTX&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+
+        <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n_targets_batch</span><span class="p">)</span>
+
+            <span class="c1"># reset coef, to avoid leaking info from split to split</span>
+            <span class="n">coef</span> <span class="o">=</span> <span class="kc">None</span>
+            <span class="k">for</span> <span class="n">ii</span><span class="p">,</span> <span class="p">(</span><span class="n">l21_reg</span><span class="p">,</span>
+                     <span class="n">l1_reg</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">l21_regs</span><span class="p">,</span>
+                                                            <span class="n">l1_regs</span><span class="p">)):</span>
+
+                <span class="n">coef</span> <span class="o">=</span> <span class="n">solve_sparse_group_lasso</span><span class="p">(</span>
+                    <span class="n">X</span><span class="p">[</span><span class="n">train</span><span class="p">],</span> <span class="n">Y</span><span class="p">[</span><span class="n">train</span><span class="p">][:,</span> <span class="n">batch</span><span class="p">],</span> <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span>
+                    <span class="n">l21_reg</span><span class="o">=</span><span class="n">l21_reg</span><span class="p">,</span> <span class="n">l1_reg</span><span class="o">=</span><span class="n">l1_reg</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+                    <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">,</span> <span class="n">initial_coef</span><span class="o">=</span><span class="n">coef</span><span class="p">,</span>
+                    <span class="n">lipschitz</span><span class="o">=</span><span class="n">lipschitz_train</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span>
+                    <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+
+                <span class="n">Y_val_pred</span> <span class="o">=</span> <span class="n">X</span><span class="p">[</span><span class="n">val</span><span class="p">]</span> <span class="o">@</span> <span class="n">coef</span>
+                <span class="n">scores</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">Y</span><span class="p">[</span><span class="n">val</span><span class="p">][:,</span> <span class="n">batch</span><span class="p">],</span> <span class="n">Y_val_pred</span><span class="p">)</span>
+
+                <span class="n">all_cv_scores</span><span class="p">[</span><span class="n">ii</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">+=</span> <span class="n">scores</span>
+
+                <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
+                    <span class="n">progress_bar</span><span class="o">.</span><span class="n">update_with_increment_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># select best hyperparameter configuration</span>
+    <span class="n">all_cv_scores</span> <span class="o">/=</span> <span class="n">n_splits</span>
+    <span class="n">argmax</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">argmax</span><span class="p">(</span><span class="n">all_cv_scores</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">config</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span>
+        <span class="nb">list</span><span class="p">(</span>
+            <span class="n">itertools</span><span class="o">.</span><span class="n">product</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">l21_regs</span><span class="p">),</span>
+                              <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">l1_regs</span><span class="p">))))</span>
+    <span class="n">best_config</span> <span class="o">=</span> <span class="n">config</span><span class="p">[</span><span class="n">argmax</span><span class="p">]</span>
+    <span class="n">best_l21_reg</span> <span class="o">=</span> <span class="n">best_config</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">best_l1_reg</span> <span class="o">=</span> <span class="n">best_config</span><span class="p">[:,</span> <span class="mi">1</span><span class="p">]</span>
+
+    <span class="c1"># refit</span>
+    <span class="n">coef_cpu</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span>
+                                  <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">):</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n_targets_batch</span><span class="p">)</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">solve_sparse_group_lasso</span><span class="p">(</span>
+            <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span> <span class="n">groups</span><span class="o">=</span><span class="n">groups</span><span class="p">,</span> <span class="n">l21_reg</span><span class="o">=</span><span class="n">best_l21_reg</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span>
+            <span class="n">l1_reg</span><span class="o">=</span><span class="n">best_l1_reg</span><span class="p">[</span><span class="n">batch</span><span class="p">],</span> <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">,</span> <span class="n">initial_coef</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lipschitz</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+        <span class="n">coef_cpu</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">coef</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">coef_cpu</span><span class="p">,</span> <span class="n">best_l21_reg</span><span class="p">,</span> <span class="n">best_l1_reg</span><span class="p">,</span> <span class="n">all_cv_scores</span></div>
+
+
+<div class="viewcode-block" id="solve_sparse_group_lasso"><a class="viewcode-back" href="../../../_generated/himalaya.lasso.solve_sparse_group_lasso.html#himalaya.lasso.solve_sparse_group_lasso">[docs]</a><span class="k">def</span> <span class="nf">solve_sparse_group_lasso</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l21_reg</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span> <span class="n">l1_reg</span><span class="o">=</span><span class="mf">0.05</span><span class="p">,</span>
+                             <span class="n">max_iter</span><span class="o">=</span><span class="mi">300</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">initial_coef</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">lipschitz</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                             <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                             <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Solves the sparse group Lasso.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    X : array of shape (n_samples, n_features)</span>
+<span class="sd">        Input features.</span>
+<span class="sd">    Y : array of shape (n_samples, n_targets)</span>
+<span class="sd">        Target data.</span>
+<span class="sd">    groups : array of shape (n_features, ) or None</span>
+<span class="sd">        Encoding of the group of each feature. If None, all features are</span>
+<span class="sd">        gathered in one group, and the problem is equivalent to the Lasso.</span>
+<span class="sd">    l21_reg : float, or array of shape (n_targets, )</span>
+<span class="sd">        Regularization parameter for the group Lasso.</span>
+<span class="sd">    l1_reg : float, or array of shape (n_targets, )</span>
+<span class="sd">        Regularization parameter for the Lasso.</span>
+<span class="sd">    max_iter : int &gt; 0</span>
+<span class="sd">        Maximum number of iterations.</span>
+<span class="sd">    tol : float &gt; 0</span>
+<span class="sd">        Tolerance of the stopping criterion.</span>
+<span class="sd">    momentum : bool</span>
+<span class="sd">        If True, use acceleration in the projected gradient descent.</span>
+<span class="sd">    initial_coef : None, or array of shape (n_features, n_targets)</span>
+<span class="sd">        Initial value for the projected gradient descent.</span>
+<span class="sd">    lipschitz : float or None</span>
+<span class="sd">        Lipschitz constant of the gradient. If None, it will be estimated from</span>
+<span class="sd">        X using power iterations.</span>
+<span class="sd">    n_targets_batch : int or None</span>
+<span class="sd">        Size of the batch for computing predictions. Used for memory reasons.</span>
+<span class="sd">        If None, uses all n_targets at once.</span>
+<span class="sd">    progress_bar : bool</span>
+<span class="sd">        If True, display a progress bar over batches and iterations.</span>
+<span class="sd">    debug : bool</span>
+<span class="sd">        If True, compute the objective function at each iteration, and return</span>
+<span class="sd">        the list of results (of the last batch) along with the final</span>
+<span class="sd">        coefficients.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    coef : array of shape (n_features, n_targets)</span>
+<span class="sd">        Coefficient of the linear model.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">n_targets_batch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_targets_batch</span> <span class="o">=</span> <span class="n">n_targets</span>
+
+    <span class="n">X</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">lipschitz</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">lipschitz</span> <span class="o">=</span> <span class="n">compute_lipschitz_constants</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="kc">None</span><span class="p">],</span> <span class="n">kernelize</span><span class="o">=</span><span class="s2">&quot;XTX&quot;</span><span class="p">)[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">lipschitz</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">lipschitz</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">groups</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">groups</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros</span><span class="p">((</span><span class="n">n_features</span><span class="p">))</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">groups</span><span class="p">)[:]</span>
+    <span class="n">groups</span> <span class="o">=</span> <span class="p">[</span><span class="n">groups</span> <span class="o">==</span> <span class="n">u</span> <span class="k">for</span> <span class="n">u</span> <span class="ow">in</span> <span class="n">backend</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="n">groups</span><span class="p">)</span> <span class="k">if</span> <span class="n">u</span> <span class="o">&gt;=</span> <span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">initial_coef</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">coef</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">initial_coef</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
+
+    <span class="n">l1_reg</span> <span class="o">=</span> <span class="n">l1_reg</span> <span class="o">*</span> <span class="n">n_samples</span>  <span class="c1"># as in scikit-learn</span>
+    <span class="n">l21_reg</span> <span class="o">=</span> <span class="n">l21_reg</span> <span class="o">*</span> <span class="n">n_samples</span>
+
+    <span class="n">l1_reg</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">l1_reg</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">l1_reg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">l1_reg</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_targets</span><span class="p">,</span> <span class="p">))</span> <span class="o">*</span> <span class="n">l1_reg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="n">l21_reg</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">atleast_1d</span><span class="p">(</span><span class="n">l21_reg</span><span class="p">),</span> <span class="n">ref</span><span class="o">=</span><span class="n">Y</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">l21_reg</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">l21_reg</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_targets</span><span class="p">,</span> <span class="p">))</span> <span class="o">*</span> <span class="n">l21_reg</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="n">use_l1_reg</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">l1_reg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+    <span class="n">use_l21_reg</span> <span class="o">=</span> <span class="nb">any</span><span class="p">(</span><span class="n">l21_reg</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">)</span>
+
+    <span class="n">use_it</span> <span class="o">=</span> <span class="n">progress_bar</span> <span class="ow">and</span> <span class="n">n_targets</span> <span class="o">&gt;</span> <span class="n">n_targets_batch</span>
+    <span class="k">for</span> <span class="n">bb</span><span class="p">,</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span>
+            <span class="n">bar</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">),</span> <span class="n">title</span><span class="o">=</span><span class="s2">&quot;Group Lasso&quot;</span><span class="p">,</span>
+                <span class="n">use_it</span><span class="o">=</span><span class="n">use_it</span><span class="p">)):</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n_targets_batch</span><span class="p">)</span>
+
+        <span class="k">def</span> <span class="nf">loss</span><span class="p">(</span><span class="n">ww</span><span class="p">):</span>
+            <span class="sd">&quot;&quot;&quot;Objective function&quot;&quot;&quot;</span>
+            <span class="n">error_sq</span> <span class="o">=</span> <span class="mf">0.5</span> <span class="o">*</span> <span class="p">((</span><span class="n">X</span> <span class="o">@</span> <span class="n">ww</span> <span class="o">-</span> <span class="n">Y</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">])</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">use_l1_reg</span><span class="p">:</span>
+                <span class="n">error_sq</span> <span class="o">+=</span> <span class="n">l1_reg</span><span class="p">[</span><span class="n">batch</span><span class="p">]</span> <span class="o">*</span> <span class="n">backend</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ww</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">use_l21_reg</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+                    <span class="n">error_sq</span> <span class="o">+=</span> <span class="n">l21_reg</span><span class="p">[</span><span class="n">batch</span><span class="p">]</span> <span class="o">*</span> <span class="n">backend</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span>
+                        <span class="p">(</span><span class="n">ww</span><span class="p">[</span><span class="n">group</span><span class="p">]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span>
+
+            <span class="k">return</span> <span class="n">error_sq</span>
+
+        <span class="k">def</span> <span class="nf">grad</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="sd">&quot;&quot;&quot;Gradient of the objective function&quot;&quot;&quot;</span>
+            <span class="k">return</span> <span class="n">X</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">X</span> <span class="o">@</span> <span class="n">ww</span> <span class="o">-</span> <span class="n">Y</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">][:,</span> <span class="n">mask</span><span class="p">])</span>
+
+        <span class="k">def</span> <span class="nf">prox</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">mask</span><span class="o">=</span><span class="nb">slice</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)):</span>
+            <span class="sd">&quot;&quot;&quot;Proximal operator for the projected gradient descent&quot;&quot;&quot;</span>
+            <span class="k">if</span> <span class="n">use_l1_reg</span><span class="p">:</span>
+                <span class="n">ww</span> <span class="o">=</span> <span class="n">_l1_prox</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">l1_reg</span><span class="p">[</span><span class="n">batch</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">lipschitz</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">use_l21_reg</span><span class="p">:</span>
+                <span class="n">ww</span> <span class="o">=</span> <span class="n">_l21_prox</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">l21_reg</span><span class="p">[</span><span class="n">batch</span><span class="p">][</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">lipschitz</span><span class="p">,</span> <span class="n">groups</span><span class="p">)</span>
+            <span class="k">return</span> <span class="n">ww</span>
+
+        <span class="n">tmp</span> <span class="o">=</span> <span class="n">_proximal_gradient_descent</span><span class="p">(</span>
+            <span class="n">loss</span><span class="p">,</span> <span class="n">grad</span><span class="p">,</span> <span class="n">prox</span><span class="p">,</span> <span class="n">step_size</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">lipschitz</span><span class="p">,</span> <span class="n">x0</span><span class="o">=</span><span class="n">coef</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
+            <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter</span><span class="p">,</span> <span class="n">momentum</span><span class="o">=</span><span class="n">momentum</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+            <span class="n">progress_bar</span><span class="o">=</span><span class="n">progress_bar</span> <span class="ow">and</span> <span class="n">n_targets</span> <span class="o">&lt;=</span> <span class="n">n_targets_batch</span><span class="p">,</span>
+            <span class="n">debug</span><span class="o">=</span><span class="n">debug</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="n">tmp</span><span class="p">,</span> <span class="n">losses</span> <span class="o">=</span> <span class="n">tmp</span>
+        <span class="n">coef</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">tmp</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">coef</span><span class="p">,</span> <span class="n">losses</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">coef</span></div>
+
+
+<span class="k">def</span> <span class="nf">_l1_prox</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The proximal operator for reg * ||ww||_1.&quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="k">return</span> <span class="n">backend</span><span class="o">.</span><span class="n">sign</span><span class="p">(</span><span class="n">ww</span><span class="p">)</span> <span class="o">*</span> <span class="n">backend</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">ww</span><span class="p">)</span> <span class="o">-</span> <span class="n">reg</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+
+<span class="k">def</span> <span class="nf">_sqrt_l2_prox</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">reg</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The proximal operator for reg * ||ww||_2 (not squared).&quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="n">norm_ww</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">norm_ww</span> <span class="o">==</span> <span class="mi">0</span>
+
+    <span class="n">ww</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">ww</span><span class="p">[:,</span> <span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">clip</span><span class="p">(</span><span class="mi">1</span> <span class="o">-</span> <span class="n">reg</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">]</span> <span class="o">/</span> <span class="n">norm_ww</span><span class="p">[</span><span class="o">~</span><span class="n">mask</span><span class="p">],</span> <span class="mi">0</span><span class="p">,</span>
+                                <span class="kc">None</span><span class="p">)[</span><span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">ww</span><span class="p">[:,</span> <span class="o">~</span><span class="n">mask</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">ww</span>
+
+
+<span class="k">def</span> <span class="nf">_l21_prox</span><span class="p">(</span><span class="n">ww</span><span class="p">,</span> <span class="n">reg</span><span class="p">,</span> <span class="n">groups</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;The proximal operator for reg * ||ww||_21 for all groups&quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="n">ww</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">ww</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">group</span> <span class="ow">in</span> <span class="n">groups</span><span class="p">:</span>
+        <span class="n">ww</span><span class="p">[</span><span class="n">group</span><span class="p">,</span> <span class="p">:]</span> <span class="o">=</span> <span class="n">_sqrt_l2_prox</span><span class="p">(</span><span class="n">ww</span><span class="p">[</span><span class="n">group</span><span class="p">,</span> <span class="p">:],</span> <span class="n">reg</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">ww</span>
+
+
+<span class="c1">###############################################################################</span>
+<span class="c1"># fista algorithm</span>
+
+
+<span class="k">def</span> <span class="nf">_proximal_gradient_descent</span><span class="p">(</span><span class="n">f_loss</span><span class="p">,</span> <span class="n">f_grad</span><span class="p">,</span> <span class="n">f_prox</span><span class="p">,</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">x0</span><span class="p">,</span> <span class="n">max_iter</span><span class="p">,</span>
+                               <span class="n">momentum</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-7</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                               <span class="n">debug</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Proximal Gradient Descent (PGD) and Accelerated PDG.</span>
+
+<span class="sd">    This reduces to ISTA and FISTA when the loss function is the l2 loss and</span>
+<span class="sd">    the proximal operator is the soft-thresholding.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    f_loss : callable</span>
+<span class="sd">        Objective function. Only used when debug = True.</span>
+<span class="sd">    f_grad : callable</span>
+<span class="sd">        Gradient of the objective function.</span>
+<span class="sd">    f_prox : callable</span>
+<span class="sd">        Proximal operator.</span>
+<span class="sd">    step_size : float</span>
+<span class="sd">        Step size of each update.</span>
+<span class="sd">    x0 : array of shape (n_features, n_targets)</span>
+<span class="sd">        Initial point of the optimization.</span>
+<span class="sd">    max_iter : int</span>
+<span class="sd">        Maximum number of iterations.</span>
+<span class="sd">    momentum : bool</span>
+<span class="sd">        If True, use FISTA instead of ISTA.</span>
+<span class="sd">    tol : float or None</span>
+<span class="sd">        Tolerance for the stopping criterion.</span>
+<span class="sd">    progress_bar : bool</span>
+<span class="sd">        If True, display a progress bar over iterations.</span>
+<span class="sd">    debug : bool</span>
+<span class="sd">        If True, compute the objective function at each iteration, and return</span>
+<span class="sd">        the list of results along with the final point x_hat.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    x_hat : array of shape (n_features, n_targets)</span>
+<span class="sd">        The final point after optimization.</span>
+<span class="sd">    losses : array of shape (n_iter_ + 1, n_targets)</span>
+<span class="sd">        Returned only if debug = True. Objective function at each iteration.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="n">losses</span> <span class="o">=</span> <span class="p">[</span><span class="n">f_loss</span><span class="p">(</span><span class="n">x0</span><span class="p">)]</span>
+
+    <span class="n">t_new</span> <span class="o">=</span> <span class="mf">1.0</span>
+    <span class="n">x_hat</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x0</span><span class="p">)</span>
+
+    <span class="c1"># auxiliary variables</span>
+    <span class="n">x_old</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x_hat</span><span class="p">)</span>
+    <span class="n">x_aux</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">x_hat</span><span class="p">)</span>
+    <span class="n">diff</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">x_hat</span><span class="p">)</span>
+
+    <span class="c1"># not converged targets</span>
+    <span class="n">mask</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">x0</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">bool</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">x0</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+
+    <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
+        <span class="n">progress_bar</span> <span class="o">=</span> <span class="n">ProgressBar</span><span class="p">(</span><span class="n">title</span><span class="o">=</span><span class="s1">&#39;fista&#39;</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="n">max_iter</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">ii</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter</span><span class="p">):</span>
+        <span class="c1"># apply gradient and prox, from x_aux</span>
+        <span class="n">x_old</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span>
+        <span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">x_aux</span> <span class="o">-</span> <span class="n">step_size</span> <span class="o">*</span> <span class="n">f_grad</span><span class="p">(</span><span class="n">x_aux</span><span class="p">,</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">=</span> <span class="n">f_prox</span><span class="p">(</span><span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">],</span> <span class="n">mask</span><span class="p">)</span>
+        <span class="n">diff</span> <span class="o">=</span> <span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span> <span class="o">-</span> <span class="n">x_old</span>
+
+        <span class="c1"># apply momentum, from x_hat</span>
+        <span class="n">x_aux</span><span class="p">[:]</span> <span class="o">=</span> <span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">momentum</span><span class="p">:</span>
+            <span class="n">t_old</span> <span class="o">=</span> <span class="n">t_new</span>
+            <span class="n">t_new</span> <span class="o">=</span> <span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="n">np</span><span class="o">.</span><span class="n">sqrt</span><span class="p">(</span><span class="mi">1</span> <span class="o">+</span> <span class="mi">4</span> <span class="o">*</span> <span class="n">t_old</span> <span class="o">*</span> <span class="n">t_old</span><span class="p">))</span> <span class="o">/</span> <span class="mi">2</span>
+            <span class="n">x_aux</span> <span class="o">+=</span> <span class="p">(</span><span class="n">t_old</span> <span class="o">-</span> <span class="mf">1.</span><span class="p">)</span> <span class="o">/</span> <span class="n">t_new</span> <span class="o">*</span> <span class="n">diff</span>
+
+        <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+            <span class="n">losses</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">f_loss</span><span class="p">(</span><span class="n">x_hat</span><span class="p">))</span>
+
+        <span class="k">if</span> <span class="n">tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">criterion</span> <span class="o">=</span> <span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">diff</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">/</span>
+                         <span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">x_hat</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">],</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span> <span class="o">+</span> <span class="mf">1e-16</span><span class="p">))</span>
+            <span class="n">just_converged</span> <span class="o">=</span> <span class="n">criterion</span> <span class="o">&lt;=</span> <span class="n">tol</span>
+
+            <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">just_converged</span><span class="p">):</span>
+                <span class="n">x_aux</span> <span class="o">=</span> <span class="n">x_aux</span><span class="p">[:,</span> <span class="o">~</span><span class="n">just_converged</span><span class="p">]</span>
+                <span class="n">x_old</span> <span class="o">=</span> <span class="n">x_old</span><span class="p">[:,</span> <span class="o">~</span><span class="n">just_converged</span><span class="p">]</span>
+                <span class="n">mask</span><span class="p">[</span><span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">mask</span><span class="p">)]</span> <span class="o">=</span> <span class="o">~</span><span class="n">just_converged</span>
+
+                <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">all</span><span class="p">(</span><span class="n">just_converged</span><span class="p">):</span>
+                    <span class="k">break</span>
+
+        <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
+            <span class="n">progress_bar</span><span class="o">.</span><span class="n">update_with_increment_value</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span><span class="s2">&quot;FISTA did not converge.&quot;</span><span class="p">,</span> <span class="ne">RuntimeWarning</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">progress_bar</span><span class="p">:</span>
+        <span class="n">progress_bar</span><span class="o">.</span><span class="n">close</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">debug</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">x_hat</span><span class="p">,</span> <span class="n">backend</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">losses</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">x_hat</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &copy;2020, Gallant lab.
+      
+      |
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
