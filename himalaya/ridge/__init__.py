@@ -9,7 +9,7 @@ from ._sklearn_api import Ridge
 from ._sklearn_api import RidgeCV
 from ._sklearn_api import GroupRidgeCV
 
-# alternative names - kept for backward compatibility
+# alternative names
 BandedRidgeCV = GroupRidgeCV
 solve_banded_ridge_random_search = solve_group_ridge_random_search
 BANDED_RIDGE_SOLVERS = GROUP_RIDGE_SOLVERS

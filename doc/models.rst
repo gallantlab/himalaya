@@ -65,8 +65,8 @@ loss, averaged over all cross-validation splits.
   :func:`~himalaya.ridge.solve_ridge_cv_svd` and
   :func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues`.
 
-GroupRidgeCV
-------------
+GroupRidgeCV / BandedRidgeCV
+----------------------------
 
 In some applications, features are naturally grouped into groups (or feature
 spaces). To adapt the regularization level to each feature space, ridge
@@ -93,6 +93,9 @@ then learned over cross-validation.
   :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`, which is equivalent to
   group-regularization ridge regression when using one linear kernel per group
   of features.
+
+.. note::
+  "Group ridge regression" is also sometimes called "Banded ridge regression".
 
 WeightedKernelRidge
 -------------------
