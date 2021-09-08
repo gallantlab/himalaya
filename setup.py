@@ -24,6 +24,14 @@ requirements = [
     # "pytest",  # for testing only
 ]
 
+extras_require = {
+    "all_backends": ["cupy", "torch"],
+    "viz": ["matplotlib"],
+    "test": ["pytest", "cupy", "torch"],
+}
+
+extras_require["doc"] = sum(list(extras_require.values()), [])
+
 if __name__ == "__main__":
     setup(
         name='himalaya',
@@ -35,6 +43,7 @@ if __name__ == "__main__":
         packages=find_packages(),
         url="https://github.com/gallantlab/himalaya",
         install_requires=requirements,
+        extras_require=extras_require,
         long_description=long_description,
         long_description_content_type='text/x-rst',
     )
