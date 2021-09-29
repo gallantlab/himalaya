@@ -110,8 +110,8 @@ def flip(array, axis=0):
     return torch.flip(array, dims=[axis])
 
 
-def sort(array):
-    return torch.sort(array).values
+def sort(array, axis=-1):
+    return torch.sort(array, dim=axis).values
 
 
 def diagonal_view(array, axis1=0, axis2=1):
