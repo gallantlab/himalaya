@@ -157,6 +157,10 @@ def to_gpu(array, device=None):
     return cupy.asarray(array)
 
 
+def is_in_gpu(array):
+    return getattr(array, "device", None) is not None
+
+
 def asarray(a, dtype=None, order=None, device=None):
     if device == "cpu":
         import numpy as np

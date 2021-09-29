@@ -1,8 +1,9 @@
 import types
 import importlib
 import warnings
+from functools import wraps
 
-#: List of all available backends.
+
 ALL_BACKENDS = [
     "numpy",
     "cupy",
@@ -11,6 +12,13 @@ ALL_BACKENDS = [
 ]
 
 CURRENT_BACKEND = "numpy"
+
+MATCHING_CPU_BACKEND = {
+    "numpy": "numpy",
+    "cupy": "numpy",
+    "torch": "torch",
+    "torch_cuda": "torch",
+}
 
 
 def set_backend(backend, on_error="raise"):
@@ -78,3 +86,27 @@ def _dtype_to_str(dtype):
         return None
     else:
         raise NotImplementedError()
+
+
+def force_cpu_backend(func):
+    """Decorator to force the use of a CPU backend."""
+
+    @wraps(func)
+    def wrapper(*args, **kwargs):
+        # skip if the object does not force cpu use
+        if not args[0].force_cpu:
+            return func(*args, **kwargs)
+
+        # set corresponding cpu backend
+        original_backend = get_backend().name
+        temp_backend = MATCHING_CPU_BACKEND[original_backend]
+        set_backend(temp_backend)
+
+        # run function
+        result = func(*args, **kwargs)
+
+        # set back original backend
+        set_backend(original_backend)
+        return result
+
+    return wrapper

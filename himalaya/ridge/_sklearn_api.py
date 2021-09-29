@@ -11,6 +11,7 @@ from ._random_search import solve_ridge_cv_svd
 from ..validation import check_array
 from ..validation import _get_string_dtype
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..scoring import r2_score
 
 
@@ -69,6 +70,10 @@ class Ridge(_BaseRidge):
         See more details in the docstring of the function:
         ``Ridge.ALL_SOLVERS[solver]``
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
@@ -97,12 +102,14 @@ class Ridge(_BaseRidge):
     ALL_SOLVERS = RIDGE_SOLVERS
 
     def __init__(self, alpha=1, fit_intercept=False, solver="svd",
-                 solver_params=None):
+                 solver_params=None, force_cpu=False):
         self.alpha = alpha
         self.fit_intercept = fit_intercept
         self.solver = solver
         self.solver_params = solver_params
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Fit the model.
 
@@ -147,6 +154,7 @@ class Ridge(_BaseRidge):
 
         return self
 
+    @force_cpu_backend
     def predict(self, X):
         """Predict using the model.
 
@@ -172,6 +180,7 @@ class Ridge(_BaseRidge):
             Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
+    @force_cpu_backend
     def score(self, X, y):
         """Return the coefficient of determination R^2 of the prediction.
 
@@ -229,6 +238,10 @@ class RidgeCV(Ridge):
     Y_in_cpu : bool
         If True, keep the target values ``y`` in CPU memory (slower).
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
@@ -260,14 +273,16 @@ class RidgeCV(Ridge):
     ALL_SOLVERS = dict(svd=solve_ridge_cv_svd)
 
     def __init__(self, alphas=[0.1, 1], fit_intercept=False, solver="svd",
-                 solver_params=None, cv=5, Y_in_cpu=False):
+                 solver_params=None, cv=5, Y_in_cpu=False, force_cpu=False):
         self.alphas = alphas
         self.fit_intercept = fit_intercept
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
         self.Y_in_cpu = Y_in_cpu
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Fit ridge regression model
 
@@ -370,6 +385,10 @@ class GroupRidgeCV(_BaseRidge):
     Y_in_cpu : bool
         If True, keep the target values ``y`` in CPU memory (slower).
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
@@ -423,7 +442,8 @@ class GroupRidgeCV(_BaseRidge):
     ALL_SOLVERS = GROUP_RIDGE_SOLVERS
 
     def __init__(self, groups=None, solver="random_search", solver_params=None,
-                 fit_intercept=False, cv=5, random_state=None, Y_in_cpu=False):
+                 fit_intercept=False, cv=5, random_state=None, Y_in_cpu=False,
+                 force_cpu=False):
 
         self.groups = groups
         self.solver = solver
@@ -432,7 +452,9 @@ class GroupRidgeCV(_BaseRidge):
         self.cv = cv
         self.random_state = random_state
         self.Y_in_cpu = Y_in_cpu
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Fit the model.
 
@@ -496,6 +518,7 @@ class GroupRidgeCV(_BaseRidge):
 
         return self
 
+    @force_cpu_backend
     def predict(self, X, split=False):
         """Predict using the model.
 
@@ -537,6 +560,7 @@ class GroupRidgeCV(_BaseRidge):
             Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
+    @force_cpu_backend
     def score(self, X, y):
         """Return the coefficient of determination R^2 of the prediction.
 

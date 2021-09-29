@@ -134,6 +134,10 @@ def to_gpu(array, device=None):
     return array
 
 
+def is_in_gpu(array):
+    return array.device.type == "cuda"
+
+
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())
@@ -150,7 +154,7 @@ def flatnonzero(x):
     return torch.nonzero(torch.flatten(x), as_tuple=True)[0]
 
 
-def asarray(x, dtype=None, device=None):
+def asarray(x, dtype=None, device="cpu"):
     if dtype is None:
         if isinstance(x, torch.Tensor):
             dtype = x.dtype

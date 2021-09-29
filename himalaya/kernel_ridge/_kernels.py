@@ -8,6 +8,7 @@ from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..validation import _get_string_dtype
 from ..validation import check_array
 from ..validation import issparse
@@ -571,6 +572,12 @@ class KernelCenterer(TransformerMixin, BaseEstimator):
     It is equivalent to centering phi(x) with
     sklearn.preprocessing.StandardScaler(with_std=False).
 
+    Parameters
+    ----------
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     K_fit_rows_ : array of shape (n_samples,)
@@ -600,9 +607,10 @@ class KernelCenterer(TransformerMixin, BaseEstimator):
            [ -5., -14.,  19.]])
     """
 
-    def __init__(self):
-        pass
+    def __init__(self, force_cpu=False):
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, K, y=None):
         """Fit KernelCenterer
 
@@ -631,6 +639,7 @@ class KernelCenterer(TransformerMixin, BaseEstimator):
         self.K_fit_all_ = backend.mean_float64(self.K_fit_rows_, axis=0)
         return self
 
+    @force_cpu_backend
     def transform(self, K, copy=True):
         """Center kernel matrix.
 

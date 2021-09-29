@@ -150,6 +150,10 @@ def to_gpu(array, device=None):
     return array
 
 
+def is_in_gpu(array):
+    return False
+
+
 def asarray_like(x, ref):
     return np.asarray(x, dtype=ref.dtype)
 

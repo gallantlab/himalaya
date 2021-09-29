@@ -20,6 +20,15 @@ options to limit the GPU memory, often at the cost of computational speed:
 - Some solvers implement an option to keep the input kernels or the targets in
   CPU memory. See for instance ``Y_in_cpu`` in
   :class:`kernel_ridge.MultipleKernelRidgeCV`.
+- GPU memory can also be limited by limiting GPU use to some estimators only.
+  To force one estimator to use the CPU ignoring the current backend, use the
+  parameter ``force_cpu=True``. In the same pipeline, some estimators can use
+  ``force_cpu=True`` and others ``force_cpu=False``. In particular, it is
+  possible to precompute kernels on CPU, before fitting a
+  :class:`himalaya.kernel_ridge.KernelRidgeCV` or a
+  :class:`kernel_ridge.MultipleKernelRidgeCV` on GPU. To do so, use a
+  :class:`kernel_ridge.Kernelizer` or :class:`kernel_ridge.ColumnKernelizer`
+  with the parameter ``force_cpu=True``.
 
 Slow ``check_array``
 --------------------

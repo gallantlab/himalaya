@@ -84,7 +84,7 @@ To use the ``cupy`` backend, call:
     from himalaya.backend import set_backend
     backend = set_backend("cupy")
 
-    data = backend.asarray(data)  # cupy arrays are always on GPU
+    data = backend.asarray(data)
 
 
 To use the ``pytorch`` backend, call:
@@ -92,13 +92,9 @@ To use the ``pytorch`` backend, call:
 .. code-block:: python
 
     from himalaya.backend import set_backend
-    set_backend("torch")
+    backend = set_backend("torch_cuda")
+    # "torch" uses pytorch on CPU, "torch_cuda" uses pytorch on GPU
 
-    data = backend.asarray(data)  # torch tensors are on CPU by default...
-    data = data.cuda()  # ...and you can move them to GPU with the `cuda` method.
-
-    # or directly use
-    set_backend("torch_cuda")
     data = backend.asarray(data)
 
 

@@ -50,6 +50,25 @@ def asarray(x, dtype=None, device="cuda"):
     return tensor
 
 
+def check_arrays(*all_inputs):
+    """Change all inputs into Tensors (or list of Tensors) using the same
+    precision and device as the first one. Some tensors can be None.
+    """
+    all_tensors = []
+    all_tensors.append(asarray(all_inputs[0]))
+    dtype = all_tensors[0].dtype
+    device = all_tensors[0].device
+    for tensor in all_inputs[1:]:
+        if tensor is None:
+            pass
+        elif isinstance(tensor, list):
+            tensor = [asarray(tt, dtype=dtype, device=device) for tt in tensor]
+        else:
+            tensor = asarray(tensor, dtype=dtype, device=device)
+        all_tensors.append(tensor)
+    return all_tensors
+
+
 def zeros(shape, dtype="float32", device="cuda"):
     if isinstance(shape, int):
         shape = (shape, )
