@@ -1,0 +1,6 @@
+﻿himalaya.ridge.solve\_banded\_ridge\_random\_search
+===================================================
+
+.. currentmodule:: himalaya.ridge
+
+.. autofunction:: solve_banded_ridge_random_search

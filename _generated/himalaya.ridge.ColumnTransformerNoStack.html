@@ -19,7 +19,7 @@
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
     <link rel="next" title="himalaya.ridge.make_column_transformer_no_stack" href="himalaya.ridge.make_column_transformer_no_stack.html" />
-    <link rel="prev" title="himalaya.ridge.GroupRidgeCV" href="himalaya.ridge.GroupRidgeCV.html" />
+    <link rel="prev" title="himalaya.ridge.BandedRidgeCV" href="himalaya.ridge.BandedRidgeCV.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
   
@@ -57,7 +57,7 @@
 <ul>
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../api.html">API Documentation</a><ul>
-      <li>Previous: <a href="himalaya.ridge.GroupRidgeCV.html" title="previous chapter">himalaya.ridge.GroupRidgeCV</a></li>
+      <li>Previous: <a href="himalaya.ridge.BandedRidgeCV.html" title="previous chapter">himalaya.ridge.BandedRidgeCV</a></li>
       <li>Next: <a href="himalaya.ridge.make_column_transformer_no_stack.html" title="next chapter">himalaya.ridge.make_column_transformer_no_stack</a></li>
   </ul></li>
   </ul></li>
@@ -103,7 +103,7 @@
 <h1>himalaya.ridge.ColumnTransformerNoStack<a class="headerlink" href="#himalaya-ridge-columntransformernostack" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="himalaya.ridge.ColumnTransformerNoStack">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.ridge.</span></span><span class="sig-name descname"><span class="pre">ColumnTransformerNoStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remainder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'drop'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/ridge/_column.html#ColumnTransformerNoStack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.ridge.ColumnTransformerNoStack" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.ridge.</span></span><span class="sig-name descname"><span class="pre">ColumnTransformerNoStack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformers</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remainder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'drop'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sparse_threshold</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">0.3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix_feature_names_out</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/ridge/_column.html#ColumnTransformerNoStack"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.ridge.ColumnTransformerNoStack" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies transformers to columns of an array, and does not stack them.</p>
 <p>This estimator allows different columns or column subsets of the input to
 be transformed separately. The different groups of features generated are
@@ -236,15 +236,18 @@ form:
 <td><p>Fit all transformers, transform the data and concatenate results.</p></td>
 </tr>
 <tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code>()</p></td>
-<td><p>Get feature names from all transformers.</p></td>
+<td><p>DEPRECATED: get_feature_names is deprecated in 1.0 and will be removed in 1.2.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names_out</span></code>([input_features])</p></td>
+<td><p>Get output feature names for transformation.</p></td>
+</tr>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**kwargs)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**kwargs)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Transform X separately by each transformer, concatenate results.</p></td>
 </tr>
 </tbody>

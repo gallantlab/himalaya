@@ -98,6 +98,7 @@
 <span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_array</span>
 <span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">_get_string_dtype</span>
 <span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">force_cpu_backend</span>
 <span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">r2_score</span>
 
 
@@ -128,6 +129,10 @@
 
 <span class="sd">    cv : int or scikit-learn splitter</span>
 <span class="sd">        Cross-validation splitter. If an int, KFold is used.</span>
+
+<span class="sd">    force_cpu : bool</span>
+<span class="sd">        If True, computations will be performed on CPU, ignoring the</span>
+<span class="sd">        current backend. If False, use the current backend.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -160,14 +165,17 @@
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">proximal_gradient</span><span class="o">=</span><span class="n">solve_sparse_group_lasso_cv</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">l1_regs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">l21_regs</span><span class="o">=</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-                 <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;proximal_gradient&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">):</span>
+                 <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;proximal_gradient&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                 <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="n">groups</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l1_regs</span> <span class="o">=</span> <span class="n">l1_regs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">l21_regs</span> <span class="o">=</span> <span class="n">l21_regs</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span> <span class="o">=</span> <span class="n">solver_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cv</span> <span class="o">=</span> <span class="n">cv</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fit the model</span>
 
@@ -225,6 +233,7 @@
 
         <span class="k">return</span> <span class="n">function</span><span class="p">(</span><span class="o">**</span><span class="n">direct_params</span><span class="p">,</span> <span class="o">**</span><span class="n">solver_params</span><span class="p">)</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Predict using the model.</span>
 
@@ -247,6 +256,7 @@
         <span class="n">Y_hat</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="o">@</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">coef_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">Y_hat</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
 

@@ -166,18 +166,14 @@ input type.</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">himalaya.backend</span> <span class="kn">import</span> <span class="n">set_backend</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">)</span>
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># cupy arrays are always on GPU</span>
+<span class="n">data</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>To use the <code class="docutils literal notranslate"><span class="pre">pytorch</span></code> backend, call:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">himalaya.backend</span> <span class="kn">import</span> <span class="n">set_backend</span>
-<span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;torch&quot;</span><span class="p">)</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;torch_cuda&quot;</span><span class="p">)</span>
+<span class="c1"># &quot;torch&quot; uses pytorch on CPU, &quot;torch_cuda&quot; uses pytorch on GPU</span>
 
-<span class="n">data</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>  <span class="c1"># torch tensors are on CPU by default...</span>
-<span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">cuda</span><span class="p">()</span>  <span class="c1"># ...and you can move them to GPU with the `cuda` method.</span>
-
-<span class="c1"># or directly use</span>
-<span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;torch_cuda&quot;</span><span class="p">)</span>
 <span class="n">data</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>

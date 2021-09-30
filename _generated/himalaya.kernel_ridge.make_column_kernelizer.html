@@ -152,6 +152,9 @@ n_jobs does not work with with GPU backends.</p>
 <dt><strong>verbose</strong><span class="classifier">bool, default=False</span></dt><dd><p>If True, the time elapsed while fitting each transformer will be
 printed as it is completed.</p>
 </dd>
+<dt><strong>force_cpu</strong><span class="classifier">bool</span></dt><dd><p>If True, computations will be performed on CPU, ignoring the
+current backend. If False, use the current backend.</p>
+</dd>
 </dl>
 </dd>
 <dt class="field-even">Returns</dt>

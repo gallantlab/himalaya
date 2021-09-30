@@ -18,7 +18,7 @@
     <script src="../_static/doctools.js"></script>
     <link rel="index" title="Index" href="../genindex.html" />
     <link rel="search" title="Search" href="../search.html" />
-    <link rel="next" title="himalaya.ridge.ColumnTransformerNoStack" href="himalaya.ridge.ColumnTransformerNoStack.html" />
+    <link rel="next" title="himalaya.ridge.BandedRidgeCV" href="himalaya.ridge.BandedRidgeCV.html" />
     <link rel="prev" title="himalaya.ridge.RidgeCV" href="himalaya.ridge.RidgeCV.html" />
    
   <link rel="stylesheet" href="../_static/custom.css" type="text/css" />
@@ -58,7 +58,7 @@
   <li><a href="../index.html">Documentation overview</a><ul>
   <li><a href="../api.html">API Documentation</a><ul>
       <li>Previous: <a href="himalaya.ridge.RidgeCV.html" title="previous chapter">himalaya.ridge.RidgeCV</a></li>
-      <li>Next: <a href="himalaya.ridge.ColumnTransformerNoStack.html" title="next chapter">himalaya.ridge.ColumnTransformerNoStack</a></li>
+      <li>Next: <a href="himalaya.ridge.BandedRidgeCV.html" title="next chapter">himalaya.ridge.BandedRidgeCV</a></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -103,7 +103,7 @@
 <h1>himalaya.ridge.GroupRidgeCV<a class="headerlink" href="#himalaya-ridge-groupridgecv" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="himalaya.ridge.GroupRidgeCV">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.ridge.</span></span><span class="sig-name descname"><span class="pre">GroupRidgeCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'random_search'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_intercept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_in_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/ridge/_sklearn_api.html#GroupRidgeCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.ridge.GroupRidgeCV" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.ridge.</span></span><span class="sig-name descname"><span class="pre">GroupRidgeCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">groups</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'random_search'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_intercept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">random_state</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_in_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/ridge/_sklearn_api.html#GroupRidgeCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.ridge.GroupRidgeCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Group ridge regression with cross-validation.</p>
 <p>Solve the group-regularized ridge regression:</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">b</span><span class="o">*</span> <span class="o">=</span> <span class="n">argmin_b</span> <span class="o">||</span><span class="n">Z</span> <span class="o">@</span> <span class="n">b</span> <span class="o">-</span> <span class="n">Y</span><span class="o">||^</span><span class="mi">2</span> <span class="o">+</span> <span class="o">||</span><span class="n">b</span><span class="o">||^</span><span class="mi">2</span>
@@ -137,6 +137,9 @@ If False, X and Y must be zero-mean over samples.</p>
 <dt><strong>random_state</strong><span class="classifier">int, or None</span></dt><dd><p>Random generator seed. Use an int for deterministic search.</p>
 </dd>
 <dt><strong>Y_in_cpu</strong><span class="classifier">bool</span></dt><dd><p>If True, keep the target values <code class="docutils literal notranslate"><span class="pre">y</span></code> in CPU memory (slower).</p>
+</dd>
+<dt><strong>force_cpu</strong><span class="classifier">bool</span></dt><dd><p>If True, computations will be performed on CPU, ignoring the
+current backend. If False, use the current backend.</p>
 </dd>
 </dl>
 </dd>

@@ -112,6 +112,14 @@ intermediate arrays. See for instance <code class="docutils literal notranslate"
 <li><p>Some solvers implement an option to keep the input kernels or the targets in
 CPU memory. See for instance <code class="docutils literal notranslate"><span class="pre">Y_in_cpu</span></code> in
 <code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.MultipleKernelRidgeCV</span></code>.</p></li>
+<li><p>Some estimators can also be forced to use CPU, ignoring the current backend,
+using the parameter <code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code>. To limit GPU memory, some estimators
+in the same pipeline can use <code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code> and others
+<code class="docutils literal notranslate"><span class="pre">force_cpu=False</span></code>. In particular, it is possible to precompute kernels on
+CPU, using <code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.Kernelizer</span></code> or
+<code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.ColumnKernelizer</span></code> with the parameter <code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code>
+before fitting a <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">himalaya.kernel_ridge.KernelRidgeCV</span></code></a> or a
+<code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.MultipleKernelRidgeCV</span></code> on GPU.</p></li>
 </ul>
 </div>
 <div class="section" id="slow-check-array">

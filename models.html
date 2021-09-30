@@ -68,7 +68,7 @@
 <li class="toctree-l2"><a class="reference internal" href="#ridge">Ridge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#kernelridge">KernelRidge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#ridgecv-and-kernelridgecv">RidgeCV and KernelRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#groupridgecv">GroupRidgeCV</a></li>
+<li class="toctree-l2"><a class="reference internal" href="#groupridgecv-bandedridgecv">GroupRidgeCV / BandedRidgeCV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#weightedkernelridge">WeightedKernelRidge</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#multiplekernelridgecv">MultipleKernelRidgeCV</a></li>
 <li class="toctree-l2"><a class="reference internal" href="#sparsegrouplassocv">SparseGroupLassoCV</a></li>
@@ -160,8 +160,8 @@ loss, averaged over all cross-validation splits.</p>
 <a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_cv_eigenvalues()</span></code></a>.</p>
 </div>
 </div>
-<div class="section" id="groupridgecv">
-<h2>GroupRidgeCV<a class="headerlink" href="#groupridgecv" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="groupridgecv-bandedridgecv">
+<h2>GroupRidgeCV / BandedRidgeCV<a class="headerlink" href="#groupridgecv-bandedridgecv" title="Permalink to this headline">¶</a></h2>
 <p>In some applications, features are naturally grouped into groups (or feature
 spaces). To adapt the regularization level to each feature space, ridge
 regression can be extended to group-regularized ridge regression (also known
@@ -183,6 +183,10 @@ then learned over cross-validation.</p>
 <a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a>, which is equivalent to
 group-regularization ridge regression when using one linear kernel per group
 of features.</p>
+</div>
+<div class="admonition note">
+<p class="admonition-title">Note</p>
+<p>“Group ridge regression” is also sometimes called “Banded ridge regression”.</p>
 </div>
 </div>
 <div class="section" id="weightedkernelridge">

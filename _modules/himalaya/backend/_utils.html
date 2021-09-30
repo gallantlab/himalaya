@@ -92,8 +92,9 @@
 <span></span><span class="kn">import</span> <span class="nn">types</span>
 <span class="kn">import</span> <span class="nn">importlib</span>
 <span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">from</span> <span class="nn">functools</span> <span class="kn">import</span> <span class="n">wraps</span>
 
-<span class="c1">#: List of all available backends.</span>
+
 <span class="n">ALL_BACKENDS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
     <span class="s2">&quot;cupy&quot;</span><span class="p">,</span>
@@ -102,6 +103,13 @@
 <span class="p">]</span>
 
 <span class="n">CURRENT_BACKEND</span> <span class="o">=</span> <span class="s2">&quot;numpy&quot;</span>
+
+<span class="n">MATCHING_CPU_BACKEND</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">&quot;numpy&quot;</span><span class="p">:</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;cupy&quot;</span><span class="p">:</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;torch&quot;</span><span class="p">:</span> <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;torch_cuda&quot;</span><span class="p">:</span> <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
+<span class="p">}</span>
 
 
 <div class="viewcode-block" id="set_backend"><a class="viewcode-back" href="../../../_generated/himalaya.backend.set_backend.html#himalaya.backend.set_backend">[docs]</a><span class="k">def</span> <span class="nf">set_backend</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;raise&quot;</span><span class="p">):</span>
@@ -169,6 +177,30 @@
         <span class="k">return</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<span class="k">def</span> <span class="nf">force_cpu_backend</span><span class="p">(</span><span class="n">func</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Decorator to force the use of a CPU backend.&quot;&quot;&quot;</span>
+
+    <span class="nd">@wraps</span><span class="p">(</span><span class="n">func</span><span class="p">)</span>
+    <span class="k">def</span> <span class="nf">wrapper</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">):</span>
+        <span class="c1"># skip if the object does not force cpu use</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">force_cpu</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># set corresponding cpu backend</span>
+        <span class="n">original_backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">temp_backend</span> <span class="o">=</span> <span class="n">MATCHING_CPU_BACKEND</span><span class="p">[</span><span class="n">original_backend</span><span class="p">]</span>
+        <span class="n">set_backend</span><span class="p">(</span><span class="n">temp_backend</span><span class="p">)</span>
+
+        <span class="c1"># run function</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">func</span><span class="p">(</span><span class="o">*</span><span class="n">args</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+
+        <span class="c1"># set back original backend</span>
+        <span class="n">set_backend</span><span class="p">(</span><span class="n">original_backend</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">result</span>
+
+    <span class="k">return</span> <span class="n">wrapper</span>
 </pre></div>
 
           </div>

@@ -103,7 +103,7 @@
 <h1>himalaya.kernel_ridge.ColumnKernelizer<a class="headerlink" href="#himalaya-kernel-ridge-columnkernelizer" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="himalaya.kernel_ridge.ColumnKernelizer">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.kernel_ridge.</span></span><span class="sig-name descname"><span class="pre">ColumnKernelizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remainder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'drop'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/kernel_ridge/_kernelizer.html#ColumnKernelizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.kernel_ridge.ColumnKernelizer" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.kernel_ridge.</span></span><span class="sig-name descname"><span class="pre">ColumnKernelizer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">transformers</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">remainder</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'drop'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_jobs</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">transformer_weights</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/kernel_ridge/_kernelizer.html#ColumnKernelizer"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.kernel_ridge.ColumnKernelizer" title="Permalink to this definition">¶</a></dt>
 <dd><p>Applies transformers to columns of an array, ending with kernelizers.</p>
 <p>This estimator allows different columns or column subsets of the input
 to be transformed separately. Each transformer pipeline either ends with a
@@ -169,6 +169,9 @@ values the weights.</p>
 </dd>
 <dt><strong>verbose</strong><span class="classifier">bool, default=False</span></dt><dd><p>If True, the time elapsed while fitting each transformer will be
 printed as it is completed.</p>
+</dd>
+<dt><strong>force_cpu</strong><span class="classifier">bool</span></dt><dd><p>If True, computations will be performed on CPU, ignoring the
+current backend. If False, use the current backend.</p>
 </dd>
 </dl>
 </dd>
@@ -246,15 +249,18 @@ used during the fit.</p>
 <td><p>Helper to get the input data X seen during the fit.</p></td>
 </tr>
 <tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names</span></code>()</p></td>
-<td><p>Get feature names from all transformers.</p></td>
+<td><p>DEPRECATED: get_feature_names is deprecated in 1.0 and will be removed in 1.2.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_feature_names_out</span></code>([input_features])</p></td>
+<td><p>Get output feature names for transformation.</p></td>
+</tr>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_params</span></code>([deep])</p></td>
 <td><p>Get parameters for this estimator.</p></td>
 </tr>
-<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**kwargs)</p></td>
+<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_params</span></code>(**kwargs)</p></td>
 <td><p>Set the parameters of this estimator.</p></td>
 </tr>
-<tr class="row-odd"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
+<tr class="row-even"><td><p><code class="xref py py-obj docutils literal notranslate"><span class="pre">transform</span></code>(X)</p></td>
 <td><p>Transform X separately by each transformer, concatenate results.</p></td>
 </tr>
 </tbody>

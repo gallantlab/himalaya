@@ -1,0 +1,6 @@
+﻿himalaya.ridge.BANDED\_RIDGE\_SOLVERS
+=====================================
+
+.. currentmodule:: himalaya.ridge
+
+.. autodata:: BANDED_RIDGE_SOLVERS

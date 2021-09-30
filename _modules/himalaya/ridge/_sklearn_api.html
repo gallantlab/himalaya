@@ -102,6 +102,7 @@
 <span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_array</span>
 <span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">_get_string_dtype</span>
 <span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">force_cpu_backend</span>
 <span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">r2_score</span>
 
 
@@ -160,6 +161,10 @@
 <span class="sd">        See more details in the docstring of the function:</span>
 <span class="sd">        ``Ridge.ALL_SOLVERS[solver]``</span>
 
+<span class="sd">    force_cpu : bool</span>
+<span class="sd">        If True, computations will be performed on CPU, ignoring the</span>
+<span class="sd">        current backend. If False, use the current backend.</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    coef_ : array of shape (n_features) or (n_features, n_targets)</span>
@@ -188,12 +193,14 @@
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="n">RIDGE_SOLVERS</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;svd&quot;</span><span class="p">,</span>
-                 <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+                 <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span> <span class="o">=</span> <span class="n">fit_intercept</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span> <span class="o">=</span> <span class="n">solver_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fit the model.</span>
 
@@ -238,6 +245,7 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Predict using the model.</span>
 
@@ -263,6 +271,7 @@
             <span class="n">Y_hat</span> <span class="o">+=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Y_hat</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
 
@@ -320,6 +329,10 @@
 <span class="sd">    Y_in_cpu : bool</span>
 <span class="sd">        If True, keep the target values ``y`` in CPU memory (slower).</span>
 
+<span class="sd">    force_cpu : bool</span>
+<span class="sd">        If True, computations will be performed on CPU, ignoring the</span>
+<span class="sd">        current backend. If False, use the current backend.</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    coef_ : array of shape (n_features) or (n_features, n_targets)</span>
@@ -351,14 +364,16 @@
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">svd</span><span class="o">=</span><span class="n">solve_ridge_cv_svd</span><span class="p">)</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alphas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;svd&quot;</span><span class="p">,</span>
-                 <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alphas</span> <span class="o">=</span> <span class="n">alphas</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span> <span class="o">=</span> <span class="n">fit_intercept</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span> <span class="o">=</span> <span class="n">solver_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cv</span> <span class="o">=</span> <span class="n">cv</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Y_in_cpu</span> <span class="o">=</span> <span class="n">Y_in_cpu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fit ridge regression model</span>
 
@@ -461,6 +476,10 @@
 <span class="sd">    Y_in_cpu : bool</span>
 <span class="sd">        If True, keep the target values ``y`` in CPU memory (slower).</span>
 
+<span class="sd">    force_cpu : bool</span>
+<span class="sd">        If True, computations will be performed on CPU, ignoring the</span>
+<span class="sd">        current backend. If False, use the current backend.</span>
+
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
 <span class="sd">    coef_ : array of shape (n_features) or (n_features, n_targets)</span>
@@ -514,7 +533,8 @@
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="n">GROUP_RIDGE_SOLVERS</span>
 
     <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">groups</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;random_search&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+                 <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">groups</span> <span class="o">=</span> <span class="n">groups</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
@@ -523,7 +543,9 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">cv</span> <span class="o">=</span> <span class="n">cv</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Y_in_cpu</span> <span class="o">=</span> <span class="n">Y_in_cpu</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Fit the model.</span>
 
@@ -587,6 +609,7 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Predict using the model.</span>
 
@@ -628,6 +651,7 @@
             <span class="n">Y_hat</span> <span class="o">+=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">Y_hat</span>
 
+    <span class="nd">@force_cpu_backend</span>
     <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
         <span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
 
