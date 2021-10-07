@@ -20,6 +20,7 @@ from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..backend import force_cpu_backend
 from ..scoring import r2_score
+from ..scoring import r2_score_split
 
 
 class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -133,8 +134,8 @@ class KernelRidge(_BaseKernelRidge):
     ALL_SOLVERS = KERNEL_RIDGE_SOLVERS
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None,
-                 fit_intercept=False, force_cpu=False):
+                 solver="eigenvalues", solver_params=None, fit_intercept=False,
+                 force_cpu=False):
         self.alpha = alpha
         self.kernel = kernel
         self.kernel_params = kernel_params
@@ -553,7 +554,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         return Y_hat
 
     @force_cpu_backend
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         """Return the coefficient of determination R^2 of the prediction.
 
         Parameters
@@ -565,10 +566,18 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         y : array-like of shape (n_samples,) or (n_samples, n_targets)
             True values for X.
 
+        split : bool
+            If True, the prediction is split on each kernel, and the R2 score
+            is decomposed over sub-predictions, adding an extra dimension
+            in the first axis. The sum over this extra dimension corresponds to
+            split=False.
+
         Returns
         -------
-        score : array of shape (n_targets, )
+        score : array of shape (n_targets, ) or (n_kernels, n_targets)
             R^2 of self.predict(X) versus y.
+            If parameter split is True, the array is of shape
+            (n_kernels, n_targets).
         """
         check_is_fitted(self)
 
@@ -591,15 +600,18 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         else:
             n_targets_batch = None
 
+        score_func = r2_score_split if split else r2_score
+
         if self.dual_coef_.ndim == 1:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
-                deltas=self.deltas_[:, None], Y=y[:, None],
-                score_func=r2_score, n_targets_batch=n_targets_batch)[0]
+                deltas=self.deltas_[:, None], Y=y[:, None], split=split,
+                score_func=score_func, n_targets_batch=n_targets_batch)[..., 0]
         else:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_, Y=y,
-                score_func=r2_score, n_targets_batch=n_targets_batch)
+                split=split, score_func=score_func,
+                n_targets_batch=n_targets_batch)
         return score
 
     def _get_kernels(self, X, Y=None):

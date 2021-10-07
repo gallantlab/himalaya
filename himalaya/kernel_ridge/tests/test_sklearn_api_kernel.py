@@ -332,6 +332,35 @@ def test_weighted_kernel_ridge_split_predict(backend, Estimator):
     assert_array_almost_equal(Y_pred, Y_pred_split.sum(0))
 
 
+@pytest.mark.parametrize('Estimator',
+                         [WeightedKernelRidge, MultipleKernelRidgeCV])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_split_score(backend, Estimator):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    if issubclass(Estimator, MultipleKernelRidgeCV):
+        solver_params = dict(n_iter=2, progress_bar=False)
+    else:
+        solver_params = dict()
+
+    # multiple targets
+    model = Estimator(kernels="precomputed", solver_params=solver_params)
+    model.fit(Ks, Y)
+    score = model.score(Ks, Y)
+    score_split = model.score(Ks, Y, split=True)
+    assert score_split.shape == (len(Ks), Y.shape[1])
+    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
+
+    # single targets
+    model = Estimator(kernels="precomputed", solver_params=solver_params)
+    model.fit(Ks, Y[:, 0])
+    score = model.score(Ks, Y[:, 0])
+    score_split = model.score(Ks, Y[:, 0], split=True)
+    assert score_split.shape == (len(Ks), )
+    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
+
+
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_duplicate_solver_parameters(backend):
     backend = set_backend(backend)
@@ -492,13 +521,13 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
                          solver=solver, solver_params=solver_params, cv=cv,
                          random_state=random_state)
 
-    def predict(self, X):
+    def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return backend.to_numpy(super().predict(X, split=split))
 
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().score(X, y))
+        return backend.to_numpy(super().score(X, y, split=split))
 
 
 class WeightedKernelRidge_(WeightedKernelRidge):
@@ -516,13 +545,13 @@ class WeightedKernelRidge_(WeightedKernelRidge):
                          solver_params=solver_params,
                          random_state=random_state)
 
-    def predict(self, X):
+    def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return backend.to_numpy(super().predict(X, split=split))
 
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().score(X, y))
+        return backend.to_numpy(super().score(X, y, split=split))
 
 
 @sklearn.utils.estimator_checks.parametrize_with_checks([

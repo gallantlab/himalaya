@@ -106,13 +106,30 @@ def test_banded_ridge_cv_vs_ridge_cv(backend, fit_intercept):
     ref.fit(X, Y)
 
     model = GroupRidgeCV(groups=None, solver_params=dict(alphas=alphas), cv=5,
-                          fit_intercept=fit_intercept)
+                         fit_intercept=fit_intercept)
     model.fit(X, Y)
 
     assert_array_almost_equal(model.best_alphas_, ref.best_alphas_)
     assert_array_almost_equal(model.coef_, ref.coef_)
     assert_array_almost_equal(model.predict(X), ref.predict(X))
     assert_array_almost_equal(model.score(X, Y), ref.score(X, Y))
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_group_ridge_split_score(backend):
+    backend = set_backend(backend)
+    X, Y = _create_dataset(backend)
+    Y -= Y.mean(axis=0)
+    groups = backend.randn(X.shape[1]) > 0
+    alphas = backend.asarray_like(backend.logspace(-2, 3, 21), Y)
+
+    model = GroupRidgeCV(groups=groups,
+                         solver_params=dict(alphas=alphas, progress_bar=False))
+    model.fit(X, Y)
+    score = model.score(X, Y)
+    score_split = model.score(X, Y, split=True)
+    assert score_split.shape == (model.deltas_.shape[0], Y.shape[1])
+    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
 
 
 ###############################################################################
@@ -195,13 +212,13 @@ class GroupRidgeCV_(GroupRidgeCV):
                          solver_params=solver_params, cv=cv,
                          random_state=random_state)
 
-    def predict(self, X):
+    def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return backend.to_numpy(super().predict(X, split=split))
 
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().score(X, y))
+        return backend.to_numpy(super().score(X, y, split=split))
 
 
 @sklearn.utils.estimator_checks.parametrize_with_checks([

@@ -72,7 +72,8 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
     Ks, dual_weights, deltas, Y = backend.check_arrays(Ks, dual_weights,
                                                        deltas, Y)
 
-    n_kernels, n_targets = deltas.shape
+    n_kernels, _ = deltas.shape
+    _, n_targets = Y.shape
     if split:
         scores = backend.zeros_like(Y, shape=(n_kernels, n_targets))
     else:

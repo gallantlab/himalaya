@@ -13,6 +13,7 @@ from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..backend import force_cpu_backend
 from ..scoring import r2_score
+from ..scoring import r2_score_split
 
 
 class _BaseRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -551,17 +552,36 @@ class GroupRidgeCV(_BaseRidge):
         if n_features != self.n_features_in_:
             raise ValueError(
                 'Different number of features in X than during fit.')
+        if split:
+            if self.fit_intercept:
+                raise NotImplementedError(
+                    "Splitting the predictions is not implemented with "
+                    "fit_intercept=True.")
 
-        X = backend.to_cpu(backend.concatenate(Xs, 1))
-        del Xs
+            start = 0
+            Ys_hat = None
+            for ii, X_i in enumerate(Xs):
+                n_features_i = X_i.shape[1]
+                coef = self.coef_[start:start + n_features_i]
+                start += n_features_i
+                Y_hat = backend.to_cpu(X_i) @ backend.to_cpu(coef)
+                if Ys_hat is None:
+                    Ys_hat = backend.zeros_like(Y_hat,
+                                                shape=(len(Xs), *Y_hat.shape))
+                Ys_hat[ii] = Y_hat
+            return Ys_hat
 
-        Y_hat = X @ backend.to_cpu(self.coef_)
-        if self.fit_intercept:
-            Y_hat += backend.to_cpu(self.intercept_)
-        return Y_hat
+        else:
+            X = backend.to_cpu(backend.concatenate(Xs, 1))
+            del Xs
+
+            Y_hat = X @ backend.to_cpu(self.coef_)
+            if self.fit_intercept:
+                Y_hat += backend.to_cpu(self.intercept_)
+            return Y_hat
 
     @force_cpu_backend
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         """Return the coefficient of determination R^2 of the prediction.
 
         Parameters
@@ -575,24 +595,34 @@ class GroupRidgeCV(_BaseRidge):
         y : array-like of shape (n_samples,) or (n_samples, n_targets)
             True values for X.
 
+        split : bool
+            If True, the prediction is split on each kernel, and the R2 score
+            is decomposed over sub-predictions, adding an extra dimension
+            in the first axis. The sum over this extra dimension corresponds to
+            split=False.
+
         Returns
         -------
-        score : array of shape (n_targets, )
+        score : array of shape (n_targets, ) or (n_kernels, n_targets)
             R^2 of self.predict(X) versus y.
+            If parameter split is True, the array is of shape
+            (n_kernels, n_targets).
         """
-        y_pred = self.predict(X)
+        y_pred = self.predict(X, split=split)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
+        score_func = r2_score_split if split else r2_score
+
         if y_true.ndim == 1:
-            return r2_score(y_true[:, None], y_pred[:, None])[0]
+            return score_func(y_true[:, None], y_pred[:, None])[0]
         else:
-            return r2_score(y_true, y_pred)
+            return score_func(y_true, y_pred)
 
     def _split_groups(self, X, check=True, **check_kwargs):
         backend = get_backend()
 
         # groups defined in X
-        if self.groups == "input":
+        if isinstance(self.groups, str) and self.groups == "input":
             if check:
                 X = [check_array(Xi, ndim=2, **check_kwargs) for Xi in X]
             return X
