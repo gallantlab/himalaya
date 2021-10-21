@@ -218,7 +218,7 @@ def correlation_score_split(y_true, y_pred):
         y_pred_std = backend.std_float64(y_pred_sum, axis, demean=True, keepdims=False)
     else:
         y_pred_std = backend.std_float64(y_pred, axis, demean=True, keepdims=True)
-    y_pred_std[y_true_std == 0] = 1
+    y_pred_std[y_pred_std == 0] = 1
     correlations = (y_true * y_pred).mean(axis) / (y_true_std * y_pred_std)
     if not split:
         correlations = correlations[0]
