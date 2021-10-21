@@ -201,3 +201,9 @@ def test_correlation_score_split(backend, dtype_str):
     s_1 = correlation_score_split(y_true, y_pred[0])
     s_2 = _correlation(backend, y_true, y_pred[0], dtype_str)
     assert_array_almost_equal(s_1, s_2, decimal=5)
+
+    # test nothing blows up if we have std of 0
+    y_true[:, 0] = 0
+    s_1 = correlation_score_split(y_true, y_pred)
+    s_2 = correlation_score(y_true, y_pred.sum(0))
+    assert_array_almost_equal(s_1.sum(0), s_2, decimal=5)
