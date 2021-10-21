@@ -170,6 +170,59 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     return r2
 
 
+def correlation_score_split(y_true, y_pred):
+    """Split the correlation score over multiple predictions.
+
+    When estimating a linear joint model, the predictions of
+    each feature space are summed::
+
+        Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z
+
+    The joint model correlation score r can be computed as::
+
+        r_joint = r(Y, Yhat_joint)
+
+    This function estimates the contribution of each feature space to the
+    joint model correlation score r such that::
+
+        r_joint = r_A + r_B + ... + r_Z
+
+    Parameters
+    ----------
+    y_true : array or Tensor of shape (n_samples, n_targets)
+        Ground truth.
+    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or\
+            (n_samples, n_targets)
+        Predictions.
+
+    Returns
+    -------
+    correlations : array of shape (n_predictions, n_targets) or (n_targets, )
+        Contributions of each individual feature space to the joint correlation score.
+    """
+    backend = get_backend()
+    y_true, y_pred = backend.check_arrays(y_true, y_pred)
+    y_pred = _check_finite(y_pred)
+
+    # broadcasting if y_pred has more dimensions
+    axis = 1 if len(y_pred.shape) > len(y_true.shape) else 0
+    # demean to take the covariance
+    y_true = y_true - y_true.mean(0, keepdims=True)
+    y_pred = y_pred - y_pred.mean(axis, keepdims=True)
+    y_true_std = backend.std_float64(y_true, 0, demean=False, keepdims=False)
+    split = y_pred.ndim == 3
+    if split:
+        y_true = y_true[None]
+        y_pred_sum = y_pred.sum(0, keepdims=True)
+        y_pred_std = backend.std_float64(y_pred_sum, axis, demean=True, keepdims=False)
+    else:
+        y_pred_std = backend.std_float64(y_pred, axis, demean=True, keepdims=True)
+    correlations = (y_true * y_pred).mean(axis) / (y_true_std * y_pred_std)
+    if not split:
+        correlations = correlations[0]
+    return correlations
+
+
 ###############################################################################
 
 

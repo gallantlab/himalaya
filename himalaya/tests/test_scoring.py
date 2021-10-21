@@ -9,6 +9,7 @@ from himalaya.scoring import r2_score
 from himalaya.scoring import l2_neg_loss
 from himalaya.scoring import correlation_score
 from himalaya.scoring import r2_score_split
+from himalaya.scoring import correlation_score_split
 
 
 def _create_data(backend, dtype_str):
@@ -161,6 +162,7 @@ def test_correlation_score(backend, dtype_str):
     l2_neg_loss,
     correlation_score,
     r2_score_split,
+    correlation_score_split
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_infinite_and_nans(backend, dtype_str, scoring):
@@ -182,3 +184,20 @@ def test_infinite_and_nans(backend, dtype_str, scoring):
     assert not backend.any(backend.isnan(s_2))
     assert len(record) == 1
     assert record[0].message.args[0] == "inf in y_pred."
+
+
+@pytest.mark.parametrize('dtype_str', ["float32", "float64"])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_correlation_score_split(backend, dtype_str):
+    backend = set_backend(backend)
+    y_pred, y_true = _create_data(backend, dtype_str)
+
+    # multi predictions
+    s_1 = correlation_score_split(y_true, y_pred)
+    s_2 = _correlation(backend, y_true, y_pred.sum(0), dtype_str)
+    assert_array_almost_equal(s_1.sum(0), s_2, decimal=5)
+
+    # single prediction
+    s_1 = correlation_score_split(y_true, y_pred[0])
+    s_2 = _correlation(backend, y_true, y_pred[0], dtype_str)
+    assert_array_almost_equal(s_1, s_2, decimal=5)
