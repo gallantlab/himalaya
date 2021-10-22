@@ -94,7 +94,7 @@ def force_cpu_backend(func):
     @wraps(func)
     def wrapper(*args, **kwargs):
         # skip if the object does not force cpu use
-        if not args[0].force_cpu:
+        if not hasattr(args[0], "force_cpu") or not args[0].force_cpu:
             return func(*args, **kwargs)
 
         # set corresponding cpu backend
