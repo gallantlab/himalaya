@@ -274,10 +274,11 @@ def solve_multiple_kernel_ridge_hyper_gradient(
 
     if progress_bar:
         bar.update(bar.max_value)
+        bar.close()
 
     results = [deltas, refit_weights, cv_scores]
     if fit_intercept:
-        results.append(intercept)
+        pass  # results.append(intercept)
     return results
 
 

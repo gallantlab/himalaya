@@ -19,7 +19,7 @@ requirements = [
     "numpy",
     "scikit-learn",
     # "cupy",  # optional backend
-    # "torch",  # optional backend
+    # "torch",  # optional backend, 1.9+ preferred
     # "matplotlib",  # for visualization only
     # "pytest",  # for testing only
 ]

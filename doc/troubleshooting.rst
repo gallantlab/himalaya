@@ -29,6 +29,13 @@ options to limit the GPU memory, often at the cost of computational speed:
   before fitting a :class:`himalaya.kernel_ridge.KernelRidgeCV` or a
   :class:`kernel_ridge.MultipleKernelRidgeCV` on GPU.
 
+A CUDA out of memory issue can also arise with ``pytorch < 1.9``, for example
+with :class:`himalaya.kernel_ridge.KernelRidge`, where a solver requires
+ridiculously high peak memory during a broadcasting matmul operation. This
+`issue <https://github.com/pytorch/pytorch/pull/54616>`_ can be fixed by
+updating to ``pytorch = 1.9`` or newer versions.
+
+
 Slow ``check_array``
 --------------------
 

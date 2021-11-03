@@ -109,7 +109,7 @@ Dependencies
 - Python 3
 - Numpy
 - Scikit-learn
-- PyTorch (optional GPU backend)
+- PyTorch (optional GPU backend) (1.9+ preferred)
 - Cupy (optional GPU backend)
 - Matplotlib (optional, for visualization only)
 - Pytest (optional, for testing only)
