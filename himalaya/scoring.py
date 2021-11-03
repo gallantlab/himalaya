@@ -97,10 +97,10 @@ def correlation_score(y_true, y_pred):
 
 
 def r2_score_split(y_true, y_pred, include_correlation=True):
-    """Split variance explained (R2) into individual feature space components.
+    """Split the R2 score into individual components using the product measure.
 
-    When estimating a linear joint model, the predictions of
-    each feature space are summed::
+    When estimating a linear joint model, the predictions of each feature space
+    are summed::
 
         Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z
 
@@ -108,14 +108,19 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
 
         R2_joint = R2(Yhat_joint, Y)
 
-    This function estimates the contribution of each feature space to the
-    joint model R2 such that::
+    This function estimates the contribution of each feature space to the joint
+    model R2 such that::
 
         R2_joint = R2_A + R2_B + ... + R2_Z
 
     Mathematically, this is achieved by taking into account the correlations
-    between predictions (i.e. Yhat_A*Yhat_B,..., Yhat_A*Yhat_Z).
-    The function can also returns an estimate that ignores these correlations.
+    between predictions (i.e. Yhat_A*Yhat_B,..., Yhat_A*Yhat_Z). The function
+    can also returns an estimate that ignores these correlations.
+
+    This function differs from r2_score_split_svd in the method used to
+    decompose the variance. The function r2_score_split is based on the product
+    measure method, while the function r2_score_split_svd is based on the
+    relative weights method.
 
     This function assumes that y_true is zero-mean over samples.
 
@@ -170,11 +175,102 @@ def r2_score_split(y_true, y_pred, include_correlation=True):
     return r2
 
 
-def correlation_score_split(y_true, y_pred):
-    """Split the correlation score over multiple predictions.
+def r2_score_split_svd(y_true, y_pred):
+    """Split the R2 score into individual components using relative weights.
 
-    When estimating a linear joint model, the predictions of
-    each feature space are summed::
+    When estimating a linear joint model, the predictions of each feature space
+    are summed::
+
+        Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z
+
+    The joint model R2 can be computed as::
+
+        R2_joint = R2(Yhat_joint, Y)
+
+    This function estimates the contribution of each feature space to the joint
+    model R2 such that::
+
+        R2_joint = R2_A + R2_B + ... + R2_Z
+
+    This function differs from r2_score_split in the method used to decompose
+    the variance. The function r2_score_split is based on the product measure
+    method, while the function r2_score_split_svd is based on the relative
+    weights method.
+
+    This function assumes that y_true is zero-mean over samples.
+
+    Parameters
+    ----------
+    y_true : array of shape (n_samples, n_targets) Observed data. Has to be
+        zero-mean over samples. y_pred : array of shape (n_kernels, n_samples,
+        n_targets) or \
+            (n_samples, n_targets) Predictions.
+
+    Returns
+    -------
+    r2 : array (n_kernels, n_targets) or (n_targets, ) Individual feature space
+        R2 scores.
+    """
+    backend = get_backend()
+    y_true, y_pred = backend.check_arrays(y_true, y_pred)
+    y_pred = _check_finite(y_pred)
+
+    if backend.any(backend.abs(y_true.mean(0)) > 1e-6):
+        warnings.warn(
+            'y_true has to be zero-mean over samples to compute '
+            'the split r2 scores.', UserWarning)
+
+    no_split = y_pred.ndim == 2
+    if no_split:
+        y_pred = y_pred[None]
+
+    # compute the R2 score on the sum of sub-predictions
+    y_pred_sum = y_pred.sum(0)
+    full_r2 = r2_score(y_true, y_pred_sum)
+
+    # normalize the prediction sum
+    norms_pred_sum = backend.norm(y_pred_sum, axis=0, keepdims=True)
+    norms_pred_sum[norms_pred_sum == 0] = 1
+    y_pred_sum = y_pred_sum / norms_pred_sum
+    y_pred = y_pred / norms_pred_sum
+
+    norms_pred = backend.norm(y_pred, axis=1)
+    norms_pred[norms_pred == 0] = 1
+
+    # Compute the singular value decomposition. It is done on non-normalized
+    # y_pred to preserve the scaling of sub-predictions.
+    U, s, Vt = backend.svd(backend.transpose(y_pred, (2, 1, 0)),
+                           full_matrices=False)
+    V = backend.transpose(Vt, (0, 2, 1))
+    Ut = backend.transpose(U, (0, 2, 1))
+
+    # regression of y_pred over V.U^T
+    VsVt = V @ (s[:, :, None] * Vt)
+    # regression of y_pred_sum over V.U^T
+    beta = (V @ Ut) @ y_pred_sum.T[:, :, None]
+
+    # Aggregates VsVt and beta to compute the relative weights. It uses a
+    # scaling by norms_pred because the SVD was computed on non-normalized
+    # y_pred.
+    r2 = backend.matmul(VsVt ** 2 / norms_pred.T[:, None, :] ** 2,
+                        beta ** 2)[:, :, 0].T
+
+    # fix rounding errors
+    r2 /= r2.sum(0)[None, :]
+    # scale by the total R2
+    r2 *= full_r2[None, :]
+
+    if no_split:
+        r2 = r2[0]
+
+    return r2
+
+
+def correlation_score_split(y_true, y_pred):
+    """Split the correlation score into individual components.
+
+    When estimating a linear joint model, the predictions of each feature space
+    are summed::
 
         Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z
 
@@ -182,8 +278,8 @@ def correlation_score_split(y_true, y_pred):
 
         r_joint = r(Y, Yhat_joint)
 
-    This function estimates the contribution of each feature space to the
-    joint model correlation score r such that::
+    This function estimates the contribution of each feature space to the joint
+    model correlation score r such that::
 
         r_joint = r_A + r_B + ... + r_Z
 
@@ -198,7 +294,8 @@ def correlation_score_split(y_true, y_pred):
     Returns
     -------
     correlations : array of shape (n_predictions, n_targets) or (n_targets, )
-        Contributions of each individual feature space to the joint correlation score.
+        Contributions of each individual feature space to the joint correlation
+        score.
     """
     backend = get_backend()
     y_true, y_pred = backend.check_arrays(y_true, y_pred)
@@ -215,9 +312,11 @@ def correlation_score_split(y_true, y_pred):
     if split:
         y_true = y_true[None]
         y_pred_sum = y_pred.sum(0, keepdims=True)
-        y_pred_std = backend.std_float64(y_pred_sum, axis, demean=True, keepdims=False)
+        y_pred_std = backend.std_float64(y_pred_sum, axis, demean=True,
+                                         keepdims=False)
     else:
-        y_pred_std = backend.std_float64(y_pred, axis, demean=True, keepdims=True)
+        y_pred_std = backend.std_float64(y_pred, axis, demean=True,
+                                         keepdims=True)
     y_pred_std[y_pred_std == 0] = 1
     correlations = (y_true * y_pred).mean(axis) / (y_true_std * y_pred_std)
     if not split:
