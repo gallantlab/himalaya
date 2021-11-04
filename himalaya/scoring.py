@@ -201,15 +201,16 @@ def r2_score_split_svd(y_true, y_pred):
 
     Parameters
     ----------
-    y_true : array of shape (n_samples, n_targets) Observed data. Has to be
-        zero-mean over samples. y_pred : array of shape (n_kernels, n_samples,
-        n_targets) or \
-            (n_samples, n_targets) Predictions.
+    y_true : array of shape (n_samples, n_targets)
+        Observed data. Has to be zero-mean over samples.
+    y_pred : array of shape (n_kernels, n_samples, n_targets) or \
+            (n_samples, n_targets)
+        Predictions.
 
     Returns
     -------
-    r2 : array (n_kernels, n_targets) or (n_targets, ) Individual feature space
-        R2 scores.
+    r2 : array (n_kernels, n_targets) or (n_targets, )
+        Individual feature space R2 scores.
     """
     backend = get_backend()
     y_true, y_pred = backend.check_arrays(y_true, y_pred)
