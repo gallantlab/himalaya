@@ -6,6 +6,10 @@
 .pytest_cache
 __pycache__
 .coverage
+.idea
+htmlcov/
+build/
+dist/
 
 # Documentation build
 doc/_build/

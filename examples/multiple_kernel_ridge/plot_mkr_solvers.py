@@ -4,17 +4,18 @@ Multiple kernel ridge solvers
 This example demonstrates the different strategies to solve the multiple kernel
 ridge regression: the *random search*, and the *hyper-gradient descent*.
 
-The *random-search* strategy samples some kernel weights vectors in a Dirichlet
+The *random-search* strategy samples some kernel weights vectors from a Dirichlet
 distribution, then for each vector, it fits a ``KernelRidgeCV`` model and
 computes a cross-validation score for all targets. Then it selects for each
-target the kernel weight vector leading to the lowest cross-validation score.
-Sampling extensively the kernel weights space is exponentially expensive with
-the number of kernels, therefore this method is expensive computationally for
+target the kernel weight vector leading to the highest cross-validation score
+(e.g. the highest R\ :sup:`2` value).
+Extensively sampling the kernel weights space is exponentially expensive with
+the number of kernels, therefore this method is computationally expensive for a
 large number of kernels. However, since it reuses most of the computations for
 all targets, it scales very well with the number of targets.
 
 The *hyper-gradient descent* strategy takes a different route. It starts with
-an initial kernel weights vector per targets, and updates it iteratively
+an initial kernel weights vector per target, and updates it iteratively
 following the hyperparameter gradient, computed over cross-validation. As it
 computes a hyper-gradient descent for each target, it is more expensive
 computationally for large number of targets. However, the hyper-gradient
@@ -72,8 +73,8 @@ kernel_weights_true /= np.sum(kernel_weights_true, 1)[:, None]
 ###############################################################################
 # Then, we generate a random dataset, using the arbitrary scalings.
 #
-# - Xs_train : list of array of shape (n_samples_train, n_features)
-# - Xs_test : list of array of shape (n_samples_test, n_features)
+# - Xs_train : list of arrays of shape (n_samples_train, n_features)
+# - Xs_test : list of arrays of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
 # - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
 
@@ -119,7 +120,7 @@ Y_test += backend.randn(n_samples_test, n_targets) * noise
 feature_names = ["space %d" % ii for ii in range(n_kernels)]
 
 ###############################################################################
-# concatenate the feature spaces
+# Concatenate the feature spaces
 X_train = backend.asarray(backend.concatenate(Xs_train, 1), dtype="float32")
 X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
 
@@ -179,8 +180,8 @@ pipe_2.fit(X_train, Y_train)
 # ---------------------------
 # First convergence curve.
 #
-# Fot the random search, ``cv_scores`` gives the scores for each sampled kernel
-# weights. The convergence curve is thus the current maximum for each target.
+# For the random search, ``cv_scores`` gives the scores for each sampled kernel
+# weights vector. The convergence curve is thus the current maximum for each target.
 cv_scores = backend.to_numpy(pipe_1[1].cv_scores_)
 current_max = np.maximum.accumulate(cv_scores, axis=0)
 mean_current_max = np.mean(current_max, axis=1)
@@ -210,15 +211,15 @@ plt.show()
 ###############################################################################
 # Compare with a ``KernelRidgeCV``
 # --------------------------------
-# Compare to a baseline, ``KernelRidgeCV`` with all the concatenated features.
-# Comparison is performed with the prediction scores on the test set.
+# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated features.
+# Comparison is performed using the prediction scores on the test set.
 
-# fit the baseline model ``KernelRidgeCV``
+# Fit the baseline model ``KernelRidgeCV``
 baseline = KernelRidgeCV(kernel="linear", alphas=alphas)
 baseline.fit(X_train, Y_train)
 
 ###############################################################################
-# compute scores of all models
+# Compute scores of all models
 scores_1 = pipe_1.score(X_test, Y_test)
 scores_1 = backend.to_numpy(scores_1)
 
@@ -229,7 +230,7 @@ scores_baseline = baseline.score(X_test, Y_test)
 scores_baseline = backend.to_numpy(scores_baseline)
 
 ###############################################################################
-# plot histograms
+# Plot histograms
 bins = np.linspace(
     np.min([scores_baseline.min(),
             scores_1.min(),
@@ -266,14 +267,14 @@ for max_iter in np.unique(np.int_(np.logspace(0, np.log10(80), 3))):
     all_kernel_weights_2.append(kernel_weights_2)
 
 ###############################################################################
-# get the normalized kernel weights for the first model
+# Get the normalized kernel weights for the first model
 kernel_weights_1 = np.exp(backend.to_numpy(pipe_1[1].deltas_.T))
 kernel_weights_1 /= kernel_weights_1.sum(1)[:, None]
 
 ###############################################################################
 # Plot on the simplex
 # -------------------
-# Finally, we visualize the optained kernel weights, projected on the simplex.
+# Finally, we visualize the obtained kernel weights vector, projected on the simplex.
 # The simplex is the space of positive weights that sum to one, and it has a
 # triangular shape in dimension 3.
 # We plot on three different panels:

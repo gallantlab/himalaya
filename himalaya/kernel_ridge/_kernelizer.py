@@ -5,6 +5,7 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.pipeline import make_pipeline, _name_estimators
 
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..validation import check_array
 from ..validation import _get_string_dtype
 
@@ -30,6 +31,10 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         Additional parameters for the kernel function.
         See more details in the docstring of the function:
         Kernelizer.ALL_KERNELS[kernel]
+
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
 
     Attributes
     ----------
@@ -57,10 +62,12 @@ class Kernelizer(TransformerMixin, BaseEstimator):
     ALL_KERNELS = PAIRWISE_KERNEL_FUNCTIONS
     kernelizer = True
 
-    def __init__(self, kernel="linear", kernel_params=None):
+    def __init__(self, kernel="linear", kernel_params=None, force_cpu=False):
         self.kernel = kernel
         self.kernel_params = kernel_params
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit_transform(self, X, y=None):
         """Compute the kernel on the training set.
 
@@ -89,6 +96,7 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         K = self._get_kernel(X)
         return K
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Compute the kernel on the training set.
 
@@ -108,6 +116,7 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         self.fit_transform(X, y)
         return self
 
+    @force_cpu_backend
     def transform(self, X):
         """Compute the kernel on any data set.
 
@@ -231,6 +240,10 @@ class ColumnKernelizer(ColumnTransformer):
         If True, the time elapsed while fitting each transformer will be
         printed as it is completed.
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     transformers_ : list
@@ -294,15 +307,16 @@ class ColumnKernelizer(ColumnTransformer):
     kernelizer = False
 
     def __init__(self, transformers, remainder='drop', n_jobs=None,
-                 transformer_weights=None, verbose=False):
+                 transformer_weights=None, verbose=False, force_cpu=False):
         self.transformers = transformers
         self.remainder = remainder
         self.sparse_threshold = 0
         self.n_jobs = n_jobs
         self.transformer_weights = transformer_weights
         self.verbose = verbose
+        self.force_cpu = force_cpu
 
-    def _iter(self, fitted=False, replace_strings=False):
+    def _iter(self, fitted=False, *args, **kwargs):
         """
         Generate (name, trans, column, weight) tuples.
 
@@ -310,7 +324,7 @@ class ColumnKernelizer(ColumnTransformer):
         with a Kernelizer.
         """
         for name, trans, column, weight in super()._iter(
-                fitted=fitted, replace_strings=replace_strings):
+                fitted=fitted, *args, **kwargs):
 
             if not fitted:
                 if trans == 'drop':
@@ -334,6 +348,10 @@ class ColumnKernelizer(ColumnTransformer):
         """
         backend = get_backend()
         return backend.stack(Xs)
+
+    fit = force_cpu_backend(ColumnTransformer.fit)
+    fit_transform = force_cpu_backend(ColumnTransformer.fit_transform)
+    transform = force_cpu_backend(ColumnTransformer.transform)
 
     def get_X_fit(self):
         """Helper to get the input data X seen during the fit.
@@ -410,6 +428,10 @@ def make_column_kernelizer(*transformers, **kwargs):
         If True, the time elapsed while fitting each transformer will be
         printed as it is completed.
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Returns
     -------
     column_kernelizer : ColumnKernelizer
@@ -442,12 +464,14 @@ def make_column_kernelizer(*transformers, **kwargs):
     n_jobs = kwargs.pop('n_jobs', None)
     remainder = kwargs.pop('remainder', 'drop')
     verbose = kwargs.pop('verbose', False)
+    force_cpu = kwargs.pop('force_cpu', False)
     if kwargs:
         raise TypeError('Unknown keyword arguments: "{}"'.format(
             list(kwargs.keys())[0]))
     transformer_list = _get_transformer_list(transformers)
     return ColumnKernelizer(transformer_list, n_jobs=n_jobs,
-                            remainder=remainder, verbose=verbose)
+                            remainder=remainder, verbose=verbose,
+                            force_cpu=force_cpu)
 
 
 def _get_transformer_list(estimators):

@@ -36,12 +36,12 @@ def test_solve_kernel_ridge(solver_name, backend):
 
     for alpha in alphas:
         alpha = backend.full_like(Y, fill_value=alpha, shape=Y.shape[1])
-        b2 = solver(X, Y, alpha=alpha)
+        b2 = solver(X, Y, alpha=alpha, fit_intercept=False)
         assert b2.shape == (X.shape[1], Y.shape[1])
 
         n_features, n_targets = weights.shape
         for ii in range(n_targets):
-            # compare dual coefficients with scipy.linalg.solve
+            # compare primal coefficients with scipy.linalg.solve
             reg = backend.asarray_like(np.eye(n_features), Y) * alpha[ii]
             b1 = scipy.linalg.solve(backend.to_numpy(XTX + reg),
                                     backend.to_numpy(XTY[:, ii]))
@@ -56,5 +56,39 @@ def test_solve_kernel_ridge(solver_name, backend):
             prediction_sklearn = model.predict(backend.to_numpy(X))
             assert_array_almost_equal(prediction, prediction_sklearn,
                                       decimal=6)
+
+            assert_array_almost_equal(model.coef_, b2[:, ii], decimal=5)
+
+
+@pytest.mark.parametrize('solver_name', RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_kernel_ridge_intercept(solver_name, backend):
+    backend = set_backend(backend)
+
+    X, Y, weights = _create_dataset(backend)
+    Y += 100
+    X += 10
+    alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Y)
+
+    solver = RIDGE_SOLVERS[solver_name]
+
+    for alpha in alphas:
+        alpha = backend.full_like(Y, fill_value=alpha, shape=Y.shape[1])
+        b2, i2 = solver(X, Y, alpha=alpha, fit_intercept=True)
+        assert b2.shape == (X.shape[1], Y.shape[1])
+        assert i2.shape == (Y.shape[1], )
+
+        n_features, n_targets = weights.shape
+        for ii in range(n_targets):
+
+            # compare predictions with sklearn.linear_model.Ridge
+            prediction = backend.matmul(X, b2[:, ii]) + i2[ii]
+            model = sklearn.linear_model.Ridge(
+                alpha=backend.to_numpy(alpha[ii]),
+                max_iter=1000, tol=1e-6, fit_intercept=True)
+            model.fit(backend.to_numpy(X), backend.to_numpy(Y[:, ii]))
+            prediction_sklearn = model.predict(backend.to_numpy(X))
+            assert_array_almost_equal(prediction, prediction_sklearn,
+                                      decimal=5)
 
             assert_array_almost_equal(model.coef_, b2[:, ii], decimal=5)

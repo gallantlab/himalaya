@@ -9,6 +9,8 @@ from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 
+from himalaya.ridge import Ridge
+from himalaya.ridge import RidgeCV
 from himalaya.kernel_ridge import KernelRidge
 from himalaya.kernel_ridge import KernelRidgeCV
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
@@ -60,6 +62,56 @@ def test_kernel_ridge_vs_scikit_learn(backend, multitarget, kernel):
         assert_array_almost_equal(
             model.score(X, Y).mean(),
             reference.score(backend.to_numpy(X), backend.to_numpy(Y)))
+
+
+@pytest.mark.parametrize('fit_intercept', [False, True])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_vs_ridge(backend, fit_intercept):
+    # useful to test the intercept as well
+    backend = set_backend(backend)
+    Xs, _, Y = _create_dataset(backend)
+    X = Xs[0]
+    if fit_intercept:
+        Y += 10
+        X += 1
+
+    # torch with cuda has more limited precision in mean
+    decimal = 3 if backend.name == "torch_cuda" else 6
+
+    for alpha in backend.asarray_like(backend.logspace(0, 3, 7), X):
+        model = KernelRidge(alpha=alpha, fit_intercept=fit_intercept)
+        model.fit(X, Y)
+        reference = Ridge(alpha=alpha, fit_intercept=fit_intercept)
+        reference.fit(backend.to_numpy(X), backend.to_numpy(Y))
+
+        assert_array_almost_equal(model.predict(X), reference.predict(X),
+                                  decimal=decimal)
+
+
+@pytest.mark.parametrize('fit_intercept', [False, True])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_cv_vs_ridge_cv(backend, fit_intercept):
+    # useful to test the intercept as well
+    backend = set_backend(backend)
+    Xs, _, Y = _create_dataset(backend)
+    X = Xs[0]
+    if fit_intercept:
+        Y += 10
+        Xs[0] += 1
+    alphas = backend.asarray_like(backend.logspace(-2, 3, 21), Y)  # XXX
+
+    # torch with cuda has more limited precision in mean
+    decimal = 4 if backend.name == "torch_cuda" else 6
+
+    model = KernelRidgeCV(alphas=alphas, fit_intercept=fit_intercept)
+    model.fit(X, Y)
+    reference = RidgeCV(alphas=alphas, fit_intercept=fit_intercept)
+    reference.fit(X, Y)
+
+    assert_array_almost_equal(model.best_alphas_, reference.best_alphas_,
+                              decimal=5)
+    assert_array_almost_equal(model.predict(X), reference.predict(X),
+                              decimal=decimal)
 
 
 @pytest.mark.parametrize(
@@ -191,6 +243,17 @@ def test_kernel_ridge_solvers(solver, backend):
                                   decimal=5)
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_wrong_solver(backend):
+    backend = set_backend(backend)
+    Xs, _, Y = _create_dataset(backend)
+    X = Xs[0]
+
+    model = KernelRidge(solver="wrong")
+    with pytest.raises(ValueError, match="Unknown solver"):
+        model.fit(X, Y)
+
+
 @pytest.mark.parametrize('solver', ['eigenvalues'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_cv_precomputed(backend, solver):
@@ -269,6 +332,35 @@ def test_weighted_kernel_ridge_split_predict(backend, Estimator):
     assert_array_almost_equal(Y_pred, Y_pred_split.sum(0))
 
 
+@pytest.mark.parametrize('Estimator',
+                         [WeightedKernelRidge, MultipleKernelRidgeCV])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_split_score(backend, Estimator):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    if issubclass(Estimator, MultipleKernelRidgeCV):
+        solver_params = dict(n_iter=2, progress_bar=False)
+    else:
+        solver_params = dict()
+
+    # multiple targets
+    model = Estimator(kernels="precomputed", solver_params=solver_params)
+    model.fit(Ks, Y)
+    score = model.score(Ks, Y)
+    score_split = model.score(Ks, Y, split=True)
+    assert score_split.shape == (len(Ks), Y.shape[1])
+    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
+
+    # single targets
+    model = Estimator(kernels="precomputed", solver_params=solver_params)
+    model.fit(Ks, Y[:, 0])
+    score = model.score(Ks, Y[:, 0])
+    score_split = model.score(Ks, Y[:, 0], split=True)
+    assert score_split.shape == (len(Ks), )
+    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
+
+
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_duplicate_solver_parameters(backend):
     backend = set_backend(backend)
@@ -326,6 +418,32 @@ def test_multiple_kernel_ridge_cv_Y_in_cpu(backend, solver):
 
     assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
     assert_array_almost_equal(model_1.predict(Ks), model_2.predict(Ks))
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_cv_array_deltas(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    # correct deltas array
+    deltas = backend.zeros_like(Ks, shape=(len(Ks), ))
+    model_1 = WeightedKernelRidge(kernels="precomputed", deltas=deltas,
+                                  random_state=0)
+    model_1.fit(Ks, Y)
+
+    # wrong number of kernels
+    deltas = backend.zeros_like(Ks, shape=(len(Ks) + 1, ))
+    model_1 = WeightedKernelRidge(kernels="precomputed", deltas=deltas,
+                                  random_state=0)
+    with pytest.raises(ValueError, match="Inconsistent number of kernels"):
+        model_1.fit(Ks, Y)
+
+    # wrong number of targets
+    deltas = backend.zeros_like(Ks, shape=(len(Ks), Y.shape[1] + 1))
+    model_1 = WeightedKernelRidge(kernels="precomputed", deltas=deltas,
+                                  random_state=0)
+    with pytest.raises(ValueError, match="Inconsistent number of targets"):
+        model_1.fit(Ks, Y)
 
 
 ###############################################################################
@@ -403,13 +521,13 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
                          solver=solver, solver_params=solver_params, cv=cv,
                          random_state=random_state)
 
-    def predict(self, X):
+    def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return backend.to_numpy(super().predict(X, split=split))
 
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().score(X, y))
+        return backend.to_numpy(super().score(X, y, split=split))
 
 
 class WeightedKernelRidge_(WeightedKernelRidge):
@@ -427,13 +545,13 @@ class WeightedKernelRidge_(WeightedKernelRidge):
                          solver_params=solver_params,
                          random_state=random_state)
 
-    def predict(self, X):
+    def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return backend.to_numpy(super().predict(X, split=split))
 
-    def score(self, X, y):
+    def score(self, X, y, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().score(X, y))
+        return backend.to_numpy(super().score(X, y, split=split))
 
 
 @sklearn.utils.estimator_checks.parametrize_with_checks([

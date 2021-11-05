@@ -1,15 +1,15 @@
 .. raw:: html
 
-   <h1>Himalaya: Multiple-target machine learning</h1>
+   <h1>Himalaya: Multiple-target linear models</h1>
 
-``Himalaya`` implements machine learning models in Python, focusing on
+``Himalaya`` implements machine learning linear models in Python, focusing on
 computational efficiency for large numbers of targets.
 
 |Github| |Python| |License|
 
 Use ``himalaya`` if you need a library that:
 
-- estimates models on large numbers of targets,
+- estimates linear models on large numbers of targets,
 - runs on CPU and GPU hardware,
 - provides estimators compatible with ``scikit-learn``'s API.
 
@@ -24,13 +24,13 @@ Example
     X = np.random.randn(n_samples, n_features)
     Y = np.random.randn(n_samples, n_targets)
 
-    from himalaya.kernel_ridge import KernelRidgeCV
-    model = KernelRidgeCV(alphas=[1, 10, 100])
+    from himalaya.ridge import RidgeCV
+    model = RidgeCV(alphas=[1, 10, 100])
     model.fit(X, Y)
     print(model.best_alphas_)  # [ 10. 100.  10. 100.]
 
 
-- The model ``KernelRidgeCV`` uses the same API than ``scikit-learn``
+- The model ``RidgeCV`` uses the same API as ``scikit-learn``
   estimators, with methods such as ``fit``, ``predict``, ``score``, etc.
 - The model is able to efficiently fit a large number of targets (routinely
   used with 100k targets).
@@ -47,7 +47,7 @@ Models
 
 - Ridge
 - RidgeCV
-- BandedRidgeCV
+- GroupRidgeCV
 - KernelRidge
 - KernelRidgeCV
 - WeightedKernelRidge
@@ -84,7 +84,7 @@ To use the ``cupy`` backend, call:
     from himalaya.backend import set_backend
     backend = set_backend("cupy")
 
-    data = backend.asarray(data)  # cupy arrays are always on GPU
+    data = backend.asarray(data)
 
 
 To use the ``pytorch`` backend, call:
@@ -92,13 +92,9 @@ To use the ``pytorch`` backend, call:
 .. code-block:: python
 
     from himalaya.backend import set_backend
-    set_backend("torch")
+    backend = set_backend("torch_cuda")
+    # "torch" uses pytorch on CPU, "torch_cuda" uses pytorch on GPU
 
-    data = backend.asarray(data)  # torch tensors are on CPU by default...
-    data = data.cuda()  # ...and you can move them to GPU with the `cuda` method.
-
-    # or directly use
-    set_backend("torch_cuda")
     data = backend.asarray(data)
 
 
@@ -113,8 +109,8 @@ Dependencies
 - Python 3
 - Numpy
 - Scikit-learn
-- PyTorch (optional backend)
-- Cupy (optional backend)
+- PyTorch (optional GPU backend) (1.9+ preferred)
+- Cupy (optional GPU backend)
 - Matplotlib (optional, for visualization only)
 - Pytest (optional, for testing only)
 
@@ -133,7 +129,7 @@ Index (PyPI):
 Installation from source
 ------------------------
 
-To install ``himalaya`` from the latest source (``master`` branch), you may
+To install ``himalaya`` from the latest source (``main`` branch), you may
 call:
 
 .. code-block:: bash
@@ -158,3 +154,12 @@ Developers can also install ``himalaya`` in editable mode via:
 
 .. |License| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
+
+
+Cite this package
+=================
+
+If you use ``himalaya`` in your work, please cite our (future) publication:
+
+.. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
+	Variance decomposition with banded ridge regression. *In preparation*.

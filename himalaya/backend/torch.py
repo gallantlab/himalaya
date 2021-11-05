@@ -9,7 +9,7 @@ except ImportError as error:
         pytest.skip("PyTorch not installed.")
     raise ImportError("PyTorch not installed.") from error
 
-from .__init__ import _dtype_to_str
+from ._utils import _dtype_to_str
 
 ###############################################################################
 
@@ -86,7 +86,6 @@ bool = torch.bool
 int32 = torch.int32
 float32 = torch.float32
 float64 = torch.float64
-eigh = partial(torch.symeig, eigenvectors=True)
 log = torch.log
 exp = torch.exp
 arange = torch.arange
@@ -111,8 +110,8 @@ def flip(array, axis=0):
     return torch.flip(array, dims=[axis])
 
 
-def sort(array):
-    return torch.sort(array).values
+def sort(array, axis=-1):
+    return torch.sort(array, dim=axis).values
 
 
 def diagonal_view(array, axis1=0, axis2=1):
@@ -135,6 +134,10 @@ def to_gpu(array, device=None):
     return array
 
 
+def is_in_gpu(array):
+    return array.device.type == "cuda"
+
+
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(x.cpu().numpy(), y.cpu().numpy())
@@ -151,7 +154,7 @@ def flatnonzero(x):
     return torch.nonzero(torch.flatten(x), as_tuple=True)[0]
 
 
-def asarray(x, dtype=None, device=None):
+def asarray(x, dtype=None, device="cpu"):
     if dtype is None:
         if isinstance(x, torch.Tensor):
             dtype = x.dtype
@@ -266,18 +269,16 @@ def check_arrays(*all_inputs):
     precision and device as the first one. Some tensors can be None.
     """
     all_tensors = []
-    all_tensors.append(torch.as_tensor(all_inputs[0]))
+    all_tensors.append(asarray(all_inputs[0]))
+    dtype = all_tensors[0].dtype
+    device = all_tensors[0].device
     for tensor in all_inputs[1:]:
         if tensor is None:
             pass
         elif isinstance(tensor, list):
-            tensor = [
-                torch.as_tensor(tt, dtype=all_tensors[0].dtype,
-                                device=all_tensors[0].device) for tt in tensor
-            ]
+            tensor = [asarray(tt, dtype=dtype, device=device) for tt in tensor]
         else:
-            tensor = torch.as_tensor(tensor, dtype=all_tensors[0].dtype,
-                                     device=all_tensors[0].device)
+            tensor = asarray(tensor, dtype=dtype, device=device)
         all_tensors.append(tensor)
     return all_tensors
 
@@ -285,3 +286,10 @@ def check_arrays(*all_inputs):
 def svd(X, full_matrices=True):
     U, s, V = torch.svd(X, some=not full_matrices)
     return U, s, V.transpose(-2, -1)
+
+
+try:
+    eigh = torch.linalg.eigh
+except AttributeError:
+    # torch.__version__ < 1.8
+    eigh = partial(torch.symeig, eigenvectors=True)

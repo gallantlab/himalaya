@@ -67,7 +67,7 @@ isnan = np.isnan
 isinf = np.isinf
 logspace = np.logspace
 copy = np.copy
-bool = np.bool
+bool = np.bool_
 float32 = np.float32
 float64 = np.float64
 int32 = np.int32
@@ -150,6 +150,10 @@ def to_gpu(array, device=None):
     return array
 
 
+def is_in_gpu(array):
+    return False
+
+
 def asarray_like(x, ref):
     return np.asarray(x, dtype=ref.dtype)
 
@@ -159,21 +163,37 @@ def check_arrays(*all_inputs):
     precision as the first one. Some arrays can be None.
     """
     all_arrays = []
-    all_arrays.append(np.asarray(all_inputs[0]))
+    all_arrays.append(asarray(all_inputs[0]))
+    dtype = all_arrays[0].dtype
     for tensor in all_inputs[1:]:
         if tensor is None:
             pass
         elif isinstance(tensor, list):
-            tensor = [
-                np.asarray(tt, dtype=all_arrays[0].dtype) for tt in tensor
-            ]
+            tensor = [asarray(tt, dtype=dtype) for tt in tensor]
         else:
-            tensor = np.asarray(tensor, dtype=all_arrays[0].dtype)
+            tensor = asarray(tensor, dtype=dtype)
         all_arrays.append(tensor)
     return all_arrays
 
 
 def asarray(a, dtype=None, order=None, device=None):
+    # works from numpy, lists, torch, and others
+    try:
+        return np.asarray(a, dtype=dtype, order=order)
+    except Exception:
+        pass
+    # works from cupy
+    try:
+        import cupy
+        return np.asarray(cupy.asnumpy(a), dtype=dtype, order=order)
+    except Exception:
+        pass
+    # works from torch_cuda
+    try:
+        return np.asarray(a.cpu(), dtype=dtype, order=order)
+    except Exception:
+        pass
+
     return np.asarray(a, dtype=dtype, order=order)
 
 
@@ -182,9 +202,7 @@ def svd(X, full_matrices=True):
         return linalg.svd(X, full_matrices=full_matrices)
 
     elif X.ndim == 3:
-        UsV_list = [
-            linalg.svd(Xi, full_matrices=full_matrices) for Xi in X
-        ]
+        UsV_list = [linalg.svd(Xi, full_matrices=full_matrices) for Xi in X]
         return map(np.stack, zip(*UsV_list))
     else:
         raise NotImplementedError()

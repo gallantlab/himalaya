@@ -5,13 +5,15 @@ from sklearn.utils.validation import check_is_fitted
 from sklearn.model_selection import check_cv
 
 from ._solvers import RIDGE_SOLVERS
-from ._random_search import BANDED_RIDGE_SOLVERS
+from ._random_search import GROUP_RIDGE_SOLVERS
 from ._random_search import solve_ridge_cv_svd
 
 from ..validation import check_array
 from ..validation import _get_string_dtype
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..scoring import r2_score
+from ..scoring import r2_score_split
 
 
 class _BaseRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -57,6 +59,10 @@ class Ridge(_BaseRidge):
     alpha : float, or array of shape (n_targets, )
         L2 regularization parameter.
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     solver : str
         Algorithm used during the fit, in {"svd"}.
 
@@ -65,10 +71,17 @@ class Ridge(_BaseRidge):
         See more details in the docstring of the function:
         ``Ridge.ALL_SOLVERS[solver]``
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only present if fit_intercept is True.
 
     n_features_in_ : int
         Number of features used during the fit.
@@ -89,11 +102,15 @@ class Ridge(_BaseRidge):
     """
     ALL_SOLVERS = RIDGE_SOLVERS
 
-    def __init__(self, alpha=1, solver="svd", solver_params=None):
+    def __init__(self, alpha=1, fit_intercept=False, solver="svd",
+                 solver_params=None, force_cpu=False):
         self.alpha = alpha
+        self.fit_intercept = fit_intercept
         self.solver = solver
         self.solver_params = solver_params
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Fit the model.
 
@@ -124,13 +141,21 @@ class Ridge(_BaseRidge):
             ravel = True
 
         # ------------------ call the solver
-        self.coef_ = self._call_solver(X=X, Y=y, alpha=self.alpha)
+        tmp = self._call_solver(X=X, Y=y, alpha=self.alpha,
+                                fit_intercept=self.fit_intercept)
+        if self.fit_intercept:
+            self.coef_, self.intercept_ = tmp
+        else:
+            self.coef_ = tmp
 
         if ravel:
             self.coef_ = self.coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
+    @force_cpu_backend
     def predict(self, X):
         """Predict using the model.
 
@@ -152,8 +177,11 @@ class Ridge(_BaseRidge):
                 'Different number of features in X than during fit.')
 
         Y_hat = backend.to_cpu(X) @ backend.to_cpu(self.coef_)
+        if self.fit_intercept:
+            Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
+    @force_cpu_backend
     def score(self, X, y):
         """Return the coefficient of determination R^2 of the prediction.
 
@@ -193,6 +221,10 @@ class RidgeCV(Ridge):
     alphas : array of shape (n_alphas, )
         List of L2 regularization parameter to try.
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     solver : str
         Algorithm used during the fit, "svd" only for now.
 
@@ -207,10 +239,17 @@ class RidgeCV(Ridge):
     Y_in_cpu : bool
         If True, keep the target values ``y`` in CPU memory (slower).
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only returned when fit_intercept is True.
 
     best_alphas_ : array of shape (n_targets, )
         Selected best hyperparameter alphas.
@@ -234,14 +273,17 @@ class RidgeCV(Ridge):
     """
     ALL_SOLVERS = dict(svd=solve_ridge_cv_svd)
 
-    def __init__(self, alphas=[0.1, 1], solver="svd", solver_params=None, cv=5,
-                 Y_in_cpu=False):
+    def __init__(self, alphas=[0.1, 1], fit_intercept=False, solver="svd",
+                 solver_params=None, cv=5, Y_in_cpu=False, force_cpu=False):
         self.alphas = alphas
+        self.fit_intercept = fit_intercept
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
         self.Y_in_cpu = Y_in_cpu
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Fit ridge regression model
 
@@ -277,12 +319,20 @@ class RidgeCV(Ridge):
 
         # ------------------ call the solver
         tmp = self._call_solver(X=X, Y=y, cv=cv, alphas=alphas,
+                                fit_intercept=self.fit_intercept,
                                 Y_in_cpu=self.Y_in_cpu)
-        self.best_alphas_, self.coef_, self.cv_scores_ = tmp
+        if self.fit_intercept:
+            self.best_alphas_, self.coef_, self.cv_scores_ = tmp[:3]
+            self.intercept_, = tmp[3:]
+        else:
+            self.best_alphas_, self.coef_, self.cv_scores_ = tmp
+
         self.cv_scores_ = self.cv_scores_[0]
 
         if ravel:
             self.coef_ = self.coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
@@ -293,10 +343,10 @@ class RidgeCV(Ridge):
 ###############################################################################
 
 
-class BandedRidgeCV(_BaseRidge):
-    """Banded ridge regression with cross-validation.
+class GroupRidgeCV(_BaseRidge):
+    """Group ridge regression with cross-validation.
 
-    Solve the banded ridge regression::
+    Solve the group-regularized ridge regression::
 
         b* = argmin_b ||Z @ b - Y||^2 + ||b||^2
 
@@ -321,7 +371,11 @@ class BandedRidgeCV(_BaseRidge):
     solver_params : dict or None
         Additional parameters for the solver.
         See more details in the docstring of the function:
-        ``BandedRidgeCV.ALL_SOLVERS[solver]``
+        ``GroupRidgeCV.ALL_SOLVERS[solver]``
+
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
@@ -332,10 +386,17 @@ class BandedRidgeCV(_BaseRidge):
     Y_in_cpu : bool
         If True, keep the target values ``y`` in CPU memory (slower).
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     coef_ : array of shape (n_features) or (n_features, n_targets)
         Ridge coefficients.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only returned when fit_intercept is True.
 
     deltas_ : array of shape (n_groups, n_targets)
         Log of the group scalings.
@@ -357,7 +418,7 @@ class BandedRidgeCV(_BaseRidge):
 
     Examples
     --------
-    >>> from himalaya.ridge import BandedRidgeCV
+    >>> from himalaya.ridge import GroupRidgeCV
     >>> from himalaya.ridge import ColumnTransformerNoStack
     >>> from sklearn.pipeline import make_pipeline
 
@@ -375,22 +436,26 @@ class BandedRidgeCV(_BaseRidge):
     ...      ("group_2", StandardScaler(), slice(3, 5))])
 
     >>> # A model with automatic groups, as output by ColumnTransformerNoStack
-    >>> model = BandedRidgeCV(groups="input")
+    >>> model = GroupRidgeCV(groups="input")
     >>> pipe = make_pipeline(ct, model)
     >>> _ = pipe.fit(X, Y)
     """
-    ALL_SOLVERS = BANDED_RIDGE_SOLVERS
+    ALL_SOLVERS = GROUP_RIDGE_SOLVERS
 
     def __init__(self, groups=None, solver="random_search", solver_params=None,
-                 cv=5, random_state=None, Y_in_cpu=False):
+                 fit_intercept=False, cv=5, random_state=None, Y_in_cpu=False,
+                 force_cpu=False):
 
         self.groups = groups
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
         self.cv = cv
         self.random_state = random_state
         self.Y_in_cpu = Y_in_cpu
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None):
         """Fit the model.
 
@@ -433,8 +498,13 @@ class BandedRidgeCV(_BaseRidge):
         # ------------------ call the solver
         tmp = self._call_solver(Xs=Xs, Y=y, cv=cv, return_weights=True,
                                 random_state=self.random_state,
+                                fit_intercept=self.fit_intercept,
                                 Y_in_cpu=self.Y_in_cpu)
-        self.deltas_, self.coef_, self.cv_scores_ = tmp
+        if self.fit_intercept:
+            self.deltas_, self.coef_, self.cv_scores_ = tmp[:3]
+            self.intercept_, = tmp[3:]
+        else:
+            self.deltas_, self.coef_, self.cv_scores_ = tmp
 
         if self.solver == "random_search":
             self.best_alphas_ = 1. / backend.exp(self.deltas_).sum(0)
@@ -444,9 +514,12 @@ class BandedRidgeCV(_BaseRidge):
         if ravel:
             self.coef_ = self.coef_[:, 0]
             self.deltas_ = self.deltas_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
+    @force_cpu_backend
     def predict(self, X, split=False):
         """Predict using the model.
 
@@ -479,14 +552,36 @@ class BandedRidgeCV(_BaseRidge):
         if n_features != self.n_features_in_:
             raise ValueError(
                 'Different number of features in X than during fit.')
+        if split:
+            if self.fit_intercept:
+                raise NotImplementedError(
+                    "Splitting the predictions is not implemented with "
+                    "fit_intercept=True.")
 
-        X = backend.to_cpu(backend.concatenate(Xs, 1))
-        del Xs
+            start = 0
+            Ys_hat = None
+            for ii, X_i in enumerate(Xs):
+                n_features_i = X_i.shape[1]
+                coef = self.coef_[start:start + n_features_i]
+                start += n_features_i
+                Y_hat = backend.to_cpu(X_i) @ backend.to_cpu(coef)
+                if Ys_hat is None:
+                    Ys_hat = backend.zeros_like(Y_hat,
+                                                shape=(len(Xs), *Y_hat.shape))
+                Ys_hat[ii] = Y_hat
+            return Ys_hat
 
-        Y_hat = X @ backend.to_cpu(self.coef_)
-        return Y_hat
+        else:
+            X = backend.to_cpu(backend.concatenate(Xs, 1))
+            del Xs
 
-    def score(self, X, y):
+            Y_hat = X @ backend.to_cpu(self.coef_)
+            if self.fit_intercept:
+                Y_hat += backend.to_cpu(self.intercept_)
+            return Y_hat
+
+    @force_cpu_backend
+    def score(self, X, y, split=False):
         """Return the coefficient of determination R^2 of the prediction.
 
         Parameters
@@ -500,24 +595,34 @@ class BandedRidgeCV(_BaseRidge):
         y : array-like of shape (n_samples,) or (n_samples, n_targets)
             True values for X.
 
+        split : bool
+            If True, the prediction is split on each kernel, and the R2 score
+            is decomposed over sub-predictions, adding an extra dimension
+            in the first axis. The sum over this extra dimension corresponds to
+            split=False.
+
         Returns
         -------
-        score : array of shape (n_targets, )
+        score : array of shape (n_targets, ) or (n_kernels, n_targets)
             R^2 of self.predict(X) versus y.
+            If parameter split is True, the array is of shape
+            (n_kernels, n_targets).
         """
-        y_pred = self.predict(X)
+        y_pred = self.predict(X, split=split)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
+        score_func = r2_score_split if split else r2_score
+
         if y_true.ndim == 1:
-            return r2_score(y_true[:, None], y_pred[:, None])[0]
+            return score_func(y_true[:, None], y_pred[:, None])[0]
         else:
-            return r2_score(y_true, y_pred)
+            return score_func(y_true, y_pred)
 
     def _split_groups(self, X, check=True, **check_kwargs):
         backend = get_backend()
 
         # groups defined in X
-        if self.groups == "input":
+        if isinstance(self.groups, str) and self.groups == "input":
             if check:
                 X = [check_array(Xi, ndim=2, **check_kwargs) for Xi in X]
             return X
