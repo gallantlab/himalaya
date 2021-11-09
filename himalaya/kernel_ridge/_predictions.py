@@ -4,7 +4,7 @@ from ..backend import get_backend
 from ..progress_bar import bar
 
 
-def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
+def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, n_targets_batch=None, split=False, progress_bar=False):
     """
     Compute predictions, typically on a test set.
 
@@ -28,21 +28,43 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
     backend = get_backend()
 
     Ks, dual_weights, deltas = backend.check_arrays(Ks, dual_weights, deltas)
-    chi = backend.matmul(Ks, dual_weights)
-    split_predictions = backend.exp(deltas[:, None, :]) * chi
-    if split:
-        Y_hat = split_predictions
-    else:
-        Y_hat = split_predictions.sum(0)
+    n_TRs = Ks.shape[1]
+    n_kernels, n_targets = deltas.shape
 
-    return Y_hat
+    if split:
+        Y_hat_full = backend.zeros(shape=(n_kernels, n_TRs, n_targets))
+    else:
+        Y_hat_full = backend.zeros(shape=(n_TRs, n_targets))
+
+    if not n_targets_batch:
+        n_targets_batch = n_targets
+
+    for start in bar(list(range(0, n_targets, n_targets_batch)),
+                                 title='predict', use_it=progress_bar):
+        batch = slice(start, start + n_targets_batch)
+        dual_weights_batch = dual_weights[:, batch]
+        deltas_batch = deltas[:, batch]
+        chi = backend.matmul(Ks, dual_weights_batch)
+        split_predictions = backend.exp(deltas_batch[:, None, :]) * chi
+
+        if split:
+            Y_hat_full[:, :, batch] = split_predictions
+        else:
+            Y_hat_full[:, batch] = split_predictions.sum(0)
+
+    return Y_hat_full
 
 
 def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
                                             score_func, split=False,
                                             n_targets_batch=None,
                                             progress_bar=False,
-                                            do_permute=False):
+                                            do_permute=False,
+                                            do_block_permute=False,
+                                            permutation_block_size=10,
+                                            permutation_indices_is_set=False,
+                                            permutation_indices=None,
+                                            return_predictions=False):
     """
     Compute predictions, typically on a test set, and compute the score.
 
@@ -65,6 +87,11 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
         If None, uses all n_targets at once.
     progress_bar : bool
         If True, display a progress bar over batches and iterations.
+    do_permute : bool
+        If True, permutes the predictions before scoring the prediction.
+    do_block_permute : bool
+        If True, permutes the predictions in blocks of permutation_block_size TRs.
+        If False, permutes the predictions without enforcing blocks.
     permutation_block_size : int
         If > 0, computes score on permuted predictions.
         Permutes blocks of length permutation_block_size.
@@ -87,20 +114,33 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
     if n_targets_batch is None:
         n_targets_batch = n_targets
 
-    if do_permute:
-        permutation_splits_is_set = False
-
+    # if do_permute:
+        # permutation_splits_is_set = False
+    if return_predictions:
+        full_predictions = np.zeros(Y.shape)
     for start in bar(list(range(0, n_targets, n_targets_batch)),
                      title='predict_and_score', use_it=progress_bar):
         batch = slice(start, start + n_targets_batch)
         predictions = predict_weighted_kernel_ridge(Ks, dual_weights[:, batch],
             deltas[:, batch],
             split=split)
+        if return_predictions:
+            full_predictions[:, batch] = predictions.cpu()
         if do_permute:
-            if not permutation_splits_is_set:  # Share permutation blocks across voxels.
-                permutation_splits_is_set = True
-                num_TRs = predictions.shape[0]
-                permutation_order = np.random.permutation(range(num_TRs))
+            if not permutation_indices_is_set:
+                if do_block_permute:
+                    # permutation_splits_is_set = True
+                    num_TRs = predictions.shape[0]
+                    blocks = np.array_split(np.arange(num_TRs), int(num_TRs / permutation_block_size))
+                    _ = np.random.shuffle(blocks)
+                    permutation_order = np.concatenate(blocks)
+                else:
+                    # permutation_splits_is_set = True
+                    num_TRs = predictions.shape[0]
+                    permutation_order = np.random.permutation(range(num_TRs))
+            else:
+                print('Using provided permutation order')
+                permutation_order = permutation_indices
             predictions = predictions[permutation_order]
         score_batch = score_func(Y[:, batch], predictions)
 
@@ -108,8 +148,10 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
             scores[:, batch] = score_batch
         else:
             scores[batch] = score_batch
-
-    return scores
+    if return_predictions:
+        return scores, full_predictions
+    else:
+        return scores
 
 
 def primal_weights_kernel_ridge(dual_weights, X_fit):
