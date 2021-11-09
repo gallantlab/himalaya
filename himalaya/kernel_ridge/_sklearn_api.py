@@ -18,7 +18,9 @@ from ..validation import check_array
 from ..validation import issparse
 from ..validation import _get_string_dtype
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..scoring import r2_score
+from ..scoring import r2_score_split
 
 
 class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -92,10 +94,21 @@ class KernelRidge(_BaseKernelRidge):
         See more details in the docstring of the function:
         ``KernelRidge.ALL_SOLVERS[solver]``
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
         Representation of weight vectors in kernel space.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only present if fit_intercept is True.
 
     X_fit_ : array of shape (n_samples, n_features)
         Training data. If kernel == "precomputed" this is None.
@@ -121,13 +134,17 @@ class KernelRidge(_BaseKernelRidge):
     ALL_SOLVERS = KERNEL_RIDGE_SOLVERS
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None):
+                 solver="eigenvalues", solver_params=None, fit_intercept=False,
+                 force_cpu=False):
         self.alpha = alpha
         self.kernel = kernel
         self.kernel_params = kernel_params
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
         """Fit the model.
 
@@ -181,13 +198,21 @@ class KernelRidge(_BaseKernelRidge):
             K *= sw @ sw.T
 
         # ------------------ call the solver
-        self.dual_coef_ = self._call_solver(K=K, Y=y, alpha=self.alpha)
+        tmp = self._call_solver(K=K, Y=y, alpha=self.alpha,
+                                fit_intercept=self.fit_intercept)
+        if self.fit_intercept:
+            self.dual_coef_, self.intercept_ = tmp
+        else:
+            self.dual_coef_ = tmp
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
+    @force_cpu_backend
     def predict(self, X):
         """Predict using the model.
 
@@ -216,8 +241,11 @@ class KernelRidge(_BaseKernelRidge):
         del X
 
         Y_hat = backend.to_cpu(K) @ backend.to_cpu(self.dual_coef_)
+        if self.fit_intercept:
+            Y_hat += backend.to_cpu(self.intercept_)
         return Y_hat
 
+    @force_cpu_backend
     def score(self, X, y):
         """Return the coefficient of determination R^2 of the prediction.
 
@@ -326,11 +354,19 @@ class KernelRidgeCV(KernelRidge):
         See more details in the docstring of the function:
         ``KernelRidgeCV.ALL_SOLVERS[solver]``
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
 
     Y_in_cpu : bool
         If True, keep the target values ``y`` in CPU memory (slower).
+
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
 
     Attributes
     ----------
@@ -364,16 +400,19 @@ class KernelRidgeCV(KernelRidge):
     ALL_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues)
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None, cv=5,
-                 Y_in_cpu=False):
+                 solver="eigenvalues", solver_params=None, fit_intercept=False,
+                 cv=5, Y_in_cpu=False, force_cpu=False):
         self.alphas = alphas
         self.kernel = kernel
         self.kernel_params = kernel_params
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
         self.cv = cv
         self.Y_in_cpu = Y_in_cpu
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
         """Fit kernel ridge regression model
 
@@ -431,12 +470,19 @@ class KernelRidgeCV(KernelRidge):
 
         # ------------------ call the solver
         tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas,
-                                Y_in_cpu=self.Y_in_cpu)
-        self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
+                                Y_in_cpu=self.Y_in_cpu,
+                                fit_intercept=self.fit_intercept)
+        if self.fit_intercept:
+            self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp[:3]
+            self.intercept_, = tmp[3:]
+        else:
+            self.best_alphas_, self.dual_coef_, self.cv_scores_ = tmp
         self.cv_scores_ = self.cv_scores_[0]
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
+            if self.fit_intercept:
+                self.intercept_ = self.intercept_[0]
 
         return self
 
@@ -460,6 +506,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
     """Private class for shared implementations.
     """
 
+    @force_cpu_backend
     def predict(self, X, split=False):
         """Predict using the model.
 
@@ -506,7 +553,8 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
                                                   split=split)
         return Y_hat
 
-    def score(self, X, y):
+    @force_cpu_backend
+    def score(self, X, y, split=False):
         """Return the coefficient of determination R^2 of the prediction.
 
         Parameters
@@ -518,10 +566,18 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         y : array-like of shape (n_samples,) or (n_samples, n_targets)
             True values for X.
 
+        split : bool
+            If True, the prediction is split on each kernel, and the R2 score
+            is decomposed over sub-predictions, adding an extra dimension
+            in the first axis. The sum over this extra dimension corresponds to
+            split=False.
+
         Returns
         -------
-        score : array of shape (n_targets, )
+        score : array of shape (n_targets, ) or (n_kernels, n_targets)
             R^2 of self.predict(X) versus y.
+            If parameter split is True, the array is of shape
+            (n_kernels, n_targets).
         """
         check_is_fitted(self)
 
@@ -544,15 +600,18 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         else:
             n_targets_batch = None
 
+        score_func = r2_score_split if split else r2_score
+
         if self.dual_coef_.ndim == 1:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
-                deltas=self.deltas_[:, None], Y=y[:, None],
-                score_func=r2_score, n_targets_batch=n_targets_batch)[0]
+                deltas=self.deltas_[:, None], Y=y[:, None], split=split,
+                score_func=score_func, n_targets_batch=n_targets_batch)[..., 0]
         else:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_, Y=y,
-                score_func=r2_score, n_targets_batch=n_targets_batch)
+                split=split, score_func=score_func,
+                n_targets_batch=n_targets_batch)
         return score
 
     def _get_kernels(self, X, Y=None):
@@ -579,6 +638,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
 
         return kernels
 
+    @force_cpu_backend
     def get_primal_coef(self, Xs_fit):
         """Returns the primal coefficients, assuming all kernels are linear.
 
@@ -666,6 +726,10 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     Y_in_cpu : bool
         If True, keep the target values ``y`` in CPU memory (slower).
 
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -721,7 +785,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 
     def __init__(self, kernels=["linear", "polynomial"], kernels_params=None,
                  solver="random_search", solver_params=None, cv=5,
-                 random_state=None, Y_in_cpu=False):
+                 random_state=None, Y_in_cpu=False, force_cpu=False):
         self.kernels = kernels
         self.kernels_params = kernels_params
         self.solver = solver
@@ -729,7 +793,9 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         self.cv = cv
         self.random_state = random_state
         self.Y_in_cpu = Y_in_cpu
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
         """Fit the model.
 
@@ -829,8 +895,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         K = sum_i exp(deltas[i]) Ks[i]
 
     Contrarily to ``MultipleKernelRidgeCV``, this model does not optimize the
-    log kernel weights ``deltas``. However, it is not equivalent to
-    ``KernelRidge``, since the log kernel weights ``deltas`` can be different
+    log kernel-weights ``deltas``. However, it is not equivalent to
+    ``KernelRidge``, since the log kernel-weights ``deltas`` can be different
     for each target, therefore the kernel sum is not precomputed.
 
     Parameters
@@ -870,6 +936,10 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
 
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
+
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
 
     Attributes
     ----------
@@ -918,7 +988,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     def __init__(self, alpha=1., deltas="zeros",
                  kernels=["linear", "polynomial"], kernels_params=None,
                  solver="conjugate_gradient", solver_params=None,
-                 random_state=None):
+                 random_state=None, force_cpu=False):
         self.alpha = alpha
         self.deltas = deltas
         self.kernels = kernels
@@ -926,7 +996,9 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         self.solver = solver
         self.solver_params = solver_params
         self.random_state = random_state
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
         """Fit kernel ridge regression model
 
@@ -991,7 +1063,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
             self.deltas_ = check_array(self.deltas, ndim=[1, 2])
             if self.deltas_.shape[0] != n_kernels:
                 raise ValueError("Inconsistent number of kernels.")
-            if (self.deltas_ndim == 2 and y.ndim == 2
+            if (self.deltas.ndim == 2 and y.ndim == 2
                     and self.deltas_.shape[1] != y.shape[1]):
                 raise ValueError("Inconsistent number of targets.")
             if self.deltas_.ndim == 1:

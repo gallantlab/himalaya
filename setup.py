@@ -1,4 +1,5 @@
 import re
+from pathlib import Path
 from setuptools import find_packages, setup
 
 # get version from himalaya/__init__.py
@@ -10,14 +11,27 @@ for line in infos:
         match = re.search(r"__version__ = '([^']*)'", line)
         __version__ = match.groups()[0]
 
+# read the contents of the README file
+this_directory = Path(__file__).parent
+long_description = (this_directory / "README.rst").read_text()
+
 requirements = [
     "numpy",
     "scikit-learn",
     # "cupy",  # optional backend
-    # "torch",  # optional backend
+    # "torch",  # optional backend, 1.9+ preferred
     # "matplotlib",  # for visualization only
     # "pytest",  # for testing only
 ]
+
+extras_require = {
+    "all_backends": ["cupy", "torch"],
+    "viz": ["matplotlib"],
+    "test": ["pytest", "cupy", "torch"],
+}
+
+extras_require["all"] = sum(list(extras_require.values()), [])
+extras_require["doc"] = ["numpydoc", "sphinx", "sphinx_gallery"] + extras_require["all_backends"]
 
 if __name__ == "__main__":
     setup(
@@ -30,4 +44,7 @@ if __name__ == "__main__":
         packages=find_packages(),
         url="https://github.com/gallantlab/himalaya",
         install_requires=requirements,
+        extras_require=extras_require,
+        long_description=long_description,
+        long_description_content_type='text/x-rst',
     )

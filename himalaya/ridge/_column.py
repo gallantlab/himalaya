@@ -7,7 +7,7 @@ class ColumnTransformerNoStack(ColumnTransformer):
 
     This estimator allows different columns or column subsets of the input to
     be transformed separately. The different groups of features generated are
-    *not* stacked together, to be used e.g. in a BandedRidgeCV(groups="auto").
+    *not* stacked together, to be used e.g. in a GroupRidgeCV(groups="auto").
     This is useful to perform separate transformations on different feature
     spaces.
 
@@ -15,7 +15,7 @@ class ColumnTransformerNoStack(ColumnTransformer):
     Indeed, it returns a list of ``n_groups`` matrices of shape (n_samples,
     n_features_i), while scikit-learn's API only allows arrays of shape
     (n_samples, n_features). This class is intended to be used in a
-    scikit-learn pipeline *just* before a BandedRidgeCV(groups="auto").
+    scikit-learn pipeline *just* before a GroupRidgeCV(groups="auto").
 
     Parameters
     ----------

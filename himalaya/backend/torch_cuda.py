@@ -12,7 +12,7 @@ except AssertionError as error:
         pytest.skip("PyTorch not compiled with CUDA enabled.")
     raise AssertionError("PyTorch not compiled with CUDA enabled.") from error
 
-from .__init__ import _dtype_to_str
+from ._utils import _dtype_to_str
 
 ###############################################################################
 
@@ -48,6 +48,25 @@ def asarray(x, dtype=None, device="cuda"):
         array = np.asarray(x, dtype=_dtype_to_str(dtype))
         tensor = torch.as_tensor(array, dtype=dtype, device=device)
     return tensor
+
+
+def check_arrays(*all_inputs):
+    """Change all inputs into Tensors (or list of Tensors) using the same
+    precision and device as the first one. Some tensors can be None.
+    """
+    all_tensors = []
+    all_tensors.append(asarray(all_inputs[0]))
+    dtype = all_tensors[0].dtype
+    device = all_tensors[0].device
+    for tensor in all_inputs[1:]:
+        if tensor is None:
+            pass
+        elif isinstance(tensor, list):
+            tensor = [asarray(tt, dtype=dtype, device=device) for tt in tensor]
+        else:
+            tensor = asarray(tensor, dtype=dtype, device=device)
+        all_tensors.append(tensor)
+    return all_tensors
 
 
 def zeros(shape, dtype="float32", device="cuda"):

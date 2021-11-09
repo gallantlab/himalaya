@@ -1,8 +1,14 @@
+"""Adapt functions from scikit-learn to use different backends."""
+
 import itertools
 from functools import partial
 import math
 
+from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.utils.validation import check_is_fitted
+
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..validation import _get_string_dtype
 from ..validation import check_array
 from ..validation import issparse
@@ -553,3 +559,113 @@ def pairwise_kernels(X, Y=None, metric="linear", n_jobs=None, **params):
         raise ValueError("Unknown metric=%r." % metric)
 
     return func(X, Y, **params)
+
+
+class KernelCenterer(TransformerMixin, BaseEstimator):
+    """Center a kernel matrix.
+
+    Adapt sklearn.preprocessing.KernelCenterer to use other backends.
+
+    Let K(x, z) be a kernel defined by phi(x)^T phi(z), where phi is a
+    function mapping x to a Hilbert space. KernelCenterer centers (i.e.,
+    normalize to have zero mean) the data without explicitly computing phi(x).
+    It is equivalent to centering phi(x) with
+    sklearn.preprocessing.StandardScaler(with_std=False).
+
+    Parameters
+    ----------
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
+
+    Attributes
+    ----------
+    K_fit_rows_ : array of shape (n_samples,)
+        Average of each column of kernel matrix.
+
+    K_fit_all_ : float
+        Average of kernel matrix.
+
+    Examples
+    --------
+    >>> from himalaya.kernel_ridge import KernelCenterer
+    >>> from himalaya.kernel_ridge import pairwise_kernels
+    >>> X = [[ 1., -2.,  2.],
+    ...      [ -2.,  1.,  3.],
+    ...      [ 4.,  1., -2.]]
+    >>> K = pairwise_kernels(X, metric='linear')
+    >>> K
+    array([[  9.,   2.,  -2.],
+           [  2.,  14., -13.],
+           [ -2., -13.,  21.]])
+    >>> transformer = KernelCenterer().fit(K)
+    >>> transformer
+    KernelCenterer()
+    >>> transformer.transform(K)
+    array([[  5.,   0.,  -5.],
+           [  0.,  14., -14.],
+           [ -5., -14.,  19.]])
+    """
+
+    def __init__(self, force_cpu=False):
+        self.force_cpu = force_cpu
+
+    @force_cpu_backend
+    def fit(self, K, y=None):
+        """Fit KernelCenterer
+
+        Parameters
+        ----------
+        K : ndarray of shape (n_samples, n_samples)
+            Kernel matrix.
+
+        y : None
+            Ignored.
+
+        Returns
+        -------
+        self : object
+            Fitted transformer.
+        """
+        backend = get_backend()
+        K = check_array(K, ndim=2)
+
+        if K.shape[0] != K.shape[1]:
+            raise ValueError("Kernel matrix must be a square matrix."
+                             " Input is a {}x{} matrix.".format(
+                                 K.shape[0], K.shape[1]))
+
+        self.K_fit_rows_ = backend.mean_float64(K, axis=0)
+        self.K_fit_all_ = backend.mean_float64(self.K_fit_rows_, axis=0)
+        return self
+
+    @force_cpu_backend
+    def transform(self, K, copy=True):
+        """Center kernel matrix.
+
+        Parameters
+        ----------
+        K : ndarray of shape (n_samples1, n_samples2)
+            Kernel matrix.
+
+        copy : bool, default=True
+            Set to False to perform inplace computation.
+
+        Returns
+        -------
+        K_new : ndarray of shape (n_samples1, n_samples2)
+        """
+        check_is_fitted(self)
+        backend = get_backend()
+        K = check_array(K, ndim=2, copy=copy)
+
+        K_pred_cols = backend.mean_float64(K, axis=1, keepdims=True)
+
+        K -= self.K_fit_rows_
+        K -= K_pred_cols
+        K += self.K_fit_all_
+
+        return K
+
+    def _more_tags(self):
+        return {'pairwise': True}

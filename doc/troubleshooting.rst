@@ -1,4 +1,4 @@
-Troobleshooting
+Troubleshooting
 ===============
 We detail here common issues encountered with ``himalaya``, and how to fix
 them.
@@ -12,7 +12,7 @@ CUDA out of memory
 
 The GPU memory is often smaller than the CPU memory, so it requires more
 attention to avoid running out of memory. Himalaya implements a series of
-option to limit the GPU memory, at the cost of computational speed:
+options to limit the GPU memory, often at the cost of computational speed:
 
 - Some solvers implement computations over batches, to limit the size of
   intermediate arrays. See for instance ``n_targets_batch``, or
@@ -20,6 +20,21 @@ option to limit the GPU memory, at the cost of computational speed:
 - Some solvers implement an option to keep the input kernels or the targets in
   CPU memory. See for instance ``Y_in_cpu`` in
   :class:`kernel_ridge.MultipleKernelRidgeCV`.
+- Some estimators can also be forced to use CPU, ignoring the current backend,
+  using the parameter ``force_cpu=True``. To limit GPU memory, some estimators
+  in the same pipeline can use ``force_cpu=True`` and others
+  ``force_cpu=False``. In particular, it is possible to precompute kernels on
+  CPU, using :class:`kernel_ridge.Kernelizer` or
+  :class:`kernel_ridge.ColumnKernelizer` with the parameter ``force_cpu=True``
+  before fitting a :class:`himalaya.kernel_ridge.KernelRidgeCV` or a
+  :class:`kernel_ridge.MultipleKernelRidgeCV` on GPU.
+
+A CUDA out of memory issue can also arise with ``pytorch < 1.9``, for example
+with :class:`himalaya.kernel_ridge.KernelRidge`, where a solver requires
+ridiculously high peak memory during a broadcasting matmul operation. This
+`issue <https://github.com/pytorch/pytorch/pull/54616>`_ can be fixed by
+updating to ``pytorch = 1.9`` or newer versions.
+
 
 Slow ``check_array``
 --------------------

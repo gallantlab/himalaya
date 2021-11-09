@@ -3,6 +3,7 @@ import pytest
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
+from himalaya.backend._utils import _dtype_to_str
 from himalaya.utils import assert_array_almost_equal
 
 
@@ -27,8 +28,12 @@ def test_set_backend_incorrect():
     for backend in ["wrong", ["numpy"], True, None, 10]:
         with pytest.raises(ValueError):
             set_backend(backend)
+        with pytest.raises(ValueError):
+            set_backend(backend, on_error="raise")
         with pytest.warns(Warning):
             set_backend(backend, on_error="warn")
+        with pytest.raises(ValueError):
+            set_backend(backend, on_error="foo")
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -169,3 +174,55 @@ def test_svd(backend, full_matrices, three_dim):
             except AssertionError:
                 assert_array_almost_equal(U[kk, :, ii], -U_ref[kk, :, ii])
                 assert_array_almost_equal(V[kk, ii, :], -V_ref[kk, ii, :])
+
+
+@pytest.mark.parametrize('backend_out', ALL_BACKENDS)
+@pytest.mark.parametrize('backend_in', ALL_BACKENDS)
+def test_changed_backend_asarray(backend_in, backend_out):
+    backend = set_backend(backend_in)
+    array_in = backend.asarray([1.2, 2.4, 4.8])
+    assert array_in is not None
+
+    # change the backend, and cast to the correct class
+    backend = set_backend(backend_out)
+    array_out = backend.asarray(array_in)
+    assert array_out is not None
+
+    if backend_in == backend_out or backend_in[:5] == backend_out[:5]:
+        # assert the class did not change
+        assert array_in.__class__ == array_out.__class__
+    else:
+        # assert the class did change
+        assert array_in.__class__ != array_out.__class__
+
+    # assert the new class is correct
+    array_out2 = backend.randn(3)
+    assert array_out.__class__ == array_out2.__class__
+
+    # test check_arrays
+    array_out3, array_out4, array_out5 = backend.check_arrays(
+        array_in, array_in, [array_in])
+    assert array_out.__class__ == array_out3.__class__
+    assert array_out.__class__ == array_out4.__class__
+    assert array_out.__class__ == array_out5[0].__class__
+
+
+@pytest.mark.parametrize('dtype_out', ["float32", "float64"])
+@pytest.mark.parametrize('dtype_in', ["float32", "float64"])
+@pytest.mark.parametrize('backend_out', ALL_BACKENDS)
+@pytest.mark.parametrize('backend_in', ALL_BACKENDS)
+def test_asarray_dtype(backend_in, backend_out, dtype_in, dtype_out):
+    backend = set_backend(backend_in)
+    array_in = backend.asarray([1.2, 2.4, 4.8], dtype=dtype_in)
+    assert _dtype_to_str(array_in.dtype) == dtype_in
+
+    backend = set_backend(backend_out)
+    array_out = backend.asarray(array_in, dtype=dtype_out)
+    assert _dtype_to_str(array_out.dtype) == dtype_out
+
+
+def test_dtype_to_str_wrong_input():
+    assert _dtype_to_str(None) is None
+
+    with pytest.raises(NotImplementedError):
+        _dtype_to_str(42)

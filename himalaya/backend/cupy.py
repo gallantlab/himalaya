@@ -68,7 +68,7 @@ isnan = cupy.isnan
 isinf = cupy.isinf
 logspace = cupy.logspace
 copy = cupy.copy
-bool = cupy.bool
+bool = cupy.bool_
 float32 = cupy.float32
 float64 = cupy.float64
 int32 = cupy.int32
@@ -157,6 +157,10 @@ def to_gpu(array, device=None):
     return cupy.asarray(array)
 
 
+def is_in_gpu(array):
+    return getattr(array, "device", None) is not None
+
+
 def asarray(a, dtype=None, order=None, device=None):
     if device == "cpu":
         import numpy as np
@@ -175,16 +179,15 @@ def check_arrays(*all_inputs):
     precision as the first one. Some arrays can be None.
     """
     all_arrays = []
-    all_arrays.append(cupy.asarray(all_inputs[0]))
+    all_arrays.append(asarray(all_inputs[0]))
+    dtype = all_arrays[0].dtype
     for tensor in all_inputs[1:]:
         if tensor is None:
             pass
         elif isinstance(tensor, list):
-            tensor = [
-                cupy.asarray(tt, dtype=all_arrays[0].dtype) for tt in tensor
-            ]
+            tensor = [asarray(tt, dtype=dtype) for tt in tensor]
         else:
-            tensor = cupy.asarray(tensor, dtype=all_arrays[0].dtype)
+            tensor = asarray(tensor, dtype=dtype)
         all_arrays.append(tensor)
     return all_arrays
 

@@ -59,11 +59,12 @@ def test_group_lasso_vs_lasso(backend, n_targets_batch):
                                         momentum=False,
                                         n_targets_batch=n_targets_batch)
 
-        ols = sklearn.linear_model.Lasso(fit_intercept=False, alpha=l1_reg,
+        ols = sklearn.linear_model.Lasso(fit_intercept=False,
+                                         alpha=backend.to_numpy(l1_reg),
                                          max_iter=1000,
                                          tol=1e-8).fit(backend.to_numpy(X),
                                                        backend.to_numpy(Y))
-        assert_array_almost_equal(coef, ols.coef_.T)
+        assert_array_almost_equal(coef, ols.coef_.T, decimal=5)
 
 
 @pytest.mark.parametrize('n_targets_batch', [None, 2])

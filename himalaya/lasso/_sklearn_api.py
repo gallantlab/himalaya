@@ -7,12 +7,14 @@ from ._group_lasso import solve_sparse_group_lasso_cv
 from ..validation import check_array
 from ..validation import _get_string_dtype
 from ..backend import get_backend
+from ..backend import force_cpu_backend
 from ..scoring import r2_score
 
 
 class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
-    """Solves the sparse group Lasso, with hyperparameter grid-search over
-    cross-validation.
+    """Sparse group Lasso
+
+    Solved with hyperparameter grid-search over cross-validation.
 
     Parameters
     ----------
@@ -36,6 +38,10 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
 
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
+
+    force_cpu : bool
+        If True, computations will be performed on CPU, ignoring the
+        current backend. If False, use the current backend.
 
     Attributes
     ----------
@@ -68,14 +74,17 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
     ALL_SOLVERS = dict(proximal_gradient=solve_sparse_group_lasso_cv)
 
     def __init__(self, groups=None, l1_regs=[0], l21_regs=[0],
-                 solver="proximal_gradient", solver_params=None, cv=5):
+                 solver="proximal_gradient", solver_params=None, cv=5,
+                 force_cpu=False):
         self.groups = groups
         self.l1_regs = l1_regs
         self.l21_regs = l21_regs
         self.solver = solver
         self.solver_params = solver_params
         self.cv = cv
+        self.force_cpu = force_cpu
 
+    @force_cpu_backend
     def fit(self, X, y):
         """Fit the model
 
@@ -133,6 +142,7 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
 
         return function(**direct_params, **solver_params)
 
+    @force_cpu_backend
     def predict(self, X):
         """Predict using the model.
 
@@ -155,6 +165,7 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
         Y_hat = backend.to_numpy(X) @ backend.to_numpy(self.coef_)
         return backend.asarray_like(Y_hat, ref=X)
 
+    @force_cpu_backend
     def score(self, X, y):
         """Return the coefficient of determination R^2 of the prediction.
 

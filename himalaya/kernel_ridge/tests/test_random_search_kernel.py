@@ -39,6 +39,14 @@ def _create_dataset(backend):
     return Ks, Y, gammas, Xs
 
 
+@pytest.mark.parametrize('local_alpha', [True, False])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_random_search_local_alphah(
+        backend, local_alpha):
+    _test_solve_multiple_kernel_ridge_random_search(backend=backend,
+                                                    local_alpha=local_alpha)
+
+
 @pytest.mark.parametrize('n_targets_batch', [None, 3])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_random_search_n_targets_batch(
@@ -71,11 +79,9 @@ def test_solve_multiple_kernel_ridge_random_search_diagonalize_method(
         backend=backend, diagonalize_method=diagonalize_method)
 
 
-def _test_solve_multiple_kernel_ridge_random_search(backend,
-                                                    n_targets_batch=None,
-                                                    n_alphas_batch=None,
-                                                    return_weights="dual",
-                                                    diagonalize_method="eigh"):
+def _test_solve_multiple_kernel_ridge_random_search(
+        backend, n_targets_batch=None, n_alphas_batch=None,
+        return_weights="dual", diagonalize_method="eigh", local_alpha=True):
     backend = set_backend(backend)
 
     Ks, Y, gammas, Xs = _create_dataset(backend)
@@ -89,29 +95,30 @@ def _test_solve_multiple_kernel_ridge_random_search(backend,
         Ks, Y, n_iter=gammas, alphas=alphas, score_func=r2_score, cv=cv,
         n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
         return_weights=return_weights, n_alphas_batch=n_alphas_batch,
-        diagonalize_method=diagonalize_method)
+        diagonalize_method=diagonalize_method, local_alpha=local_alpha)
     best_deltas, refit_weights, cv_scores = results
 
     #########################################
     # compare with sklearn.linear_model.Ridge
-    test_scores = []
-    for gamma in backend.sqrt(gammas):
-        X = backend.concatenate([x * g for x, g in zip(Xs, gamma)], 1)
-        for train, test in cv.split(X):
-            for alpha in alphas:
-                model = sklearn.linear_model.Ridge(
-                    alpha=backend.to_numpy(alpha), fit_intercept=False)
-                model = model.fit(backend.to_numpy(X[train]),
-                                  backend.to_numpy(Y[train]))
-                predictions = backend.asarray_like(
-                    model.predict(backend.to_numpy(X[test])), Y)
-                test_scores.append(r2_score(Y[test], predictions))
+    if local_alpha:  # only compare when each target optimizes alpha
+        test_scores = []
+        for gamma in backend.sqrt(gammas):
+            X = backend.concatenate([x * g for x, g in zip(Xs, gamma)], 1)
+            for train, test in cv.split(X):
+                for alpha in alphas:
+                    model = sklearn.linear_model.Ridge(
+                        alpha=backend.to_numpy(alpha), fit_intercept=False)
+                    model = model.fit(backend.to_numpy(X[train]),
+                                      backend.to_numpy(Y[train]))
+                    predictions = backend.asarray_like(
+                        model.predict(backend.to_numpy(X[test])), Y)
+                    test_scores.append(r2_score(Y[test], predictions))
 
-    test_scores = backend.stack(test_scores)
-    test_scores = test_scores.reshape(len(gammas), cv.get_n_splits(),
-                                      len(alphas), n_targets)
-    test_scores_mean = backend.max(test_scores.mean(1), 1)
-    assert_array_almost_equal(cv_scores, test_scores_mean, decimal=5)
+        test_scores = backend.stack(test_scores)
+        test_scores = test_scores.reshape(len(gammas), cv.get_n_splits(),
+                                          len(alphas), n_targets)
+        test_scores_mean = backend.max(test_scores.mean(1), 1)
+        assert_array_almost_equal(cv_scores, test_scores_mean, decimal=5)
 
     ######################
     # test refited_weights

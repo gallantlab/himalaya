@@ -23,16 +23,16 @@ from sklearn.pipeline import make_pipeline
 # Torch can perform computations both on CPU and GPU.
 # To use the CPU, use the "torch" backend.
 # To use GPU, you can either use the "torch" backend and move your data to GPU
-# with the `.cuda` method, or you can use the "torch_cuda" backend which calls
-# this method in backend.asarray.
+# with the ``.cuda`` method, or you can use the "torch_cuda" backend which calls
+# this method in ``backend.asarray``.
 
 backend = set_backend("torch_cuda")
 
 ###############################################################################
 # Generate a random dataset
 # -------------------------
-# - Xs_train : list of array of shape (n_samples_train, n_features)
-# - Xs_test : list of array of shape (n_samples_test, n_features)
+# - Xs_train : list of arrays of shape (n_samples_train, n_features)
+# - Xs_test : list of arrays of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
 # - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
 
@@ -64,13 +64,13 @@ if True:
     Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
 
 ###############################################################################
-# concatenate the feature spaces and move to GPU with ``backend.asarray``.`
+# Concatenate the feature spaces and move to GPU with ``backend.asarray``.
 X_train = backend.asarray(backend.concatenate(Xs_train, 1), dtype="float32")
 X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
 
 ###############################################################################
 # We could precompute the kernels by hand on ``Xs_train``, as done in
-# ``plot_multiple_kernel_ridge_random_search.py``. Here instead, we use the
+# ``plot_mkr_random_search.py``. Instead, here we use the
 # ``ColumnKernelizer`` to make a ``scikit-learn`` ``Pipeline``.
 
 # Find the start and end of each feature space X in Xs
@@ -118,8 +118,8 @@ n_iter = 100
 alphas = np.logspace(-10, 10, 41)
 
 ###############################################################################
-# Batch parameters, used to reduce the necessary GPU memory. A larger value
-# will be a bit faster, but the solver might crash if it is out of memory.
+# Batch parameters are used to reduce the necessary GPU memory. A larger value
+# will be a bit faster, but the solver might crash if it runs out of memory.
 # Optimal values depend on the size of your dataset.
 n_targets_batch = 1000
 n_alphas_batch = 20
@@ -161,16 +161,17 @@ plt.show()
 ###############################################################################
 # Compare to ``KernelRidgeCV``
 # ----------------------------
-# Compare with a model with all features concatenated, using the prediction
-# scores on the test set.
+# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated features.
+# Comparison is performed using the prediction scores on the test set.
+
 
 ###############################################################################
-# fit the baseline model ``KernelRidgeCV``
+# Fit the baseline model ``KernelRidgeCV``
 baseline = KernelRidgeCV(kernel="linear", alphas=alphas)
 baseline.fit(X_train, Y_train)
 
 ###############################################################################
-# compute scores of both models
+# Compute scores of both models
 scores = pipe.score(X_test, Y_test)
 scores = backend.to_numpy(scores)
 
@@ -178,7 +179,7 @@ scores_baseline = baseline.score(X_test, Y_test)
 scores_baseline = backend.to_numpy(scores_baseline)
 
 ###############################################################################
-# plot histograms
+# Plot histograms
 bins = np.linspace(min(scores_baseline.min(), scores.min()),
                    max(scores_baseline.max(), scores.max()), 50)
 plt.hist(scores, bins, alpha=0.5, label="MultipleKernelRidgeCV")
