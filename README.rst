@@ -3,7 +3,9 @@
    <h1>Himalaya: Multiple-target linear models</h1>
 
 ``Himalaya`` implements machine learning linear models in Python, focusing on
-computational efficiency for large numbers of targets.
+computational efficiency for large numbers of targets. It is stable (with
+particular care for backward compatibility) and open for public use (give it a
+star!).
 
 |Github| |Python| |License|
 
@@ -162,4 +164,4 @@ Cite this package
 If you use ``himalaya`` in your work, please cite our (future) publication:
 
 .. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
-	Variance decomposition with banded ridge regression. *In preparation*.
+	Feature-space selection with banded ridge regression. *In preparation*.
