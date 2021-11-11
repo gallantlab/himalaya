@@ -1,10 +1,10 @@
 Himalaya: Multiple-target linear models
 =======================================
 
+|Github| |Python| |License| |Downloads|
+
 ``Himalaya`` implements machine learning linear models in Python, focusing on
 computational efficiency for large numbers of targets.
-
-|Github| |Python| |License| |Downloads|
 
 Use ``himalaya`` if you need a library that:
 
@@ -40,7 +40,13 @@ Example
   independently.
 
 
-Check more examples of use of ``himalaya`` in the gallery of examples.
+Check more examples of use of ``himalaya`` in the `gallery of examples
+<https://gallantlab.github.io/himalaya/_auto_examples/index.html>`_.
+
+``Himalaya`` was designed primarily for functional magnetic resonance imaging
+(fMRI) encoding models. In depth tutorials about using ``himalaya`` for fMRI
+encoding models can be found at `gallantlab/voxelwise_tutorials
+<https://github.com/gallantlab/voxelwise_tutorials>`_.
 
 Models
 ======
@@ -55,6 +61,10 @@ Models
 - WeightedKernelRidge
 - MultipleKernelRidgeCV
 - SparseGroupLassoCV
+
+See the `model descriptions
+<https://gallantlab.github.io/himalaya/models.html>`_ in the documentation
+website.
 
 Himalaya backends
 =================
@@ -164,7 +174,8 @@ Developers can also install ``himalaya`` in editable mode via:
 Cite this package
 =================
 
-If you use ``himalaya`` in your work, please cite our (future) publication:
+If you use ``himalaya`` in your work, please give it a star and cite our
+(future) publication:
 
 .. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
 	Feature-space selection with banded ridge regression. *In preparation*.
