@@ -4,7 +4,7 @@ Himalaya: Multiple-target linear models
 ``Himalaya`` implements machine learning linear models in Python, focusing on
 computational efficiency for large numbers of targets.
 
-|Github| |Python| |License|
+|Github| |Python| |License| |Downloads|
 
 Use ``himalaya`` if you need a library that:
 
@@ -156,6 +156,9 @@ Developers can also install ``himalaya`` in editable mode via:
 
 .. |License| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
+
+.. |Downloads| image:: https://pepy.tech/badge/himalaya
+   :target: https://pepy.tech/project/himalaya
 
 
 Cite this package
