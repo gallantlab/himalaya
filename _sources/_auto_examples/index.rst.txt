@@ -119,6 +119,27 @@ Multiple kernel ridge regression
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbcontainer" tooltip="This method can be used for example in the following workflow: - fit a MultipleKernelRidgeCV to...">
+
+.. only:: html
+
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_refit_from_deltas_thumb.png
+     :alt: Fit a multiple-kernel ridge models from fixed hyper-parameters
+
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_refit_from_deltas.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_refit_from_deltas
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Multiple kernel ridge with scikit-learn API">
 
 .. only:: html

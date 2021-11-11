@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.scoring &#8212; Himalaya 0.3.1 documentation</title>
+    <title>himalaya.scoring &#8212; Himalaya 0.3.2 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
@@ -188,10 +188,10 @@
 
 
 <div class="viewcode-block" id="r2_score_split"><a class="viewcode-back" href="../../_generated/himalaya.scoring.r2_score_split.html#himalaya.scoring.r2_score_split">[docs]</a><span class="k">def</span> <span class="nf">r2_score_split</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">,</span> <span class="n">include_correlation</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Split variance explained (R2) into individual feature space components.</span>
+    <span class="sd">&quot;&quot;&quot;Split the R2 score into individual components using the product measure.</span>
 
-<span class="sd">    When estimating a linear joint model, the predictions of</span>
-<span class="sd">    each feature space are summed::</span>
+<span class="sd">    When estimating a linear joint model, the predictions of each feature space</span>
+<span class="sd">    are summed::</span>
 
 <span class="sd">        Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z</span>
 
@@ -199,14 +199,19 @@
 
 <span class="sd">        R2_joint = R2(Yhat_joint, Y)</span>
 
-<span class="sd">    This function estimates the contribution of each feature space to the</span>
-<span class="sd">    joint model R2 such that::</span>
+<span class="sd">    This function estimates the contribution of each feature space to the joint</span>
+<span class="sd">    model R2 such that::</span>
 
 <span class="sd">        R2_joint = R2_A + R2_B + ... + R2_Z</span>
 
 <span class="sd">    Mathematically, this is achieved by taking into account the correlations</span>
-<span class="sd">    between predictions (i.e. Yhat_A*Yhat_B,..., Yhat_A*Yhat_Z).</span>
-<span class="sd">    The function can also returns an estimate that ignores these correlations.</span>
+<span class="sd">    between predictions (i.e. Yhat_A*Yhat_B,..., Yhat_A*Yhat_Z). The function</span>
+<span class="sd">    can also returns an estimate that ignores these correlations.</span>
+
+<span class="sd">    This function differs from r2_score_split_svd in the method used to</span>
+<span class="sd">    decompose the variance. The function r2_score_split is based on the product</span>
+<span class="sd">    measure method, while the function r2_score_split_svd is based on the</span>
+<span class="sd">    relative weights method.</span>
 
 <span class="sd">    This function assumes that y_true is zero-mean over samples.</span>
 
@@ -259,6 +264,156 @@
         <span class="n">r2</span> <span class="o">=</span> <span class="n">r2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
     <span class="k">return</span> <span class="n">r2</span></div>
+
+
+<span class="k">def</span> <span class="nf">r2_score_split_svd</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Split the R2 score into individual components using relative weights.</span>
+
+<span class="sd">    When estimating a linear joint model, the predictions of each feature space</span>
+<span class="sd">    are summed::</span>
+
+<span class="sd">        Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z</span>
+
+<span class="sd">    The joint model R2 can be computed as::</span>
+
+<span class="sd">        R2_joint = R2(Yhat_joint, Y)</span>
+
+<span class="sd">    This function estimates the contribution of each feature space to the joint</span>
+<span class="sd">    model R2 such that::</span>
+
+<span class="sd">        R2_joint = R2_A + R2_B + ... + R2_Z</span>
+
+<span class="sd">    This function differs from r2_score_split in the method used to decompose</span>
+<span class="sd">    the variance. The function r2_score_split is based on the product measure</span>
+<span class="sd">    method, while the function r2_score_split_svd is based on the relative</span>
+<span class="sd">    weights method.</span>
+
+<span class="sd">    This function assumes that y_true is zero-mean over samples.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_true : array of shape (n_samples, n_targets)</span>
+<span class="sd">        Observed data. Has to be zero-mean over samples.</span>
+<span class="sd">    y_pred : array of shape (n_kernels, n_samples, n_targets) or \</span>
+<span class="sd">            (n_samples, n_targets)</span>
+<span class="sd">        Predictions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    r2 : array (n_kernels, n_targets) or (n_targets, )</span>
+<span class="sd">        Individual feature space R2 scores.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">_check_finite</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">y_true</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">))</span> <span class="o">&gt;</span> <span class="mf">1e-6</span><span class="p">):</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s1">&#39;y_true has to be zero-mean over samples to compute &#39;</span>
+            <span class="s1">&#39;the split r2 scores.&#39;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+
+    <span class="n">no_split</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">2</span>
+    <span class="k">if</span> <span class="n">no_split</span><span class="p">:</span>
+        <span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># compute the R2 score on the sum of sub-predictions</span>
+    <span class="n">y_pred_sum</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">full_r2</span> <span class="o">=</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred_sum</span><span class="p">)</span>
+
+    <span class="c1"># normalize the prediction sum</span>
+    <span class="n">norms_pred_sum</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_pred_sum</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">norms_pred_sum</span><span class="p">[</span><span class="n">norms_pred_sum</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">y_pred_sum</span> <span class="o">=</span> <span class="n">y_pred_sum</span> <span class="o">/</span> <span class="n">norms_pred_sum</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">/</span> <span class="n">norms_pred_sum</span>
+
+    <span class="n">norms_pred</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">norm</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+    <span class="n">norms_pred</span><span class="p">[</span><span class="n">norms_pred</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+
+    <span class="c1"># Compute the singular value decomposition. It is done on non-normalized</span>
+    <span class="c1"># y_pred to preserve the scaling of sub-predictions.</span>
+    <span class="n">U</span><span class="p">,</span> <span class="n">s</span><span class="p">,</span> <span class="n">Vt</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">svd</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+                           <span class="n">full_matrices</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">V</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Vt</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+    <span class="n">Ut</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">U</span><span class="p">,</span> <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+
+    <span class="c1"># regression of y_pred over V.U^T</span>
+    <span class="n">VsVt</span> <span class="o">=</span> <span class="n">V</span> <span class="o">@</span> <span class="p">(</span><span class="n">s</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">*</span> <span class="n">Vt</span><span class="p">)</span>
+    <span class="c1"># regression of y_pred_sum over V.U^T</span>
+    <span class="n">beta</span> <span class="o">=</span> <span class="p">(</span><span class="n">V</span> <span class="o">@</span> <span class="n">Ut</span><span class="p">)</span> <span class="o">@</span> <span class="n">y_pred_sum</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="c1"># Aggregates VsVt and beta to compute the relative weights. It uses a</span>
+    <span class="c1"># scaling by norms_pred because the SVD was computed on non-normalized</span>
+    <span class="c1"># y_pred.</span>
+    <span class="n">r2</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">VsVt</span> <span class="o">**</span> <span class="mi">2</span> <span class="o">/</span> <span class="n">norms_pred</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">**</span> <span class="mi">2</span><span class="p">,</span>
+                        <span class="n">beta</span> <span class="o">**</span> <span class="mi">2</span><span class="p">)[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+
+    <span class="c1"># fix rounding errors</span>
+    <span class="n">r2</span> <span class="o">/=</span> <span class="n">r2</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+    <span class="c1"># scale by the total R2</span>
+    <span class="n">r2</span> <span class="o">*=</span> <span class="n">full_r2</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
+
+    <span class="k">if</span> <span class="n">no_split</span><span class="p">:</span>
+        <span class="n">r2</span> <span class="o">=</span> <span class="n">r2</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="n">r2</span>
+
+
+<span class="k">def</span> <span class="nf">correlation_score_split</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot;Split the correlation score into individual components.</span>
+
+<span class="sd">    When estimating a linear joint model, the predictions of each feature space</span>
+<span class="sd">    are summed::</span>
+
+<span class="sd">        Yhat_joint = Yhat_A + Yhat_B + ... + Yhat_Z</span>
+
+<span class="sd">    The joint model correlation score r can be computed as::</span>
+
+<span class="sd">        r_joint = r(Y, Yhat_joint)</span>
+
+<span class="sd">    This function estimates the contribution of each feature space to the joint</span>
+<span class="sd">    model correlation score r such that::</span>
+
+<span class="sd">        r_joint = r_A + r_B + ... + r_Z</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    y_true : array or Tensor of shape (n_samples, n_targets)</span>
+<span class="sd">        Ground truth.</span>
+<span class="sd">    y_pred : array or Tensor of shape (n_predictions, n_samples, n_targets) or\</span>
+<span class="sd">            (n_samples, n_targets)</span>
+<span class="sd">        Predictions.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    correlations : array of shape (n_predictions, n_targets) or (n_targets, )</span>
+<span class="sd">        Contributions of each individual feature space to the joint correlation</span>
+<span class="sd">        score.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">_check_finite</span><span class="p">(</span><span class="n">y_pred</span><span class="p">)</span>
+
+    <span class="c1"># broadcasting if y_pred has more dimensions</span>
+    <span class="n">axis</span> <span class="o">=</span> <span class="mi">1</span> <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_pred</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="o">&gt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">y_true</span><span class="o">.</span><span class="n">shape</span><span class="p">)</span> <span class="k">else</span> <span class="mi">0</span>
+    <span class="c1"># demean to take the covariance</span>
+    <span class="n">y_true</span> <span class="o">=</span> <span class="n">y_true</span> <span class="o">-</span> <span class="n">y_true</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_pred</span> <span class="o">=</span> <span class="n">y_pred</span> <span class="o">-</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_true_std</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">std_float64</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="n">demean</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="n">y_true_std</span><span class="p">[</span><span class="n">y_true_std</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">split</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">3</span>
+    <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
+        <span class="n">y_true</span> <span class="o">=</span> <span class="n">y_true</span><span class="p">[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="n">y_pred_sum</span> <span class="o">=</span> <span class="n">y_pred</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+        <span class="n">y_pred_std</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">std_float64</span><span class="p">(</span><span class="n">y_pred_sum</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">demean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">keepdims</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">y_pred_std</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">std_float64</span><span class="p">(</span><span class="n">y_pred</span><span class="p">,</span> <span class="n">axis</span><span class="p">,</span> <span class="n">demean</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+                                         <span class="n">keepdims</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+    <span class="n">y_pred_std</span><span class="p">[</span><span class="n">y_pred_std</span> <span class="o">==</span> <span class="mi">0</span><span class="p">]</span> <span class="o">=</span> <span class="mi">1</span>
+    <span class="n">correlations</span> <span class="o">=</span> <span class="p">(</span><span class="n">y_true</span> <span class="o">*</span> <span class="n">y_pred</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">axis</span><span class="p">)</span> <span class="o">/</span> <span class="p">(</span><span class="n">y_true_std</span> <span class="o">*</span> <span class="n">y_pred_std</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">split</span><span class="p">:</span>
+        <span class="n">correlations</span> <span class="o">=</span> <span class="n">correlations</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">correlations</span>
 
 
 <span class="c1">###############################################################################</span>
