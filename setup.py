@@ -31,7 +31,8 @@ extras_require = {
 }
 
 extras_require["all"] = sum(list(extras_require.values()), [])
-extras_require["doc"] = ["numpydoc", "sphinx", "sphinx_gallery"] + extras_require["all_backends"]
+extras_require["doc"] = ["numpydoc", "sphinx", "sphinx_gallery"]
+extras_require["doc"] += extras_require["viz"] + extras_require["all_backends"]
 
 if __name__ == "__main__":
     setup(

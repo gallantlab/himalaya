@@ -1,11 +1,8 @@
-.. raw:: html
-
-   <h1>Himalaya: Multiple-target linear models</h1>
+Himalaya: Multiple-target linear models
+=======================================
 
 ``Himalaya`` implements machine learning linear models in Python, focusing on
-computational efficiency for large numbers of targets. It is stable (with
-particular care for backward compatibility) and open for public use (give it a
-star!).
+computational efficiency for large numbers of targets.
 
 |Github| |Python| |License|
 
@@ -14,6 +11,9 @@ Use ``himalaya`` if you need a library that:
 - estimates linear models on large numbers of targets,
 - runs on CPU and GPU hardware,
 - provides estimators compatible with ``scikit-learn``'s API.
+
+``Himalaya`` is stable (with particular care for backward compatibility) and
+open for public use (give it a star!).
 
 Example
 =======
