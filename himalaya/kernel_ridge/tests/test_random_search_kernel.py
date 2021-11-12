@@ -152,3 +152,17 @@ def _test_solve_multiple_kernel_ridge_random_search(
                                     backend.to_numpy(Y_64[:, tt]))
             c1 = backend.asarray_like(c1, K)
             assert_array_almost_equal(c1, refit_weights[:, tt], decimal=5)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_random_search_single_alpha_numpy(backend):
+    backend = set_backend(backend)
+    # just a smoke test, so make it minimal
+    Ks, Y, gammas, Xs = _create_dataset(backend)
+    alphas = 1.0
+    # make Y a numpy array
+    Y = backend.to_numpy(Y)
+    results = solve_multiple_kernel_ridge_random_search(
+        Ks, Y, n_iter=gammas, alphas=alphas
+    )
+

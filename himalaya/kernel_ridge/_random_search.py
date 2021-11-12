@@ -112,14 +112,15 @@ def solve_multiple_kernel_ridge_random_search(
     else:
         raise ValueError("Unknown parameter n_iter=%r." % (n_iter, ))
 
-    if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
-        alphas = backend.ones_like(Y, shape=(1, )) * alphas
-
     dtype = Ks.dtype
     gammas = backend.asarray(gammas, dtype=dtype)
     device = getattr(gammas, "device", None)
-    gammas, alphas, Xs = backend.check_arrays(gammas, alphas, Xs)
     Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
+
+    if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
+        alphas = backend.ones_like(Y, shape=(1, )) * alphas
+
+    gammas, alphas, Xs = backend.check_arrays(gammas, alphas, Xs)
     Ks = backend.asarray(Ks, dtype=dtype,
                          device="cpu" if Ks_in_cpu else device)
 
