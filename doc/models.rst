@@ -9,7 +9,7 @@ Ridge
 Let :math:`X\in \mathbb{R}^{n\times p}` be a feature matrix with :math:`n`
 samples and :math:`p` features,  :math:`y\in \mathbb{R}^n` a target vector, and
 :math:`\alpha > 0` a fixed regularization hyperparameter. Ridge regression
-[1]_ defines the weight vector :math:`b^*\in \mathbb{R}^p` as
+[1]_ defines the weight vector :math:`b^*\in \mathbb{R}^p` as:
 
 .. math::
     b^* = \arg\min_b \|Xb - y\|_2^2 + \alpha \|b\|_2^2.
@@ -28,7 +28,7 @@ KernelRidge
 By the Woodbury matrix identity, :math:`b^*` can be written as :math:`b^* =
 X^\top(XX^\top + \alpha I_n)^{-1}y`, or :math:`b^* = X^\top w^*` for some
 :math:`w^*\in \mathbb{R}^n`. Noting the linear kernel :math:`K = X X^\top \in
-\mathbb{R}^{n\times n}`, this leads to the *equivalent* formulation
+\mathbb{R}^{n\times n}`, this leads to the *equivalent* formulation:
 
 .. math::
     w^* = \arg\min_w \|Kw - y\|_2^2 + \alpha w^\top Kw.
@@ -82,8 +82,8 @@ This is equivalent to solving a ridge regression:
 .. math::
     b^* = \arg\min_b \|Z b - Y\|_2^2 + \|b\|_2^2
 
-where the feature space :math:`X_i` is scaled by a group scaling 
-:math:`Z_i = e^{\delta_i / 2} X_i`. The hyperparameters :math:`\delta_i` are
+where the feature space :math:`X_i` is scaled by a group scaling :math:`Z_i =
+e^{\delta_i} X_i`. The hyperparameters :math:`\delta_i = - \log(\alpha_i)` are
 then learned over cross-validation.
 
 .. note::
@@ -100,20 +100,21 @@ then learned over cross-validation.
 WeightedKernelRidge
 -------------------
 
-Kernel ridge regression can be naturally extend to a weighted sum of multiple
-kernels, :math:`K = \sum_{i=1}^m e^{\delta_i} K_i`. A typical example is to use
-:math:`K_i = X_i X_i^\top` for different subsets of features :math:`X_i`.
-The model becomes:
+To extend kernel ridge to group-regularization, we can compute the kernel as a
+weighted sum of multiple kernels, :math:`K = \sum_{i=1}^m e^{\delta_i} K_i`.
+Then, we can use :math:`K_i = X_i X_i^\top` for different groups of features
+:math:`X_i`. The model becomes:
 
 .. math::
     w^* = \arg\min_w \left\|\sum_{i=1}^m e^{\delta_i} K_{i} w - y\right\|_2^2
     + \alpha \sum_{i=1}^m e^{\delta_i} w^\top K_{i} w.
 
-Contrarily to :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`, this model
-does not optimize the log kernel-weights :math:`\delta_i`. However, it is not
-equivalent to :class:`~himalaya.kernel_ridge.KernelRidge`, since the log
-kernel-weights :math:`\delta_i` can be different for each target, therefore the
-kernel sum is not precomputed.
+This model is called weighted kernel ridge regresion. The log-kernel-weights
+:math:`\delta_i` are here fixed. When all the targets use the same
+log-kernel-weights, a single weighted kernel can be precomputed and used in a
+kernel ridge regression. However, when the log-kernel-weights are different for
+each target, the kernel sum cannot be precomputed, and the model requires some
+specific algorithms to be fit.
 
 .. note::
   This model is implemented in a scikit-learn-compatible estimator
@@ -127,8 +128,12 @@ kernel sum is not precomputed.
 MultipleKernelRidgeCV
 ---------------------
 
-In weighted kernel ridge regression, when the log kernel-weights
-:math:`\delta_i` are unknown, we can learn them over cross-validation.
+In weighted kernel ridge regression, when the log-kernel-weights
+:math:`\delta_i` are unknown, we can learn them over cross-validation. This
+model is called multiple-kernel ridge regression. When the kernels are defined
+by :math:`K_i = X_i X_i^\top` for different groups of features :math:`X_i`,
+multiple-kernel ridge regression is equivalent with group-ridge regression
+(aka banded ridge regression).
 
 .. note::
   This model is implemented in a scikit-learn-compatible estimator
