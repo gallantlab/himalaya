@@ -1,6 +1,6 @@
 """
-Fit a multiple-kernel ridge models from fixed hyper-parameters
-==============================================================
+Multiple-kernel ridge fit from fixed hyper-parameters
+=====================================================
 This example demonstrates how to fit a multiple-kernel ridge model with fixed
 hyper-parameters. Here are three different usecases:
 - If the kernel weights hyper-parameters are known and identical across
@@ -25,7 +25,7 @@ from himalaya.backend import set_backend
 from himalaya.kernel_ridge import WeightedKernelRidge
 from himalaya.kernel_ridge import Kernelizer
 from himalaya.kernel_ridge import ColumnKernelizer
-from himalaya.kernel_ridge import generate_dirichlet_samples
+from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
 
@@ -42,60 +42,16 @@ set_config(display='diagram')  # requires scikit-learn 0.23
 ###############################################################################
 # Generate a random dataset
 # -------------------------
-# - Xs_train : list of arrays of shape (n_samples_train, n_features)
-# - Xs_test : list of arrays of shape (n_samples_test, n_features)
+# - X_train : array of shape (n_samples_train, n_features)
+# - X_test : array of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
-# - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
+# - Y_test : array of shape (n_samples_test, n_targets)
 
-n_kernels = 4
-n_targets = 500
-
-# We create a few kernel weights
-rng = np.random.RandomState(42)
-kernel_weights_true = generate_dirichlet_samples(n_targets, n_kernels,
-                                                 concentration=[.3],
-                                                 random_state=rng)
-kernel_weights_true = backend.to_numpy(kernel_weights_true)
-
-# Then, we generate a random dataset, using the arbitrary scalings.
-n_samples_train = 1000
-n_samples_test = 400
-n_features_list = np.full(n_kernels, fill_value=1000)
-
-Xs_train, Xs_test = [], []
-Y_train, Y_test = None, None
-for ii in range(n_kernels):
-    n_features = n_features_list[ii]
-
-    X_train = rng.randn(n_samples_train, n_features)
-    X_test = rng.randn(n_samples_test, n_features)
-    X_train -= X_train.mean(0)
-    Xs_train.append(X_train)
-    Xs_test.append(X_test)
-
-    weights = rng.randn(n_features, n_targets) / n_features
-    weights *= kernel_weights_true[:, ii] ** 0.5
-
-    if ii == 0:
-        Y_train = X_train @ weights
-        Y_test = X_test @ weights
-    else:
-        Y_train += X_train @ weights
-        Y_test += X_test @ weights
-
-std = Y_train.std(0)[None]
-Y_train /= std
-Y_test /= std
-
-noise = 0.1
-Y_train += rng.randn(n_samples_train, n_targets) * noise
-Y_test += rng.randn(n_samples_test, n_targets) * noise
-Y_test -= Y_test.mean(0)
-Y_train -= Y_train.mean(0)
-
-# Concatenate the feature spaces.
-X_train = np.asarray(np.concatenate(Xs_train, 1), dtype="float32")
-X_test = np.asarray(np.concatenate(Xs_test, 1), dtype="float32")
+(X_train, X_test, Y_train, Y_test, kernel_weights_true,
+ n_features_list) = generate_multikernel_dataset(n_kernels=4, n_targets=500,
+                                                 n_samples_train=1000,
+                                                 n_samples_test=400,
+                                                 random_state=42)
 
 ###############################################################################
 # Prepare the pipeline

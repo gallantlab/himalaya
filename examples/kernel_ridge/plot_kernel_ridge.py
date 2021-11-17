@@ -1,6 +1,6 @@
 """
-Kernel ridge regression
-=======================
+Kernel ridge
+============
 
 This example demonstrates how to solve kernel ridge regression, using
 himalaya's estimator ``KernelRidge`` compatible with scikit-learn's API.

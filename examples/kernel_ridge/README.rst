@@ -1,2 +1,2 @@
-Kernel ridge regression
------------------------
+Kernel ridge
+------------
