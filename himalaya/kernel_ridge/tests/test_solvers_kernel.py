@@ -17,8 +17,11 @@ KERNEL_RIDGE_SOLVERS['eigenvalues_svd'] = partial(
     KERNEL_RIDGE_SOLVERS['eigenvalues'], method="svd")
 
 
-def _create_dataset(backend, intercept):
-    n_samples, n_targets = 30, 3
+def _create_dataset(backend, intercept, many_targets=False):
+    if many_targets:
+        n_samples, n_targets = 10, 20
+    else:
+        n_samples, n_targets = 30, 3
 
     Xs = [
         backend.asarray(backend.randn(n_samples, n_features), backend.float64)
@@ -153,12 +156,14 @@ def test_solve_weighted_kernel_ridge_intercept(solver_name, backend):
                                       decimal=decimal)
 
 
+@pytest.mark.parametrize('many_targets', [False, True])
 @pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_kernel_ridge(solver_name, backend):
+def test_solve_kernel_ridge(solver_name, backend, many_targets):
     backend = set_backend(backend)
 
-    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(
+        backend, intercept=False, many_targets=many_targets)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
     solver = KERNEL_RIDGE_SOLVERS[solver_name]

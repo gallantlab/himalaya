@@ -637,13 +637,16 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
                              (negative_eigenvalues, ))
 
     iUT = inverse[:, None, :] * U.T[:, :, None]
+    iUT = backend.transpose(iUT, (2, 0, 1))
+    # Vt.T.shape = (n_samples, n_samples)
+    # iUT.shape = (1 or n_targets, n_samples, n_samples)
+    # Y.T.shape = (n_targets, n_samples)
+    # dual_weights = Vt.T @ iUT @ Y.T (batching over n_targets)
+
     if Y.shape[0] < Y.shape[1]:
-        dual_weights = (
-            backend.transpose(Vt.T @ iUT,
-                              (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
+        dual_weights = ((Vt.T @ iUT) @ Y.T[:, :, None])[:, :, 0].T
     else:
-        dual_weights = Vt.T @ (
-            backend.transpose(iUT, (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
+        dual_weights = Vt.T @ (iUT @ Y.T[:, :, None])[:, :, 0].T
 
     if fit_intercept:
         intercept = Y_offset - centerer.K_fit_rows_ @ dual_weights
