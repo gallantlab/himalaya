@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Getting started &#8212; Himalaya 0.3.2 documentation</title>
+    <title>Getting started &#8212; Himalaya 0.3.3 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
@@ -102,9 +102,9 @@
 <h1>Getting started<a class="headerlink" href="#getting-started" title="Permalink to this headline">¶</a></h1>
 <div class="section" id="himalaya-multiple-target-linear-models">
 <h2>Himalaya: Multiple-target linear models<a class="headerlink" href="#himalaya-multiple-target-linear-models" title="Permalink to this headline">¶</a></h2>
+<p><a class="reference external" href="https://github.com/gallantlab/himalaya"><img alt="Github" src="https://img.shields.io/badge/github-himalaya-blue" /></a> <a class="reference external" href="https://www.python.org/downloads/release/python-370"><img alt="Python" src="https://img.shields.io/badge/python-3.7%2B-blue" /></a> <a class="reference external" href="https://opensource.org/licenses/BSD-3-Clause"><img alt="License" src="https://img.shields.io/badge/License-BSD%203--Clause-blue.svg" /></a> <a class="reference external" href="https://pepy.tech/project/himalaya"><img alt="Downloads" src="https://pepy.tech/badge/himalaya" /></a></p>
 <p><code class="docutils literal notranslate"><span class="pre">Himalaya</span></code> implements machine learning linear models in Python, focusing on
 computational efficiency for large numbers of targets.</p>
-<p><a class="reference external" href="https://github.com/gallantlab/himalaya"><img alt="Github" src="https://img.shields.io/badge/github-himalaya-blue" /></a> <a class="reference external" href="https://www.python.org/downloads/release/python-370"><img alt="Python" src="https://img.shields.io/badge/python-3.7%2B-blue" /></a> <a class="reference external" href="https://opensource.org/licenses/BSD-3-Clause"><img alt="License" src="https://img.shields.io/badge/License-BSD%203--Clause-blue.svg" /></a></p>
 <p>Use <code class="docutils literal notranslate"><span class="pre">himalaya</span></code> if you need a library that:</p>
 <ul class="simple">
 <li><p>estimates linear models on large numbers of targets,</p></li>
@@ -136,7 +136,10 @@ used with 100k targets).</p></li>
 <li><p>The model selects the best hyperparameter <code class="docutils literal notranslate"><span class="pre">alpha</span></code> for each target
 independently.</p></li>
 </ul>
-<p>Check more examples of use of <code class="docutils literal notranslate"><span class="pre">himalaya</span></code> in the gallery of examples.</p>
+<p>Check more examples of use of <code class="docutils literal notranslate"><span class="pre">himalaya</span></code> in the <a class="reference external" href="https://gallantlab.github.io/himalaya/_auto_examples/index.html">gallery of examples</a>.</p>
+<p><code class="docutils literal notranslate"><span class="pre">Himalaya</span></code> was designed primarily for functional magnetic resonance imaging
+(fMRI) encoding models. In depth tutorials about using <code class="docutils literal notranslate"><span class="pre">himalaya</span></code> for fMRI
+encoding models can be found at <a class="reference external" href="https://github.com/gallantlab/voxelwise_tutorials">gallantlab/voxelwise_tutorials</a>.</p>
 </div>
 <div class="section" id="models">
 <h2>Models<a class="headerlink" href="#models" title="Permalink to this headline">¶</a></h2>
@@ -151,6 +154,8 @@ independently.</p></li>
 <li><p>MultipleKernelRidgeCV</p></li>
 <li><p>SparseGroupLassoCV</p></li>
 </ul>
+<p>See the <a class="reference external" href="https://gallantlab.github.io/himalaya/models.html">model descriptions</a> in the documentation
+website.</p>
 </div>
 <div class="section" id="himalaya-backends">
 <h2>Himalaya backends<a class="headerlink" href="#himalaya-backends" title="Permalink to this headline">¶</a></h2>
@@ -226,7 +231,8 @@ pip install --editable .
 </div>
 <div class="section" id="cite-this-package">
 <h2>Cite this package<a class="headerlink" href="#cite-this-package" title="Permalink to this headline">¶</a></h2>
-<p>If you use <code class="docutils literal notranslate"><span class="pre">himalaya</span></code> in your work, please cite our (future) publication:</p>
+<p>If you use <code class="docutils literal notranslate"><span class="pre">himalaya</span></code> in your work, please give it a star and cite our
+(future) publication:</p>
 <dl class="footnote brackets">
 <dt class="label" id="id1"><span class="brackets">1</span></dt>
 <dd><p>Dupré La Tour, T., Eickenberg, M., &amp; Gallant, J. L. (2021).

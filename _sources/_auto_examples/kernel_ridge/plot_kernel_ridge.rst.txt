@@ -18,8 +18,8 @@
 .. _sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py:
 
 
-Kernel ridge regression
-=======================
+Kernel ridge
+============
 
 This example demonstrates how to solve kernel ridge regression, using
 himalaya's estimator ``KernelRidge`` compatible with scikit-learn's API.
@@ -83,7 +83,7 @@ scikit-learn estimator, with similar parameters and methods.
 
  .. code-block:: none
 
-    5.972999872483342e-14
+    5.34711164235091e-14
 
 
 
@@ -114,9 +114,9 @@ average score over targets.
 
  .. code-block:: none
 
-    0.38164874028882
-    [0.23025736 0.53502623 0.05954612 0.70176525]
-    0.3816487402888198
+    0.5707624676510388
+    [0.8027145  0.69758228 0.17490631 0.60784679]
+    0.5707624676510383
 
 
 
@@ -124,7 +124,7 @@ average score over targets.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.017 seconds)
+   **Total running time of the script:** ( 0 minutes  0.015 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py:

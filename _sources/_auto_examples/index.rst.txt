@@ -16,8 +16,8 @@ Gallery of examples
 
 .. _sphx_glr__auto_examples_kernel_ridge:
 
-Kernel ridge regression
------------------------
+Kernel ridge
+------------
 
 
 
@@ -28,7 +28,7 @@ Kernel ridge regression
 .. only:: html
 
  .. figure:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_kernel_ridge_thumb.png
-     :alt: Kernel ridge regression
+     :alt: Kernel ridge
 
      :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py`
 
@@ -91,21 +91,21 @@ Kernel ridge regression
 
 .. _sphx_glr__auto_examples_multiple_kernel_ridge:
 
-Multiple kernel ridge regression
---------------------------------
+Multiple-kernel ridge
+---------------------
 
 
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Multiple kernel ridge regression">
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge">
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_random_search_thumb.png
-     :alt: Multiple kernel ridge regression
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_0_random_search_thumb.png
+     :alt: Multiple-kernel ridge
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_random_search.py`
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py`
 
 .. raw:: html
 
@@ -115,18 +115,18 @@ Multiple kernel ridge regression
 .. toctree::
    :hidden:
 
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_random_search
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_0_random_search
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This method can be used for example in the following workflow: - fit a MultipleKernelRidgeCV to...">
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge with scikit-learn API">
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_refit_from_deltas_thumb.png
-     :alt: Fit a multiple-kernel ridge models from fixed hyper-parameters
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_1_sklearn_api_thumb.png
+     :alt: Multiple-kernel ridge with scikit-learn API
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_refit_from_deltas.py`
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py`
 
 .. raw:: html
 
@@ -136,28 +136,7 @@ Multiple kernel ridge regression
 .. toctree::
    :hidden:
 
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_refit_from_deltas
-
-.. raw:: html
-
-    <div class="sphx-glr-thumbcontainer" tooltip="Multiple kernel ridge with scikit-learn API">
-
-.. only:: html
-
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_sklearn_api_thumb.png
-     :alt: Multiple kernel ridge with scikit-learn API
-
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_sklearn_api.py`
-
-.. raw:: html
-
-    </div>
-
-
-.. toctree::
-   :hidden:
-
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_sklearn_api
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_1_sklearn_api
 
 .. raw:: html
 
@@ -165,10 +144,10 @@ Multiple kernel ridge regression
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_solvers_thumb.png
-     :alt: Multiple kernel ridge solvers
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_2_solvers_thumb.png
+     :alt: Multiple-kernel ridge solvers
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_solvers.py`
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py`
 
 .. raw:: html
 
@@ -178,18 +157,18 @@ Multiple kernel ridge regression
 .. toctree::
    :hidden:
 
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_solvers
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_2_solvers
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="Refine multiple-kernel ridge results">
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge path between two kernels">
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_refine_results_thumb.png
-     :alt: Refine multiple-kernel ridge results
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_3_path_thumb.png
+     :alt: Multiple-kernel ridge path between two kernels
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_refine_results.py`
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py`
 
 .. raw:: html
 
@@ -199,7 +178,49 @@ Multiple kernel ridge regression
 .. toctree::
    :hidden:
 
-   /_auto_examples/multiple_kernel_ridge/plot_refine_results
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_3_path
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This method can be used for example in the following workflow: - fit a MultipleKernelRidgeCV to...">
+
+.. only:: html
+
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_4_refit_from_deltas_thumb.png
+     :alt: Multiple-kernel ridge fit from fixed hyper-parameters
+
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_4_refit_from_deltas
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge refining">
+
+.. only:: html
+
+ .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_5_refine_results_thumb.png
+     :alt: Multiple-kernel ridge refining
+
+     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py`
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_5_refine_results
 .. raw:: html
 
     <div class="sphx-glr-clear"></div>
