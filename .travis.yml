@@ -19,7 +19,7 @@ install:
 script:
   # install necessary packages to run tests and get coverage
   - travis_retry pip install -q -U pytest pytest-cov codecov
-  - pytest -sv --cov=./
+  - pytest -v --cov=./
   # install packages for docs and make docs
   #- travis_retry pip install -q ipython Sphinx sphinx-gallery numpydoc
     #- cd docs && make html && cd ..
