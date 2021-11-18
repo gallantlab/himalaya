@@ -2,11 +2,13 @@
 
 from .torch import *  # noqa
 import torch
+import sys
 
 try:
     torch.arange(1).cuda()
+    if not torch.cuda.is_available() and "pytest" in sys.modules:
+        pytest.skip("CUDA not available.")
 except AssertionError as error:
-    import sys
     if "pytest" in sys.modules:  # if run through pytest
         import pytest
         pytest.skip("PyTorch not compiled with CUDA enabled.")
