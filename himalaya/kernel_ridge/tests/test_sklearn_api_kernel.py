@@ -350,7 +350,7 @@ def test_weighted_kernel_ridge_split_score(backend, Estimator):
     score = model.score(Ks, Y)
     score_split = model.score(Ks, Y, split=True)
     assert score_split.shape == (len(Ks), Y.shape[1])
-    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
+    assert_array_almost_equal(score, score_split.sum(0), decimal=4)
 
     # single targets
     model = Estimator(kernels="precomputed", solver_params=solver_params)
@@ -358,7 +358,7 @@ def test_weighted_kernel_ridge_split_score(backend, Estimator):
     score = model.score(Ks, Y[:, 0])
     score_split = model.score(Ks, Y[:, 0], split=True)
     assert score_split.shape == (len(Ks), )
-    assert_array_almost_equal(score, score_split.sum(0), decimal=5)
+    assert_array_almost_equal(score, score_split.sum(0), decimal=4)
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
