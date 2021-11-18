@@ -19,14 +19,12 @@ install:
 script:
   # install necessary packages to run tests and get coverage
   - travis_retry pip install -q -U pytest pytest-cov codecov
-  - pytest --cov=./
-  # test installation
-  - python setup.py install
+  - pytest -sv --cov=./
   # install packages for docs and make docs
-  - travis_retry pip install -q ipython Sphinx sphinx-gallery numpydoc
-  - cd docs && make html && cd ..
+  #- travis_retry pip install -q ipython Sphinx sphinx-gallery numpydoc
+    #- cd docs && make html && cd ..
   # Tell GitHub not to use jekyll to compile the docs
-  - touch docs/_build/html/.nojekyll
+  # - touch docs/_build/html/.nojekyll
 
 after_success:
   - codecov
