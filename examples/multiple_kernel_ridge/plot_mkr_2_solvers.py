@@ -39,9 +39,9 @@ set_config(display='diagram')
 
 # sphinx_gallery_thumbnail_number = 4
 ###############################################################################
-# In this example, we use the ``torch`` backend, and fit the model on GPU.
+# In this example, we use the ``torch_cuda`` backend, and fit the model on GPU.
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset

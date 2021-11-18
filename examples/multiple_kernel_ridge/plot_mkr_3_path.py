@@ -22,9 +22,9 @@ from himalaya.utils import generate_multikernel_dataset
 from sklearn.pipeline import make_pipeline
 
 ###############################################################################
-# In this example, we use the ``torch`` backend.
+# In this example, we use the ``cupy`` backend.
 
-backend = set_backend("torch_cuda")
+backend = set_backend("cupy", on_error="warn")
 
 ###############################################################################
 # We also use the nice display of scikit-learn pipelines.

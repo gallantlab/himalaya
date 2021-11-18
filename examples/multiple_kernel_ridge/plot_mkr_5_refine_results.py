@@ -18,7 +18,7 @@ from sklearn.pipeline import make_pipeline
 ###############################################################################
 # In this example, we use the ``cupy`` backend (GPU).
 
-backend = set_backend("cupy")
+backend = set_backend("cupy", on_error="warn")
 
 ###############################################################################
 # We can display the ``scikit-learn`` pipeline with an HTML diagram.

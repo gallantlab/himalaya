@@ -32,7 +32,7 @@ from sklearn.pipeline import make_pipeline
 ###############################################################################
 # In this example, we use the ``torch_cuda`` backend (GPU).
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # We can display the ``scikit-learn`` pipeline with an HTML diagram.

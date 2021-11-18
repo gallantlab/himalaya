@@ -19,7 +19,7 @@ from himalaya.viz import plot_alphas_diagnostic
 ###############################################################################
 # In this example, we use the ``cupy`` backend, and fit the model on GPU.
 
-backend = set_backend("cupy")
+backend = set_backend("cupy", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset

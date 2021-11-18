@@ -19,14 +19,12 @@ from sklearn.pipeline import make_pipeline
 
 # sphinx_gallery_thumbnail_number = 2
 ###############################################################################
-# In this example, we use the ``torch`` backend.
+# In this example, we use the ``torch_cuda`` backend.
 #
-# Torch can perform computations both on CPU and GPU. To use the CPU, use the
-# "torch" backend. To use GPU, you can either use the "torch" backend and move
-# your data to GPU with the ``.cuda`` method, or you can use the "torch_cuda"
-# backend which calls this method in ``backend.asarray``.
+# Torch can perform computations both on CPU and GPU. To use CPU, use the
+# "torch" backend, to use GPU, use the "torch_cuda" backend.
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset
