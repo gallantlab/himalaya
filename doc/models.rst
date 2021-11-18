@@ -17,10 +17,10 @@ samples and :math:`p` features,  :math:`y\in \mathbb{R}^n` a target vector, and
 The equation has a  closed-form solution :math:`b^* = M y`, where :math:`M =
 (X^\top X + \alpha I_p)^{-1}X^\top \in  \mathbb{R}^{p \times n}`.
 
-.. note::
-  This model is implemented in a scikit-learn-compatible estimator
-  :class:`~himalaya.ridge.Ridge`, or through the function
-  :func:`~himalaya.ridge.solve_ridge_svd`.
+.. admonition:: This model is implemented in
+
+  - :class:`~himalaya.ridge.Ridge` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.ridge.solve_ridge_svd` (function)
 
 KernelRidge
 -----------
@@ -36,12 +36,12 @@ X^\top(XX^\top + \alpha I_n)^{-1}y`, or :math:`b^* = X^\top w^*` for some
 This model can be extended to arbitrary positive semidefinite kernels
 :math:`K`, leading to the more general kernel ridge regression [2]_.
 
-.. note::
-  This model is implemented in a scikit-learn-compatible estimator
-  :class:`~himalaya.kernel_ridge.KernelRidge`, or through the functions
-  :func:`~himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues`,
-  :func:`~himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent`, and
-  :func:`~himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient`.
+.. admonition:: This model is implemented in
+
+  - :class:`~himalaya.kernel_ridge.KernelRidge` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues` (function)
+  - :func:`~himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent` (function)
+  - :func:`~himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient` (function)
 
 
 RidgeCV and KernelRidgeCV
@@ -58,12 +58,13 @@ defined over a grid of log-spaced values. Finally, we keep the candidate
 leading to the best generalization performance, as measured by the validation
 loss, averaged over all cross-validation splits.
 
-.. note::
-  These models are implemented in scikit-learn-compatible estimators
-  :class:`~himalaya.ridge.RidgeCV` and
-  :class:`~himalaya.kernel_ridge.KernelRidgeCV`, or through the functions
-  :func:`~himalaya.ridge.solve_ridge_cv_svd` and
-  :func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues`.
+.. admonition:: These models are implemented in
+
+  - :class:`~himalaya.ridge.RidgeCV` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.ridge.solve_ridge_cv_svd` (function)
+  - :class:`~himalaya.kernel_ridge.KernelRidgeCV` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues` (function)
+
 
 GroupRidgeCV / BandedRidgeCV
 ----------------------------
@@ -86,16 +87,20 @@ where the feature space :math:`X_i` is scaled by a group scaling :math:`Z_i =
 e^{\delta_i} X_i`. The hyperparameters :math:`\delta_i = - \log(\alpha_i)` are
 then learned over cross-validation.
 
-.. note::
-  This model is implemented in a scikit-learn-compatible estimator
-  :class:`~himalaya.ridge.GroupRidgeCV`, or through the function
-  :func:`~himalaya.ridge.solve_group_ridge_random_search`. See also
-  :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`, which is equivalent to
-  group-regularization ridge regression when using one linear kernel per group
-  of features.
+.. admonition:: This model is implemented in
 
-.. note::
-  "Group ridge regression" is also sometimes called "Banded ridge regression".
+  - :class:`~himalaya.ridge.GroupRidgeCV` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.ridge.solve_group_ridge_random_search` (function)
+
+  See also multiple-kernel ridge regression, which is equivalent to
+  group-regularization ridge regression when using one linear kernel per group
+  of features:
+
+  - :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search` (function)
+  - :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient` (function)
+
+.. note:: "Group ridge regression" is also sometimes called "Banded ridge regression".
 
 WeightedKernelRidge
 -------------------
@@ -116,14 +121,13 @@ kernel ridge regression. However, when the log-kernel-weights are different for
 each target, the kernel sum cannot be precomputed, and the model requires some
 specific algorithms to be fit.
 
-.. note::
-  This model is implemented in a scikit-learn-compatible estimator
-  :class:`~himalaya.kernel_ridge.WeightedKernelRidgeCV`, or through the
-  functions
-  :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent`,
-  :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient`,
-  and
-  :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series`.
+.. admonition:: This model is implemented in
+
+  - :class:`~himalaya.kernel_ridge.WeightedKernelRidgeCV` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent` (function)
+  - :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient` (function)
+  - :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series` (function)
+
 
 MultipleKernelRidgeCV
 ---------------------
@@ -135,12 +139,12 @@ by :math:`K_i = X_i X_i^\top` for different groups of features :math:`X_i`,
 multiple-kernel ridge regression is equivalent with group-ridge regression
 (aka banded ridge regression).
 
-.. note::
-  This model is implemented in a scikit-learn-compatible estimator
-  :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`, or through the
-  functions
-  :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient`,
-  and :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search`.
+.. admonition:: This model is implemented in
+
+  - :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV` (scikit-learn-compatible estimator)
+  - :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient` (function)
+  - :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search` (function)
+
 
 SparseGroupLassoCV
 ------------------
