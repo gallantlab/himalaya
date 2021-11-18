@@ -112,7 +112,7 @@ def test_group_ridge_cv(backend, force_cpu):
 
 @pytest.mark.parametrize('backend', GPU_BACKENDS)
 @pytest.mark.parametrize('force_cpu', [True, False])
-def test_group_ridge_cv(backend, force_cpu):
+def test_sparse_group_lasso_cv(backend, force_cpu):
     backend = set_backend(backend)
     X = backend.randn(10, 5)
     Y = backend.randn(10, 2)

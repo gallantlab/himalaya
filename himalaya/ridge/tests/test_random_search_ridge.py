@@ -42,7 +42,7 @@ def _create_dataset(backend):
 def test_solve_group_ridge_random_search_n_targets_batch(
         backend, n_targets_batch):
     _test_solve_group_ridge_random_search(backend=backend,
-                                           n_targets_batch=n_targets_batch)
+                                          n_targets_batch=n_targets_batch)
 
 
 @pytest.mark.parametrize('n_alphas_batch', [None, 2])
@@ -50,11 +50,11 @@ def test_solve_group_ridge_random_search_n_targets_batch(
 def test_solve_group_ridge_random_search_n_alphas_batch(
         backend, n_alphas_batch):
     _test_solve_group_ridge_random_search(backend=backend,
-                                           n_alphas_batch=n_alphas_batch)
+                                          n_alphas_batch=n_alphas_batch)
 
 
 def _test_solve_group_ridge_random_search(backend, n_targets_batch=None,
-                                           n_alphas_batch=None):
+                                          n_alphas_batch=None):
     backend = set_backend(backend)
 
     Xs, Y, gammas = _create_dataset(backend)

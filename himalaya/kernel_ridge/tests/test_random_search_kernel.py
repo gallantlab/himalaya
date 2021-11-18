@@ -161,14 +161,15 @@ def test_solve_multiple_kernel_ridge_random_search_single_alpha_numpy(backend):
     alphas = 1.0
     # make Y a numpy array
     Y = backend.to_numpy(Y)
-    results = solve_multiple_kernel_ridge_random_search(
+    _ = solve_multiple_kernel_ridge_random_search(
         Ks, Y, n_iter=gammas, alphas=alphas
     )
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 @pytest.mark.parametrize('n_kernels', [1, 2])
-def test_solve_multiple_kernel_ridge_random_search_global_alpha(backend, n_kernels):
+def test_solve_multiple_kernel_ridge_random_search_global_alpha(
+        backend, n_kernels):
     backend = set_backend(backend)
     # add more targets to make sure we get some variability
     Ks, Y, gammas, Xs = _create_dataset(backend, n_targets=20)
