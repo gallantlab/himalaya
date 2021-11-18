@@ -10,7 +10,7 @@ cache:
   - pip
 
 install:
-  - pip install -e ."[all]"
+  - pip install -e ."[travis_nocupy]"
   - python -c 'import himalaya; print(himalaya.__version__)'
 
 script:
