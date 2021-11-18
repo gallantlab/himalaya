@@ -19,7 +19,8 @@ install:
 script:
   # install necessary packages to run tests and get coverage
   - travis_retry pip install -q -U pytest pytest-cov codecov
-  - pytest -v --cov=./
+    # - pytest -v --cov=./
+ - pytest -v himalaya/backend/tests/test_backend.py::test_set_backend_correct
   # install packages for docs and make docs
   #- travis_retry pip install -q ipython Sphinx sphinx-gallery numpydoc
     #- cd docs && make html && cd ..
