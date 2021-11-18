@@ -14,7 +14,7 @@ except AssertionError as error:
 except RuntimeError as error:
     if "pytest" in sys.modules:  # if run through pytest
         import pytest
-        pytest.skip("PyTorch not compiled with CUDA enabled.")
+        pytest.skip("Found no NVIDIA driver on your system.")
     raise RuntimeError("Found no NVIDIA driver on your system. Please check that you "
                        "have an NVIDIA GPU and installed a driver from "
                        "http://www.nvidia.com/Download/index.aspx") from error
