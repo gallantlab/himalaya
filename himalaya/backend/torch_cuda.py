@@ -6,13 +6,18 @@ import sys
 
 try:
     torch.arange(1).cuda()
-    if not torch.cuda.is_available() and "pytest" in sys.modules:
-        pytest.skip("CUDA not available.")
 except AssertionError as error:
     if "pytest" in sys.modules:  # if run through pytest
         import pytest
         pytest.skip("PyTorch not compiled with CUDA enabled.")
     raise AssertionError("PyTorch not compiled with CUDA enabled.") from error
+except RuntimeError as error:
+    if "pytest" in sys.modules:  # if run through pytest
+        import pytest
+        pytest.skip("PyTorch not compiled with CUDA enabled.")
+    raise RuntimeError("Found no NVIDIA driver on your system. Please check that you "
+                       "have an NVIDIA GPU and installed a driver from "
+                       "http://www.nvidia.com/Download/index.aspx") from error
 
 from ._utils import _dtype_to_str
 
