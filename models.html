@@ -108,16 +108,17 @@
 <p>Let <span class="math notranslate nohighlight">\(X\in \mathbb{R}^{n\times p}\)</span> be a feature matrix with <span class="math notranslate nohighlight">\(n\)</span>
 samples and <span class="math notranslate nohighlight">\(p\)</span> features,  <span class="math notranslate nohighlight">\(y\in \mathbb{R}^n\)</span> a target vector, and
 <span class="math notranslate nohighlight">\(\alpha &gt; 0\)</span> a fixed regularization hyperparameter. Ridge regression
-<a class="footnote-reference brackets" href="#id4" id="id1">1</a> defines the weight vector <span class="math notranslate nohighlight">\(b^*\in \mathbb{R}^p\)</span> as</p>
+<a class="footnote-reference brackets" href="#id4" id="id1">1</a> defines the weight vector <span class="math notranslate nohighlight">\(b^*\in \mathbb{R}^p\)</span> as:</p>
 <div class="math notranslate nohighlight">
 \[b^* = \arg\min_b \|Xb - y\|_2^2 + \alpha \|b\|_2^2.\]</div>
 <p>The equation has a  closed-form solution <span class="math notranslate nohighlight">\(b^* = M y\)</span>, where <span class="math notranslate nohighlight">\(M =
 (X^\top X + \alpha I_p)^{-1}X^\top \in  \mathbb{R}^{p \times n}\)</span>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This model is implemented in a scikit-learn-compatible estimator
-<a class="reference internal" href="_generated/himalaya.ridge.Ridge.html#himalaya.ridge.Ridge" title="himalaya.ridge.Ridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ridge</span></code></a>, or through the function
-<a class="reference internal" href="_generated/himalaya.ridge.solve_ridge_svd.html#himalaya.ridge.solve_ridge_svd" title="himalaya.ridge.solve_ridge_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_ridge_svd()</span></code></a>.</p>
+<div class="admonition-this-model-is-implemented-in admonition">
+<p class="admonition-title">This model is implemented in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="_generated/himalaya.ridge.Ridge.html#himalaya.ridge.Ridge" title="himalaya.ridge.Ridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ridge</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.ridge.solve_ridge_svd.html#himalaya.ridge.solve_ridge_svd" title="himalaya.ridge.solve_ridge_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_ridge_svd()</span></code></a> (function)</p></li>
+</ul>
 </div>
 </div>
 <div class="section" id="kernelridge">
@@ -125,18 +126,19 @@ samples and <span class="math notranslate nohighlight">\(p\)</span> features,  <
 <p>By the Woodbury matrix identity, <span class="math notranslate nohighlight">\(b^*\)</span> can be written as <span class="math notranslate nohighlight">\(b^* =
 X^\top(XX^\top + \alpha I_n)^{-1}y\)</span>, or <span class="math notranslate nohighlight">\(b^* = X^\top w^*\)</span> for some
 <span class="math notranslate nohighlight">\(w^*\in \mathbb{R}^n\)</span>. Noting the linear kernel <span class="math notranslate nohighlight">\(K = X X^\top \in
-\mathbb{R}^{n\times n}\)</span>, this leads to the <em>equivalent</em> formulation</p>
+\mathbb{R}^{n\times n}\)</span>, this leads to the <em>equivalent</em> formulation:</p>
 <div class="math notranslate nohighlight">
 \[w^* = \arg\min_w \|Kw - y\|_2^2 + \alpha w^\top Kw.\]</div>
 <p>This model can be extended to arbitrary positive semidefinite kernels
 <span class="math notranslate nohighlight">\(K\)</span>, leading to the more general kernel ridge regression <a class="footnote-reference brackets" href="#id5" id="id2">2</a>.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This model is implemented in a scikit-learn-compatible estimator
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a>, or through the functions
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_eigenvalues()</span></code></a>,
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent.html#himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent" title="himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_gradient_descent()</span></code></a>, and
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient.html#himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient" title="himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_conjugate_gradient()</span></code></a>.</p>
+<div class="admonition-this-model-is-implemented-in admonition">
+<p class="admonition-title">This model is implemented in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_eigenvalues()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent.html#himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent" title="himalaya.kernel_ridge.solve_kernel_ridge_gradient_descent"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_gradient_descent()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient.html#himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient" title="himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_conjugate_gradient()</span></code></a> (function)</p></li>
+</ul>
 </div>
 </div>
 <div class="section" id="ridgecv-and-kernelridgecv">
@@ -151,13 +153,14 @@ process for multiple hyperparameter candidates <span class="math notranslate noh
 defined over a grid of log-spaced values. Finally, we keep the candidate
 leading to the best generalization performance, as measured by the validation
 loss, averaged over all cross-validation splits.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>These models are implemented in scikit-learn-compatible estimators
-<a class="reference internal" href="_generated/himalaya.ridge.RidgeCV.html#himalaya.ridge.RidgeCV" title="himalaya.ridge.RidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RidgeCV</span></code></a> and
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidgeCV</span></code></a>, or through the functions
-<a class="reference internal" href="_generated/himalaya.ridge.solve_ridge_cv_svd.html#himalaya.ridge.solve_ridge_cv_svd" title="himalaya.ridge.solve_ridge_cv_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_ridge_cv_svd()</span></code></a> and
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_cv_eigenvalues()</span></code></a>.</p>
+<div class="admonition-this-model-is-implemented-in admonition">
+<p class="admonition-title">This model is implemented in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="_generated/himalaya.ridge.RidgeCV.html#himalaya.ridge.RidgeCV" title="himalaya.ridge.RidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">RidgeCV</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidgeCV</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.ridge.solve_ridge_cv_svd.html#himalaya.ridge.solve_ridge_cv_svd" title="himalaya.ridge.solve_ridge_cv_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_ridge_cv_svd()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_cv_eigenvalues()</span></code></a> (function)</p></li>
+</ul>
 </div>
 </div>
 <div class="section" id="groupridgecv-bandedridgecv">
@@ -172,17 +175,23 @@ optimized for each feature space:</p>
 <p>This is equivalent to solving a ridge regression:</p>
 <div class="math notranslate nohighlight">
 \[b^* = \arg\min_b \|Z b - Y\|_2^2 + \|b\|_2^2\]</div>
-<p>where the feature space <span class="math notranslate nohighlight">\(X_i\)</span> is scaled by a group scaling
-<span class="math notranslate nohighlight">\(Z_i = e^{\delta_i / 2} X_i\)</span>. The hyperparameters <span class="math notranslate nohighlight">\(\delta_i\)</span> are
+<p>where the feature space <span class="math notranslate nohighlight">\(X_i\)</span> is scaled by a group scaling <span class="math notranslate nohighlight">\(Z_i =
+e^{\delta_i} X_i\)</span>. The hyperparameters <span class="math notranslate nohighlight">\(\delta_i = - \log(\alpha_i)\)</span> are
 then learned over cross-validation.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This model is implemented in a scikit-learn-compatible estimator
-<a class="reference internal" href="_generated/himalaya.ridge.GroupRidgeCV.html#himalaya.ridge.GroupRidgeCV" title="himalaya.ridge.GroupRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupRidgeCV</span></code></a>, or through the function
-<a class="reference internal" href="_generated/himalaya.ridge.solve_group_ridge_random_search.html#himalaya.ridge.solve_group_ridge_random_search" title="himalaya.ridge.solve_group_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_group_ridge_random_search()</span></code></a>. See also
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a>, which is equivalent to
+<div class="admonition-this-model-is-implemented-in admonition">
+<p class="admonition-title">This model is implemented in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="_generated/himalaya.ridge.GroupRidgeCV.html#himalaya.ridge.GroupRidgeCV" title="himalaya.ridge.GroupRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupRidgeCV</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.ridge.solve_group_ridge_random_search.html#himalaya.ridge.solve_group_ridge_random_search" title="himalaya.ridge.solve_group_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_group_ridge_random_search()</span></code></a> (function)</p></li>
+</ul>
+<p>See also multiple-kernel ridge regression, which is equivalent to
 group-regularization ridge regression when using one linear kernel per group
-of features.</p>
+of features:</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_random_search()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_hyper_gradient()</span></code></a> (function)</p></li>
+</ul>
 </div>
 <div class="admonition note">
 <p class="admonition-title">Note</p>
@@ -191,40 +200,44 @@ of features.</p>
 </div>
 <div class="section" id="weightedkernelridge">
 <h2>WeightedKernelRidge<a class="headerlink" href="#weightedkernelridge" title="Permalink to this headline">¶</a></h2>
-<p>Kernel ridge regression can be naturally extend to a weighted sum of multiple
-kernels, <span class="math notranslate nohighlight">\(K = \sum_{i=1}^m e^{\delta_i} K_i\)</span>. A typical example is to use
-<span class="math notranslate nohighlight">\(K_i = X_i X_i^\top\)</span> for different subsets of features <span class="math notranslate nohighlight">\(X_i\)</span>.
-The model becomes:</p>
+<p>To extend kernel ridge to group-regularization, we can compute the kernel as a
+weighted sum of multiple kernels, <span class="math notranslate nohighlight">\(K = \sum_{i=1}^m e^{\delta_i} K_i\)</span>.
+Then, we can use <span class="math notranslate nohighlight">\(K_i = X_i X_i^\top\)</span> for different groups of features
+<span class="math notranslate nohighlight">\(X_i\)</span>. The model becomes:</p>
 <div class="math notranslate nohighlight">
 \[w^* = \arg\min_w \left\|\sum_{i=1}^m e^{\delta_i} K_{i} w - y\right\|_2^2
 + \alpha \sum_{i=1}^m e^{\delta_i} w^\top K_{i} w.\]</div>
-<p>Contrarily to <a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a>, this model
-does not optimize the log kernel-weights <span class="math notranslate nohighlight">\(\delta_i\)</span>. However, it is not
-equivalent to <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a>, since the log
-kernel-weights <span class="math notranslate nohighlight">\(\delta_i\)</span> can be different for each target, therefore the
-kernel sum is not precomputed.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This model is implemented in a scikit-learn-compatible estimator
-<code class="xref py py-class docutils literal notranslate"><span class="pre">WeightedKernelRidgeCV</span></code>, or through the
-functions
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_gradient_descent()</span></code></a>,
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_conjugate_gradient()</span></code></a>,
-and
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_neumann_series()</span></code></a>.</p>
+<p>This model is called weighted kernel ridge regresion. The log-kernel-weights
+<span class="math notranslate nohighlight">\(\delta_i\)</span> are here fixed. When all the targets use the same
+log-kernel-weights, a single weighted kernel can be precomputed and used in a
+kernel ridge regression. However, when the log-kernel-weights are different for
+each target, the kernel sum cannot be precomputed, and the model requires some
+specific algorithms to be fit.</p>
+<div class="admonition-this-model-is-implemented-in admonition">
+<p class="admonition-title">This model is implemented in</p>
+<ul class="simple">
+<li><p><code class="xref py py-class docutils literal notranslate"><span class="pre">WeightedKernelRidgeCV</span></code> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_gradient_descent()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_conjugate_gradient()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_neumann_series()</span></code></a> (function)</p></li>
+</ul>
 </div>
 </div>
 <div class="section" id="multiplekernelridgecv">
 <h2>MultipleKernelRidgeCV<a class="headerlink" href="#multiplekernelridgecv" title="Permalink to this headline">¶</a></h2>
-<p>In weighted kernel ridge regression, when the log kernel-weights
-<span class="math notranslate nohighlight">\(\delta_i\)</span> are unknown, we can learn them over cross-validation.</p>
-<div class="admonition note">
-<p class="admonition-title">Note</p>
-<p>This model is implemented in a scikit-learn-compatible estimator
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a>, or through the
-functions
-<a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_hyper_gradient()</span></code></a>,
-and <a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_random_search()</span></code></a>.</p>
+<p>In weighted kernel ridge regression, when the log-kernel-weights
+<span class="math notranslate nohighlight">\(\delta_i\)</span> are unknown, we can learn them over cross-validation. This
+model is called multiple-kernel ridge regression. When the kernels are defined
+by <span class="math notranslate nohighlight">\(K_i = X_i X_i^\top\)</span> for different groups of features <span class="math notranslate nohighlight">\(X_i\)</span>,
+multiple-kernel ridge regression is equivalent with group-ridge regression
+(aka banded ridge regression).</p>
+<div class="admonition-this-model-is-implemented-in admonition">
+<p class="admonition-title">This model is implemented in</p>
+<ul class="simple">
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a> (scikit-learn-compatible estimator)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_hyper_gradient()</span></code></a> (function)</p></li>
+<li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_random_search()</span></code></a> (function)</p></li>
+</ul>
 </div>
 </div>
 <div class="section" id="sparsegrouplassocv">
