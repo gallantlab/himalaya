@@ -249,7 +249,12 @@ def solve_multiple_kernel_ridge_random_search(
 
         # update best_gammas and best_alphas
         epsilon = np.finfo(_dtype_to_str(dtype)).eps
-        mask = cv_scores_ii > current_best_scores + epsilon
+        if local_alpha:
+            mask = cv_scores_ii > current_best_scores + epsilon
+        else:
+            # update based on score across all targets
+            update = cv_scores_ii.mean() > current_best_scores.mean() + epsilon
+            mask = backend.full_like(cv_scores_ii, fill_value=update, dtype=bool)
         current_best_scores[mask] = cv_scores_ii[mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]
