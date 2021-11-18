@@ -21,10 +21,10 @@ script:
   - travis_retry pip install -q -U pytest pytest-cov codecov
   - pytest --cov=./
   # install packages for docs and make docs
-  #- travis_retry pip install -q ipython Sphinx sphinx-gallery numpydoc
-    #- cd docs && make html && cd ..
+  - travis_retry pip install -q ipython Sphinx sphinx-gallery numpydoc
+  - cd doc && make html && cd ..
   # Tell GitHub not to use jekyll to compile the docs
-  # - touch docs/_build/html/.nojekyll
+  - touch doc/_build/html/.nojekyll
 
 after_success:
   - codecov
@@ -39,21 +39,8 @@ after_success:
 #       tags: true
 #       # push only once
 #       python: "3.9"
-#     local_dir: docs/_build/html/
-# 
-#   - provider: pages
-#     skip_cleanup: true
-#     github_token: $GITHUB_TOKEN
-#     keep-history: true
-#     on:
-#       branch: main
-#       tags: true
-#       # push only once
-#       python: "3.9"
-#     local_dir: docs/_build/html/
-#     repo: pycortex/pycortex.github.io
-#     target_branch: main
-# 
+#     local_dir: doc/_build/html/
+#
 #   - provider: pypi
 #     user: "__token__"
 #     password: $PIPY_TOKEN
@@ -61,5 +48,5 @@ after_success:
 #       distributions: sdist
 #       tags: true
 #       branch: main
-#       repo: gallantlab/pycortex
+#       repo: gallantlab/himalaya
 #       python: "3.9"
