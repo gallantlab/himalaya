@@ -47,8 +47,8 @@ def test_kernelizer_callable(backend):
     function = Kernelizer.ALL_KERNELS["linear"]
     ker = Kernelizer(kernel=_callable_linear_kernel)
 
-    assert_array_almost_equal(function(X1), ker.fit_transform(X1))
-    assert_array_almost_equal(function(X2, X1), ker.transform(X2))
+    assert_array_almost_equal(function(X1), ker.fit_transform(X1), decimal=5)
+    assert_array_almost_equal(function(X2, X1), ker.transform(X2), decimal=5)
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)

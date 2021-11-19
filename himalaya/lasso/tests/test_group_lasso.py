@@ -25,7 +25,7 @@ def test_group_lasso_vs_ols(backend):
     X, Y = _create_dataset(backend)
 
     coef = solve_sparse_group_lasso(X, Y, groups=None, l21_reg=0.0, l1_reg=0.0,
-                                    max_iter=1000, tol=1e-8,
+                                    max_iter=2000, tol=1e-8,
                                     progress_bar=False)
 
     ols = sklearn.linear_model.LinearRegression(fit_intercept=False).fit(
