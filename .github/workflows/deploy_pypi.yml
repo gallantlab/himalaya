@@ -1,0 +1,44 @@
+name: Deploy to PyPI
+# Deploy to PyPI if the __version__ variable in himalaya/__init__.py
+# is larger than the latest version on PyPI.
+
+on:
+  push:
+    branches:    
+      - main
+    paths:
+      # trigger workflow only on commits that change __init__.py
+      - 'himalaya/__init__.py'
+
+jobs:
+  deploy-pypi:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - uses: actions/setup-python@v2
+
+    - name: Get versions
+      # Compare the latest verion on PyPI, and the current version
+      run: |
+        python -m pip install --upgrade -q pip
+        pip index versions himalaya
+        echo "LATEST=$(pip index versions himalaya | grep 'himalaya' |awk '{print $2}' | tr -d '(' | tr -d ')')" >> $GITHUB_ENV
+        echo "CURRENT=$(cat himalaya/__init__.py | grep "__version__" | awk '{print $3}' | tr -d "'" | tr -d '"')" >> $GITHUB_ENV
+        echo "SORTED=$(echo $CURRENT"\n"$LATEST | sort --check=quiet --version-sort && echo 1 || echo 0)" >> $GITHUB_ENV
+    
+    - name: Print versions
+      run: |
+        echo ${{ env.LATEST }}
+        echo ${{ env.CURRENT }}
+        echo ${{ env.SORTED }}
+
+    - name: Build and publish
+      if: ${{ env.SORTED == 0 }}
+      env:
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install setuptools wheel twine
+        python setup.py sdist bdist_wheel
+        python -m twine upload dist/*
