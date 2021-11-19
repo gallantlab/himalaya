@@ -11,8 +11,11 @@ from himalaya.utils import assert_array_almost_equal
 from himalaya.ridge import RIDGE_SOLVERS
 
 
-def _create_dataset(backend):
-    n_samples, n_features, n_targets = 30, 10, 3
+def _create_dataset(backend, many_targets=False):
+    if many_targets:
+        n_samples, n_features, n_targets = 10, 5, 20
+    else:
+        n_samples, n_features, n_targets = 30, 10, 3
 
     X = backend.asarray(backend.randn(n_samples, n_features), backend.float64)
     Y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
@@ -22,12 +25,13 @@ def _create_dataset(backend):
     return X, Y, weights
 
 
+@pytest.mark.parametrize('many_targets', [False, True])
 @pytest.mark.parametrize('solver_name', RIDGE_SOLVERS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_kernel_ridge(solver_name, backend):
+def test_solve_kernel_ridge(solver_name, backend, many_targets):
     backend = set_backend(backend)
 
-    X, Y, weights = _create_dataset(backend)
+    X, Y, weights = _create_dataset(backend, many_targets=many_targets)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Y)
 
     solver = RIDGE_SOLVERS[solver_name]

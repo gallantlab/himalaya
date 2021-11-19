@@ -82,12 +82,12 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
                              (negative_eigenvalues, ))
 
     iUT = inverse[:, None, :] * U.T[:, :, None]
+    iUT = backend.transpose(iUT, (2, 0, 1))
+
     if Y.shape[0] < Y.shape[1]:
-        weights = (backend.transpose(Vt.T @ iUT,
-                                     (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
+        weights = ((Vt.T @ iUT) @ Y.T[:, :, None])[:, :, 0].T
     else:
-        weights = Vt.T @ (
-            backend.transpose(iUT, (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
+        weights = Vt.T @ (iUT @ Y.T[:, :, None])[:, :, 0].T
 
     if fit_intercept:
         intercept = Y_offset - X_offset @ weights
