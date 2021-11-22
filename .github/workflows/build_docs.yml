@@ -1,0 +1,38 @@
+name: Build docs
+
+on: [push]
+
+jobs:
+  build-docs:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - uses: actions/cache@v2
+      with:
+        path: ~/.cache/pip
+        key: ${{ runner.os }}-pip-${{ hashFiles('**/setup.py') }}
+        restore-keys: |
+          ${{ runner.os }}-pip-
+
+    - name: Install dependencies
+      run: |
+        pip install -e ."[github]"
+        pip install numpydoc sphinx sphinx_gallery
+
+    - name: Build documents
+      run: |
+        cd doc && make html && cd ..
+        touch doc/_build/html/.nojekyll
+
+    - name: Publish to gh-pages if tagged
+      if: startsWith(github.ref, 'refs/tags')
+      uses: JamesIves/github-pages-deploy-action@4.1.6
+      with:
+        branch: gh-pages
+        folder: doc/_build/html
