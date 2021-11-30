@@ -22,8 +22,7 @@ jobs:
 
     - name: Install dependencies
       run: |
-        pip install -e ."[github]"
-        pip install numpydoc sphinx sphinx_gallery
+        pip install -e ."[doc]"
 
     - name: Build documents
       run: |

@@ -50,7 +50,7 @@ backend = set_backend("torch_cuda", on_error="warn")
 # samples on a Dirichlet distribution.
 
 n_kernels = 3
-n_targets = 500
+n_targets = 50
 n_clusters = 2
 
 ###############################################################################
@@ -199,13 +199,7 @@ scores_baseline = backend.to_numpy(scores_baseline)
 
 ###############################################################################
 # Plot histograms
-bins = np.linspace(
-    np.min([scores_baseline.min(),
-            scores_1.min(),
-            scores_2.min()]),
-    np.max([scores_baseline.max(),
-            scores_1.max(),
-            scores_2.max()]), 50)
+bins = np.linspace(0, 1, 50)
 plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
 plt.hist(scores_1, bins, alpha=0.7,
          label="MultipleKernelRidgeCV(solver='random_search')")
@@ -328,7 +322,7 @@ def plot_simplex_trajectory(Xs, ax=None):
 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
 # selection of targets
-selection = slice(0, 100)
+selection = slice(0, 50)
 
 # First panel
 ax = axs[0]
