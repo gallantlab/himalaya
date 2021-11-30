@@ -34,8 +34,8 @@ set_config(display='diagram')  # requires scikit-learn 0.23
 # - Y_test : array of shape (n_samples_test, n_targets)
 
 (X_train, X_test, Y_train, Y_test, kernel_weights,
- n_features_list) = generate_multikernel_dataset(n_kernels=4, n_targets=500,
-                                                 n_samples_train=1000,
+ n_features_list) = generate_multikernel_dataset(n_kernels=4, n_targets=50,
+                                                 n_samples_train=600,
                                                  n_samples_test=300,
                                                  random_state=42)
 
@@ -76,7 +76,7 @@ pipe_1.fit(X_train, Y_train)
 # Define the gradient-descent model
 # ---------------------------------
 
-solver_params = dict(max_iter=100, hyper_gradient_method="direct",
+solver_params = dict(max_iter=10, hyper_gradient_method="direct",
                      max_iter_inner_hyper=10,
                      initial_deltas="here_will_go_the_previous_deltas")
 

@@ -35,8 +35,8 @@ backend = set_backend("torch_cuda", on_error="warn")
 # - Y_test : array of shape (n_samples_test, n_targets)
 
 (X_train, X_test, Y_train, Y_test, kernel_weights,
- n_features_list) = generate_multikernel_dataset(n_kernels=3, n_targets=500,
-                                                 n_samples_train=1000,
+ n_features_list) = generate_multikernel_dataset(n_kernels=3, n_targets=50,
+                                                 n_samples_train=600,
                                                  n_samples_test=300,
                                                  random_state=42)
 
