@@ -80,7 +80,7 @@ kernel_weights /= np.sum(kernel_weights, 1)[:, None]
 
 (X_train, X_test, Y_train, Y_test,
  kernel_weights, n_features_list) = generate_multikernel_dataset(
-     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=1000,
+     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=600,
      n_samples_test=300, kernel_weights=kernel_weights, random_state=42)
 
 feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
@@ -124,7 +124,7 @@ model_1 = MultipleKernelRidgeCV(kernels="precomputed", solver="random_search",
 ###############################################################################
 # We define the second model, using the hyper_gradient solver.
 
-solver_params = dict(max_iter=80, n_targets_batch=200, tol=1e-3,
+solver_params = dict(max_iter=30, n_targets_batch=200, tol=1e-3,
                      initial_deltas="ridgecv", max_iter_inner_hyper=1,
                      hyper_gradient_method="direct")
 
@@ -219,9 +219,10 @@ plt.show()
 all_kernel_weights_2 = [
     np.full((n_targets, n_kernels), fill_value=1. / n_kernels),
 ]
-for max_iter in np.unique(np.int_(np.logspace(0, np.log10(80), 3))):
-    # change max_iter and refit from scratch
-    pipe_2[1].solver_params['max_iter'] = max_iter
+max_iter = model_2.solver_params["maxi_iter"]
+for n_iter in np.unique(np.int_(np.logspace(0, np.log10(max_iter), 3))):
+    # change the number of iteration and refit from scratch
+    pipe_2[1].solver_params['max_iter'] = n_iter
     pipe_2.fit(X_train, Y_train)
 
     kernel_weights_2 = np.exp(backend.to_numpy(pipe_2[1].deltas_.T))
