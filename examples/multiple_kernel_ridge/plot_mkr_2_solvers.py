@@ -219,7 +219,7 @@ plt.show()
 all_kernel_weights_2 = [
     np.full((n_targets, n_kernels), fill_value=1. / n_kernels),
 ]
-max_iter = model_2.solver_params["maxi_iter"]
+max_iter = model_2.solver_params["max_iter"]
 for n_iter in np.unique(np.int_(np.logspace(0, np.log10(max_iter), 3))):
     # change the number of iteration and refit from scratch
     pipe_2[1].solver_params['max_iter'] = n_iter
