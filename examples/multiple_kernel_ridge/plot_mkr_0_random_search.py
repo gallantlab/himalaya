@@ -31,12 +31,12 @@ backend = set_backend("cupy", on_error="warn")
 # - Y_test : array of shape (n_samples_test, n_targets)
 
 n_kernels = 3
-n_targets = 500
+n_targets = 50
 kernel_weights = np.tile(np.array([0.5, 0.3, 0.2])[None], (n_targets, 1))
 
 (X_train, X_test, Y_train, Y_test,
  kernel_weights, n_features_list) = generate_multikernel_dataset(
-     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=1000,
+     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=600,
      n_samples_test=300, kernel_weights=kernel_weights, random_state=42)
 
 feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
