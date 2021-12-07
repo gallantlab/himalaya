@@ -105,6 +105,9 @@ Kernels
    sigmoid_kernel
    cosine_similarity_kernel
 
+   :template: class.rst
+   KernelCenterer
+
 |
 
 _____
@@ -219,6 +222,8 @@ Scoring functions
    scoring.r2_score
    scoring.correlation_score
    scoring.r2_score_split
+   scoring.r2_score_split_svd
+   scoring.correlation_score_split
 
 
 Utils

@@ -36,8 +36,8 @@ ridiculously high peak memory during a broadcasting matmul operation. This
 updating to ``pytorch = 1.9`` or newer versions.
 
 
-Slow ``check_array``
---------------------
+Slow check_array
+----------------
 
 In himalaya, the scikit-learn compatible estimators validate the input data,
 checking the absence of NaN or infinite values. For large datasets, this check

@@ -12,6 +12,7 @@ Documentation
    models
    troubleshooting
    api
+   changelog
 
 Examples
 --------
