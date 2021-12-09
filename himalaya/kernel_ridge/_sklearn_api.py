@@ -931,9 +931,6 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         See more details in the docstring of the function:
         ``WeightedKernelRidge.ALL_SOLVERS[solver]``
 
-    cv : int or scikit-learn splitter
-        Cross-validation splitter. If an int, KFold is used.
-
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
 
@@ -1070,7 +1067,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
                 self.deltas_ = self.deltas_[:, None]
 
         # ------------------ call the solver
-        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, deltas=self.deltas_,
+        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, alpha=self.alpha,
+                                            deltas=self.deltas_,
                                             random_state=self.random_state)
 
         if ravel:
