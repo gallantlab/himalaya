@@ -39,9 +39,14 @@ Example
 - The model selects the best hyperparameter ``alpha`` for each target
   independently.
 
+Gallery of examples
+-------------------
 
 Check more examples of use of ``himalaya`` in the `gallery of examples
 <https://gallantlab.github.io/himalaya/_auto_examples/index.html>`_.
+
+Tutorials using ``himalaya`` for fMRI
+-------------------------------------
 
 ``Himalaya`` was designed primarily for functional magnetic resonance imaging
 (fMRI) encoding models. In depth tutorials about using ``himalaya`` for fMRI
@@ -53,14 +58,11 @@ Models
 
 ``Himalaya`` implements the following models:
 
-- Ridge
-- RidgeCV
-- GroupRidgeCV
-- KernelRidge
-- KernelRidgeCV
-- WeightedKernelRidge
-- MultipleKernelRidgeCV
+- Ridge, RidgeCV
+- KernelRidge, KernelRidgeCV
+- GroupRidgeCV, MultipleKernelRidgeCV, WeightedKernelRidge
 - SparseGroupLassoCV
+
 
 See the `model descriptions
 <https://gallantlab.github.io/himalaya/models.html>`_ in the documentation
@@ -70,42 +72,30 @@ Himalaya backends
 =================
 
 ``Himalaya`` can be used seamlessly with different backends.
-The available backends are ``numpy`` (default), ``cupy``, and ``pytorch``.
-To change the backend (e.g. to ``cupy``), call:
+The available backends are ``numpy`` (default), ``cupy``, ``torch``, and
+``torch_cuda``.
+To change the backend, call:
 
 .. code-block:: python
 
     from himalaya.backend import set_backend
-    backend = set_backend("cupy")
+    backend = set_backend("torch")
 
 
-and give ``cupy`` arrays inputs to the ``himalaya`` solvers. For convenience,
+and give ``torch`` arrays inputs to the ``himalaya`` solvers. For convenience,
 estimators implementing ``scikit-learn``'s API can cast arrays to the correct
 input type.
 
 GPU acceleration
 ----------------
 
-To run ``himalaya`` on a graphics processing unit (GPU), you can use both
-``cupy`` or ``pytorch`` backends.
-
-To use the ``cupy`` backend, call:
+To run ``himalaya`` on a graphics processing unit (GPU), you can use either
+the ``cupy`` or the ``torch_cuda`` backend:
 
 .. code-block:: python
 
     from himalaya.backend import set_backend
-    backend = set_backend("cupy")
-
-    data = backend.asarray(data)
-
-
-To use the ``pytorch`` backend, call:
-
-.. code-block:: python
-
-    from himalaya.backend import set_backend
-    backend = set_backend("torch_cuda")
-    # "torch" uses pytorch on CPU, "torch_cuda" uses pytorch on GPU
+    backend = set_backend("cupy")  # or "torch_cuda"
 
     data = backend.asarray(data)
 
@@ -116,15 +106,14 @@ Installation
 Dependencies
 ------------
 
-``Himalaya`` requires:
-
 - Python 3
 - Numpy
 - Scikit-learn
-- PyTorch (optional GPU backend) (1.9+ preferred)
-- Cupy (optional GPU backend)
-- Matplotlib (optional, for visualization only)
-- Pytest (optional, for testing only)
+
+Optional (GPU backends):
+
+- PyTorch (1.9+ preferred)
+- Cupy
 
 
 Standard installation
