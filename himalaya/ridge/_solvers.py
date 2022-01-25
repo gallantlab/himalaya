@@ -1,6 +1,7 @@
 import numbers
 
 from ..backend import get_backend
+from ..utils import _batch_or_skip
 
 
 def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
@@ -94,14 +95,9 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
     for start in range(0, n_targets, n_targets_batch):
         batch = slice(start, start + n_targets_batch)
 
-        if alpha.shape[0] == 1:
-            iUT = inverse[:, None, :] * U.T[:, :, None]
-            iUT = backend.transpose(iUT, (2, 0, 1))
-            # iUT.shape = (1, n_features, n_samples)
-        else:
-            iUT = inverse[:, None, batch] * U.T[:, :, None]
-            iUT = backend.transpose(iUT, (2, 0, 1))
-            # iUT.shape = (n_targets_batch, n_features, n_samples)
+        iUT = _batch_or_skip(inverse, batch, 1)[:, None, :] * U.T[:, :, None]
+        iUT = backend.transpose(iUT, (2, 0, 1))
+        # iUT.shape = (1 or n_targets_batch, n_samples, n_samples)
 
         if Y.shape[0] < Y.shape[1]:
             weights_batch = ((Vt.T @ iUT) @ Y.T[batch, :, None])[:, :, 0].T

@@ -792,15 +792,9 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     for start in range(0, n_targets, n_targets_batch):
         batch = slice(start, start + n_targets_batch)
 
-        if alpha.shape[0] == 1:
-            iUT = inverse[:, None, :] * U.T[:, :, None]
-            iUT = backend.transpose(iUT, (2, 0, 1))
-            # iUT.shape = (1, n_samples, n_samples)
-        else:
-            iUT = inverse[:, None, batch] * U.T[:, :, None]
-            iUT = backend.transpose(iUT, (2, 0, 1))
-            # iUT.shape = (n_targets_batch, n_samples, n_samples)
-
+        iUT = _batch_or_skip(inverse, batch, 1)[:, None, :] * U.T[:, :, None]
+        iUT = backend.transpose(iUT, (2, 0, 1))
+        # iUT.shape = (1 or n_targets_batch, n_samples, n_samples)
         # Vt.T.shape = (n_samples, n_samples)
         # Y.T.shape = (n_targets, n_samples)
         # weights_batch = Vt.T @ iUT @ Y.T (batching over n_targets)
