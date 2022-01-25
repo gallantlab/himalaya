@@ -89,7 +89,7 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
     n_samples, n_targets = Y.shape
     weights = backend.zeros_like(X, shape=(n_features, n_targets),
                                  device="cpu")
-    if n_targets_batch is not None:
+    if n_targets_batch is None:
         n_targets_batch = n_targets
 
     for start in range(0, n_targets, n_targets_batch):
@@ -106,7 +106,8 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
         weights[:, batch] = backend.to_cpu(weights_batch)
 
     if fit_intercept:
-        intercept = Y_offset - X_offset @ weights
+        intercept = backend.to_cpu(
+            Y_offset) - backend.to_cpu(X_offset) @ weights
         return weights, intercept
     else:
         return weights

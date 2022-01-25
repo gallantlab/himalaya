@@ -94,6 +94,7 @@ def test_solve_weighted_kernel_ridge(solver_name, backend):
 
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
         c2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=3000, tol=1e-6)
+        c2 = backend.to_gpu(c2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -138,6 +139,8 @@ def test_solve_weighted_kernel_ridge_intercept(solver_name, backend):
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
         c2, i2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=100, tol=1e-6,
                         fit_intercept=True)
+        c2 = backend.to_gpu(c2)
+        i2 = backend.to_gpu(i2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -178,6 +181,7 @@ def test_solve_kernel_ridge(solver_name, backend, many_targets):
             c2 = solver(K, Y, alpha=alpha)
         else:
             c2 = solver(K, Y, alpha=alpha, max_iter=3000, tol=1e-6)
+        c2 = backend.to_gpu(c2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -225,6 +229,8 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
         else:
             c2, i2 = solver(K, Y, alpha=alpha, fit_intercept=True,
                             max_iter=100, tol=1e-5)
+        c2 = backend.to_gpu(c2)
+        i2 = backend.to_gpu(i2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):

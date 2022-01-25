@@ -786,7 +786,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
     n_samples, n_targets = Y.shape
     dual_weights = backend.zeros_like(K, shape=(n_samples, n_targets),
                                       device="cpu")
-    if n_targets_batch is not None:
+    if n_targets_batch is None:
         n_targets_batch = n_targets
 
     for start in range(0, n_targets, n_targets_batch):
@@ -806,7 +806,8 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         dual_weights[:, batch] = backend.to_cpu(weights_batch)
 
     if fit_intercept:
-        intercept = Y_offset - centerer.K_fit_rows_ @ dual_weights
+        intercept = backend.to_cpu(Y_offset) - backend.to_cpu(
+            centerer.K_fit_rows_) @ dual_weights
         return dual_weights, intercept
     else:
         return dual_weights

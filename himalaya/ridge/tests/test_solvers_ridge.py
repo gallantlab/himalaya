@@ -41,6 +41,7 @@ def test_solve_kernel_ridge(solver_name, backend, many_targets):
     for alpha in alphas:
         alpha = backend.full_like(Y, fill_value=alpha, shape=Y.shape[1])
         b2 = solver(X, Y, alpha=alpha, fit_intercept=False)
+        b2 = backend.to_gpu(b2)
         assert b2.shape == (X.shape[1], Y.shape[1])
 
         n_features, n_targets = weights.shape
@@ -81,6 +82,8 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
         b2, i2 = solver(X, Y, alpha=alpha, fit_intercept=True)
         assert b2.shape == (X.shape[1], Y.shape[1])
         assert i2.shape == (Y.shape[1], )
+        b2 = backend.to_gpu(b2)
+        i2 = backend.to_gpu(i2)
 
         n_features, n_targets = weights.shape
         for ii in range(n_targets):

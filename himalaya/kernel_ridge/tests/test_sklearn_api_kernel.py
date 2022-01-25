@@ -451,7 +451,7 @@ def test_weighted_kernel_ridge_cv_array_deltas(backend):
     RidgeCV,
     KernelRidge,
     KernelRidgeCV,
-    MultipleKernelRidgeCV,
+    # MultipleKernelRidgeCV,  # too long
     WeightedKernelRidge,
 ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -460,8 +460,20 @@ def test_n_targets_batch(backend, Estimator):
     Xs, Ks, Y = _create_dataset(backend)
 
     for solver in Estimator.ALL_SOLVERS.keys():
-        model = Estimator(solver=solver, solver_params=dict(n_targets_batch=2))
+        model = Estimator(solver=solver,
+                          solver_params=dict(n_targets_batch=2))
+        model.random_state = 0
         model.fit(Xs[0], Y)
+
+        reference = Estimator(solver=solver)
+        reference.random_state = 0
+        reference.fit(Xs[0], Y)
+
+        for attribute in ["coef_", "dual_coef_", "deltas_"]:
+            if hasattr(model, attribute):
+                assert_array_almost_equal(getattr(model, attribute),
+                                          getattr(reference, attribute),
+                                          decimal=5)
 
 
 ###############################################################################
