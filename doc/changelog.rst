@@ -5,6 +5,7 @@ Development Version
 ~~~~~~~~~~~~~~~~~~~
 
 - MNT speed up examples on CPU, to build the doc faster on github actions.
+- ENH add batching over targets in Ridge and KernelRidge.
 
 Version 0.3.4
 ~~~~~~~~~~~~~

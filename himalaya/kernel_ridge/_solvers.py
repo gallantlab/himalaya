@@ -551,7 +551,7 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., fit_intercept=False,
 def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
                                    fit_intercept=False,
                                    negative_eigenvalues="zeros",
-                                   random_state=None):
+                                   n_targets_batch=None, random_state=None):
     """Solve kernel ridge regression using eigenvalues decomposition.
 
     Solve the kernel ridge regression::
@@ -578,6 +578,9 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         - "zeros" remplaces them with zeros.
         - "nan" returns nans if the regularization does not compensate
         twice the smallest negative value, else it ignores the problem.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
     random_state : int, or None
         Random generator seed. Not used.
 
@@ -636,17 +639,33 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
             raise ValueError("Unknown negative_eigenvalues=%r." %
                              (negative_eigenvalues, ))
 
-    iUT = inverse[:, None, :] * U.T[:, :, None]
-    iUT = backend.transpose(iUT, (2, 0, 1))
-    # Vt.T.shape = (n_samples, n_samples)
-    # iUT.shape = (1 or n_targets, n_samples, n_samples)
-    # Y.T.shape = (n_targets, n_samples)
-    # dual_weights = Vt.T @ iUT @ Y.T (batching over n_targets)
+    n_samples, n_targets = Y.shape
+    dual_weights = backend.zeros_like(K, shape=(n_samples, n_targets),
+                                      device="cpu")
+    if n_targets_batch is not None:
+        n_targets_batch = n_targets
 
-    if Y.shape[0] < Y.shape[1]:
-        dual_weights = ((Vt.T @ iUT) @ Y.T[:, :, None])[:, :, 0].T
-    else:
-        dual_weights = Vt.T @ (iUT @ Y.T[:, :, None])[:, :, 0].T
+    for start in range(0, n_targets, n_targets_batch):
+        batch = slice(start, start + n_targets_batch)
+
+        if alpha.shape[0] == 1:
+            iUT = inverse[:, None, :] * U.T[:, :, None]
+            iUT = backend.transpose(iUT, (2, 0, 1))
+            # iUT.shape = (1, n_samples, n_samples)
+        else:
+            iUT = inverse[:, None, batch] * U.T[:, :, None]
+            iUT = backend.transpose(iUT, (2, 0, 1))
+            # iUT.shape = (n_targets_batch, n_samples, n_samples)
+
+        # Vt.T.shape = (n_samples, n_samples)
+        # Y.T.shape = (n_targets, n_samples)
+        # weights_batch = Vt.T @ iUT @ Y.T (batching over n_targets)
+        if Y.shape[0] < Y.shape[1]:
+            weights_batch = ((Vt.T @ iUT) @ Y.T[batch, :, None])[:, :, 0].T
+        else:
+            weights_batch = Vt.T @ (iUT @ Y.T[batch, :, None])[:, :, 0].T
+
+        dual_weights[:, batch] = backend.to_cpu(weights_batch)
 
     if fit_intercept:
         intercept = Y_offset - centerer.K_fit_rows_ @ dual_weights

@@ -4,7 +4,7 @@ from ..backend import get_backend
 
 
 def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
-                    negative_eigenvalues="zeros"):
+                    negative_eigenvalues="zeros", n_targets_batch=None):
     """Solve ridge regression using SVD decomposition.
 
     Solve the ridge regression::
@@ -31,6 +31,9 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
         - "zeros" remplaces them with zeros.
         - "nan" returns nans if the regularization does not compensate
         twice the smallest negative value, else it ignores the problem.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
 
     Returns
     -------
@@ -81,13 +84,30 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
             raise ValueError("Unknown negative_eigenvalues=%r." %
                              (negative_eigenvalues, ))
 
-    iUT = inverse[:, None, :] * U.T[:, :, None]
-    iUT = backend.transpose(iUT, (2, 0, 1))
+    n_samples, n_features = X.shape
+    n_samples, n_targets = Y.shape
+    weights = backend.zeros_like(X, shape=(n_features, n_targets),
+                                 device="cpu")
+    if n_targets_batch is not None:
+        n_targets_batch = n_targets
 
-    if Y.shape[0] < Y.shape[1]:
-        weights = ((Vt.T @ iUT) @ Y.T[:, :, None])[:, :, 0].T
-    else:
-        weights = Vt.T @ (iUT @ Y.T[:, :, None])[:, :, 0].T
+    for start in range(0, n_targets, n_targets_batch):
+        batch = slice(start, start + n_targets_batch)
+
+        if alpha.shape[0] == 1:
+            iUT = inverse[:, None, :] * U.T[:, :, None]
+            iUT = backend.transpose(iUT, (2, 0, 1))
+            # iUT.shape = (1, n_features, n_samples)
+        else:
+            iUT = inverse[:, None, batch] * U.T[:, :, None]
+            iUT = backend.transpose(iUT, (2, 0, 1))
+            # iUT.shape = (n_targets_batch, n_features, n_samples)
+
+        if Y.shape[0] < Y.shape[1]:
+            weights_batch = ((Vt.T @ iUT) @ Y.T[batch, :, None])[:, :, 0].T
+        else:
+            weights_batch = Vt.T @ (iUT @ Y.T[batch, :, None])[:, :, 0].T
+        weights[:, batch] = backend.to_cpu(weights_batch)
 
     if fit_intercept:
         intercept = Y_offset - X_offset @ weights
