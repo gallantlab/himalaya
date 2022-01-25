@@ -5,7 +5,9 @@ Development Version
 ~~~~~~~~~~~~~~~~~~~
 
 - MNT speed up examples on CPU, to build the doc faster on github actions.
-- ENH add batching over targets in Ridge and KernelRidge.
+- ENH add batching over targets in :class:`~himalaya.ridge.Ridge`, 
+  :class:`~himalaya.kernel_ridge.KernelRidge`, and
+  :class:`~himalaya.kernel_ridge.WeightedKernelRidge`.
 
 Version 0.3.4
 ~~~~~~~~~~~~~

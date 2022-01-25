@@ -1,3 +1,5 @@
+import numbers
+
 import numpy as np
 
 from .backend import get_backend
@@ -154,3 +156,19 @@ def generate_multikernel_dataset(n_kernels=4, n_targets=500,
     X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
 
     return X_train, X_test, Y_train, Y_test, kernel_weights, n_features_list
+
+
+def _batch_or_skip(array, batch, axis):
+    """Apply a batch on given axis, or skip if the dimension is equal to 1."""
+    skip = (array is None or isinstance(array, numbers.Number)
+            or array.ndim == 0 or array.shape[axis] == 1)  # noqa
+    if skip:
+        return array
+    else:
+        # Not general but works with slices in `batch`.
+        if axis == 0:
+            return array[batch]
+        elif axis == 1:
+            return array[:, batch]
+        else:
+            raise NotImplementedError()

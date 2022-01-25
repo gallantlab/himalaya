@@ -2,6 +2,7 @@ import numbers
 
 from ..backend import get_backend
 from ..utils import compute_lipschitz_constants
+from ..utils import _batch_or_skip
 from ._kernels import KernelCenterer
 
 
@@ -67,7 +68,7 @@ def _weighted_kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
 def solve_weighted_kernel_ridge_gradient_descent(
         Ks, Y, deltas, alpha=1., fit_intercept=False, step_sizes=None,
         lipschitz_Ks=None, initial_dual_weights=None, max_iter=100, tol=1e-3,
-        double_K=False, random_state=None, debug=False):
+        double_K=False, random_state=None, debug=False, n_targets_batch=None):
     """Solve weighted kernel ridge regression using gradient descent.
 
     Solve the kernel ridge regression::
@@ -111,6 +112,9 @@ def solve_weighted_kernel_ridge_gradient_descent(
         Random generator seed. Use an int for deterministic search.
     debug : bool
         If True, check some intermediate computations.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
 
     Returns
     -------
@@ -127,6 +131,52 @@ def solve_weighted_kernel_ridge_gradient_descent(
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
+    ###########################################################################
+    # Batching over targets by simply calling the same function multiple times.
+    if n_targets_batch is not None:
+        # precompute the lipschitz constants to save time.
+        if step_sizes is None and lipschitz_Ks is None:
+            lipschitz_Ks = compute_lipschitz_constants(
+                Ks, random_state=random_state)
+
+        dual_weights = backend.zeros_like(Y, device="cpu")
+        if fit_intercept:
+            intercept = backend.zeros_like(Y, shape=(n_targets, ),
+                                           device="cpu")
+        for start in range(0, n_targets, n_targets_batch):
+            batch = slice(start, start + n_targets_batch)
+
+            # Call on 1 batch of targets
+            results = solve_weighted_kernel_ridge_gradient_descent(
+                Ks=Ks,
+                Y=Y[:, batch],
+                deltas=_batch_or_skip(deltas, batch, axis=1),
+                alpha=_batch_or_skip(alpha, batch, 0),
+                fit_intercept=fit_intercept,
+                step_sizes=_batch_or_skip(step_sizes, batch, axis=0),
+                lipschitz_Ks=lipschitz_Ks,
+                initial_dual_weights=_batch_or_skip(initial_dual_weights,
+                                                    batch, axis=2),
+                max_iter=max_iter,
+                tol=tol,
+                double_K=double_K,
+                random_state=random_state,
+                debug=debug,
+                n_targets_batch=None,
+            )
+            if fit_intercept:
+                dual_weights[:, batch] = backend.to_cpu(results[0])
+                intercept[batch] = backend.to_cpu(results[1])
+            else:
+                dual_weights[:, batch] = backend.to_cpu(results)
+
+        if fit_intercept:
+            return dual_weights, intercept
+        else:
+            return dual_weights
+
+    #################################################
+    # Perform gradient descent on one batch of target
     Ks, Y, deltas, alpha, step_sizes, lipschitz_Ks, initial_dual_weights = \
         backend.check_arrays(Ks, Y, deltas, alpha, step_sizes, lipschitz_Ks,
                              initial_dual_weights)
@@ -198,6 +248,7 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
                                                    fit_intercept=False,
                                                    initial_dual_weights=None,
                                                    max_iter=100, tol=1e-4,
+                                                   n_targets_batch=None,
                                                    random_state=None):
     """Solve weighted kernel ridge regression using conjugate gradient.
 
@@ -228,6 +279,9 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
         Maximum number of conjugate gradient step.
     tol : float > 0 or None
         Tolerance for the stopping criterion.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
     random_state : int, or None
         Random generator seed. Not used.
 
@@ -246,6 +300,44 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
+    ###########################################################################
+    # Batching over targets by simply calling the same function multiple times.
+    if n_targets_batch is not None:
+
+        dual_weights = backend.zeros_like(Y, device="cpu")
+        if fit_intercept:
+            intercept = backend.zeros_like(Y, shape=(n_targets, ),
+                                           device="cpu")
+        for start in range(0, n_targets, n_targets_batch):
+            batch = slice(start, start + n_targets_batch)
+
+            # Call on 1 batch of targets
+            results = solve_weighted_kernel_ridge_conjugate_gradient(
+                Ks=Ks,
+                Y=Y[:, batch],
+                deltas=_batch_or_skip(deltas, batch, axis=1),
+                alpha=_batch_or_skip(alpha, batch, 0),
+                fit_intercept=fit_intercept,
+                initial_dual_weights=_batch_or_skip(initial_dual_weights,
+                                                    batch, axis=2),
+                max_iter=max_iter,
+                tol=tol,
+                random_state=random_state,
+                n_targets_batch=None,
+            )
+            if fit_intercept:
+                dual_weights[:, batch] = backend.to_cpu(results[0])
+                intercept[batch] = backend.to_cpu(results[1])
+            else:
+                dual_weights[:, batch] = backend.to_cpu(results)
+
+        if fit_intercept:
+            return dual_weights, intercept
+        else:
+            return dual_weights
+
+    ###################################################
+    # Perform conjugate gradient on one batch of target
     Ks, Y, deltas, alpha, initial_dual_weights = backend.check_arrays(
         Ks, Y, deltas, alpha, initial_dual_weights)
     exp_deltas = backend.exp(deltas)
@@ -324,8 +416,8 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
 def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
                                                fit_intercept=False,
                                                max_iter=10, factor=0.0001,
-                                               tol=None, random_state=None,
-                                               debug=False):
+                                               n_targets_batch=None, tol=None,
+                                               random_state=None, debug=False):
     """Solve weighted kernel ridge regression using Neumann series.
 
     Solve the kernel ridge regression::
@@ -363,6 +455,9 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
     factor : float, or array of shape (n_targets, )
         Factor used to allow convergence of the series. We actually invert
         (factor * K) instead of K, then multiply the result by factor.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
     tol : None
         Not used.
     random_state : int, or None
@@ -385,6 +480,45 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
     if isinstance(factor, numbers.Number) or factor.ndim == 0:
         factor = backend.ones_like(Y, shape=(1, )) * factor
+
+    ###########################################################################
+    # Batching over targets by simply calling the same function multiple times.
+    if n_targets_batch is not None:
+        _, n_targets = Y.shape
+        dual_weights = backend.zeros_like(Y, device="cpu")
+        if fit_intercept:
+            intercept = backend.zeros_like(Y, shape=(n_targets, ),
+                                           device="cpu")
+        for start in range(0, n_targets, n_targets_batch):
+            batch = slice(start, start + n_targets_batch)
+
+            # Call on 1 batch of targets
+            results = solve_weighted_kernel_ridge_neumann_series(
+                Ks=Ks,
+                Y=Y[:, batch],
+                deltas=_batch_or_skip(deltas, batch, axis=1),
+                alpha=_batch_or_skip(alpha, batch, 0),
+                fit_intercept=fit_intercept,
+                max_iter=max_iter,
+                factor=factor,
+                tol=tol,
+                random_state=random_state,
+                n_targets_batch=None,
+                debug=debug,
+            )
+            if fit_intercept:
+                dual_weights[:, batch] = backend.to_cpu(results[0])
+                intercept[batch] = backend.to_cpu(results[1])
+            else:
+                dual_weights[:, batch] = backend.to_cpu(results)
+
+        if fit_intercept:
+            return dual_weights, intercept
+        else:
+            return dual_weights
+
+    ###################################################
+    # Perform conjugate gradient on one batch of target
 
     Ks, Y, deltas, alpha, factor = backend.check_arrays(
         Ks, Y, deltas, alpha, factor)
@@ -448,7 +582,8 @@ WEIGHTED_KERNEL_RIDGE_SOLVERS = {
 def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1., fit_intercept=False,
                                           initial_dual_weights=None,
                                           max_iter=100, tol=1e-3,
-                                          random_state=None):
+                                          random_state=None,
+                                          n_targets_batch=None):
     """Solve kernel ridge regression using conjugate gradient.
 
     Solve the kernel ridge regression::
@@ -474,6 +609,9 @@ def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1., fit_intercept=False,
         Tolerance for the stopping criterion.
     random_state : int, or None
         Random generator seed. Not used.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
 
     Returns
     -------
@@ -486,14 +624,16 @@ def solve_kernel_ridge_conjugate_gradient(K, Y, alpha=1., fit_intercept=False,
     deltas = backend.zeros_like(K, shape=(1, ))
     return solve_weighted_kernel_ridge_conjugate_gradient(
         K[None], Y=Y, deltas=deltas, alpha=alpha, fit_intercept=fit_intercept,
-        initial_dual_weights=initial_dual_weights, max_iter=max_iter, tol=tol)
+        initial_dual_weights=initial_dual_weights, max_iter=max_iter, tol=tol,
+        n_targets_batch=n_targets_batch)
 
 
 def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., fit_intercept=False,
                                         step_sizes=None, lipschitz_Ks=None,
                                         initial_dual_weights=None,
                                         max_iter=100, tol=1e-3, double_K=False,
-                                        random_state=None, debug=False):
+                                        random_state=None, debug=False,
+                                        n_targets_batch=None):
     """Solve kernel ridge regression using conjugate gradient.
 
     Solve the kernel ridge regression
@@ -531,6 +671,9 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., fit_intercept=False,
         Random generator seed. Use an int for deterministic search.
     debug : bool
         If True, check some intermediate computations.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
 
     Returns
     -------
@@ -545,7 +688,8 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., fit_intercept=False,
         K[None], Y=Y, deltas=deltas, alpha=alpha, step_sizes=step_sizes,
         lipschitz_Ks=lipschitz_Ks, initial_dual_weights=initial_dual_weights,
         max_iter=max_iter, tol=tol, double_K=double_K,
-        random_state=random_state, debug=debug, fit_intercept=fit_intercept)
+        random_state=random_state, debug=debug, fit_intercept=fit_intercept,
+        n_targets_batch=n_targets_batch)
 
 
 def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
