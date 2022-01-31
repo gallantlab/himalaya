@@ -8,6 +8,10 @@ Development Version
 - ENH add batching over targets in :class:`~himalaya.ridge.Ridge`, 
   :class:`~himalaya.kernel_ridge.KernelRidge`, and
   :class:`~himalaya.kernel_ridge.WeightedKernelRidge`.
+- ENH add warnings to guide the user between using
+  :class:`~himalaya.ridge.Ridge` or
+  :class:`~himalaya.kernel_ridge.KernelRidge`.
+- ENH add user-friendly errors when the number of samples is inconsistent.
 
 Version 0.3.4
 ~~~~~~~~~~~~~
