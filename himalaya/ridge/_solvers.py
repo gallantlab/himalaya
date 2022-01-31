@@ -1,11 +1,13 @@
 import numbers
+import warnings
 
 from ..backend import get_backend
 from ..utils import _batch_or_skip
 
 
 def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
-                    negative_eigenvalues="zeros", n_targets_batch=None):
+                    negative_eigenvalues="zeros", n_targets_batch=None,
+                    warn=True):
     """Solve ridge regression using SVD decomposition.
 
     Solve the ridge regression::
@@ -35,6 +37,9 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
     n_targets_batch : int or None
         Size of the batch for over targets during cross-validation.
         Used for memory reasons. If None, uses all n_targets at once.
+    warn : bool
+        If True, warn if the number of samples is smaller than the number of
+        features.
 
     Returns
     -------
@@ -48,6 +53,15 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
     X, Y, alpha = backend.check_arrays(X, Y, alpha)
+
+    n_samples, n_features = X.shape
+    if n_samples < n_features and warn:
+        warnings.warn(
+            "Solving ridge is slower than solving kernel ridge when n_samples "
+            f"< n_features (here {n_samples} < {n_features}). "
+            "Using a linear kernel in himalaya.kernel_ridge.KernelRidge or "
+            "himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues would be "
+            "faster. Use warn=False to silence this warning.", UserWarning)
 
     X_offset, Y_offset = None, None
     if fit_intercept:

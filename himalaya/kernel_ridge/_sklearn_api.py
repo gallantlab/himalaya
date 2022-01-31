@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import warnings
 
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
@@ -102,6 +103,10 @@ class KernelRidge(_BaseKernelRidge):
         If True, computations will be performed on CPU, ignoring the
         current backend. If False, use the current backend.
 
+    warn : bool
+        If True, warn if the number of samples is larger than the number of
+        features, and if the kernel is linear.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -135,7 +140,7 @@ class KernelRidge(_BaseKernelRidge):
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, fit_intercept=False,
-                 force_cpu=False):
+                 force_cpu=False, warn=True):
         self.alpha = alpha
         self.kernel = kernel
         self.kernel_params = kernel_params
@@ -143,6 +148,7 @@ class KernelRidge(_BaseKernelRidge):
         self.solver_params = solver_params
         self.fit_intercept = fit_intercept
         self.force_cpu = force_cpu
+        self.warn = warn
 
     @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
@@ -178,6 +184,14 @@ class KernelRidge(_BaseKernelRidge):
                                         ndim=1)
             if sample_weight.shape[0] != y.shape[0]:
                 raise ValueError("Inconsistent number of samples.")
+
+        n_samples, n_features = X.shape
+        if n_samples > n_features and self.kernel == "linear" and self.warn:
+            warnings.warn(
+                "Solving linear kernel ridge is slower than solving ridge when"
+                f" n_samples > n_features (here {n_samples} > {n_features}). "
+                "Using himalaya.ridge.Ridge would be faster. Use warn=False to"
+                " silence this warning.", UserWarning)
 
         K = self._get_kernel(X)
 
@@ -368,6 +382,10 @@ class KernelRidgeCV(KernelRidge):
         If True, computations will be performed on CPU, ignoring the
         current backend. If False, use the current backend.
 
+    warn : bool
+        If True, warn if the number of samples is larger than the number of
+        features, and if the kernel is linear.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -401,7 +419,7 @@ class KernelRidgeCV(KernelRidge):
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, fit_intercept=False,
-                 cv=5, Y_in_cpu=False, force_cpu=False):
+                 cv=5, Y_in_cpu=False, force_cpu=False, warn=True):
         self.alphas = alphas
         self.kernel = kernel
         self.kernel_params = kernel_params
@@ -411,6 +429,7 @@ class KernelRidgeCV(KernelRidge):
         self.cv = cv
         self.Y_in_cpu = Y_in_cpu
         self.force_cpu = force_cpu
+        self.warn = warn
 
     @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
@@ -447,6 +466,14 @@ class KernelRidgeCV(KernelRidge):
                 raise ValueError("Inconsistent number of samples.")
 
         alphas = check_array(self.alphas, dtype=self.dtype_, ndim=1)
+
+        n_samples, n_features = X.shape
+        if n_samples > n_features and self.kernel == "linear" and self.warn:
+            warnings.warn(
+                "Solving linear kernel ridge is slower than solving ridge when"
+                f" n_samples > n_features (here {n_samples} > {n_features}). "
+                "Using himalaya.ridge.RidgeCV would be faster. "
+                "Use warn=False to silence this warning.", UserWarning)
 
         K = self._get_kernel(X)
 

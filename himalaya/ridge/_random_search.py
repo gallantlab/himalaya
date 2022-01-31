@@ -14,12 +14,12 @@ from ..kernel_ridge._random_search import _select_best_alphas
 
 
 def solve_group_ridge_random_search(
-        Xs, Y, n_iter=100, concentration=[0.1, 1.0
-                                          ], alphas=1.0, fit_intercept=False,
-        score_func=l2_neg_loss, cv=5, return_weights=False, local_alpha=True,
-        jitter_alphas=False, random_state=None, n_targets_batch=None,
-        n_targets_batch_refit=None, n_alphas_batch=None, progress_bar=True,
-        conservative=False, Y_in_cpu=False, diagonalize_method="svd"):
+    Xs, Y, n_iter=100, concentration=[0.1,
+                                      1.0], alphas=1.0, fit_intercept=False,
+    score_func=l2_neg_loss, cv=5, return_weights=False, local_alpha=True,
+    jitter_alphas=False, random_state=None, n_targets_batch=None,
+    n_targets_batch_refit=None, n_alphas_batch=None, progress_bar=True,
+    conservative=False, Y_in_cpu=False, diagonalize_method="svd", warn=True):
     """Solve group ridge regression using random search on the simplex.
 
     Solve the group-regularized ridge regression::
@@ -83,6 +83,9 @@ def solve_group_ridge_random_search(
         If True, keep the target values ``Y`` in CPU memory (slower).
     diagonalize_method : str in {"svd"}
         Method used to diagonalize the features.
+    warn : bool
+        If True, warn if the number of samples is smaller than the number of
+        features.
 
     Returns
     -------
@@ -131,6 +134,17 @@ def solve_group_ridge_random_search(
         for start, end in zip(start_and_end[:-1], start_and_end[1:])
     ]
     del Xs
+
+    n_samples, n_features = X_.shape
+    if n_samples < n_features and warn:
+        warnings.warn(
+            "Solving banded ridge is slower than solving multiple-kernel ridge"
+            f" when n_samples < n_features (here {n_samples} < {n_features}). "
+            "Using linear kernels in "
+            "himalaya.kernel_ridge.MultipleKernelRidgeCV or "
+            "himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search "
+            "would be faster. Use warn=False to silence this warning.",
+            UserWarning)
 
     X_offset, Y_offset = None, None
     if fit_intercept:
@@ -222,8 +236,8 @@ def solve_group_ridge_random_search(
 
                     with warnings.catch_warnings():
                         warnings.filterwarnings("ignore", category=UserWarning)
-                        scores[jj, alpha_batch, batch] = score_func(
-                            Ytest, predictions)
+                        scores[jj, alpha_batch,
+                               batch] = score_func(Ytest, predictions)
                         # n_alphas_batch, n_targets_batch = score.shape
                     del Ytrain, Ytest
 
@@ -415,8 +429,8 @@ GROUP_RIDGE_SOLVERS = {
 def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
                        score_func=l2_neg_loss, cv=5, local_alpha=True,
                        n_targets_batch=None, n_targets_batch_refit=None,
-                       n_alphas_batch=None, conservative=False,
-                       Y_in_cpu=False):
+                       n_alphas_batch=None, conservative=False, Y_in_cpu=False,
+                       warn=True):
     """Solve ridge regression with a grid search over alphas.
 
     Parameters
@@ -451,6 +465,9 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
         If False, take the best.
     Y_in_cpu : bool
         If True, keep the target values ``Y`` in CPU memory (slower).
+    warn : bool
+        If True, warn if the number of samples is smaller than the number of
+        features.
 
     Returns
     -------
@@ -466,10 +483,19 @@ def solve_ridge_cv_svd(X, Y, alphas=1.0, fit_intercept=False,
     """
     backend = get_backend()
 
+    n_samples, n_features = X.shape
+    if n_samples < n_features and warn:
+        warnings.warn(
+            "Solving ridge is slower than solving kernel ridge when n_samples "
+            f"< n_features (here {n_samples} < {n_features}). "
+            "Using a linear kernel in himalaya.kernel_ridge.KernelRidgeCV or "
+            "himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues would be "
+            "faster. Use warn=False to silence this warning.", UserWarning)
+
     n_iter = backend.ones_like(X, shape=(1, 1))
     fixed_params = dict(return_weights=True, progress_bar=False,
                         concentration=None, jitter_alphas=False,
-                        random_state=None, n_iter=n_iter)
+                        random_state=None, n_iter=n_iter, warn=False)
 
     copied_params = dict(alphas=alphas, score_func=score_func, cv=cv,
                          local_alpha=local_alpha, fit_intercept=fit_intercept,

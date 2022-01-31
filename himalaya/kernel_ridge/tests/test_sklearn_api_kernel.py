@@ -446,22 +446,23 @@ def test_weighted_kernel_ridge_cv_array_deltas(backend):
         model_1.fit(Ks, Y)
 
 
-@pytest.mark.parametrize('Estimator', [
-    Ridge,
-    RidgeCV,
-    KernelRidge,
-    KernelRidgeCV,
-    # MultipleKernelRidgeCV,  # too long
-    WeightedKernelRidge,
-])
+@pytest.mark.parametrize(
+    'Estimator',
+    [
+        Ridge,
+        RidgeCV,
+        KernelRidge,
+        KernelRidgeCV,
+        # MultipleKernelRidgeCV,  # too long
+        WeightedKernelRidge,
+    ])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_n_targets_batch(backend, Estimator):
     backend = set_backend(backend)
     Xs, Ks, Y = _create_dataset(backend)
 
     for solver in Estimator.ALL_SOLVERS.keys():
-        model = Estimator(solver=solver,
-                          solver_params=dict(n_targets_batch=2))
+        model = Estimator(solver=solver, solver_params=dict(n_targets_batch=2))
         model.random_state = 0
         model.fit(Xs[0], Y)
 
@@ -476,6 +477,17 @@ def test_n_targets_batch(backend, Estimator):
                                           decimal=5)
 
 
+@pytest.mark.parametrize('Estimator', [KernelRidge, KernelRidgeCV])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_warning_kernel_ridge_ridge(backend, Estimator):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    with pytest.warns(UserWarning,
+                      match="kernel ridge is slower than solving ridge"):
+        Estimator(kernel="linear").fit(Xs[0][:, :10], Y)
+
+
 ###############################################################################
 ###############################################################################
 ###############################################################################
@@ -487,7 +499,6 @@ class KernelRidge_(KernelRidge):
 
     Used for testing only.
     """
-
     def predict(self, X):
         backend = get_backend()
         return backend.to_numpy(super().predict(X))
@@ -512,7 +523,6 @@ class KernelRidgeCV_(KernelRidgeCV):
 
     Used for testing only.
     """
-
     def __init__(self, alphas=(0.1, 1), kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, cv=2):
         super().__init__(alphas=alphas, kernel=kernel,
@@ -543,7 +553,6 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
 
     Used for testing only.
     """
-
     def __init__(self, kernels=("linear", "polynomial"), kernels_params=None,
                  solver="hyper_gradient", solver_params=None, cv=2,
                  random_state=None):
@@ -565,7 +574,6 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     Used for testing only.
     """
-
     def __init__(self, alpha=1., deltas="zeros",
                  kernels=("linear", "polynomial"), kernels_params=None,
                  solver="conjugate_gradient", solver_params=None,

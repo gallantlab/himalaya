@@ -55,8 +55,8 @@ def test_solve_kernel_ridge(solver_name, backend, many_targets):
             # compare predictions with sklearn.linear_model.Ridge
             prediction = backend.matmul(X, b2[:, ii])
             model = sklearn.linear_model.Ridge(
-                alpha=backend.to_numpy(alpha[ii]),
-                max_iter=1000, tol=1e-6, fit_intercept=False)
+                alpha=backend.to_numpy(alpha[ii]), max_iter=1000, tol=1e-6,
+                fit_intercept=False)
             model.fit(backend.to_numpy(X), backend.to_numpy(Y[:, ii]))
             prediction_sklearn = model.predict(backend.to_numpy(X))
             assert_array_almost_equal(prediction, prediction_sklearn,
@@ -91,11 +91,23 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
             # compare predictions with sklearn.linear_model.Ridge
             prediction = backend.matmul(X, b2[:, ii]) + i2[ii]
             model = sklearn.linear_model.Ridge(
-                alpha=backend.to_numpy(alpha[ii]),
-                max_iter=1000, tol=1e-6, fit_intercept=True)
+                alpha=backend.to_numpy(alpha[ii]), max_iter=1000, tol=1e-6,
+                fit_intercept=True)
             model.fit(backend.to_numpy(X), backend.to_numpy(Y[:, ii]))
             prediction_sklearn = model.predict(backend.to_numpy(X))
             assert_array_almost_equal(prediction, prediction_sklearn,
                                       decimal=5)
 
             assert_array_almost_equal(model.coef_, b2[:, ii], decimal=5)
+
+
+@pytest.mark.parametrize('solver_name', RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_warning_kernel_ridge_ridge(solver_name, backend):
+    backend = set_backend(backend)
+    X, Y, weights = _create_dataset(backend)
+    solver = RIDGE_SOLVERS[solver_name]
+
+    with pytest.warns(UserWarning,
+                      match="ridge is slower than solving kernel"):
+        solver(X[:4], Y[:4])
