@@ -245,3 +245,31 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
             prediction_sklearn = model.predict(backend.to_numpy(X_scaled))
             assert_array_almost_equal(prediction, prediction_sklearn,
                                       decimal=decimal)
+
+
+@pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_different_number_of_samples(solver_name, backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
+    solver = KERNEL_RIDGE_SOLVERS[solver_name]
+
+    with pytest.raises(ValueError, match="same number of samples"):
+        solver(Ks[0][:4], Y[:3])
+
+    with pytest.raises(ValueError, match="Kernels must be square"):
+        solver(Ks[0][:4, :3], Y[:4])
+
+
+@pytest.mark.parametrize('solver_name', WEIGHTED_KERNEL_RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_different_number_of_samples(solver_name, backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
+    solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
+
+    with pytest.raises(ValueError, match="same number of samples"):
+        solver(Ks[:, :4], Y[:3], deltas)
+
+    with pytest.raises(ValueError, match="Kernels must be square"):
+        solver(Ks[:, :4, :3], Y[:4], deltas)

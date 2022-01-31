@@ -62,6 +62,8 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
             "Using a linear kernel in himalaya.kernel_ridge.KernelRidge or "
             "himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues would be "
             "faster. Use warn=False to silence this warning.", UserWarning)
+    if X.shape[0] != Y.shape[0]:
+        raise ValueError("X and Y must have the same number of samples.")
 
     X_offset, Y_offset = None, None
     if fit_intercept:

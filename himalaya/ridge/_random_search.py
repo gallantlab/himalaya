@@ -145,6 +145,8 @@ def solve_group_ridge_random_search(
             "himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search "
             "would be faster. Use warn=False to silence this warning.",
             UserWarning)
+    if X_.shape[0] != Y.shape[0]:
+        raise ValueError("X and Y must have the same number of samples.")
 
     X_offset, Y_offset = None, None
     if fit_intercept:

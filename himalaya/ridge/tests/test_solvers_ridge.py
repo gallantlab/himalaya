@@ -111,3 +111,14 @@ def test_warning_kernel_ridge_ridge(solver_name, backend):
     with pytest.warns(UserWarning,
                       match="ridge is slower than solving kernel"):
         solver(X[:4], Y[:4])
+
+
+@pytest.mark.parametrize('solver_name', RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_different_number_of_samples(solver_name, backend):
+    backend = set_backend(backend)
+    X, Y, weights = _create_dataset(backend)
+    solver = RIDGE_SOLVERS[solver_name]
+
+    with pytest.raises(ValueError, match="same number of samples"):
+        solver(X[:4], Y[:3])

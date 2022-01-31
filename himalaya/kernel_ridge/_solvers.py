@@ -131,6 +131,11 @@ def solve_weighted_kernel_ridge_gradient_descent(
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
+    if Ks.shape[1] != Y.shape[0]:
+        raise ValueError("Ks and Y must have the same number of samples.")
+    if Ks.shape[1] != Ks.shape[2]:
+        raise ValueError("Kernels must be square.")
+
     ###########################################################################
     # Batching over targets by simply calling the same function multiple times.
     if n_targets_batch is not None:
@@ -299,6 +304,11 @@ def solve_weighted_kernel_ridge_conjugate_gradient(Ks, Y, deltas, alpha=1.,
         deltas = deltas[:, None]
     if isinstance(alpha, numbers.Number) or alpha.ndim == 0:
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
+
+    if Ks.shape[1] != Y.shape[0]:
+        raise ValueError("Ks and Y must have the same number of samples.")
+    if Ks.shape[1] != Ks.shape[2]:
+        raise ValueError("Kernels must be square.")
 
     ###########################################################################
     # Batching over targets by simply calling the same function multiple times.
@@ -480,6 +490,11 @@ def solve_weighted_kernel_ridge_neumann_series(Ks, Y, deltas, alpha=1.,
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
     if isinstance(factor, numbers.Number) or factor.ndim == 0:
         factor = backend.ones_like(Y, shape=(1, )) * factor
+
+    if Ks.shape[1] != Y.shape[0]:
+        raise ValueError("Ks and Y must have the same number of samples.")
+    if Ks.shape[1] != Ks.shape[2]:
+        raise ValueError("Kernels must be square.")
 
     ###########################################################################
     # Batching over targets by simply calling the same function multiple times.
@@ -740,6 +755,11 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
     K, Y, alpha = backend.check_arrays(K, Y, alpha)
+
+    if K.shape[0] != Y.shape[0]:
+        raise ValueError("K and Y must have the same number of samples.")
+    if K.shape[0] != K.shape[1]:
+        raise ValueError("Kernels must be square.")
 
     centerer, Y_offset = None, None
     if fit_intercept:
