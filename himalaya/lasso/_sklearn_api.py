@@ -56,6 +56,7 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
 
     cv_scores_ : array of shape (n_l21_regs * n_l1_regs, n_targets)
         Cross-validation scores of all tested hyperparameters.
+        The scores are computed with r2_score.
 
     n_features_in_ : int
         Number of features used during the fit.

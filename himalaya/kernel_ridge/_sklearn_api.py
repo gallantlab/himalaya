@@ -396,6 +396,8 @@ class KernelRidgeCV(KernelRidge):
 
     cv_scores_ : array of shape (n_targets, )
         Cross-validation scores averaged over splits, for the best alpha.
+        By default, the scores are computed with l2_neg_loss (in ]-inf, 0]).
+        The scoring function can be changed with solver_params["score_func"].
 
     X_fit_ : array of shape (n_samples, n_features)
         Training data. If kernel == "precomputed" this is None.
@@ -767,6 +769,8 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 
     cv_scores_ : array of shape (n_iter, n_targets)
         Cross-validation scores, averaged over splits.
+        By default, the scores are computed with l2_neg_loss (in ]-inf, 0]).
+        The scoring function can be changed with solver_params["score_func"].
 
     X_fit_ : array of shape (n_samples, n_features)
         Training data. If ``kernels == "precomputed"`` this is None.

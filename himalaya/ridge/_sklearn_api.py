@@ -403,6 +403,8 @@ class GroupRidgeCV(_BaseRidge):
 
     cv_scores_ : array of shape (n_iter, n_targets)
         Cross-validation scores, averaged over splits.
+        By default, the scores are computed with l2_neg_loss (in ]-inf, 0]).
+        The scoring function can be changed with solver_params["score_func"].
 
     n_features_in_ : int
         Number of features used during the fit.
