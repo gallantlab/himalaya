@@ -2,12 +2,12 @@ import warnings
 import itertools
 
 import numpy as np
-from sklearn.model_selection import check_cv
 
 from ..utils import compute_lipschitz_constants
 from ..progress_bar import bar, ProgressBar
 from ..backend import get_backend
 from ..scoring import r2_score
+from ..validation import check_cv
 
 
 def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
@@ -57,7 +57,7 @@ def solve_sparse_group_lasso_cv(X, Y, groups=None, l21_regs=[0.05],
     """
     backend = get_backend()
 
-    cv = check_cv(cv)
+    cv = check_cv(cv, Y)
     n_splits = cv.get_n_splits()
 
     X, Y, l21_regs, l1_regs = backend.check_arrays(X, Y, l21_regs, l1_regs)

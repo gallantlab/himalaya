@@ -11,7 +11,9 @@ except ImportError:
     def issparse(X):
         return False
 
+
 from sklearn import get_config
+from sklearn.model_selection import check_cv as check_cv_sklearn
 
 from .backend import get_backend
 from .backend._utils import _dtype_to_str
@@ -272,3 +274,31 @@ def _get_string_dtype(array):
         return None
 
     return _dtype_to_str(dtype)
+
+
+def check_cv(cv, y):
+    """Check the cross-validation generator object.
+
+    In particular, check if indices in cv exceed number of samples, because
+    some backends do not check for out-of-bound errors.
+
+    Parameters
+    ----------
+    cv : int or scikit-learn splitter
+        Cross-validation splitter. If an int, KFold is used.
+    y : array of shape (n_samples,) or (n_samples, n_targets)
+        Target values.
+
+    Returns
+    -------
+    cv : scikit-learn splitter
+        Cross-validation splitter.
+    """
+    # first call check_cv from sklearn
+    cv = check_cv_sklearn(cv)
+
+    for train, test in cv.split(y):
+        if max(train) >= y.shape[0] or max(test) >= y.shape[0]:
+            # some backends do not check out of bound indices
+            raise ValueError("Indices in cv exceed number of samples.")
+    return cv

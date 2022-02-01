@@ -2,13 +2,13 @@ import warnings
 import numbers
 
 import numpy as np
-from sklearn.model_selection import check_cv
 
 from ..backend import get_backend
 from ..backend._utils import _dtype_to_str
 from ..progress_bar import bar
 from ..scoring import l2_neg_loss
 from ..validation import check_random_state
+from ..validation import check_cv
 from ._solvers import _helper_intercept
 from ._kernels import KernelCenterer
 
@@ -144,7 +144,7 @@ def solve_multiple_kernel_ridge_random_search(
     if n_alphas_batch is None:
         n_alphas_batch = len(alphas)
 
-    cv = check_cv(cv)
+    cv = check_cv(cv, Y)
     n_splits = cv.get_n_splits()
     n_kernels = len(Ks)
     for train, val in cv.split(Y):

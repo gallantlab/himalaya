@@ -3,7 +3,6 @@ import warnings
 
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
-from sklearn.model_selection import check_cv
 
 from ._solvers import KERNEL_RIDGE_SOLVERS
 from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
@@ -16,6 +15,7 @@ from ._predictions import predict_and_score_weighted_kernel_ridge
 from ._predictions import primal_weights_weighted_kernel_ridge
 
 from ..validation import check_array
+from ..validation import check_cv
 from ..validation import issparse
 from ..validation import _get_string_dtype
 from ..backend import get_backend
@@ -493,7 +493,7 @@ class KernelRidgeCV(KernelRidge):
             y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             K *= sw @ sw.T
 
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
 
         # ------------------ call the solver
         tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas,
@@ -881,7 +881,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
             y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             Ks *= (sw @ sw.T)[None]
 
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
 
         # ------------------ call the solver
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",

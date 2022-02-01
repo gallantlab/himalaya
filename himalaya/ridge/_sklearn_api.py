@@ -2,13 +2,13 @@ from abc import ABC, abstractmethod
 
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
-from sklearn.model_selection import check_cv
 
 from ._solvers import RIDGE_SOLVERS
 from ._random_search import GROUP_RIDGE_SOLVERS
 from ._random_search import solve_ridge_cv_svd
 
 from ..validation import check_array
+from ..validation import check_cv
 from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..backend import force_cpu_backend
@@ -315,7 +315,7 @@ class RidgeCV(Ridge):
             y = y[:, None]
             ravel = True
 
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
 
         # ------------------ call the solver
         tmp = self._call_solver(X=X, Y=y, cv=cv, alphas=alphas,
@@ -493,7 +493,7 @@ class GroupRidgeCV(_BaseRidge):
             y = y[:, None]
             ravel = True
 
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
 
         # ------------------ call the solver
         tmp = self._call_solver(Xs=Xs, Y=y, cv=cv, return_weights=True,

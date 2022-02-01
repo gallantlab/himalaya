@@ -12,6 +12,8 @@ Development Version
   :class:`~himalaya.ridge.Ridge` or
   :class:`~himalaya.kernel_ridge.KernelRidge`.
 - ENH add user-friendly errors when the number of samples is inconsistent.
+- ENH raise ValueError if the indices in cross-validation exceed number of
+  samples.
 
 Version 0.3.4
 ~~~~~~~~~~~~~

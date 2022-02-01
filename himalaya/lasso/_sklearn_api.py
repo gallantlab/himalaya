@@ -1,10 +1,10 @@
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
-from sklearn.model_selection import check_cv
 
 from ._group_lasso import solve_sparse_group_lasso_cv
 
 from ..validation import check_array
+from ..validation import check_cv
 from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..backend import force_cpu_backend
@@ -107,7 +107,7 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
             raise ValueError("Inconsistent number of samples.")
 
         self.n_features_in_ = X.shape[1]
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
         ravel = False
         if y.ndim == 1:
             y = y[:, None]
