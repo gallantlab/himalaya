@@ -5,13 +5,13 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.ridge._solvers &#8212; Himalaya 0.3.3 documentation</title>
+    <title>himalaya.ridge._solvers &#8212; Himalaya 0.3.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css" />
     <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
     <script src="../../../_static/jquery.js"></script>
     <script src="../../../_static/underscore.js"></script>
@@ -64,6 +64,7 @@
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">Model descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../api.html">API Documentation</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../changelog.html">Changelog</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../_auto_examples/index.html">Gallery of examples</a></li>
@@ -90,12 +91,15 @@
             
   <h1>Source code for himalaya.ridge._solvers</h1><div class="highlight"><pre>
 <span></span><span class="kn">import</span> <span class="nn">numbers</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
 
 <span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_batch_or_skip</span>
 
 
 <div class="viewcode-block" id="solve_ridge_svd"><a class="viewcode-back" href="../../../_generated/himalaya.ridge.solve_ridge_svd.html#himalaya.ridge.solve_ridge_svd">[docs]</a><span class="k">def</span> <span class="nf">solve_ridge_svd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;svd&quot;</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-                    <span class="n">negative_eigenvalues</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">):</span>
+                    <span class="n">negative_eigenvalues</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                    <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;Solve ridge regression using SVD decomposition.</span>
 
 <span class="sd">    Solve the ridge regression::</span>
@@ -122,6 +126,12 @@
 <span class="sd">        - &quot;zeros&quot; remplaces them with zeros.</span>
 <span class="sd">        - &quot;nan&quot; returns nans if the regularization does not compensate</span>
 <span class="sd">        twice the smallest negative value, else it ignores the problem.</span>
+<span class="sd">    n_targets_batch : int or None</span>
+<span class="sd">        Size of the batch for over targets during cross-validation.</span>
+<span class="sd">        Used for memory reasons. If None, uses all n_targets at once.</span>
+<span class="sd">    warn : bool</span>
+<span class="sd">        If True, warn if the number of samples is smaller than the number of</span>
+<span class="sd">        features.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -135,6 +145,17 @@
         <span class="n">alpha</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">ones_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="p">))</span> <span class="o">*</span> <span class="n">alpha</span>
 
     <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">alpha</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">alpha</span><span class="p">)</span>
+
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="k">if</span> <span class="n">n_samples</span> <span class="o">&lt;</span> <span class="n">n_features</span> <span class="ow">and</span> <span class="n">warn</span><span class="p">:</span>
+        <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+            <span class="s2">&quot;Solving ridge is slower than solving kernel ridge when n_samples &quot;</span>
+            <span class="sa">f</span><span class="s2">&quot;&lt; n_features (here </span><span class="si">{</span><span class="n">n_samples</span><span class="si">}</span><span class="s2"> &lt; </span><span class="si">{</span><span class="n">n_features</span><span class="si">}</span><span class="s2">). &quot;</span>
+            <span class="s2">&quot;Using a linear kernel in himalaya.kernel_ridge.KernelRidge or &quot;</span>
+            <span class="s2">&quot;himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues would be &quot;</span>
+            <span class="s2">&quot;faster. Use warn=False to silence this warning.&quot;</span><span class="p">,</span> <span class="ne">UserWarning</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;X and Y must have the same number of samples.&quot;</span><span class="p">)</span>
 
     <span class="n">X_offset</span><span class="p">,</span> <span class="n">Y_offset</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">fit_intercept</span><span class="p">:</span>
@@ -172,16 +193,29 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown negative_eigenvalues=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span>
                              <span class="p">(</span><span class="n">negative_eigenvalues</span><span class="p">,</span> <span class="p">))</span>
 
-    <span class="n">iUT</span> <span class="o">=</span> <span class="n">inverse</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span>
-    <span class="k">if</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Vt</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">iUT</span><span class="p">,</span>
-                                     <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">weights</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span>
-            <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">iUT</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span>
+    <span class="n">weights</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span>
+                                 <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">n_targets_batch</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">n_targets_batch</span> <span class="o">=</span> <span class="n">n_targets</span>
+
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">):</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n_targets_batch</span><span class="p">)</span>
+
+        <span class="n">iUT</span> <span class="o">=</span> <span class="n">_batch_or_skip</span><span class="p">(</span><span class="n">inverse</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="mi">1</span><span class="p">)[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:]</span> <span class="o">*</span> <span class="n">U</span><span class="o">.</span><span class="n">T</span><span class="p">[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="n">iUT</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">iUT</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+        <span class="c1"># iUT.shape = (1 or n_targets_batch, n_samples, n_samples)</span>
+
+        <span class="k">if</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
+            <span class="n">weights_batch</span> <span class="o">=</span> <span class="p">((</span><span class="n">Vt</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="n">iUT</span><span class="p">)</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">batch</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">weights_batch</span> <span class="o">=</span> <span class="n">Vt</span><span class="o">.</span><span class="n">T</span> <span class="o">@</span> <span class="p">(</span><span class="n">iUT</span> <span class="o">@</span> <span class="n">Y</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="n">batch</span><span class="p">,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span><span class="o">.</span><span class="n">T</span>
+        <span class="n">weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">weights_batch</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">fit_intercept</span><span class="p">:</span>
-        <span class="n">intercept</span> <span class="o">=</span> <span class="n">Y_offset</span> <span class="o">-</span> <span class="n">X_offset</span> <span class="o">@</span> <span class="n">weights</span>
+        <span class="n">intercept</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span>
+            <span class="n">Y_offset</span><span class="p">)</span> <span class="o">-</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">X_offset</span><span class="p">)</span> <span class="o">@</span> <span class="n">weights</span>
         <span class="k">return</span> <span class="n">weights</span><span class="p">,</span> <span class="n">intercept</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">weights</span></div>
@@ -201,7 +235,7 @@
       &copy;2020, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
     </div>

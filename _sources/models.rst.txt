@@ -58,11 +58,11 @@ defined over a grid of log-spaced values. Finally, we keep the candidate
 leading to the best generalization performance, as measured by the validation
 loss, averaged over all cross-validation splits.
 
-.. admonition:: This model is implemented in
+.. admonition:: These models are implemented in
 
   - :class:`~himalaya.ridge.RidgeCV` (scikit-learn-compatible estimator)
-  - :class:`~himalaya.kernel_ridge.KernelRidgeCV` (scikit-learn-compatible estimator)
   - :func:`~himalaya.ridge.solve_ridge_cv_svd` (function)
+  - :class:`~himalaya.kernel_ridge.KernelRidgeCV` (scikit-learn-compatible estimator)
   - :func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues` (function)
 
 

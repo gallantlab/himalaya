@@ -32,7 +32,7 @@ from sklearn.pipeline import make_pipeline
 ###############################################################################
 # In this example, we use the ``torch_cuda`` backend (GPU).
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # We can display the ``scikit-learn`` pipeline with an HTML diagram.
@@ -47,7 +47,7 @@ set_config(display='diagram')  # requires scikit-learn 0.23
 # - Y_train : array of shape (n_samples_train, n_targets)
 # - Y_test : array of shape (n_samples_test, n_targets)
 
-(X_train, X_test, Y_train, Y_test, kernel_weights_true,
+(X_train, X_test, Y_train, Y_test, kernel_weights,
  n_features_list) = generate_multikernel_dataset(n_kernels=4, n_targets=500,
                                                  n_samples_train=1000,
                                                  n_samples_test=400,
@@ -75,7 +75,7 @@ column_kernelizer = ColumnKernelizer(kernelizers)
 # Here we use the ground truth kernel weights for each target (deltas), but it
 # can be typically used with deltas obtained from a MultipleKernelRidgeCV fit.
 
-deltas = backend.log(backend.asarray(kernel_weights_true.T))
+deltas = backend.log(backend.asarray(kernel_weights.T))
 
 model_1 = WeightedKernelRidge(alpha=1, deltas=deltas, kernels="precomputed")
 pipe_1 = make_pipeline(column_kernelizer, model_1)

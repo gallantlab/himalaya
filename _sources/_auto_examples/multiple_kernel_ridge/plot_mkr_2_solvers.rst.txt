@@ -69,18 +69,27 @@ descent scales very well with the number of kernels.
 
 .. GENERATED FROM PYTHON SOURCE LINES 42-43
 
-In this example, we use the ``torch`` backend, and fit the model on GPU.
+In this example, we use the ``torch_cuda`` backend, and fit the model on GPU.
 
 .. GENERATED FROM PYTHON SOURCE LINES 43-46
 
 .. code-block:: default
 
 
-    backend = set_backend("torch_cuda")
+    backend = set_backend("torch_cuda", on_error="warn")
 
 
 
 
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:56: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
+      warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 
 
@@ -98,7 +107,7 @@ samples on a Dirichlet distribution.
 
 
     n_kernels = 3
-    n_targets = 500
+    n_targets = 50
     n_clusters = 2
 
 
@@ -116,9 +125,9 @@ To create some clusters of weights, we take a few kernel weights samples..
 
 .. code-block:: default
 
-    kernel_weights_true = generate_dirichlet_samples(n_clusters, n_kernels,
-                                                     concentration=[.3],
-                                                     random_state=105)
+    kernel_weights = generate_dirichlet_samples(n_clusters, n_kernels,
+                                                concentration=[.3],
+                                                random_state=105)
 
 
 
@@ -131,19 +140,18 @@ To create some clusters of weights, we take a few kernel weights samples..
 
 .. then, we duplicate them, and add some noise, to get clusters.
 
-.. GENERATED FROM PYTHON SOURCE LINES 64-74
+.. GENERATED FROM PYTHON SOURCE LINES 64-73
 
 .. code-block:: default
 
     noise = 0.05
-    kernel_weights_true = backend.to_numpy(kernel_weights_true)
-    kernel_weights_true = np.tile(kernel_weights_true,
-                                  (n_targets // n_clusters, 1))
-    kernel_weights_true += np.random.randn(n_targets, n_kernels) * noise
+    kernel_weights = backend.to_numpy(kernel_weights)
+    kernel_weights = np.tile(kernel_weights, (n_targets // n_clusters, 1))
+    kernel_weights += np.random.randn(n_targets, n_kernels) * noise
 
     # We finish with a projection on the simplex, making kernel weights sum to one.
-    kernel_weights_true[kernel_weights_true < 0] = 0.
-    kernel_weights_true /= np.sum(kernel_weights_true, 1)[:, None]
+    kernel_weights[kernel_weights < 0] = 0.
+    kernel_weights /= np.sum(kernel_weights, 1)[:, None]
 
 
 
@@ -152,7 +160,7 @@ To create some clusters of weights, we take a few kernel weights samples..
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 75-81
+.. GENERATED FROM PYTHON SOURCE LINES 74-80
 
 Then, we generate a random dataset, using the arbitrary scalings.
 
@@ -161,16 +169,15 @@ Then, we generate a random dataset, using the arbitrary scalings.
 - Y_train : array of shape (n_samples_train, n_targets)
 - Y_test : array of shape (n_samples_test, n_targets)
 
-.. GENERATED FROM PYTHON SOURCE LINES 81-90
+.. GENERATED FROM PYTHON SOURCE LINES 80-88
 
 .. code-block:: default
 
 
-    (X_train, X_test, Y_train, Y_test, kernel_weights_true,
-     n_features_list) = generate_multikernel_dataset(
-         n_kernels=n_kernels, n_targets=n_targets, n_samples_train=1000,
-         n_samples_test=300, kernel_weights_true=kernel_weights_true,
-         random_state=42)
+    (X_train, X_test, Y_train, Y_test,
+     kernel_weights, n_features_list) = generate_multikernel_dataset(
+         n_kernels=n_kernels, n_targets=n_targets, n_samples_train=600,
+         n_samples_test=300, kernel_weights=kernel_weights, random_state=42)
 
     feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
 
@@ -181,14 +188,14 @@ Then, we generate a random dataset, using the arbitrary scalings.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 91-95
+.. GENERATED FROM PYTHON SOURCE LINES 89-93
 
 Define a ``ColumnKernelizer``
 -----------------------------
 We define a column kernelizer, which we will use to precompute the kernels in
 a pipeline.
 
-.. GENERATED FROM PYTHON SOURCE LINES 95-107
+.. GENERATED FROM PYTHON SOURCE LINES 93-105
 
 .. code-block:: default
 
@@ -211,13 +218,13 @@ a pipeline.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 108-111
+.. GENERATED FROM PYTHON SOURCE LINES 106-109
 
 Define the models
 -----------------
 We define the first model, using the random search solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 111-126
+.. GENERATED FROM PYTHON SOURCE LINES 109-124
 
 .. code-block:: default
 
@@ -243,16 +250,16 @@ We define the first model, using the random search solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 127-128
+.. GENERATED FROM PYTHON SOURCE LINES 125-126
 
 We define the second model, using the hyper_gradient solver.
 
-.. GENERATED FROM PYTHON SOURCE LINES 128-136
+.. GENERATED FROM PYTHON SOURCE LINES 126-134
 
 .. code-block:: default
 
 
-    solver_params = dict(max_iter=80, n_targets_batch=200, tol=1e-3,
+    solver_params = dict(max_iter=30, n_targets_batch=200, tol=1e-3,
                          initial_deltas="ridgecv", max_iter_inner_hyper=1,
                          hyper_gradient_method="direct")
 
@@ -266,11 +273,11 @@ We define the second model, using the hyper_gradient solver.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 137-138
+.. GENERATED FROM PYTHON SOURCE LINES 135-136
 
 We fit the two models on the train data.
 
-.. GENERATED FROM PYTHON SOURCE LINES 138-142
+.. GENERATED FROM PYTHON SOURCE LINES 136-140
 
 .. code-block:: default
 
@@ -288,68 +295,85 @@ We fit the two models on the train data.
 
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | 20 random sampling with cv |     [..                                      ] 5% | 0.32 sec | 20 random sampling with cv |     [....                                    ] 10% | 0.63 sec | 20 random sampling with cv |     [......                                  ] 15% | 0.92 sec | 20 random sampling with cv |     [........                                ] 20% | 1.21 sec | 20 random sampling with cv |     [..........                              ] 25% | 1.51 sec | 20 random sampling with cv |     [............                            ] 30% | 1.74 sec | 20 random sampling with cv |     [..............                          ] 35% | 1.97 sec | 20 random sampling with cv |     [................                        ] 40% | 2.27 sec | 20 random sampling with cv |     [..................                      ] 45% | 2.57 sec | 20 random sampling with cv |     [....................                    ] 50% | 2.86 sec | 20 random sampling with cv |     [......................                  ] 55% | 3.09 sec | 20 random sampling with cv |     [........................                ] 60% | 3.38 sec | 20 random sampling with cv |     [..........................              ] 65% | 3.61 sec | 20 random sampling with cv |     [............................            ] 70% | 3.91 sec | 20 random sampling with cv |     [..............................          ] 75% | 4.20 sec | 20 random sampling with cv |     [................................        ] 80% | 4.44 sec | 20 random sampling with cv |     [..................................      ] 85% | 4.67 sec | 20 random sampling with cv |     [....................................    ] 90% | 4.97 sec | 20 random sampling with cv |     [......................................  ] 95% | 5.20 sec | 20 random sampling with cv |     [........................................] 100% | 5.43 sec | 20 random sampling with cv | 
+    [                                        ] 0% | 0.00 sec | 20 random sampling with cv |     [..                                      ] 5% | 0.67 sec | 20 random sampling with cv |     [....                                    ] 10% | 1.41 sec | 20 random sampling with cv |     [......                                  ] 15% | 2.01 sec | 20 random sampling with cv |     [........                                ] 20% | 2.64 sec | 20 random sampling with cv |     [..........                              ] 25% | 3.25 sec | 20 random sampling with cv |     [............                            ] 30% | 3.66 sec | 20 random sampling with cv |     [..............                          ] 35% | 4.30 sec | 20 random sampling with cv |     [................                        ] 40% | 5.06 sec | 20 random sampling with cv |     [..................                      ] 45% | 5.77 sec | 20 random sampling with cv |     [....................                    ] 50% | 6.41 sec | 20 random sampling with cv |     [......................                  ] 55% | 6.97 sec | 20 random sampling with cv |     [........................                ] 60% | 7.75 sec | 20 random sampling with cv |     [..........................              ] 65% | 8.31 sec | 20 random sampling with cv |     [............................            ] 70% | 9.02 sec | 20 random sampling with cv |     [..............................          ] 75% | 9.70 sec | 20 random sampling with cv |     [................................        ] 80% | 10.34 sec | 20 random sampling with cv |     [..................................      ] 85% | 10.89 sec | 20 random sampling with cv |     [....................................    ] 90% | 11.54 sec | 20 random sampling with cv |     [......................................  ] 95% | 12.07 sec | 20 random sampling with cv |     [........................................] 100% | 12.55 sec | 20 random sampling with cv | 
 
 
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 {color: black;background-color: white;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 pre{padding: 0;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-toggleable {background-color: white;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-estimator:hover {background-color: #d4ebff;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-item {z-index: 1;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-parallel-item:only-child::after {width: 0;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113 div.sk-container {display: inline-block;position: relative;}</style><div id="sk-cacf5cfd-38a4-453c-91e9-6ac3ac416113" class"sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c06c20ac-cc27-4b57-9c99-1b2c5fb0070e" type="checkbox" ><label class="sk-toggleable__label" for="c06c20ac-cc27-4b57-9c99-1b2c5fb0070e">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('columnkernelizer',
-                     ColumnKernelizer(transformers=[('Feature space 0',
+    <style>#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb {color: black;background-color: white;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb pre{padding: 0;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-toggleable {background-color: white;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-estimator:hover {background-color: #d4ebff;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-item {z-index: 1;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-parallel-item:only-child::after {width: 0;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb div.sk-text-repr-fallback {display: none;}</style><div id="sk-7bebec44-9ac3-4dd8-9773-9d0c926194cb" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
                                                      slice(0, 1000, None)),
-                                                    ('Feature space 1',
+                                                    (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
                                                      slice(1000, 2000, None)),
-                                                    ('Feature space 2',
+                                                    (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
                                                      slice(2000, 3000, None))])),
-                    ('multiplekernelridgecv',
-                     MultipleKernelRidgeCV(kernels='precomputed',
-                                           solver_params={'alphas': array([1.00000000e-10, 3.1622776...
-            [0.0967, 0.7845, 0.1188],
-            [0.6945, 0.1770, 0.1285],
-            [0.1278, 0.6189, 0.2533],
-            [0.4615, 0.0104, 0.5280],
-            [0.1979, 0.2006, 0.6015],
-            [0.5289, 0.2058, 0.2653],
-            [0.5074, 0.0264, 0.4662],
-            [0.7480, 0.1591, 0.0930],
-            [0.2262, 0.2698, 0.5040],
-            [0.1123, 0.8667, 0.0209],
-            [0.1595, 0.1198, 0.7207],
-            [0.2433, 0.5232, 0.2335]], device='cuda:0', dtype=torch.float64),
-                                                          'n_targets_batch': 200,
-                                                          'n_targets_batch_refit': 200}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="b86f80b6-085d-4041-bc27-a1211438eb62" type="checkbox" ><label class="sk-toggleable__label" for="b86f80b6-085d-4041-bc27-a1211438eb62">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[('Feature space 0', Kernelizer(),
+                    (&#x27;multiplekernelridgecv&#x27;,
+                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.1622776...
+           [0.46154885, 0.01041838, 0.52803277],
+           [0.19793179, 0.20055514, 0.60151307],
+           [0.52888616, 0.20576417, 0.26534967],
+           [0.50744124, 0.02635203, 0.46620673],
+           [0.74796126, 0.15907966, 0.09295908],
+           [0.22617954, 0.26983245, 0.50398801],
+           [0.11233178, 0.86672533, 0.0209429 ],
+           [0.15950187, 0.11975399, 0.72074414],
+           [0.24333979, 0.52315424, 0.23350597]]),
+                                                          &#x27;n_targets_batch&#x27;: 200,
+                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7f84555e-3259-4e86-9e78-05229bb83fe0" type="checkbox" ><label for="7f84555e-3259-4e86-9e78-05229bb83fe0" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
+                                                     Kernelizer(),
+                                                     slice(0, 1000, None)),
+                                                    (&#x27;Feature space 1&#x27;,
+                                                     Kernelizer(),
+                                                     slice(1000, 2000, None)),
+                                                    (&#x27;Feature space 2&#x27;,
+                                                     Kernelizer(),
+                                                     slice(2000, 3000, None))])),
+                    (&#x27;multiplekernelridgecv&#x27;,
+                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.1622776...
+           [0.46154885, 0.01041838, 0.52803277],
+           [0.19793179, 0.20055514, 0.60151307],
+           [0.52888616, 0.20576417, 0.26534967],
+           [0.50744124, 0.02635203, 0.46620673],
+           [0.74796126, 0.15907966, 0.09295908],
+           [0.22617954, 0.26983245, 0.50398801],
+           [0.11233178, 0.86672533, 0.0209429 ],
+           [0.15950187, 0.11975399, 0.72074414],
+           [0.24333979, 0.52315424, 0.23350597]]),
+                                                          &#x27;n_targets_batch&#x27;: 200,
+                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="faf57cc0-8bb5-47fe-9752-4e57045d69df" type="checkbox" ><label for="faf57cc0-8bb5-47fe-9752-4e57045d69df" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
                                     slice(0, 1000, None)),
-                                   ('Feature space 1', Kernelizer(),
+                                   (&#x27;Feature space 1&#x27;, Kernelizer(),
                                     slice(1000, 2000, None)),
-                                   ('Feature space 2', Kernelizer(),
-                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="0a60a0d1-b27c-427a-8bb2-4c845aeb44e4" type="checkbox" ><label class="sk-toggleable__label" for="0a60a0d1-b27c-427a-8bb2-4c845aeb44e4">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="140f73ab-9aa8-482d-965c-cfe09d631271" type="checkbox" ><label class="sk-toggleable__label" for="140f73ab-9aa8-482d-965c-cfe09d631271">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="89bf5a5e-1af7-460b-bc19-d8e9a9c8ee0c" type="checkbox" ><label class="sk-toggleable__label" for="89bf5a5e-1af7-460b-bc19-d8e9a9c8ee0c">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="30b90f71-8ef4-45c0-bda0-60cc67003a89" type="checkbox" ><label class="sk-toggleable__label" for="30b90f71-8ef4-45c0-bda0-60cc67003a89">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="24a9e26e-e7e7-43bd-87b6-bd32fdd81992" type="checkbox" ><label class="sk-toggleable__label" for="24a9e26e-e7e7-43bd-87b6-bd32fdd81992">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="38fc82d2-f0b8-4cfb-b2b6-9cbf8c4a1782" type="checkbox" ><label class="sk-toggleable__label" for="38fc82d2-f0b8-4cfb-b2b6-9cbf8c4a1782">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="baf09901-12fd-4f5f-8ff1-6b79791c052a" type="checkbox" ><label class="sk-toggleable__label" for="baf09901-12fd-4f5f-8ff1-6b79791c052a">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels='precomputed',
-                          solver_params={'alphas': array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+                                   (&#x27;Feature space 2&#x27;, Kernelizer(),
+                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="5ed1685c-a52f-431c-b4e0-3d47effed887" type="checkbox" ><label for="5ed1685c-a52f-431c-b4e0-3d47effed887" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a6af7446-26dc-4c4e-83fd-928613e44cf1" type="checkbox" ><label for="a6af7446-26dc-4c4e-83fd-928613e44cf1" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4f5829cf-108c-4114-b0b7-de9f1a3bc26f" type="checkbox" ><label for="4f5829cf-108c-4114-b0b7-de9f1a3bc26f" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4f4870c1-069e-4cf0-b2ee-9ab5509b2846" type="checkbox" ><label for="4f4870c1-069e-4cf0-b2ee-9ab5509b2846" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="5e7dcc54-cf6f-4fcf-a06e-83cb383e5493" type="checkbox" ><label for="5e7dcc54-cf6f-4fcf-a06e-83cb383e5493" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d530c90e-974a-4d34-9dd9-8b2e3c176e6c" type="checkbox" ><label for="d530c90e-974a-4d34-9dd9-8b2e3c176e6c" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="8a47823e-abd5-4106-a28d-f3725f8492bf" type="checkbox" ><label for="8a47823e-abd5-4106-a28d-f3725f8492bf" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                          solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
            1.00000000e-02, 3.16227766e-02, 1.000...
-            [0.0967, 0.7845, 0.1188],
-            [0.6945, 0.1770, 0.1285],
-            [0.1278, 0.6189, 0.2533],
-            [0.4615, 0.0104, 0.5280],
-            [0.1979, 0.2006, 0.6015],
-            [0.5289, 0.2058, 0.2653],
-            [0.5074, 0.0264, 0.4662],
-            [0.7480, 0.1591, 0.0930],
-            [0.2262, 0.2698, 0.5040],
-            [0.1123, 0.8667, 0.0209],
-            [0.1595, 0.1198, 0.7207],
-            [0.2433, 0.5232, 0.2335]], device='cuda:0', dtype=torch.float64),
-                                         'n_targets_batch': 200,
-                                         'n_targets_batch_refit': 200})</pre></div></div></div></div></div></div></div>
+           [0.46154885, 0.01041838, 0.52803277],
+           [0.19793179, 0.20055514, 0.60151307],
+           [0.52888616, 0.20576417, 0.26534967],
+           [0.50744124, 0.02635203, 0.46620673],
+           [0.74796126, 0.15907966, 0.09295908],
+           [0.22617954, 0.26983245, 0.50398801],
+           [0.11233178, 0.86672533, 0.0209429 ],
+           [0.15950187, 0.11975399, 0.72074414],
+           [0.24333979, 0.52315424, 0.23350597]]),
+                                         &#x27;n_targets_batch&#x27;: 200,
+                                         &#x27;n_targets_batch_refit&#x27;: 200})</pre></div></div></div></div></div></div></div>
     </div>
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 143-146
+.. GENERATED FROM PYTHON SOURCE LINES 141-144
 
 .. code-block:: default
 
@@ -366,45 +390,63 @@ We fit the two models on the train data.
 
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.15 sec | hypergradient_direct |     [                                        ] 1% | 0.16 sec | hypergradient_direct |     [                                        ] 1% | 0.17 sec | hypergradient_direct |     [                                        ] 2% | 0.19 sec | hypergradient_direct |     [                                        ] 2% | 0.20 sec | hypergradient_direct |     [.                                       ] 2% | 0.21 sec | hypergradient_direct |     [.                                       ] 3% | 0.22 sec | hypergradient_direct |     [.                                       ] 3% | 0.24 sec | hypergradient_direct |     [.                                       ] 4% | 0.25 sec | hypergradient_direct |     [.                                       ] 4% | 0.26 sec | hypergradient_direct |     [.                                       ] 5% | 0.27 sec | hypergradient_direct |     [..                                      ] 5% | 0.29 sec | hypergradient_direct |     [..                                      ] 5% | 0.30 sec | hypergradient_direct |     [..                                      ] 6% | 0.31 sec | hypergradient_direct |     [..                                      ] 6% | 0.32 sec | hypergradient_direct |     [..                                      ] 7% | 0.34 sec | hypergradient_direct |     [..                                      ] 7% | 0.35 sec | hypergradient_direct |     [...                                     ] 8% | 0.36 sec | hypergradient_direct |     [...                                     ] 8% | 0.37 sec | hypergradient_direct |     [...                                     ] 8% | 0.39 sec | hypergradient_direct |     [...                                     ] 9% | 0.40 sec | hypergradient_direct |     [...                                     ] 9% | 0.41 sec | hypergradient_direct |     [...                                     ] 10% | 0.42 sec | hypergradient_direct |     [....                                    ] 10% | 0.44 sec | hypergradient_direct |     [....                                    ] 10% | 0.45 sec | hypergradient_direct |     [....                                    ] 11% | 0.46 sec | hypergradient_direct |     [....                                    ] 11% | 0.47 sec | hypergradient_direct |     [....                                    ] 12% | 0.49 sec | hypergradient_direct |     [....                                    ] 12% | 0.50 sec | hypergradient_direct |     [.....                                   ] 12% | 0.51 sec | hypergradient_direct |     [.....                                   ] 13% | 0.52 sec | hypergradient_direct |     [.....                                   ] 13% | 0.54 sec | hypergradient_direct |     [.....                                   ] 14% | 0.55 sec | hypergradient_direct |     [.....                                   ] 14% | 0.56 sec | hypergradient_direct |     [.....                                   ] 15% | 0.58 sec | hypergradient_direct |     [......                                  ] 15% | 0.59 sec | hypergradient_direct |     [......                                  ] 15% | 0.60 sec | hypergradient_direct |     [......                                  ] 16% | 0.61 sec | hypergradient_direct |     [......                                  ] 16% | 0.63 sec | hypergradient_direct |     [......                                  ] 17% | 0.64 sec | hypergradient_direct |     [......                                  ] 17% | 0.65 sec | hypergradient_direct |     [.......                                 ] 18% | 0.66 sec | hypergradient_direct |     [.......                                 ] 18% | 0.68 sec | hypergradient_direct |     [.......                                 ] 18% | 0.69 sec | hypergradient_direct |     [.......                                 ] 19% | 0.70 sec | hypergradient_direct |     [.......                                 ] 19% | 0.71 sec | hypergradient_direct |     [.......                                 ] 20% | 0.73 sec | hypergradient_direct |     [........                                ] 20% | 0.74 sec | hypergradient_direct |     [........                                ] 20% | 0.75 sec | hypergradient_direct |     [........                                ] 21% | 0.76 sec | hypergradient_direct |     [........                                ] 21% | 0.78 sec | hypergradient_direct |     [........                                ] 22% | 0.79 sec | hypergradient_direct |     [........                                ] 22% | 0.80 sec | hypergradient_direct |     [.........                               ] 22% | 0.82 sec | hypergradient_direct |     [.........                               ] 23% | 0.83 sec | hypergradient_direct |     [.........                               ] 23% | 0.84 sec | hypergradient_direct |     [.........                               ] 24% | 0.86 sec | hypergradient_direct |     [.........                               ] 24% | 0.87 sec | hypergradient_direct |     [.........                               ] 25% | 0.88 sec | hypergradient_direct |     [..........                              ] 25% | 0.89 sec | hypergradient_direct |     [..........                              ] 25% | 0.91 sec | hypergradient_direct |     [..........                              ] 26% | 0.92 sec | hypergradient_direct |     [..........                              ] 26% | 0.93 sec | hypergradient_direct |     [..........                              ] 27% | 0.94 sec | hypergradient_direct |     [..........                              ] 27% | 0.96 sec | hypergradient_direct |     [...........                             ] 28% | 0.97 sec | hypergradient_direct |     [...........                             ] 28% | 0.98 sec | hypergradient_direct |     [...........                             ] 28% | 0.99 sec | hypergradient_direct |     [...........                             ] 29% | 1.01 sec | hypergradient_direct |     [...........                             ] 29% | 1.02 sec | hypergradient_direct |     [...........                             ] 30% | 1.03 sec | hypergradient_direct |     [............                            ] 30% | 1.04 sec | hypergradient_direct |     [............                            ] 30% | 1.06 sec | hypergradient_direct |     [............                            ] 31% | 1.07 sec | hypergradient_direct |     [............                            ] 31% | 1.08 sec | hypergradient_direct |     [............                            ] 32% | 1.09 sec | hypergradient_direct |     [............                            ] 32% | 1.11 sec | hypergradient_direct |     [.............                           ] 32% | 1.12 sec | hypergradient_direct |     [.............                           ] 33% | 1.13 sec | hypergradient_direct |     [.............                           ] 33% | 1.23 sec | hypergradient_direct |     [.............                           ] 34% | 1.39 sec | hypergradient_direct |     [.............                           ] 34% | 1.40 sec | hypergradient_direct |     [.............                           ] 35% | 1.41 sec | hypergradient_direct |     [..............                          ] 35% | 1.42 sec | hypergradient_direct |     [..............                          ] 35% | 1.44 sec | hypergradient_direct |     [..............                          ] 36% | 1.45 sec | hypergradient_direct |     [..............                          ] 36% | 1.46 sec | hypergradient_direct |     [..............                          ] 37% | 1.47 sec | hypergradient_direct |     [..............                          ] 37% | 1.49 sec | hypergradient_direct |     [...............                         ] 38% | 1.50 sec | hypergradient_direct |     [...............                         ] 38% | 1.51 sec | hypergradient_direct |     [...............                         ] 38% | 1.53 sec | hypergradient_direct |     [...............                         ] 39% | 1.54 sec | hypergradient_direct |     [...............                         ] 39% | 1.55 sec | hypergradient_direct |     [...............                         ] 40% | 1.56 sec | hypergradient_direct |     [................                        ] 40% | 1.58 sec | hypergradient_direct |     [................                        ] 40% | 1.59 sec | hypergradient_direct |     [................                        ] 41% | 1.60 sec | hypergradient_direct |     [................                        ] 41% | 1.61 sec | hypergradient_direct |     [................                        ] 42% | 1.63 sec | hypergradient_direct |     [................                        ] 42% | 1.64 sec | hypergradient_direct |     [.................                       ] 42% | 1.65 sec | hypergradient_direct |     [.................                       ] 43% | 1.66 sec | hypergradient_direct |     [.................                       ] 43% | 1.68 sec | hypergradient_direct |     [.................                       ] 44% | 1.69 sec | hypergradient_direct |     [.................                       ] 44% | 1.70 sec | hypergradient_direct |     [.................                       ] 45% | 1.71 sec | hypergradient_direct |     [..................                      ] 45% | 1.73 sec | hypergradient_direct |     [..................                      ] 45% | 1.74 sec | hypergradient_direct |     [..................                      ] 46% | 1.75 sec | hypergradient_direct |     [..................                      ] 46% | 1.76 sec | hypergradient_direct |     [..................                      ] 47% | 1.78 sec | hypergradient_direct |     [..................                      ] 47% | 1.79 sec | hypergradient_direct |     [...................                     ] 48% | 1.80 sec | hypergradient_direct |     [...................                     ] 48% | 1.82 sec | hypergradient_direct |     [...................                     ] 48% | 1.83 sec | hypergradient_direct |     [...................                     ] 49% | 1.84 sec | hypergradient_direct |     [...................                     ] 49% | 1.85 sec | hypergradient_direct |     [...................                     ] 50% | 1.87 sec | hypergradient_direct |     [....................                    ] 50% | 1.88 sec | hypergradient_direct |     [....................                    ] 50% | 1.89 sec | hypergradient_direct |     [....................                    ] 51% | 1.90 sec | hypergradient_direct |     [....................                    ] 51% | 1.92 sec | hypergradient_direct |     [....................                    ] 52% | 1.93 sec | hypergradient_direct |     [....................                    ] 52% | 1.94 sec | hypergradient_direct |     [.....................                   ] 52% | 1.95 sec | hypergradient_direct |     [.....................                   ] 53% | 1.97 sec | hypergradient_direct |     [.....................                   ] 53% | 1.98 sec | hypergradient_direct |     [.....................                   ] 54% | 1.99 sec | hypergradient_direct |     [.....................                   ] 54% | 2.00 sec | hypergradient_direct |     [.....................                   ] 55% | 2.02 sec | hypergradient_direct |     [......................                  ] 55% | 2.03 sec | hypergradient_direct |     [......................                  ] 55% | 2.04 sec | hypergradient_direct |     [......................                  ] 56% | 2.05 sec | hypergradient_direct |     [......................                  ] 56% | 2.07 sec | hypergradient_direct |     [......................                  ] 57% | 2.08 sec | hypergradient_direct |     [......................                  ] 57% | 2.09 sec | hypergradient_direct |     [.......................                 ] 57% | 2.11 sec | hypergradient_direct |     [.......................                 ] 58% | 2.12 sec | hypergradient_direct |     [.......................                 ] 58% | 2.13 sec | hypergradient_direct |     [.......................                 ] 59% | 2.14 sec | hypergradient_direct |     [.......................                 ] 59% | 2.16 sec | hypergradient_direct |     [.......................                 ] 60% | 2.17 sec | hypergradient_direct |     [........................                ] 60% | 2.18 sec | hypergradient_direct |     [........................                ] 60% | 2.19 sec | hypergradient_direct |     [........................                ] 61% | 2.21 sec | hypergradient_direct |     [........................                ] 61% | 2.22 sec | hypergradient_direct |     [........................                ] 62% | 2.23 sec | hypergradient_direct |     [........................                ] 62% | 2.24 sec | hypergradient_direct |     [.........................               ] 62% | 2.26 sec | hypergradient_direct |     [.........................               ] 63% | 2.27 sec | hypergradient_direct |     [.........................               ] 63% | 2.28 sec | hypergradient_direct |     [.........................               ] 64% | 2.29 sec | hypergradient_direct |     [.........................               ] 64% | 2.31 sec | hypergradient_direct |     [.........................               ] 65% | 2.32 sec | hypergradient_direct |     [..........................              ] 65% | 2.33 sec | hypergradient_direct |     [..........................              ] 65% | 2.34 sec | hypergradient_direct |     [..........................              ] 66% | 2.36 sec | hypergradient_direct |     [..........................              ] 66% | 2.37 sec | hypergradient_direct |     [..........................              ] 67% | 2.47 sec | hypergradient_direct |     [..........................              ] 67% | 2.60 sec | hypergradient_direct |     [...........................             ] 68% | 2.61 sec | hypergradient_direct |     [...........................             ] 68% | 2.62 sec | hypergradient_direct |     [...........................             ] 68% | 2.64 sec | hypergradient_direct |     [...........................             ] 69% | 2.65 sec | hypergradient_direct |     [...........................             ] 69% | 2.66 sec | hypergradient_direct |     [...........................             ] 70% | 2.67 sec | hypergradient_direct |     [............................            ] 70% | 2.68 sec | hypergradient_direct |     [............................            ] 70% | 2.70 sec | hypergradient_direct |     [............................            ] 71% | 2.71 sec | hypergradient_direct |     [............................            ] 71% | 2.72 sec | hypergradient_direct |     [............................            ] 72% | 2.73 sec | hypergradient_direct |     [............................            ] 72% | 2.74 sec | hypergradient_direct |     [.............................           ] 72% | 2.75 sec | hypergradient_direct |     [.............................           ] 73% | 2.77 sec | hypergradient_direct |     [.............................           ] 73% | 2.78 sec | hypergradient_direct |     [.............................           ] 74% | 2.79 sec | hypergradient_direct |     [.............................           ] 74% | 2.80 sec | hypergradient_direct |     [.............................           ] 75% | 2.81 sec | hypergradient_direct |     [..............................          ] 75% | 2.82 sec | hypergradient_direct |     [..............................          ] 75% | 2.84 sec | hypergradient_direct |     [..............................          ] 76% | 2.85 sec | hypergradient_direct |     [..............................          ] 76% | 2.86 sec | hypergradient_direct |     [..............................          ] 77% | 2.87 sec | hypergradient_direct |     [..............................          ] 77% | 2.88 sec | hypergradient_direct |     [...............................         ] 78% | 2.90 sec | hypergradient_direct |     [...............................         ] 78% | 2.91 sec | hypergradient_direct |     [...............................         ] 78% | 2.92 sec | hypergradient_direct |     [...............................         ] 79% | 2.93 sec | hypergradient_direct |     [...............................         ] 79% | 2.94 sec | hypergradient_direct |     [...............................         ] 80% | 2.95 sec | hypergradient_direct |     [................................        ] 80% | 2.97 sec | hypergradient_direct |     [................................        ] 80% | 2.98 sec | hypergradient_direct |     [................................        ] 81% | 2.99 sec | hypergradient_direct |     [................................        ] 81% | 3.00 sec | hypergradient_direct |     [................................        ] 82% | 3.01 sec | hypergradient_direct |     [................................        ] 82% | 3.03 sec | hypergradient_direct |     [.................................       ] 82% | 3.04 sec | hypergradient_direct |     [.................................       ] 83% | 3.05 sec | hypergradient_direct |     [.................................       ] 83% | 3.06 sec | hypergradient_direct |     [.................................       ] 84% | 3.07 sec | hypergradient_direct |     [.................................       ] 84% | 3.08 sec | hypergradient_direct |     [.................................       ] 85% | 3.10 sec | hypergradient_direct |     [..................................      ] 85% | 3.11 sec | hypergradient_direct |     [..................................      ] 85% | 3.12 sec | hypergradient_direct |     [..................................      ] 86% | 3.13 sec | hypergradient_direct |     [..................................      ] 86% | 3.14 sec | hypergradient_direct |     [..................................      ] 87% | 3.16 sec | hypergradient_direct |     [..................................      ] 87% | 3.17 sec | hypergradient_direct |     [...................................     ] 88% | 3.18 sec | hypergradient_direct |     [...................................     ] 88% | 3.19 sec | hypergradient_direct |     [...................................     ] 88% | 3.20 sec | hypergradient_direct |     [...................................     ] 89% | 3.21 sec | hypergradient_direct |     [...................................     ] 89% | 3.23 sec | hypergradient_direct |     [...................................     ] 90% | 3.24 sec | hypergradient_direct |     [....................................    ] 90% | 3.25 sec | hypergradient_direct |     [....................................    ] 90% | 3.26 sec | hypergradient_direct |     [....................................    ] 91% | 3.27 sec | hypergradient_direct |     [....................................    ] 91% | 3.29 sec | hypergradient_direct |     [....................................    ] 92% | 3.31 sec | hypergradient_direct |     [....................................    ] 92% | 3.32 sec | hypergradient_direct |     [.....................................   ] 92% | 3.33 sec | hypergradient_direct |     [.....................................   ] 93% | 3.34 sec | hypergradient_direct |     [.....................................   ] 93% | 3.35 sec | hypergradient_direct |     [.....................................   ] 94% | 3.37 sec | hypergradient_direct |     [.....................................   ] 94% | 3.38 sec | hypergradient_direct |     [.....................................   ] 95% | 3.39 sec | hypergradient_direct |     [......................................  ] 95% | 3.40 sec | hypergradient_direct |     [......................................  ] 95% | 3.41 sec | hypergradient_direct |     [......................................  ] 96% | 3.43 sec | hypergradient_direct |     [......................................  ] 96% | 3.44 sec | hypergradient_direct |     [......................................  ] 97% | 3.45 sec | hypergradient_direct |     [......................................  ] 97% | 3.46 sec | hypergradient_direct |     [....................................... ] 98% | 3.47 sec | hypergradient_direct |     [....................................... ] 98% | 3.49 sec | hypergradient_direct |     [....................................... ] 98% | 3.50 sec | hypergradient_direct |     [....................................... ] 99% | 3.51 sec | hypergradient_direct |     [....................................... ] 99% | 3.52 sec | hypergradient_direct |     [....................................... ] 100% | 3.53 sec | hypergradient_direct |     [........................................] 100% | 3.63 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 3% | 4.27 sec | hypergradient_direct |     [..                                      ] 7% | 4.60 sec | hypergradient_direct |     [....                                    ] 10% | 4.93 sec | hypergradient_direct |     [.....                                   ] 13% | 5.26 sec | hypergradient_direct |     [......                                  ] 17% | 5.59 sec | hypergradient_direct |     [........                                ] 20% | 5.92 sec | hypergradient_direct |     [.........                               ] 23% | 6.25 sec | hypergradient_direct |     [..........                              ] 27% | 6.57 sec | hypergradient_direct |     [............                            ] 30% | 6.90 sec | hypergradient_direct |     [.............                           ] 33% | 7.23 sec | hypergradient_direct |     [..............                          ] 37% | 7.56 sec | hypergradient_direct |     [................                        ] 40% | 7.89 sec | hypergradient_direct |     [.................                       ] 43% | 8.22 sec | hypergradient_direct |     [..................                      ] 47% | 8.54 sec | hypergradient_direct |     [....................                    ] 50% | 8.87 sec | hypergradient_direct |     [.....................                   ] 53% | 9.20 sec | hypergradient_direct |     [......................                  ] 57% | 9.53 sec | hypergradient_direct |     [........................                ] 60% | 9.86 sec | hypergradient_direct |     [.........................               ] 63% | 10.19 sec | hypergradient_direct |     [..........................              ] 67% | 10.52 sec | hypergradient_direct |     [............................            ] 70% | 10.85 sec | hypergradient_direct |     [.............................           ] 73% | 11.17 sec | hypergradient_direct |     [..............................          ] 77% | 11.50 sec | hypergradient_direct |     [................................        ] 80% | 11.83 sec | hypergradient_direct |     [.................................       ] 83% | 12.16 sec | hypergradient_direct |     [..................................      ] 87% | 12.49 sec | hypergradient_direct |     [....................................    ] 90% | 12.82 sec | hypergradient_direct |     [.....................................   ] 93% | 13.15 sec | hypergradient_direct |     [......................................  ] 97% | 13.47 sec | hypergradient_direct |     [........................................] 100% | 13.87 sec | hypergradient_direct | 
 
 
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-681de572-c168-43ff-b32e-51d520597c38 {color: black;background-color: white;}#sk-681de572-c168-43ff-b32e-51d520597c38 pre{padding: 0;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-toggleable {background-color: white;}#sk-681de572-c168-43ff-b32e-51d520597c38 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-681de572-c168-43ff-b32e-51d520597c38 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-681de572-c168-43ff-b32e-51d520597c38 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-estimator:hover {background-color: #d4ebff;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-item {z-index: 1;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-parallel-item:only-child::after {width: 0;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-681de572-c168-43ff-b32e-51d520597c38 div.sk-container {display: inline-block;position: relative;}</style><div id="sk-681de572-c168-43ff-b32e-51d520597c38" class"sk-top-container"><div class="sk-container"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="40d216c3-2de2-444c-9c3b-e93ca4073039" type="checkbox" ><label class="sk-toggleable__label" for="40d216c3-2de2-444c-9c3b-e93ca4073039">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[('columnkernelizer',
-                     ColumnKernelizer(transformers=[('Feature space 0',
+    <style>#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c {color: black;background-color: white;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c pre{padding: 0;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-toggleable {background-color: white;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-estimator:hover {background-color: #d4ebff;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-item {z-index: 1;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-parallel-item:only-child::after {width: 0;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-30a8b96a-d1df-4c17-9e49-32603a9c267c div.sk-text-repr-fallback {display: none;}</style><div id="sk-30a8b96a-d1df-4c17-9e49-32603a9c267c" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
                                                      slice(0, 1000, None)),
-                                                    ('Feature space 1',
+                                                    (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
                                                      slice(1000, 2000, None)),
-                                                    ('Feature space 2',
+                                                    (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
                                                      slice(2000, 3000, None))])),
-                    ('multiplekernelridgecv',
-                     MultipleKernelRidgeCV(kernels='precomputed',
-                                           solver='hyper_gradient',
-                                           solver_params={'hyper_gradient_method': 'direct',
-                                                          'initial_deltas': 'ridgecv',
-                                                          'max_iter': 80,
-                                                          'max_iter_inner_hyper': 1,
-                                                          'n_targets_batch': 200,
-                                                          'tol': 0.001}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="5871b032-74aa-4d34-90ca-f4072a827516" type="checkbox" ><label class="sk-toggleable__label" for="5871b032-74aa-4d34-90ca-f4072a827516">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[('Feature space 0', Kernelizer(),
+                    (&#x27;multiplekernelridgecv&#x27;,
+                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                           solver=&#x27;hyper_gradient&#x27;,
+                                           solver_params={&#x27;hyper_gradient_method&#x27;: &#x27;direct&#x27;,
+                                                          &#x27;initial_deltas&#x27;: &#x27;ridgecv&#x27;,
+                                                          &#x27;max_iter&#x27;: 30,
+                                                          &#x27;max_iter_inner_hyper&#x27;: 1,
+                                                          &#x27;n_targets_batch&#x27;: 200,
+                                                          &#x27;tol&#x27;: 0.001}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a5491521-a56d-4377-acd4-2e77bcb4b07e" type="checkbox" ><label for="a5491521-a56d-4377-acd4-2e77bcb4b07e" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
+                                                     Kernelizer(),
+                                                     slice(0, 1000, None)),
+                                                    (&#x27;Feature space 1&#x27;,
+                                                     Kernelizer(),
+                                                     slice(1000, 2000, None)),
+                                                    (&#x27;Feature space 2&#x27;,
+                                                     Kernelizer(),
+                                                     slice(2000, 3000, None))])),
+                    (&#x27;multiplekernelridgecv&#x27;,
+                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                           solver=&#x27;hyper_gradient&#x27;,
+                                           solver_params={&#x27;hyper_gradient_method&#x27;: &#x27;direct&#x27;,
+                                                          &#x27;initial_deltas&#x27;: &#x27;ridgecv&#x27;,
+                                                          &#x27;max_iter&#x27;: 30,
+                                                          &#x27;max_iter_inner_hyper&#x27;: 1,
+                                                          &#x27;n_targets_batch&#x27;: 200,
+                                                          &#x27;tol&#x27;: 0.001}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7a42a225-ce42-44ae-ac83-58c1d96e8dc5" type="checkbox" ><label for="7a42a225-ce42-44ae-ac83-58c1d96e8dc5" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
                                     slice(0, 1000, None)),
-                                   ('Feature space 1', Kernelizer(),
+                                   (&#x27;Feature space 1&#x27;, Kernelizer(),
                                     slice(1000, 2000, None)),
-                                   ('Feature space 2', Kernelizer(),
-                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c4ca29e4-1f81-4c19-9729-f595de5719c1" type="checkbox" ><label class="sk-toggleable__label" for="c4ca29e4-1f81-4c19-9729-f595de5719c1">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9aeae00a-6c09-46c4-b9e9-2eb1ce96ea05" type="checkbox" ><label class="sk-toggleable__label" for="9aeae00a-6c09-46c4-b9e9-2eb1ce96ea05">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="236298fa-b697-4f29-b999-79bb226c0bfe" type="checkbox" ><label class="sk-toggleable__label" for="236298fa-b697-4f29-b999-79bb226c0bfe">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="cc80fe90-94bb-4460-9a05-27e222955d95" type="checkbox" ><label class="sk-toggleable__label" for="cc80fe90-94bb-4460-9a05-27e222955d95">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="8df3b1b5-6803-4afe-9ebd-d3384d769073" type="checkbox" ><label class="sk-toggleable__label" for="8df3b1b5-6803-4afe-9ebd-d3384d769073">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="dfad5d1c-71b2-407f-bc28-36dca3bb098d" type="checkbox" ><label class="sk-toggleable__label" for="dfad5d1c-71b2-407f-bc28-36dca3bb098d">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="fd385377-9d3e-4ac9-b932-d8c0864aea2d" type="checkbox" ><label class="sk-toggleable__label" for="fd385377-9d3e-4ac9-b932-d8c0864aea2d">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels='precomputed', solver='hyper_gradient',
-                          solver_params={'hyper_gradient_method': 'direct',
-                                         'initial_deltas': 'ridgecv',
-                                         'max_iter': 80, 'max_iter_inner_hyper': 1,
-                                         'n_targets_batch': 200, 'tol': 0.001})</pre></div></div></div></div></div></div></div>
+                                   (&#x27;Feature space 2&#x27;, Kernelizer(),
+                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="082d93f5-9834-415d-83f6-317144835f93" type="checkbox" ><label for="082d93f5-9834-415d-83f6-317144835f93" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="58efd754-281e-4ca6-ba9d-e3c29d1ebb32" type="checkbox" ><label for="58efd754-281e-4ca6-ba9d-e3c29d1ebb32" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a84581de-d4af-4bff-b70c-21f974b8e23c" type="checkbox" ><label for="a84581de-d4af-4bff-b70c-21f974b8e23c" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="3f7b7343-8500-437d-8018-2b88e69269d6" type="checkbox" ><label for="3f7b7343-8500-437d-8018-2b88e69269d6" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ced01dd0-d503-4fb9-a67a-1505e5ee962e" type="checkbox" ><label for="ced01dd0-d503-4fb9-a67a-1505e5ee962e" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="2f01e56e-bdb9-4345-b4d0-28db2d2b6a38" type="checkbox" ><label for="2f01e56e-bdb9-4345-b4d0-28db2d2b6a38" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="1151e1ae-675f-4ad0-a0be-d9a207f1191f" type="checkbox" ><label for="1151e1ae-675f-4ad0-a0be-d9a207f1191f" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;, solver=&#x27;hyper_gradient&#x27;,
+                          solver_params={&#x27;hyper_gradient_method&#x27;: &#x27;direct&#x27;,
+                                         &#x27;initial_deltas&#x27;: &#x27;ridgecv&#x27;,
+                                         &#x27;max_iter&#x27;: 30, &#x27;max_iter_inner_hyper&#x27;: 1,
+                                         &#x27;n_targets_batch&#x27;: 200, &#x27;tol&#x27;: 0.001})</pre></div></div></div></div></div></div></div>
     </div>
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 147-154
+.. GENERATED FROM PYTHON SOURCE LINES 145-152
 
 Plot the convergence curves
 ---------------------------
@@ -414,7 +456,7 @@ For the random search, ``cv_scores`` gives the scores for each sampled kernel
 weights vector. The convergence curve is thus the current maximum for each
 target.
 
-.. GENERATED FROM PYTHON SOURCE LINES 154-166
+.. GENERATED FROM PYTHON SOURCE LINES 152-164
 
 .. code-block:: default
 
@@ -433,19 +475,20 @@ target.
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_001.png
-    :alt: Convergence curve, averaged over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_001.png
+   :alt: Convergence curve, averaged over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_001.png
+   :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 167-168
+.. GENERATED FROM PYTHON SOURCE LINES 165-166
 
 Plot the second convergence curve.
 
-.. GENERATED FROM PYTHON SOURCE LINES 168-180
+.. GENERATED FROM PYTHON SOURCE LINES 166-178
 
 .. code-block:: default
 
@@ -464,15 +507,16 @@ Plot the second convergence curve.
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_002.png
-    :alt: Convergence curve, averaged over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_002.png
+   :alt: Convergence curve, averaged over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_002.png
+   :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 181-186
+.. GENERATED FROM PYTHON SOURCE LINES 179-184
 
 Compare with a ``KernelRidgeCV``
 --------------------------------
@@ -480,7 +524,7 @@ Compare to a baseline ``KernelRidgeCV`` model with all the concatenated
 features. Comparison is performed using the prediction scores on the test
 set.
 
-.. GENERATED FROM PYTHON SOURCE LINES 186-191
+.. GENERATED FROM PYTHON SOURCE LINES 184-189
 
 .. code-block:: default
 
@@ -497,7 +541,17 @@ set.
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 {color: black;background-color: white;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 pre{padding: 0;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-toggleable {background-color: white;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-estimator:hover {background-color: #d4ebff;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-item {z-index: 1;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-parallel-item:only-child::after {width: 0;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31 div.sk-container {display: inline-block;position: relative;}</style><div id="sk-f4d41047-bf48-4770-8dc6-8fc4b8addb31" class"sk-top-container"><div class="sk-container"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c106952d-6d3d-46ee-a3cf-fa00bbf8244c" type="checkbox" checked><label class="sk-toggleable__label" for="c106952d-6d3d-46ee-a3cf-fa00bbf8244c">KernelRidgeCV</label><div class="sk-toggleable__content"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+    <style>#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 {color: black;background-color: white;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 pre{padding: 0;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-toggleable {background-color: white;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-estimator:hover {background-color: #d4ebff;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-item {z-index: 1;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-parallel-item:only-child::after {width: 0;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-253d5750-6f38-4c07-bc8b-bbeab4c69841 div.sk-text-repr-fallback {display: none;}</style><div id="sk-253d5750-6f38-4c07-bc8b-bbeab4c69841" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+           1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
+           1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
+           1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
+           1.00000000e-02, 3.16227766e-02, 1.00000000e-01, 3.16227766e-01,
+           1.00000000e+00, 3.16227766e+00, 1.00000000e+01, 3.16227766e+01,
+           1.00000000e+02, 3.16227766e+02, 1.00000000e+03, 3.16227766e+03,
+           1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
+           1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
+           1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
+           1.00000000e+10]))</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="580dea5e-a211-4925-a1b8-9b2f46b2feca" type="checkbox" checked><label for="580dea5e-a211-4925-a1b8-9b2f46b2feca" class="sk-toggleable__label sk-toggleable__label-arrow">KernelRidgeCV</label><div class="sk-toggleable__content"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -512,11 +566,11 @@ set.
     <br />
     <br />
 
-.. GENERATED FROM PYTHON SOURCE LINES 192-193
+.. GENERATED FROM PYTHON SOURCE LINES 190-191
 
 Compute scores of all models
 
-.. GENERATED FROM PYTHON SOURCE LINES 193-202
+.. GENERATED FROM PYTHON SOURCE LINES 191-200
 
 .. code-block:: default
 
@@ -536,21 +590,15 @@ Compute scores of all models
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 203-204
+.. GENERATED FROM PYTHON SOURCE LINES 201-202
 
 Plot histograms
 
-.. GENERATED FROM PYTHON SOURCE LINES 204-221
+.. GENERATED FROM PYTHON SOURCE LINES 202-213
 
 .. code-block:: default
 
-    bins = np.linspace(
-        np.min([scores_baseline.min(),
-                scores_1.min(),
-                scores_2.min()]),
-        np.max([scores_baseline.max(),
-                scores_1.max(),
-                scores_2.max()]), 50)
+    bins = np.linspace(0, 1, 50)
     plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
     plt.hist(scores_1, bins, alpha=0.7,
              label="MultipleKernelRidgeCV(solver='random_search')")
@@ -564,22 +612,23 @@ Plot histograms
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_003.png
-    :alt: Histogram over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_003.png
+   :alt: Histogram over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_003.png
+   :class: sphx-glr-single-img
 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 222-226
+.. GENERATED FROM PYTHON SOURCE LINES 214-218
 
 Generate trajectories
 ---------------------
 Refit the second model with different number of iterations, just to plot the
 trajectories.
 
-.. GENERATED FROM PYTHON SOURCE LINES 226-239
+.. GENERATED FROM PYTHON SOURCE LINES 218-232
 
 .. code-block:: default
 
@@ -587,9 +636,10 @@ trajectories.
     all_kernel_weights_2 = [
         np.full((n_targets, n_kernels), fill_value=1. / n_kernels),
     ]
-    for max_iter in np.unique(np.int_(np.logspace(0, np.log10(80), 3))):
-        # change max_iter and refit from scratch
-        pipe_2[1].solver_params['max_iter'] = max_iter
+    max_iter = model_2.solver_params["max_iter"]
+    for n_iter in np.unique(np.int_(np.logspace(0, np.log10(max_iter), 3))):
+        # change the number of iteration and refit from scratch
+        pipe_2[1].solver_params['max_iter'] = n_iter
         pipe_2.fit(X_train, Y_train)
 
         kernel_weights_2 = np.exp(backend.to_numpy(pipe_2[1].deltas_.T))
@@ -606,18 +656,18 @@ trajectories.
 
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.............                           ] 33% | 0.23 sec | hypergradient_direct |     [..........................              ] 67% | 0.47 sec | hypergradient_direct |     [........................................] 100% | 0.66 sec | hypergradient_direct | 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 4% | 0.15 sec | hypergradient_direct |     [...                                     ] 8% | 0.16 sec | hypergradient_direct |     [.....                                   ] 12% | 0.17 sec | hypergradient_direct |     [......                                  ] 17% | 0.18 sec | hypergradient_direct |     [........                                ] 21% | 0.20 sec | hypergradient_direct |     [..........                              ] 25% | 0.21 sec | hypergradient_direct |     [...........                             ] 29% | 0.22 sec | hypergradient_direct |     [.............                           ] 33% | 0.32 sec | hypergradient_direct |     [...............                         ] 38% | 0.47 sec | hypergradient_direct |     [................                        ] 42% | 0.48 sec | hypergradient_direct |     [..................                      ] 46% | 0.50 sec | hypergradient_direct |     [....................                    ] 50% | 0.51 sec | hypergradient_direct |     [.....................                   ] 54% | 0.52 sec | hypergradient_direct |     [.......................                 ] 58% | 0.54 sec | hypergradient_direct |     [.........................               ] 62% | 0.55 sec | hypergradient_direct |     [..........................              ] 67% | 0.65 sec | hypergradient_direct |     [............................            ] 71% | 0.78 sec | hypergradient_direct |     [..............................          ] 75% | 0.79 sec | hypergradient_direct |     [...............................         ] 79% | 0.80 sec | hypergradient_direct |     [.................................       ] 83% | 0.81 sec | hypergradient_direct |     [...................................     ] 88% | 0.82 sec | hypergradient_direct |     [....................................    ] 92% | 0.83 sec | hypergradient_direct |     [......................................  ] 96% | 0.85 sec | hypergradient_direct |     [........................................] 100% | 0.94 sec | hypergradient_direct | 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.15 sec | hypergradient_direct |     [                                        ] 1% | 0.16 sec | hypergradient_direct |     [                                        ] 1% | 0.17 sec | hypergradient_direct |     [                                        ] 2% | 0.18 sec | hypergradient_direct |     [                                        ] 2% | 0.20 sec | hypergradient_direct |     [.                                       ] 3% | 0.21 sec | hypergradient_direct |     [.                                       ] 3% | 0.22 sec | hypergradient_direct |     [.                                       ] 3% | 0.23 sec | hypergradient_direct |     [.                                       ] 4% | 0.25 sec | hypergradient_direct |     [.                                       ] 4% | 0.26 sec | hypergradient_direct |     [.                                       ] 5% | 0.27 sec | hypergradient_direct |     [..                                      ] 5% | 0.28 sec | hypergradient_direct |     [..                                      ] 5% | 0.30 sec | hypergradient_direct |     [..                                      ] 6% | 0.31 sec | hypergradient_direct |     [..                                      ] 6% | 0.32 sec | hypergradient_direct |     [..                                      ] 7% | 0.33 sec | hypergradient_direct |     [..                                      ] 7% | 0.35 sec | hypergradient_direct |     [...                                     ] 8% | 0.36 sec | hypergradient_direct |     [...                                     ] 8% | 0.37 sec | hypergradient_direct |     [...                                     ] 8% | 0.39 sec | hypergradient_direct |     [...                                     ] 9% | 0.40 sec | hypergradient_direct |     [...                                     ] 9% | 0.41 sec | hypergradient_direct |     [...                                     ] 10% | 0.42 sec | hypergradient_direct |     [....                                    ] 10% | 0.44 sec | hypergradient_direct |     [....                                    ] 11% | 0.45 sec | hypergradient_direct |     [....                                    ] 11% | 0.46 sec | hypergradient_direct |     [....                                    ] 11% | 0.47 sec | hypergradient_direct |     [....                                    ] 12% | 0.49 sec | hypergradient_direct |     [....                                    ] 12% | 0.50 sec | hypergradient_direct |     [.....                                   ] 13% | 0.51 sec | hypergradient_direct |     [.....                                   ] 13% | 0.52 sec | hypergradient_direct |     [.....                                   ] 14% | 0.54 sec | hypergradient_direct |     [.....                                   ] 14% | 0.55 sec | hypergradient_direct |     [.....                                   ] 14% | 0.56 sec | hypergradient_direct |     [.....                                   ] 15% | 0.57 sec | hypergradient_direct |     [......                                  ] 15% | 0.59 sec | hypergradient_direct |     [......                                  ] 16% | 0.60 sec | hypergradient_direct |     [......                                  ] 16% | 0.61 sec | hypergradient_direct |     [......                                  ] 16% | 0.62 sec | hypergradient_direct |     [......                                  ] 17% | 0.64 sec | hypergradient_direct |     [......                                  ] 17% | 0.65 sec | hypergradient_direct |     [.......                                 ] 18% | 0.66 sec | hypergradient_direct |     [.......                                 ] 18% | 0.67 sec | hypergradient_direct |     [.......                                 ] 19% | 0.69 sec | hypergradient_direct |     [.......                                 ] 19% | 0.70 sec | hypergradient_direct |     [.......                                 ] 19% | 0.71 sec | hypergradient_direct |     [.......                                 ] 20% | 0.73 sec | hypergradient_direct |     [........                                ] 20% | 0.74 sec | hypergradient_direct |     [........                                ] 21% | 0.75 sec | hypergradient_direct |     [........                                ] 21% | 0.76 sec | hypergradient_direct |     [........                                ] 22% | 0.78 sec | hypergradient_direct |     [........                                ] 22% | 0.79 sec | hypergradient_direct |     [........                                ] 22% | 0.80 sec | hypergradient_direct |     [.........                               ] 23% | 0.81 sec | hypergradient_direct |     [.........                               ] 23% | 0.83 sec | hypergradient_direct |     [.........                               ] 24% | 0.84 sec | hypergradient_direct |     [.........                               ] 24% | 0.85 sec | hypergradient_direct |     [.........                               ] 24% | 0.87 sec | hypergradient_direct |     [.........                               ] 25% | 0.88 sec | hypergradient_direct |     [..........                              ] 25% | 0.89 sec | hypergradient_direct |     [..........                              ] 26% | 0.90 sec | hypergradient_direct |     [..........                              ] 26% | 0.92 sec | hypergradient_direct |     [..........                              ] 27% | 0.93 sec | hypergradient_direct |     [..........                              ] 27% | 0.94 sec | hypergradient_direct |     [..........                              ] 27% | 0.95 sec | hypergradient_direct |     [...........                             ] 28% | 0.97 sec | hypergradient_direct |     [...........                             ] 28% | 0.98 sec | hypergradient_direct |     [...........                             ] 29% | 0.99 sec | hypergradient_direct |     [...........                             ] 29% | 1.00 sec | hypergradient_direct |     [...........                             ] 30% | 1.02 sec | hypergradient_direct |     [...........                             ] 30% | 1.03 sec | hypergradient_direct |     [............                            ] 30% | 1.04 sec | hypergradient_direct |     [............                            ] 31% | 1.06 sec | hypergradient_direct |     [............                            ] 31% | 1.07 sec | hypergradient_direct |     [............                            ] 32% | 1.08 sec | hypergradient_direct |     [............                            ] 32% | 1.09 sec | hypergradient_direct |     [............                            ] 32% | 1.11 sec | hypergradient_direct |     [.............                           ] 33% | 1.12 sec | hypergradient_direct |     [.............                           ] 33% | 1.22 sec | hypergradient_direct |     [.............                           ] 34% | 1.37 sec | hypergradient_direct |     [.............                           ] 34% | 1.39 sec | hypergradient_direct |     [.............                           ] 35% | 1.40 sec | hypergradient_direct |     [..............                          ] 35% | 1.41 sec | hypergradient_direct |     [..............                          ] 35% | 1.42 sec | hypergradient_direct |     [..............                          ] 36% | 1.44 sec | hypergradient_direct |     [..............                          ] 36% | 1.45 sec | hypergradient_direct |     [..............                          ] 37% | 1.46 sec | hypergradient_direct |     [..............                          ] 37% | 1.47 sec | hypergradient_direct |     [...............                         ] 38% | 1.49 sec | hypergradient_direct |     [...............                         ] 38% | 1.50 sec | hypergradient_direct |     [...............                         ] 38% | 1.51 sec | hypergradient_direct |     [...............                         ] 39% | 1.52 sec | hypergradient_direct |     [...............                         ] 39% | 1.54 sec | hypergradient_direct |     [...............                         ] 40% | 1.55 sec | hypergradient_direct |     [................                        ] 40% | 1.56 sec | hypergradient_direct |     [................                        ] 41% | 1.58 sec | hypergradient_direct |     [................                        ] 41% | 1.59 sec | hypergradient_direct |     [................                        ] 41% | 1.60 sec | hypergradient_direct |     [................                        ] 42% | 1.61 sec | hypergradient_direct |     [................                        ] 42% | 1.63 sec | hypergradient_direct |     [.................                       ] 43% | 1.64 sec | hypergradient_direct |     [.................                       ] 43% | 1.65 sec | hypergradient_direct |     [.................                       ] 43% | 1.66 sec | hypergradient_direct |     [.................                       ] 44% | 1.68 sec | hypergradient_direct |     [.................                       ] 44% | 1.69 sec | hypergradient_direct |     [.................                       ] 45% | 1.70 sec | hypergradient_direct |     [..................                      ] 45% | 1.71 sec | hypergradient_direct |     [..................                      ] 46% | 1.73 sec | hypergradient_direct |     [..................                      ] 46% | 1.74 sec | hypergradient_direct |     [..................                      ] 46% | 1.75 sec | hypergradient_direct |     [..................                      ] 47% | 1.76 sec | hypergradient_direct |     [..................                      ] 47% | 1.78 sec | hypergradient_direct |     [...................                     ] 48% | 1.79 sec | hypergradient_direct |     [...................                     ] 48% | 1.80 sec | hypergradient_direct |     [...................                     ] 49% | 1.82 sec | hypergradient_direct |     [...................                     ] 49% | 1.83 sec | hypergradient_direct |     [...................                     ] 49% | 1.84 sec | hypergradient_direct |     [...................                     ] 50% | 1.85 sec | hypergradient_direct |     [....................                    ] 50% | 1.87 sec | hypergradient_direct |     [....................                    ] 51% | 1.88 sec | hypergradient_direct |     [....................                    ] 51% | 1.89 sec | hypergradient_direct |     [....................                    ] 51% | 1.90 sec | hypergradient_direct |     [....................                    ] 52% | 1.92 sec | hypergradient_direct |     [....................                    ] 52% | 1.93 sec | hypergradient_direct |     [.....................                   ] 53% | 1.94 sec | hypergradient_direct |     [.....................                   ] 53% | 1.95 sec | hypergradient_direct |     [.....................                   ] 54% | 1.97 sec | hypergradient_direct |     [.....................                   ] 54% | 1.98 sec | hypergradient_direct |     [.....................                   ] 54% | 1.99 sec | hypergradient_direct |     [.....................                   ] 55% | 2.00 sec | hypergradient_direct |     [......................                  ] 55% | 2.02 sec | hypergradient_direct |     [......................                  ] 56% | 2.03 sec | hypergradient_direct |     [......................                  ] 56% | 2.04 sec | hypergradient_direct |     [......................                  ] 57% | 2.06 sec | hypergradient_direct |     [......................                  ] 57% | 2.07 sec | hypergradient_direct |     [......................                  ] 57% | 2.08 sec | hypergradient_direct |     [.......................                 ] 58% | 2.09 sec | hypergradient_direct |     [.......................                 ] 58% | 2.11 sec | hypergradient_direct |     [.......................                 ] 59% | 2.12 sec | hypergradient_direct |     [.......................                 ] 59% | 2.13 sec | hypergradient_direct |     [.......................                 ] 59% | 2.14 sec | hypergradient_direct |     [.......................                 ] 60% | 2.16 sec | hypergradient_direct |     [........................                ] 60% | 2.17 sec | hypergradient_direct |     [........................                ] 61% | 2.18 sec | hypergradient_direct |     [........................                ] 61% | 2.19 sec | hypergradient_direct |     [........................                ] 62% | 2.21 sec | hypergradient_direct |     [........................                ] 62% | 2.22 sec | hypergradient_direct |     [........................                ] 62% | 2.23 sec | hypergradient_direct |     [.........................               ] 63% | 2.25 sec | hypergradient_direct |     [.........................               ] 63% | 2.26 sec | hypergradient_direct |     [.........................               ] 64% | 2.27 sec | hypergradient_direct |     [.........................               ] 64% | 2.28 sec | hypergradient_direct |     [.........................               ] 65% | 2.30 sec | hypergradient_direct |     [.........................               ] 65% | 2.31 sec | hypergradient_direct |     [..........................              ] 65% | 2.32 sec | hypergradient_direct |     [..........................              ] 66% | 2.33 sec | hypergradient_direct |     [..........................              ] 66% | 2.35 sec | hypergradient_direct |     [..........................              ] 67% | 2.45 sec | hypergradient_direct |     [..........................              ] 67% | 2.58 sec | hypergradient_direct |     [...........................             ] 68% | 2.59 sec | hypergradient_direct |     [...........................             ] 68% | 2.60 sec | hypergradient_direct |     [...........................             ] 68% | 2.61 sec | hypergradient_direct |     [...........................             ] 69% | 2.62 sec | hypergradient_direct |     [...........................             ] 69% | 2.64 sec | hypergradient_direct |     [...........................             ] 70% | 2.65 sec | hypergradient_direct |     [............................            ] 70% | 2.66 sec | hypergradient_direct |     [............................            ] 70% | 2.67 sec | hypergradient_direct |     [............................            ] 71% | 2.68 sec | hypergradient_direct |     [............................            ] 71% | 2.70 sec | hypergradient_direct |     [............................            ] 72% | 2.71 sec | hypergradient_direct |     [............................            ] 72% | 2.72 sec | hypergradient_direct |     [.............................           ] 73% | 2.73 sec | hypergradient_direct |     [.............................           ] 73% | 2.74 sec | hypergradient_direct |     [.............................           ] 73% | 2.76 sec | hypergradient_direct |     [.............................           ] 74% | 2.77 sec | hypergradient_direct |     [.............................           ] 74% | 2.78 sec | hypergradient_direct |     [.............................           ] 75% | 2.79 sec | hypergradient_direct |     [..............................          ] 75% | 2.80 sec | hypergradient_direct |     [..............................          ] 76% | 2.81 sec | hypergradient_direct |     [..............................          ] 76% | 2.83 sec | hypergradient_direct |     [..............................          ] 76% | 2.84 sec | hypergradient_direct |     [..............................          ] 77% | 2.85 sec | hypergradient_direct |     [..............................          ] 77% | 2.86 sec | hypergradient_direct |     [...............................         ] 78% | 2.87 sec | hypergradient_direct |     [...............................         ] 78% | 2.89 sec | hypergradient_direct |     [...............................         ] 78% | 2.90 sec | hypergradient_direct |     [...............................         ] 79% | 2.91 sec | hypergradient_direct |     [...............................         ] 79% | 2.93 sec | hypergradient_direct |     [...............................         ] 80% | 2.94 sec | hypergradient_direct |     [................................        ] 80% | 2.96 sec | hypergradient_direct |     [................................        ] 81% | 2.97 sec | hypergradient_direct |     [................................        ] 81% | 2.98 sec | hypergradient_direct |     [................................        ] 81% | 2.99 sec | hypergradient_direct |     [................................        ] 82% | 3.00 sec | hypergradient_direct |     [................................        ] 82% | 3.02 sec | hypergradient_direct |     [.................................       ] 83% | 3.03 sec | hypergradient_direct |     [.................................       ] 83% | 3.04 sec | hypergradient_direct |     [.................................       ] 84% | 3.05 sec | hypergradient_direct |     [.................................       ] 84% | 3.06 sec | hypergradient_direct |     [.................................       ] 84% | 3.07 sec | hypergradient_direct |     [.................................       ] 85% | 3.09 sec | hypergradient_direct |     [..................................      ] 85% | 3.10 sec | hypergradient_direct |     [..................................      ] 86% | 3.11 sec | hypergradient_direct |     [..................................      ] 86% | 3.12 sec | hypergradient_direct |     [..................................      ] 86% | 3.13 sec | hypergradient_direct |     [..................................      ] 87% | 3.15 sec | hypergradient_direct |     [..................................      ] 87% | 3.16 sec | hypergradient_direct |     [...................................     ] 88% | 3.17 sec | hypergradient_direct |     [...................................     ] 88% | 3.18 sec | hypergradient_direct |     [...................................     ] 89% | 3.19 sec | hypergradient_direct |     [...................................     ] 89% | 3.20 sec | hypergradient_direct |     [...................................     ] 89% | 3.22 sec | hypergradient_direct |     [...................................     ] 90% | 3.23 sec | hypergradient_direct |     [....................................    ] 90% | 3.24 sec | hypergradient_direct |     [....................................    ] 91% | 3.25 sec | hypergradient_direct |     [....................................    ] 91% | 3.26 sec | hypergradient_direct |     [....................................    ] 92% | 3.28 sec | hypergradient_direct |     [....................................    ] 92% | 3.29 sec | hypergradient_direct |     [....................................    ] 92% | 3.30 sec | hypergradient_direct |     [.....................................   ] 93% | 3.31 sec | hypergradient_direct |     [.....................................   ] 93% | 3.32 sec | hypergradient_direct |     [.....................................   ] 94% | 3.34 sec | hypergradient_direct |     [.....................................   ] 94% | 3.35 sec | hypergradient_direct |     [.....................................   ] 95% | 3.36 sec | hypergradient_direct |     [.....................................   ] 95% | 3.37 sec | hypergradient_direct |     [......................................  ] 95% | 3.38 sec | hypergradient_direct |     [......................................  ] 96% | 3.39 sec | hypergradient_direct |     [......................................  ] 96% | 3.41 sec | hypergradient_direct |     [......................................  ] 97% | 3.42 sec | hypergradient_direct |     [......................................  ] 97% | 3.43 sec | hypergradient_direct |     [......................................  ] 97% | 3.44 sec | hypergradient_direct |     [....................................... ] 98% | 3.45 sec | hypergradient_direct |     [....................................... ] 98% | 3.47 sec | hypergradient_direct |     [....................................... ] 99% | 3.48 sec | hypergradient_direct |     [....................................... ] 99% | 3.49 sec | hypergradient_direct |     [....................................... ] 100% | 3.50 sec | hypergradient_direct |     [........................................] 100% | 3.59 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [........................................] 100% | 4.31 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [........                                ] 20% | 3.57 sec | hypergradient_direct |     [................                        ] 40% | 3.84 sec | hypergradient_direct |     [........................                ] 60% | 4.12 sec | hypergradient_direct |     [................................        ] 80% | 4.40 sec | hypergradient_direct |     [........................................] 100% | 4.74 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 3% | 4.27 sec | hypergradient_direct |     [..                                      ] 7% | 4.60 sec | hypergradient_direct |     [....                                    ] 10% | 4.93 sec | hypergradient_direct |     [.....                                   ] 14% | 5.26 sec | hypergradient_direct |     [......                                  ] 17% | 5.59 sec | hypergradient_direct |     [........                                ] 21% | 5.92 sec | hypergradient_direct |     [.........                               ] 24% | 6.25 sec | hypergradient_direct |     [...........                             ] 28% | 6.57 sec | hypergradient_direct |     [............                            ] 31% | 6.90 sec | hypergradient_direct |     [.............                           ] 34% | 7.23 sec | hypergradient_direct |     [...............                         ] 38% | 7.56 sec | hypergradient_direct |     [................                        ] 41% | 7.89 sec | hypergradient_direct |     [.................                       ] 45% | 8.22 sec | hypergradient_direct |     [...................                     ] 48% | 8.55 sec | hypergradient_direct |     [....................                    ] 52% | 8.88 sec | hypergradient_direct |     [......................                  ] 55% | 9.20 sec | hypergradient_direct |     [.......................                 ] 59% | 9.53 sec | hypergradient_direct |     [........................                ] 62% | 9.86 sec | hypergradient_direct |     [..........................              ] 66% | 10.19 sec | hypergradient_direct |     [...........................             ] 69% | 10.52 sec | hypergradient_direct |     [............................            ] 72% | 10.85 sec | hypergradient_direct |     [..............................          ] 76% | 11.18 sec | hypergradient_direct |     [...............................         ] 79% | 11.51 sec | hypergradient_direct |     [.................................       ] 83% | 11.83 sec | hypergradient_direct |     [..................................      ] 86% | 12.16 sec | hypergradient_direct |     [...................................     ] 90% | 12.49 sec | hypergradient_direct |     [.....................................   ] 93% | 12.82 sec | hypergradient_direct |     [......................................  ] 97% | 13.15 sec | hypergradient_direct |     [........................................] 100% | 13.53 sec | hypergradient_direct | 
 
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 240-241
+.. GENERATED FROM PYTHON SOURCE LINES 233-234
 
 Get the normalized kernel weights for the first model
 
-.. GENERATED FROM PYTHON SOURCE LINES 241-244
+.. GENERATED FROM PYTHON SOURCE LINES 234-237
 
 .. code-block:: default
 
@@ -631,7 +681,7 @@ Get the normalized kernel weights for the first model
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 245-256
+.. GENERATED FROM PYTHON SOURCE LINES 238-249
 
 Plot on the simplex
 -------------------
@@ -645,7 +695,7 @@ We plot on three different panels:
 - the kernel weights sampled during random search, and the best ones
 - the kernel weights trajectories obtained during hyper-gradient descent
 
-.. GENERATED FROM PYTHON SOURCE LINES 256-329
+.. GENERATED FROM PYTHON SOURCE LINES 249-322
 
 .. code-block:: default
 
@@ -729,19 +779,19 @@ We plot on three different panels:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 330-359
+.. GENERATED FROM PYTHON SOURCE LINES 323-352
 
 .. code-block:: default
 
     fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
     # selection of targets
-    selection = slice(0, 100)
+    selection = slice(0, 50)
 
     # First panel
     ax = axs[0]
     ax.set_title("(a) Ground truth", y=0)
-    plot_simplex(kernel_weights_true[selection], ax=ax, color='C2',
+    plot_simplex(kernel_weights[selection], ax=ax, color='C2',
                  label="true weights")
 
     # Second panel
@@ -765,9 +815,10 @@ We plot on three different panels:
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_004.png
-    :alt: (a) Ground truth, (b) Random search, (c) Gradient descent
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_004.png
+   :alt: (a) Ground truth, (b) Random search, (c) Gradient descent
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_004.png
+   :class: sphx-glr-single-img
 
 
 
@@ -776,7 +827,7 @@ We plot on three different panels:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  16.569 seconds)
+   **Total running time of the script:** ( 1 minutes  3.703 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py:

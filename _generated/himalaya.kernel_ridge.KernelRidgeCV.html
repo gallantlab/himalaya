@@ -4,14 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.kernel_ridge.KernelRidgeCV &#8212; Himalaya 0.3.3 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>himalaya.kernel_ridge.KernelRidgeCV &#8212; Himalaya 0.3.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sg_gallery-rendered-html.css" />
     <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
     <script src="../_static/jquery.js"></script>
     <script src="../_static/underscore.js"></script>
@@ -75,6 +76,7 @@
 <li class="toctree-l2"><a class="reference internal" href="../api.html#other-modules">Other modules</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../changelog.html">Changelog</a></li>
 </ul>
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../_auto_examples/index.html">Gallery of examples</a></li>
@@ -99,11 +101,11 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="himalaya-kernel-ridge-kernelridgecv">
+  <section id="himalaya-kernel-ridge-kernelridgecv">
 <h1>himalaya.kernel_ridge.KernelRidgeCV<a class="headerlink" href="#himalaya-kernel-ridge-kernelridgecv" title="Permalink to this headline">¶</a></h1>
 <dl class="py class">
 <dt class="sig sig-object py" id="himalaya.kernel_ridge.KernelRidgeCV">
-<em class="property"><span class="pre">class</span> </em><span class="sig-prename descclassname"><span class="pre">himalaya.kernel_ridge.</span></span><span class="sig-name descname"><span class="pre">KernelRidgeCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alphas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eigenvalues'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_intercept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_in_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/kernel_ridge/_sklearn_api.html#KernelRidgeCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.kernel_ridge.KernelRidgeCV" title="Permalink to this definition">¶</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">himalaya.kernel_ridge.</span></span><span class="sig-name descname"><span class="pre">KernelRidgeCV</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">alphas</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">[0.1,</span> <span class="pre">1]</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'linear'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kernel_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'eigenvalues'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_params</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fit_intercept</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cv</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">5</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">Y_in_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">force_cpu</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">warn</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/kernel_ridge/_sklearn_api.html#KernelRidgeCV"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.kernel_ridge.KernelRidgeCV" title="Permalink to this definition">¶</a></dt>
 <dd><p>Kernel ridge regression with efficient cross-validation over alpha.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -138,6 +140,9 @@ If False, X and Y must be zero-mean over samples.</p>
 <dt><strong>force_cpu</strong><span class="classifier">bool</span></dt><dd><p>If True, computations will be performed on CPU, ignoring the
 current backend. If False, use the current backend.</p>
 </dd>
+<dt><strong>warn</strong><span class="classifier">bool</span></dt><dd><p>If True, warn if the number of samples is larger than the number of
+features, and if the kernel is linear.</p>
+</dd>
 </dl>
 </dd>
 </dl>
@@ -159,7 +164,9 @@ current backend. If False, use the current backend.</p>
 </dd>
 <dt><strong>best_alphas_</strong><span class="classifier">array of shape (n_targets, )</span></dt><dd><p>Selected best hyperparameter alphas.</p>
 </dd>
-<dt><strong>cv_scores_</strong><span class="classifier">array of shape (n_targets, )</span></dt><dd><p>Cross-validation scores averaged over splits, for the best alpha.</p>
+<dt><strong>cv_scores_</strong><span class="classifier">array of shape (n_targets, )</span></dt><dd><p>Cross-validation scores averaged over splits, for the best alpha.
+By default, the scores are computed with l2_neg_loss (in ]-inf, 0]).
+The scoring function can be changed with solver_params[“score_func”].</p>
 </dd>
 <dt><strong>X_fit_</strong><span class="classifier">array of shape (n_samples, n_features)</span></dt><dd><p>Training data. If kernel == “precomputed” this is None.</p>
 </dd>
@@ -198,7 +205,7 @@ used during the fit.</p>
 </table>
 </dd></dl>
 
-</div>
+</section>
 
 
           </div>
@@ -211,7 +218,7 @@ used during the fit.</p>
       &copy;2020, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

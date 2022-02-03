@@ -68,11 +68,20 @@ In this example, we use the ``torch_cuda`` backend (GPU).
 .. code-block:: default
 
 
-    backend = set_backend("torch_cuda")
+    backend = set_backend("torch_cuda", on_error="warn")
 
 
 
 
+
+.. rst-class:: sphx-glr-script-out
+
+ Out:
+
+ .. code-block:: none
+
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:56: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
+      warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 
 
@@ -109,7 +118,7 @@ Generate a random dataset
 .. code-block:: default
 
 
-    (X_train, X_test, Y_train, Y_test, kernel_weights_true,
+    (X_train, X_test, Y_train, Y_test, kernel_weights,
      n_features_list) = generate_multikernel_dataset(n_kernels=4, n_targets=500,
                                                      n_samples_train=1000,
                                                      n_samples_test=400,
@@ -163,7 +172,7 @@ can be typically used with deltas obtained from a MultipleKernelRidgeCV fit.
 .. code-block:: default
 
 
-    deltas = backend.log(backend.asarray(kernel_weights_true.T))
+    deltas = backend.log(backend.asarray(kernel_weights.T))
 
     model_1 = WeightedKernelRidge(alpha=1, deltas=deltas, kernels="precomputed")
     pipe_1 = make_pipeline(column_kernelizer, model_1)
@@ -233,9 +242,10 @@ Compare the predictions on a test set
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_4_refit_from_deltas_001.png
-    :alt: plot mkr 4 refit from deltas
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_4_refit_from_deltas_001.png
+   :alt: plot mkr 4 refit from deltas
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_4_refit_from_deltas_001.png
+   :class: sphx-glr-single-img
 
 
 
@@ -244,7 +254,7 @@ Compare the predictions on a test set
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.346 seconds)
+   **Total running time of the script:** ( 0 minutes  2.529 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py:

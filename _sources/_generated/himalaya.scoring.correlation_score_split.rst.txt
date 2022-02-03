@@ -1,0 +1,6 @@
+﻿himalaya.scoring.correlation\_score\_split
+==========================================
+
+.. currentmodule:: himalaya.scoring
+
+.. autofunction:: correlation_score_split

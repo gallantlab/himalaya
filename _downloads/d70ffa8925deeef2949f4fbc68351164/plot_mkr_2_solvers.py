@@ -39,9 +39,9 @@ set_config(display='diagram')
 
 # sphinx_gallery_thumbnail_number = 4
 ###############################################################################
-# In this example, we use the ``torch`` backend, and fit the model on GPU.
+# In this example, we use the ``torch_cuda`` backend, and fit the model on GPU.
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset
@@ -50,26 +50,25 @@ backend = set_backend("torch_cuda")
 # samples on a Dirichlet distribution.
 
 n_kernels = 3
-n_targets = 500
+n_targets = 50
 n_clusters = 2
 
 ###############################################################################
 # To create some clusters of weights, we take a few kernel weights samples..
-kernel_weights_true = generate_dirichlet_samples(n_clusters, n_kernels,
-                                                 concentration=[.3],
-                                                 random_state=105)
+kernel_weights = generate_dirichlet_samples(n_clusters, n_kernels,
+                                            concentration=[.3],
+                                            random_state=105)
 
 ###############################################################################
 # .. then, we duplicate them, and add some noise, to get clusters.
 noise = 0.05
-kernel_weights_true = backend.to_numpy(kernel_weights_true)
-kernel_weights_true = np.tile(kernel_weights_true,
-                              (n_targets // n_clusters, 1))
-kernel_weights_true += np.random.randn(n_targets, n_kernels) * noise
+kernel_weights = backend.to_numpy(kernel_weights)
+kernel_weights = np.tile(kernel_weights, (n_targets // n_clusters, 1))
+kernel_weights += np.random.randn(n_targets, n_kernels) * noise
 
 # We finish with a projection on the simplex, making kernel weights sum to one.
-kernel_weights_true[kernel_weights_true < 0] = 0.
-kernel_weights_true /= np.sum(kernel_weights_true, 1)[:, None]
+kernel_weights[kernel_weights < 0] = 0.
+kernel_weights /= np.sum(kernel_weights, 1)[:, None]
 
 ###############################################################################
 # Then, we generate a random dataset, using the arbitrary scalings.
@@ -79,11 +78,10 @@ kernel_weights_true /= np.sum(kernel_weights_true, 1)[:, None]
 # - Y_train : array of shape (n_samples_train, n_targets)
 # - Y_test : array of shape (n_samples_test, n_targets)
 
-(X_train, X_test, Y_train, Y_test, kernel_weights_true,
- n_features_list) = generate_multikernel_dataset(
-     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=1000,
-     n_samples_test=300, kernel_weights_true=kernel_weights_true,
-     random_state=42)
+(X_train, X_test, Y_train, Y_test,
+ kernel_weights, n_features_list) = generate_multikernel_dataset(
+     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=600,
+     n_samples_test=300, kernel_weights=kernel_weights, random_state=42)
 
 feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
 
@@ -126,7 +124,7 @@ model_1 = MultipleKernelRidgeCV(kernels="precomputed", solver="random_search",
 ###############################################################################
 # We define the second model, using the hyper_gradient solver.
 
-solver_params = dict(max_iter=80, n_targets_batch=200, tol=1e-3,
+solver_params = dict(max_iter=30, n_targets_batch=200, tol=1e-3,
                      initial_deltas="ridgecv", max_iter_inner_hyper=1,
                      hyper_gradient_method="direct")
 
@@ -201,13 +199,7 @@ scores_baseline = backend.to_numpy(scores_baseline)
 
 ###############################################################################
 # Plot histograms
-bins = np.linspace(
-    np.min([scores_baseline.min(),
-            scores_1.min(),
-            scores_2.min()]),
-    np.max([scores_baseline.max(),
-            scores_1.max(),
-            scores_2.max()]), 50)
+bins = np.linspace(0, 1, 50)
 plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
 plt.hist(scores_1, bins, alpha=0.7,
          label="MultipleKernelRidgeCV(solver='random_search')")
@@ -227,9 +219,10 @@ plt.show()
 all_kernel_weights_2 = [
     np.full((n_targets, n_kernels), fill_value=1. / n_kernels),
 ]
-for max_iter in np.unique(np.int_(np.logspace(0, np.log10(80), 3))):
-    # change max_iter and refit from scratch
-    pipe_2[1].solver_params['max_iter'] = max_iter
+max_iter = model_2.solver_params["max_iter"]
+for n_iter in np.unique(np.int_(np.logspace(0, np.log10(max_iter), 3))):
+    # change the number of iteration and refit from scratch
+    pipe_2[1].solver_params['max_iter'] = n_iter
     pipe_2.fit(X_train, Y_train)
 
     kernel_weights_2 = np.exp(backend.to_numpy(pipe_2[1].deltas_.T))
@@ -330,12 +323,12 @@ def plot_simplex_trajectory(Xs, ax=None):
 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
 # selection of targets
-selection = slice(0, 100)
+selection = slice(0, 50)
 
 # First panel
 ax = axs[0]
 ax.set_title("(a) Ground truth", y=0)
-plot_simplex(kernel_weights_true[selection], ax=ax, color='C2',
+plot_simplex(kernel_weights[selection], ax=ax, color='C2',
              label="true weights")
 
 # Second panel
