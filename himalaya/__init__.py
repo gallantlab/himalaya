@@ -7,7 +7,7 @@ from . import scoring
 from . import utils
 from . import viz
 
-__version__ = '0.3.5'
+__version__ = '0.3.5'  #
 
 __all__ = [
     backend,

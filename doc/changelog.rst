@@ -4,6 +4,12 @@ Changelog
 Development Version
 ~~~~~~~~~~~~~~~~~~~
 
+- ...
+
+Version 0.3.5
+~~~~~~~~~~~~~
+(*February 2022*)
+
 - MNT speed up examples on CPU, to build the doc faster on github actions.
 - ENH add batching over targets in :class:`~himalaya.ridge.Ridge`, 
   :class:`~himalaya.kernel_ridge.KernelRidge`, and

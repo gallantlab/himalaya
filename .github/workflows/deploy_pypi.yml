@@ -22,18 +22,21 @@ jobs:
       run: |
         python -m pip install --upgrade -q pip
         pip index versions himalaya
-        echo "LATEST=$(pip index versions himalaya | grep 'himalaya' |awk '{print $2}' | tr -d '(' | tr -d ')')" >> $GITHUB_ENV
-        echo "CURRENT=$(cat himalaya/__init__.py | grep "__version__" | awk '{print $3}' | tr -d "'" | tr -d '"')" >> $GITHUB_ENV
-        echo "SORTED=$(echo $CURRENT"\n"$LATEST | sort --check=quiet --version-sort && echo 1 || echo 0)" >> $GITHUB_ENV
+        LATEST=$(pip index versions himalaya | grep 'himalaya' |awk '{print $2}' | tr -d '(' | tr -d ')')
+        CURRENT=$(cat himalaya/__init__.py | grep "__version__" | awk '{print $3}' | tr -d "'" | tr -d '"')
+        EQUAL=$([ "$CURRENT" = "$LATEST" ] && echo 1 || echo 0)
+        echo "LATEST=$LATEST" >> $GITHUB_ENV
+        echo "CURRENT=$CURRENT" >> $GITHUB_ENV
+        echo "EQUAL=$EQUAL" >> $GITHUB_ENV
     
     - name: Print versions
       run: |
         echo ${{ env.LATEST }}
         echo ${{ env.CURRENT }}
-        echo ${{ env.SORTED }}
+        echo ${{ env.EQUAL }}
 
     - name: Build and publish
-      if: ${{ env.SORTED == 0 }}
+      if: ${{ env.EQUAL == 0 }}
       env:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.PYPI_PASSWORD }}
