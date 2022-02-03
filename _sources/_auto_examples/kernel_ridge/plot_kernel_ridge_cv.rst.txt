@@ -138,8 +138,8 @@ which supports any cross-validation scheme compatible with scikit-learn.
 
  .. code-block:: none
 
-    /home/runner/work/himalaya/himalaya/himalaya/kernel_ridge/_sklearn_api.py:474: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.RidgeCV would be faster. Use warn=False to silence this warning.
-      warnings.warn(
+    /home/jlg/tomdlt/gbox/work/github/himalaya/himalaya/kernel_ridge/_sklearn_api.py:478: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.RidgeCV would be faster. Use warn=False to silence this warning.
+      "Use warn=False to silence this warning.", UserWarning)
 
     KernelRidgeCV(alphas=array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02]))
 
@@ -172,7 +172,7 @@ KernelRidgeCV returns a separate best alpha per target.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.037 seconds)
+   **Total running time of the script:** ( 0 minutes  0.029 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py:

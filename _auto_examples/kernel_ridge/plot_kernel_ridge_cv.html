@@ -4,15 +4,14 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>Kernel ridge with cross-validation &#8212; Himalaya 0.3.4 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kernel ridge with cross-validation &#8212; Himalaya 0.3.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-rendered-html.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
@@ -103,12 +102,12 @@
 <p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-cv-py"><span class="std std-ref">here</span></a>
 to download the full example code</p>
 </div>
-<section class="sphx-glr-example-title" id="kernel-ridge-with-cross-validation">
+<div class="sphx-glr-example-title section" id="kernel-ridge-with-cross-validation">
 <span id="sphx-glr-auto-examples-kernel-ridge-plot-kernel-ridge-cv-py"></span><h1>Kernel ridge with cross-validation<a class="headerlink" href="#kernel-ridge-with-cross-validation" title="Permalink to this headline">¶</a></h1>
 <p>This example demonstrates how to solve kernel ridge regression with a
 cross-validation of the regularization parameter, using himalaya’s estimator
 <code class="docutils literal notranslate"><span class="pre">KernelRidgeCV</span></code>.</p>
-<section id="create-a-random-dataset">
+<div class="section" id="create-a-random-dataset">
 <h2>Create a random dataset<a class="headerlink" href="#create-a-random-dataset" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
 <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -117,8 +116,8 @@ cross-validation of the regularization parameter, using himalaya’s estimator
 <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="limit-of-gridsearchcv">
+</div>
+<div class="section" id="limit-of-gridsearchcv">
 <h2>Limit of GridSearchCV<a class="headerlink" href="#limit-of-gridsearchcv" title="Permalink to this headline">¶</a></h2>
 <p>In scikit-learn, one can use <code class="docutils literal notranslate"><span class="pre">GridSearchCV</span></code> to optimize hyperparameters
 over cross-validation.</p>
@@ -147,8 +146,8 @@ it returns a single value for alpha.</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>{&#39;alpha&#39;: 10.0}
 </pre></div>
 </div>
-</section>
-<section id="kernelridgecv">
+</div>
+<div class="section" id="kernelridgecv">
 <h2>KernelRidgeCV<a class="headerlink" href="#kernelridgecv" title="Permalink to this headline">¶</a></h2>
 <p>To optimize each target independently, himalaya implements <code class="docutils literal notranslate"><span class="pre">KernelRidgeCV</span></code>,
 which supports any cross-validation scheme compatible with scikit-learn.</p>
@@ -160,8 +159,8 @@ which supports any cross-validation scheme compatible with scikit-learn.</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/kernel_ridge/_sklearn_api.py:474: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples &gt; n_features (here 10 &gt; 5). Using himalaya.ridge.RidgeCV would be faster. Use warn=False to silence this warning.
-  warnings.warn(
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/jlg/tomdlt/gbox/work/github/himalaya/himalaya/kernel_ridge/_sklearn_api.py:478: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples &gt; n_features (here 10 &gt; 5). Using himalaya.ridge.RidgeCV would be faster. Use warn=False to silence this warning.
+  &quot;Use warn=False to silence this warning.&quot;, UserWarning)
 
 KernelRidgeCV(alphas=array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02]))
 </pre></div>
@@ -174,7 +173,7 @@ KernelRidgeCV(alphas=array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02]))
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>array([ 10., 100.,  10., 100.])
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.037 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.029 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-cv-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/1d2e1e95381e0cbd97817475624449a8/plot_kernel_ridge_cv.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_kernel_ridge_cv.py</span></code></a></p>
@@ -184,8 +183,8 @@ KernelRidgeCV(alphas=array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02]))
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</section>
-</section>
+</div>
+</div>
 
 
           </div>
@@ -198,7 +197,7 @@ KernelRidgeCV(alphas=array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02]))
       &copy;2020, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

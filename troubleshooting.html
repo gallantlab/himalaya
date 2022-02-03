@@ -4,15 +4,14 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
-    <title>Troubleshooting &#8212; Himalaya 0.3.4 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Troubleshooting &#8212; Himalaya 0.3.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/gallery-rendered-html.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
@@ -96,13 +95,13 @@
 
           <div class="body" role="main">
             
-  <section id="troubleshooting">
+  <div class="section" id="troubleshooting">
 <h1>Troubleshooting<a class="headerlink" href="#troubleshooting" title="Permalink to this headline">¶</a></h1>
 <p>We detail here common issues encountered with <code class="docutils literal notranslate"><span class="pre">himalaya</span></code>, and how to fix
 them.</p>
 <div class="toctree-wrapper compound">
 </div>
-<section id="cuda-out-of-memory">
+<div class="section" id="cuda-out-of-memory">
 <h2>CUDA out of memory<a class="headerlink" href="#cuda-out-of-memory" title="Permalink to this headline">¶</a></h2>
 <p>The GPU memory is often smaller than the CPU memory, so it requires more
 attention to avoid running out of memory. Himalaya implements a series of
@@ -128,15 +127,15 @@ with <a class="reference internal" href="_generated/himalaya.kernel_ridge.Kernel
 ridiculously high peak memory during a broadcasting matmul operation. This
 <a class="reference external" href="https://github.com/pytorch/pytorch/pull/54616">issue</a> can be fixed by
 updating to <code class="docutils literal notranslate"><span class="pre">pytorch</span> <span class="pre">=</span> <span class="pre">1.9</span></code> or newer versions.</p>
-</section>
-<section id="slow-check-array">
+</div>
+<div class="section" id="slow-check-array">
 <h2>Slow check_array<a class="headerlink" href="#slow-check-array" title="Permalink to this headline">¶</a></h2>
 <p>In himalaya, the scikit-learn compatible estimators validate the input data,
 checking the absence of NaN or infinite values. For large datasets, this check
 can take significant computational time. To skip this check, simply call
 <code class="docutils literal notranslate"><span class="pre">sklearn.set_config(assume_finite=True)</span></code> before fitting your models.</p>
-</section>
-</section>
+</div>
+</div>
 
 
           </div>
@@ -149,7 +148,7 @@ can take significant computational time. To skip this check, simply call
       &copy;2020, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.4.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |

@@ -76,15 +76,6 @@ the backend is kept unchanged.
 
 
 
-.. rst-class:: sphx-glr-script-out
-
- Out:
-
- .. code-block:: none
-
-    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:56: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
-      warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
-
 
 
 
@@ -119,8 +110,8 @@ change the float precision to float32.
 
  .. code-block:: none
 
-    /home/runner/work/himalaya/himalaya/himalaya/kernel_ridge/_sklearn_api.py:190: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.Ridge would be faster. Use warn=False to silence this warning.
-      warnings.warn(
+    /home/jlg/tomdlt/gbox/work/github/himalaya/himalaya/kernel_ridge/_sklearn_api.py:194: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.Ridge would be faster. Use warn=False to silence this warning.
+      " silence this warning.", UserWarning)
 
     KernelRidge(alpha=0.1)
 
@@ -150,7 +141,7 @@ you can create a numpy array using the function ``backend.to_numpy``.
 
  .. code-block:: none
 
-    <class 'numpy.ndarray'>
+    <class 'cupy.core.core.ndarray'>
     <class 'numpy.ndarray'>
 
 
@@ -159,7 +150,7 @@ you can create a numpy array using the function ``backend.to_numpy``.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.007 seconds)
+   **Total running time of the script:** ( 0 minutes  2.393 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_model_on_gpu.py.py:
