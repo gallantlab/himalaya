@@ -22,7 +22,7 @@ Version 0.3.5
   samples.
 
 Version 0.3.4
-~~~~~~~~~~~~~
+-------------
 (*November 2021*)
 
 - FIX :class:`~himalaya.ridge.Ridge` with ``n_samples < n_targets``.
