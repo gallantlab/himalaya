@@ -85,7 +85,7 @@ scikit-learn estimator, with similar parameters and methods.
 
     /home/runner/work/himalaya/himalaya/himalaya/kernel_ridge/_sklearn_api.py:190: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.Ridge would be faster. Use warn=False to silence this warning.
       warnings.warn(
-    6.181166689600559e-14
+    1.5343282200319663e-13
 
 
 
@@ -116,9 +116,9 @@ average score over targets.
 
  .. code-block:: none
 
-    0.3792750920185488
-    [0.64511919 0.02057311 0.51144865 0.33995942]
-    0.37927509201855036
+    0.5069907040119903
+    [0.8867785  0.43619117 0.0680082  0.63698495]
+    0.5069907040119892
 
 
 
@@ -126,7 +126,7 @@ average score over targets.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.024 seconds)
+   **Total running time of the script:** ( 0 minutes  0.030 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py:
