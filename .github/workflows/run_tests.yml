@@ -39,7 +39,7 @@ jobs:
     - name: Test with pytest
       run: |
         pip install -q pytest pytest-cov codecov
-        pytest --cov=./
+        pytest --cov=./  --reruns 2
 
     - name: Run codecov
       run: |

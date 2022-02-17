@@ -28,7 +28,7 @@ extras_require = {
     "all_backends": ["cupy", "torch"],
     "viz": ["matplotlib"],
     "test": ["pytest", "matplotlib", "cupy", "torch"],
-    "github": ["pytest", "matplotlib", "torch"],
+    "github": ["pytest", "matplotlib", "torch", "pytest-rerunfailures"],
 }
 
 extras_require["all"] = sum(list(extras_require.values()), [])

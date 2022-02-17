@@ -87,7 +87,7 @@ def test_solve_weighted_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
 
     solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
-    decimal = 1 if solver_name == "neumann_series" else 3
+    decimal = 3  # 1 if solver_name == "neumann_series" else 3
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
     exp_deltas = backend.exp(deltas)
