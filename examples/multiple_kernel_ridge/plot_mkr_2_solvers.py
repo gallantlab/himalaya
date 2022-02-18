@@ -54,13 +54,13 @@ n_targets = 50
 n_clusters = 2
 
 ###############################################################################
-# To create some clusters of weights, we take a few kernel weights samples..
+# To create some clusters of weights, we take a few kernel weights samples.
 kernel_weights = generate_dirichlet_samples(n_clusters, n_kernels,
                                             concentration=[.3],
                                             random_state=105)
 
 ###############################################################################
-# .. then, we duplicate them, and add some noise, to get clusters.
+# Then, we duplicate them, and add some noise, to get clusters.
 noise = 0.05
 kernel_weights = backend.to_numpy(kernel_weights)
 kernel_weights = np.tile(kernel_weights, (n_targets // n_clusters, 1))

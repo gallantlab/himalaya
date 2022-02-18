@@ -14,16 +14,13 @@ from himalaya.kernel_ridge import ColumnKernelizer
 from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
+from sklearn import set_config
+set_config(display='diagram')
 
 ###############################################################################
 # In this example, we use the ``cupy`` backend (GPU).
 
 backend = set_backend("cupy", on_error="warn")
-
-###############################################################################
-# We can display the ``scikit-learn`` pipeline with an HTML diagram.
-from sklearn import set_config
-set_config(display='diagram')  # requires scikit-learn 0.23
 
 ###############################################################################
 # Generate a random dataset

@@ -3,6 +3,7 @@ Multiple-kernel ridge fit from fixed hyper-parameters
 =====================================================
 This example demonstrates how to fit a multiple-kernel ridge model with fixed
 hyper-parameters. Here are three different usecases:
+
 - If the kernel weights hyper-parameters are known and identical across
   targets, the kernels can be scaled and summed, and a simple KernelRidgeCV can
   be used to fit the model.
@@ -14,6 +15,7 @@ hyper-parameters. Here are three different usecases:
   each target independently.
 
 This method can be used for example in the following workflow:
+
 - fit a MultipleKernelRidgeCV to learn the kernel weights hyper-parameter,
 - save the hyper-parameters, but not the ridge weights to save disk space,
 - fit a WeightedKernelRidge from the saved hyper-parameters, for further use of
@@ -28,16 +30,13 @@ from himalaya.kernel_ridge import ColumnKernelizer
 from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
+from sklearn import set_config
+set_config(display='diagram')
 
 ###############################################################################
 # In this example, we use the ``torch_cuda`` backend (GPU).
 
 backend = set_backend("torch_cuda", on_error="warn")
-
-###############################################################################
-# We can display the ``scikit-learn`` pipeline with an HTML diagram.
-from sklearn import set_config
-set_config(display='diagram')  # requires scikit-learn 0.23
 
 ###############################################################################
 # Generate a random dataset
@@ -83,6 +82,7 @@ pipe_1 = make_pipeline(column_kernelizer, model_1)
 # Fit the model on all targets
 pipe_1.fit(X_train, Y_train)
 
+###############################################################################
 # compute test score
 test_scores_1 = pipe_1.score(X_test, Y_test)
 test_scores_1 = backend.to_numpy(test_scores_1)
@@ -97,6 +97,7 @@ pipe_2 = make_pipeline(column_kernelizer, model_2)
 # Fit the model on all targets
 pipe_2.fit(X_train, Y_train)
 
+###############################################################################
 # compute test score
 test_scores_2 = pipe_2.score(X_test, Y_test)
 test_scores_2 = backend.to_numpy(test_scores_2)

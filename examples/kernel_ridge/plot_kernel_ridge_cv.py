@@ -12,7 +12,7 @@ cross-validation of the regularization parameter, using himalaya's estimator
 # -----------------------
 import numpy as np
 np.random.seed(0)
-n_samples, n_features, n_targets = 10, 5, 4
+n_samples, n_features, n_targets = 10, 20, 4
 X = np.random.randn(n_samples, n_features)
 Y = np.random.randn(n_samples, n_targets)
 
