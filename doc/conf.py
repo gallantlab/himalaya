@@ -57,6 +57,7 @@ sphinx_gallery_conf = {
     'remove_config_comments': 'True',
     'plot_gallery': 'True',
     'thumbnail_size': (480, 250),
+    'download_all_examples': False,
 }
 
 # Add any paths that contain templates here, relative to this directory.
