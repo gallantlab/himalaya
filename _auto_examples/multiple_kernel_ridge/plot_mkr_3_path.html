@@ -167,13 +167,14 @@ details.</p>
 <span class="c1"># Create a MultipleKernelRidgeCV model.</span>
 <span class="n">solver_params</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">alphas</span><span class="o">=</span><span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">5</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">41</span><span class="p">),</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">)</span>
 <span class="n">model</span> <span class="o">=</span> <span class="n">MultipleKernelRidgeCV</span><span class="p">(</span><span class="n">kernels</span><span class="o">=</span><span class="s2">&quot;precomputed&quot;</span><span class="p">,</span> <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;random_search&quot;</span><span class="p">,</span>
-                              <span class="n">solver_params</span><span class="o">=</span><span class="n">solver_params</span><span class="p">)</span>
+                              <span class="n">solver_params</span><span class="o">=</span><span class="n">solver_params</span><span class="p">,</span>
+                              <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
 <span class="n">pipe</span> <span class="o">=</span> <span class="n">make_pipeline</span><span class="p">(</span><span class="n">column_kernelizer</span><span class="p">,</span> <span class="n">model</span><span class="p">)</span>
 <span class="n">pipe</span>
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
-<style>#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 {color: black;background-color: white;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 pre{padding: 0;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-toggleable {background-color: white;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-estimator:hover {background-color: #d4ebff;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-item {z-index: 1;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-parallel-item:only-child::after {width: 0;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52 div.sk-text-repr-fallback {display: none;}</style><div id="sk-fb9e485b-9c16-4da4-a344-58f8ce56ca52" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+<style>#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 {color: black;background-color: white;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 pre{padding: 0;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-toggleable {background-color: white;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-estimator:hover {background-color: #d4ebff;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-item {z-index: 1;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-parallel-item:only-child::after {width: 0;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-656223e0-1cc5-404b-99a8-e13eb0f72841 div.sk-text-repr-fallback {display: none;}</style><div id="sk-656223e0-1cc5-404b-99a8-e13eb0f72841" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                  ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                  Kernelizer(),
                                                  slice(0, 1000, None)),
@@ -181,9 +182,9 @@ details.</p>
                                                  Kernelizer(),
                                                  slice(1000, 2000, None))])),
                 (&#x27;multiplekernelridgecv&#x27;,
-                 MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                 MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;, random_state=42,
                                        solver_params={&#x27;alphas&#x27;: array([1.00000000e-05, 1.77827941e-05, 3.16227766e-05, 5.62341325e-05,
-       1.00000000e-04, 1....
+       1...
        1.00000000e-01, 1.77827941e-01, 3.16227766e-01, 5.62341325e-01,
        1.00000000e+00, 1.77827941e+00, 3.16227766e+00, 5.62341325e+00,
        1.00000000e+01, 1.77827941e+01, 3.16227766e+01, 5.62341325e+01,
@@ -191,7 +192,7 @@ details.</p>
        1.00000000e+03, 1.77827941e+03, 3.16227766e+03, 5.62341325e+03,
        1.00000000e+04, 1.77827941e+04, 3.16227766e+04, 5.62341325e+04,
        1.00000000e+05]),
-                                                      &#x27;progress_bar&#x27;: False}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d0804eff-aae0-4c44-b0c9-dcb010271acb" type="checkbox" ><label for="d0804eff-aae0-4c44-b0c9-dcb010271acb" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                                                      &#x27;progress_bar&#x27;: False}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="b79f65bd-0d78-4c07-b17a-6e002be1a0e7" type="checkbox" ><label for="b79f65bd-0d78-4c07-b17a-6e002be1a0e7" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                  ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                  Kernelizer(),
                                                  slice(0, 1000, None)),
@@ -199,9 +200,9 @@ details.</p>
                                                  Kernelizer(),
                                                  slice(1000, 2000, None))])),
                 (&#x27;multiplekernelridgecv&#x27;,
-                 MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                 MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;, random_state=42,
                                        solver_params={&#x27;alphas&#x27;: array([1.00000000e-05, 1.77827941e-05, 3.16227766e-05, 5.62341325e-05,
-       1.00000000e-04, 1....
+       1...
        1.00000000e-01, 1.77827941e-01, 3.16227766e-01, 5.62341325e-01,
        1.00000000e+00, 1.77827941e+00, 3.16227766e+00, 5.62341325e+00,
        1.00000000e+01, 1.77827941e+01, 3.16227766e+01, 5.62341325e+01,
@@ -209,15 +210,15 @@ details.</p>
        1.00000000e+03, 1.77827941e+03, 3.16227766e+03, 5.62341325e+03,
        1.00000000e+04, 1.77827941e+04, 3.16227766e+04, 5.62341325e+04,
        1.00000000e+05]),
-                                                      &#x27;progress_bar&#x27;: False}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="eb559639-fea2-4934-8d61-c42e856a00b8" type="checkbox" ><label for="eb559639-fea2-4934-8d61-c42e856a00b8" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
+                                                      &#x27;progress_bar&#x27;: False}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="23c29f4d-5801-4c67-85f6-3d97359d6e3b" type="checkbox" ><label for="23c29f4d-5801-4c67-85f6-3d97359d6e3b" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
                                 slice(0, 1000, None)),
                                (&#x27;Feature space 1&#x27;, Kernelizer(),
-                                slice(1000, 2000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="0538211b-cbfa-4346-a481-110beca40592" type="checkbox" ><label for="0538211b-cbfa-4346-a481-110beca40592" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="b5b6d60a-15ad-41af-911e-7d8a4c27803d" type="checkbox" ><label for="b5b6d60a-15ad-41af-911e-7d8a4c27803d" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="23d4bf76-e3a0-4fa9-b567-b452fa34006e" type="checkbox" ><label for="23d4bf76-e3a0-4fa9-b567-b452fa34006e" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d67273cc-2815-4577-8eac-f641e47f3943" type="checkbox" ><label for="d67273cc-2815-4577-8eac-f641e47f3943" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a8f7ac7d-db40-4f3f-b922-4e33b4447a59" type="checkbox" ><label for="a8f7ac7d-db40-4f3f-b922-4e33b4447a59" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                slice(1000, 2000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="dbebc9f9-fb65-4751-ad46-7ad3b75da38c" type="checkbox" ><label for="dbebc9f9-fb65-4751-ad46-7ad3b75da38c" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="028caa19-8d87-4f6a-947e-6709f1d1d49e" type="checkbox" ><label for="028caa19-8d87-4f6a-947e-6709f1d1d49e" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a1167bbb-ced9-4e50-919d-d55bedb60090" type="checkbox" ><label for="a1167bbb-ced9-4e50-919d-d55bedb60090" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="1b50ff13-1d0d-4b6f-8039-438d900df9db" type="checkbox" ><label for="1b50ff13-1d0d-4b6f-8039-438d900df9db" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="2c3fce6f-13f0-41ad-a3cc-de366e2c07f0" type="checkbox" ><label for="2c3fce6f-13f0-41ad-a3cc-de366e2c07f0" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;, random_state=42,
                       solver_params={&#x27;alphas&#x27;: array([1.00000000e-05, 1.77827941e-05, 3.16227766e-05, 5.62341325e-05,
        1.00000000e-04, 1.77827941e-04, 3.16227766e-04, 5.62341325e-04,
        1.00000000e-03, 1.77827941e-03, 3.16227766e-03, 5.62341325e-03,
        1.00000000e-02, 1.77827941e-02, 3.16227766e-02, 5.62341325e-02,
-       1.00000000e-01, 1.77827941e-01, 3.162...341325e-01,
+       1.00000000e-01, 1.77...341325e-01,
        1.00000000e+00, 1.77827941e+00, 3.16227766e+00, 5.62341325e+00,
        1.00000000e+01, 1.77827941e+01, 3.16227766e+01, 5.62341325e+01,
        1.00000000e+02, 1.77827941e+02, 3.16227766e+02, 5.62341325e+02,
@@ -252,54 +253,54 @@ details.</p>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | Hyperparameter candidates |
-[                                        ] 2% | 0.19 sec | Hyperparameter candidates |
-[.                                       ] 5% | 0.38 sec | Hyperparameter candidates |
-[..                                      ] 7% | 0.57 sec | Hyperparameter candidates |
-[...                                     ] 10% | 0.76 sec | Hyperparameter candidates |
-[....                                    ] 12% | 0.94 sec | Hyperparameter candidates |
-[.....                                   ] 15% | 1.13 sec | Hyperparameter candidates |
-[......                                  ] 17% | 1.31 sec | Hyperparameter candidates |
-[.......                                 ] 20% | 1.50 sec | Hyperparameter candidates |
-[........                                ] 22% | 1.68 sec | Hyperparameter candidates |
-[.........                               ] 24% | 1.86 sec | Hyperparameter candidates |
-[..........                              ] 27% | 2.05 sec | Hyperparameter candidates |
-[...........                             ] 29% | 2.23 sec | Hyperparameter candidates |
-[............                            ] 32% | 2.42 sec | Hyperparameter candidates |
-[.............                           ] 34% | 2.60 sec | Hyperparameter candidates |
-[..............                          ] 37% | 2.79 sec | Hyperparameter candidates |
-[...............                         ] 39% | 2.97 sec | Hyperparameter candidates |
-[................                        ] 41% | 3.16 sec | Hyperparameter candidates |
-[.................                       ] 44% | 3.34 sec | Hyperparameter candidates |
-[..................                      ] 46% | 3.53 sec | Hyperparameter candidates |
-[...................                     ] 49% | 3.71 sec | Hyperparameter candidates |
-[....................                    ] 51% | 3.90 sec | Hyperparameter candidates |
-[.....................                   ] 54% | 4.08 sec | Hyperparameter candidates |
-[......................                  ] 56% | 4.27 sec | Hyperparameter candidates |
-[.......................                 ] 59% | 4.45 sec | Hyperparameter candidates |
-[........................                ] 61% | 4.64 sec | Hyperparameter candidates |
-[.........................               ] 63% | 4.82 sec | Hyperparameter candidates |
-[..........................              ] 66% | 5.01 sec | Hyperparameter candidates |
-[...........................             ] 68% | 5.20 sec | Hyperparameter candidates |
-[............................            ] 71% | 5.38 sec | Hyperparameter candidates |
-[.............................           ] 73% | 5.57 sec | Hyperparameter candidates |
-[..............................          ] 76% | 5.75 sec | Hyperparameter candidates |
-[...............................         ] 78% | 5.94 sec | Hyperparameter candidates |
-[................................        ] 80% | 6.12 sec | Hyperparameter candidates |
-[.................................       ] 83% | 6.31 sec | Hyperparameter candidates |
-[..................................      ] 85% | 6.49 sec | Hyperparameter candidates |
-[...................................     ] 88% | 6.68 sec | Hyperparameter candidates |
-[....................................    ] 90% | 6.86 sec | Hyperparameter candidates |
-[.....................................   ] 93% | 7.05 sec | Hyperparameter candidates |
-[......................................  ] 95% | 7.23 sec | Hyperparameter candidates |
-[....................................... ] 98% | 7.42 sec | Hyperparameter candidates |
-[........................................] 100% | 7.60 sec | Hyperparameter candidates |
+[                                        ] 2% | 1.19 sec | Hyperparameter candidates |
+[.                                       ] 5% | 1.53 sec | Hyperparameter candidates |
+[..                                      ] 7% | 1.88 sec | Hyperparameter candidates |
+[...                                     ] 10% | 2.21 sec | Hyperparameter candidates |
+[....                                    ] 12% | 2.53 sec | Hyperparameter candidates |
+[.....                                   ] 15% | 2.85 sec | Hyperparameter candidates |
+[......                                  ] 17% | 3.17 sec | Hyperparameter candidates |
+[.......                                 ] 20% | 3.49 sec | Hyperparameter candidates |
+[........                                ] 22% | 3.81 sec | Hyperparameter candidates |
+[.........                               ] 24% | 4.12 sec | Hyperparameter candidates |
+[..........                              ] 27% | 4.44 sec | Hyperparameter candidates |
+[...........                             ] 29% | 4.75 sec | Hyperparameter candidates |
+[............                            ] 32% | 5.07 sec | Hyperparameter candidates |
+[.............                           ] 34% | 5.39 sec | Hyperparameter candidates |
+[..............                          ] 37% | 5.71 sec | Hyperparameter candidates |
+[...............                         ] 39% | 6.02 sec | Hyperparameter candidates |
+[................                        ] 41% | 6.33 sec | Hyperparameter candidates |
+[.................                       ] 44% | 6.63 sec | Hyperparameter candidates |
+[..................                      ] 46% | 6.95 sec | Hyperparameter candidates |
+[...................                     ] 49% | 7.26 sec | Hyperparameter candidates |
+[....................                    ] 51% | 7.58 sec | Hyperparameter candidates |
+[.....................                   ] 54% | 7.90 sec | Hyperparameter candidates |
+[......................                  ] 56% | 8.22 sec | Hyperparameter candidates |
+[.......................                 ] 59% | 8.54 sec | Hyperparameter candidates |
+[........................                ] 61% | 9.12 sec | Hyperparameter candidates |
+[.........................               ] 63% | 9.44 sec | Hyperparameter candidates |
+[..........................              ] 66% | 9.77 sec | Hyperparameter candidates |
+[...........................             ] 68% | 10.09 sec | Hyperparameter candidates |
+[............................            ] 71% | 10.39 sec | Hyperparameter candidates |
+[.............................           ] 73% | 10.70 sec | Hyperparameter candidates |
+[..............................          ] 76% | 11.01 sec | Hyperparameter candidates |
+[...............................         ] 78% | 11.32 sec | Hyperparameter candidates |
+[................................        ] 80% | 11.62 sec | Hyperparameter candidates |
+[.................................       ] 83% | 11.93 sec | Hyperparameter candidates |
+[..................................      ] 85% | 12.23 sec | Hyperparameter candidates |
+[...................................     ] 88% | 12.53 sec | Hyperparameter candidates |
+[....................................    ] 90% | 12.84 sec | Hyperparameter candidates |
+[.....................................   ] 93% | 13.14 sec | Hyperparameter candidates |
+[......................................  ] 95% | 13.44 sec | Hyperparameter candidates |
+[....................................... ] 98% | 13.73 sec | Hyperparameter candidates |
+[........................................] 100% | 14.03 sec | Hyperparameter candidates |
 </pre></div>
 </div>
 <p>Plot the variance decomposition for all the hyperparameter ratios.</p>
 <p>For a ratio of 1e-3, feature space 0 is almost not used. For a ratio of 1e3,
 feature space 1 is almost not used. The best ratio is here around 1, because
 the feature spaces are used with similar scales in the simulated dataset.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">fig</span><span class="p">,</span> <span class="n">ax</span> <span class="o">=</span> <span class="n">plt</span><span class="o">.</span><span class="n">subplots</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">5</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
 <span class="n">accumulator</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">ratios</span><span class="p">)</span>
 <span class="k">for</span> <span class="n">split</span> <span class="ow">in</span> <span class="n">split_r2_scores_avg</span><span class="o">.</span><span class="n">T</span><span class="p">:</span>
     <span class="n">ax</span><span class="o">.</span><span class="n">fill_between</span><span class="p">(</span><span class="n">ratios</span><span class="p">,</span> <span class="n">accumulator</span><span class="p">,</span> <span class="n">accumulator</span> <span class="o">+</span> <span class="n">split</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.7</span><span class="p">)</span>
@@ -316,7 +317,7 @@ the feature spaces are used with similar scales in the simulated dataset.</p>
 </pre></div>
 </div>
 <img alt="$R^2$ score decomposition" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_3_path_001.png" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  7.696 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  15.666 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-3-path-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/df8845f7820c9195f7b073ae1a36ef76/plot_mkr_3_path.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mkr_3_path.py</span></code></a></p>

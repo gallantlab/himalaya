@@ -66,7 +66,8 @@ column_kernelizer = ColumnKernelizer(kernelizers)
 # Create a MultipleKernelRidgeCV model.
 solver_params = dict(alphas=np.logspace(-5, 5, 41), progress_bar=False)
 model = MultipleKernelRidgeCV(kernels="precomputed", solver="random_search",
-                              solver_params=solver_params)
+                              solver_params=solver_params,
+                              random_state=42)
 pipe = make_pipeline(column_kernelizer, model)
 pipe
 
@@ -101,7 +102,7 @@ split_r2_scores_avg = np.array(split_r2_scores).mean(axis=2)
 # feature space 1 is almost not used. The best ratio is here around 1, because
 # the feature spaces are used with similar scales in the simulated dataset.
 
-fig, ax = plt.subplots(figsize=(5, 3))
+fig, ax = plt.subplots(figsize=(5, 4))
 accumulator = np.zeros_like(ratios)
 for split in split_r2_scores_avg.T:
     ax.fill_between(ratios, accumulator, accumulator + split, alpha=0.7)
