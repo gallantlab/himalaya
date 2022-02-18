@@ -16,6 +16,8 @@ from himalaya.kernel_ridge import ColumnKernelizer
 from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
+from sklearn import set_config
+set_config(display='diagram')
 
 # sphinx_gallery_thumbnail_number = 2
 ###############################################################################

@@ -182,7 +182,7 @@ Multiple-kernel ridge
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This method can be used for example in the following workflow: - fit a MultipleKernelRidgeCV to...">
+    <div class="sphx-glr-thumbcontainer" tooltip="- If the kernel weights hyper-parameters are known and identical across   targets, the kernels ...">
 
 .. only:: html
 
@@ -225,23 +225,6 @@ Multiple-kernel ridge
 
     <div class="sphx-glr-clear"></div>
 
-
-
-.. only :: html
-
- .. container:: sphx-glr-footer
-    :class: sphx-glr-footer-gallery
-
-
-  .. container:: sphx-glr-download sphx-glr-download-python
-
-    :download:`Download all examples in Python source code: _auto_examples_python.zip </_auto_examples/_auto_examples_python.zip>`
-
-
-
-  .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-    :download:`Download all examples in Jupyter notebooks: _auto_examples_jupyter.zip </_auto_examples/_auto_examples_jupyter.zip>`
 
 
 .. only:: html

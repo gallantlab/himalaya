@@ -20,17 +20,13 @@ from himalaya.progress_bar import bar
 from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
+from sklearn import set_config
+set_config(display='diagram')
 
 ###############################################################################
 # In this example, we use the ``cupy`` backend.
 
 backend = set_backend("cupy", on_error="warn")
-
-###############################################################################
-# We also use the nice display of scikit-learn pipelines.
-
-from sklearn import set_config
-set_config(display='diagram')  # requires scikit-learn 0.23
 
 ###############################################################################
 # Generate a random dataset
@@ -103,7 +99,7 @@ split_r2_scores_avg = np.array(split_r2_scores).mean(axis=2)
 #
 # For a ratio of 1e-3, feature space 0 is almost not used. For a ratio of 1e3,
 # feature space 1 is almost not used. The best ratio is here around 1, because
-# the feature spaces are used with similar scales in the stimulated dataset.
+# the feature spaces are used with similar scales in the simulated dataset.
 
 fig, ax = plt.subplots(figsize=(5, 3))
 accumulator = np.zeros_like(ratios)
@@ -117,4 +113,5 @@ ax.set(ylabel=r"$R^2$ score (test set)")
 ax.set(title=r"$R^2$ score decomposition")
 ax.legend(feature_names, loc="upper left")
 ax.grid()
+fig.tight_layout()
 plt.show()

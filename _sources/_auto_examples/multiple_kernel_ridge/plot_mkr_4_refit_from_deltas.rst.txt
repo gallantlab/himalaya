@@ -22,6 +22,7 @@ Multiple-kernel ridge fit from fixed hyper-parameters
 =====================================================
 This example demonstrates how to fit a multiple-kernel ridge model with fixed
 hyper-parameters. Here are three different usecases:
+
 - If the kernel weights hyper-parameters are known and identical across
   targets, the kernels can be scaled and summed, and a simple KernelRidgeCV can
   be used to fit the model.
@@ -33,12 +34,13 @@ hyper-parameters. Here are three different usecases:
   each target independently.
 
 This method can be used for example in the following workflow:
+
 - fit a MultipleKernelRidgeCV to learn the kernel weights hyper-parameter,
 - save the hyper-parameters, but not the ridge weights to save disk space,
 - fit a WeightedKernelRidge from the saved hyper-parameters, for further use of
   the model (prediction, interpretation, etc.).
 
-.. GENERATED FROM PYTHON SOURCE LINES 22-32
+.. GENERATED FROM PYTHON SOURCE LINES 24-36
 
 .. code-block:: default
 
@@ -51,6 +53,8 @@ This method can be used for example in the following workflow:
     from himalaya.utils import generate_multikernel_dataset
 
     from sklearn.pipeline import make_pipeline
+    from sklearn import set_config
+    set_config(display='diagram')
 
 
 
@@ -59,11 +63,11 @@ This method can be used for example in the following workflow:
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 33-34
+.. GENERATED FROM PYTHON SOURCE LINES 37-38
 
 In this example, we use the ``torch_cuda`` backend (GPU).
 
-.. GENERATED FROM PYTHON SOURCE LINES 34-37
+.. GENERATED FROM PYTHON SOURCE LINES 38-41
 
 .. code-block:: default
 
@@ -77,25 +81,7 @@ In this example, we use the ``torch_cuda`` backend (GPU).
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 38-39
-
-We can display the ``scikit-learn`` pipeline with an HTML diagram.
-
-.. GENERATED FROM PYTHON SOURCE LINES 39-42
-
-.. code-block:: default
-
-    from sklearn import set_config
-    set_config(display='diagram')  # requires scikit-learn 0.23
-
-
-
-
-
-
-
-
-.. GENERATED FROM PYTHON SOURCE LINES 43-49
+.. GENERATED FROM PYTHON SOURCE LINES 42-48
 
 Generate a random dataset
 -------------------------
@@ -104,7 +90,7 @@ Generate a random dataset
 - Y_train : array of shape (n_samples_train, n_targets)
 - Y_test : array of shape (n_samples_test, n_targets)
 
-.. GENERATED FROM PYTHON SOURCE LINES 49-56
+.. GENERATED FROM PYTHON SOURCE LINES 48-55
 
 .. code-block:: default
 
@@ -122,12 +108,12 @@ Generate a random dataset
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 57-59
+.. GENERATED FROM PYTHON SOURCE LINES 56-58
 
 Prepare the pipeline
 --------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 59-72
+.. GENERATED FROM PYTHON SOURCE LINES 58-71
 
 .. code-block:: default
 
@@ -151,14 +137,14 @@ Prepare the pipeline
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 73-77
+.. GENERATED FROM PYTHON SOURCE LINES 72-76
 
 Define the weighted kernel ridge model
 --------------------------------------
 Here we use the ground truth kernel weights for each target (deltas), but it
 can be typically used with deltas obtained from a MultipleKernelRidgeCV fit.
 
-.. GENERATED FROM PYTHON SOURCE LINES 77-90
+.. GENERATED FROM PYTHON SOURCE LINES 76-85
 
 .. code-block:: default
 
@@ -171,7 +157,71 @@ can be typically used with deltas obtained from a MultipleKernelRidgeCV fit.
     # Fit the model on all targets
     pipe_1.fit(X_train, Y_train)
 
-    # compute test score
+
+
+
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 {color: black;background-color: white;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 pre{padding: 0;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-toggleable {background-color: white;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-estimator:hover {background-color: #d4ebff;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-item {z-index: 1;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-parallel-item:only-child::after {width: 0;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4 div.sk-text-repr-fallback {display: none;}</style><div id="sk-7d4bc514-59bc-4fc9-a4ad-d9542aa1abf4" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;space 0&#x27;, Kernelizer(),
+                                                     slice(0, 1000, None)),
+                                                    (&#x27;space 1&#x27;, Kernelizer(),
+                                                     slice(1000, 2000, None)),
+                                                    (&#x27;space 2&#x27;, Kernelizer(),
+                                                     slice(2000, 3000, None)),
+                                                    (&#x27;space 3&#x27;, Kernelizer(),
+                                                     slice(3000, 4000, None))])),
+                    (&#x27;weightedkernelridge&#x27;,
+                     WeightedKernelRidge(alpha=1,
+                                         deltas=tensor([[ -2.3483,  -1.5064,  -2.1911,  ...,  -0.5428,  -1.9162,  -4.4647],
+            [ -0.1063, -12.7539,  -1.0228,  ...,  -1.0741,  -0.7493, -11.5341],
+            [ -5.2674,  -0.2560,  -2.3263,  ...,  -6.4705,  -5.0901,  -0.0359],
+            [ -8.5610,  -5.4922,  -0.8417,  ...,  -2.5803,  -0.9836,  -3.7396]],
+           device=&#x27;cuda:0&#x27;, dtype=torch.float64),
+                                         kernels=&#x27;precomputed&#x27;))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="3f53447f-08c4-47d1-9ed3-891467523d06" type="checkbox" ><label for="3f53447f-08c4-47d1-9ed3-891467523d06" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;space 0&#x27;, Kernelizer(),
+                                                     slice(0, 1000, None)),
+                                                    (&#x27;space 1&#x27;, Kernelizer(),
+                                                     slice(1000, 2000, None)),
+                                                    (&#x27;space 2&#x27;, Kernelizer(),
+                                                     slice(2000, 3000, None)),
+                                                    (&#x27;space 3&#x27;, Kernelizer(),
+                                                     slice(3000, 4000, None))])),
+                    (&#x27;weightedkernelridge&#x27;,
+                     WeightedKernelRidge(alpha=1,
+                                         deltas=tensor([[ -2.3483,  -1.5064,  -2.1911,  ...,  -0.5428,  -1.9162,  -4.4647],
+            [ -0.1063, -12.7539,  -1.0228,  ...,  -1.0741,  -0.7493, -11.5341],
+            [ -5.2674,  -0.2560,  -2.3263,  ...,  -6.4705,  -5.0901,  -0.0359],
+            [ -8.5610,  -5.4922,  -0.8417,  ...,  -2.5803,  -0.9836,  -3.7396]],
+           device=&#x27;cuda:0&#x27;, dtype=torch.float64),
+                                         kernels=&#x27;precomputed&#x27;))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ff2ffe19-7d7c-4f87-b53f-1e6b207babad" type="checkbox" ><label for="ff2ffe19-7d7c-4f87-b53f-1e6b207babad" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;space 0&#x27;, Kernelizer(), slice(0, 1000, None)),
+                                   (&#x27;space 1&#x27;, Kernelizer(),
+                                    slice(1000, 2000, None)),
+                                   (&#x27;space 2&#x27;, Kernelizer(),
+                                    slice(2000, 3000, None)),
+                                   (&#x27;space 3&#x27;, Kernelizer(),
+                                    slice(3000, 4000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7ef1f6a3-a186-40b5-ba18-e9372b54c5ab" type="checkbox" ><label for="7ef1f6a3-a186-40b5-ba18-e9372b54c5ab" class="sk-toggleable__label sk-toggleable__label-arrow">space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="486b4e0d-4e7c-4732-85e3-4c31d51d09e3" type="checkbox" ><label for="486b4e0d-4e7c-4732-85e3-4c31d51d09e3" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="0f385908-303b-468b-b11f-8b5efebb2bdd" type="checkbox" ><label for="0f385908-303b-468b-b11f-8b5efebb2bdd" class="sk-toggleable__label sk-toggleable__label-arrow">space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="36e02c1b-b2f0-4ced-8cab-1d3970d5b10a" type="checkbox" ><label for="36e02c1b-b2f0-4ced-8cab-1d3970d5b10a" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="f5e3c9e5-5ca3-4109-83df-9aecfe77f3e8" type="checkbox" ><label for="f5e3c9e5-5ca3-4109-83df-9aecfe77f3e8" class="sk-toggleable__label sk-toggleable__label-arrow">space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9024a409-6c33-4fa3-b5b7-e5dcababe057" type="checkbox" ><label for="9024a409-6c33-4fa3-b5b7-e5dcababe057" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ae8161f2-4303-4a9d-a6f5-a0ec0856a84d" type="checkbox" ><label for="ae8161f2-4303-4a9d-a6f5-a0ec0856a84d" class="sk-toggleable__label sk-toggleable__label-arrow">space 3</label><div class="sk-toggleable__content"><pre>slice(3000, 4000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a69ff164-13a6-4acb-bf4d-0ebea3d4db6a" type="checkbox" ><label for="a69ff164-13a6-4acb-bf4d-0ebea3d4db6a" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="65025db5-5591-4e1b-8f7a-83b0d402f0ac" type="checkbox" ><label for="65025db5-5591-4e1b-8f7a-83b0d402f0ac" class="sk-toggleable__label sk-toggleable__label-arrow">WeightedKernelRidge</label><div class="sk-toggleable__content"><pre>WeightedKernelRidge(alpha=1,
+                        deltas=tensor([[ -2.3483,  -1.5064,  -2.1911,  ...,  -0.5428,  -1.9162,  -4.4647],
+            [ -0.1063, -12.7539,  -1.0228,  ...,  -1.0741,  -0.7493, -11.5341],
+            [ -5.2674,  -0.2560,  -2.3263,  ...,  -6.4705,  -5.0901,  -0.0359],
+            [ -8.5610,  -5.4922,  -0.8417,  ...,  -2.5803,  -0.9836,  -3.7396]],
+           device=&#x27;cuda:0&#x27;, dtype=torch.float64),
+                        kernels=&#x27;precomputed&#x27;)</pre></div></div></div></div></div></div></div>
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 86-87
+
+compute test score
+
+.. GENERATED FROM PYTHON SOURCE LINES 87-90
+
+.. code-block:: default
+
     test_scores_1 = pipe_1.score(X_test, Y_test)
     test_scores_1 = backend.to_numpy(test_scores_1)
 
@@ -187,7 +237,7 @@ can be typically used with deltas obtained from a MultipleKernelRidgeCV fit.
 We can compare this model to a baseline model where the kernel weights are
 all equal and not learnt.
 
-.. GENERATED FROM PYTHON SOURCE LINES 93-104
+.. GENERATED FROM PYTHON SOURCE LINES 93-100
 
 .. code-block:: default
 
@@ -198,7 +248,53 @@ all equal and not learnt.
     # Fit the model on all targets
     pipe_2.fit(X_train, Y_train)
 
-    # compute test score
+
+
+
+
+
+.. raw:: html
+
+    <div class="output_subarea output_html rendered_html output_result">
+    <style>#sk-2ee417f6-e522-403a-90c4-21c701bb149a {color: black;background-color: white;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a pre{padding: 0;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-toggleable {background-color: white;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-estimator:hover {background-color: #d4ebff;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-item {z-index: 1;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-parallel-item:only-child::after {width: 0;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-2ee417f6-e522-403a-90c4-21c701bb149a div.sk-text-repr-fallback {display: none;}</style><div id="sk-2ee417f6-e522-403a-90c4-21c701bb149a" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;space 0&#x27;, Kernelizer(),
+                                                     slice(0, 1000, None)),
+                                                    (&#x27;space 1&#x27;, Kernelizer(),
+                                                     slice(1000, 2000, None)),
+                                                    (&#x27;space 2&#x27;, Kernelizer(),
+                                                     slice(2000, 3000, None)),
+                                                    (&#x27;space 3&#x27;, Kernelizer(),
+                                                     slice(3000, 4000, None))])),
+                    (&#x27;weightedkernelridge&#x27;,
+                     WeightedKernelRidge(alpha=1, kernels=&#x27;precomputed&#x27;))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a5e0861c-685d-4310-9deb-dc51d36177ca" type="checkbox" ><label for="a5e0861c-685d-4310-9deb-dc51d36177ca" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                     ColumnKernelizer(transformers=[(&#x27;space 0&#x27;, Kernelizer(),
+                                                     slice(0, 1000, None)),
+                                                    (&#x27;space 1&#x27;, Kernelizer(),
+                                                     slice(1000, 2000, None)),
+                                                    (&#x27;space 2&#x27;, Kernelizer(),
+                                                     slice(2000, 3000, None)),
+                                                    (&#x27;space 3&#x27;, Kernelizer(),
+                                                     slice(3000, 4000, None))])),
+                    (&#x27;weightedkernelridge&#x27;,
+                     WeightedKernelRidge(alpha=1, kernels=&#x27;precomputed&#x27;))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="99fddd87-b18d-47f0-b50c-c9c841d8bddf" type="checkbox" ><label for="99fddd87-b18d-47f0-b50c-c9c841d8bddf" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;space 0&#x27;, Kernelizer(), slice(0, 1000, None)),
+                                   (&#x27;space 1&#x27;, Kernelizer(),
+                                    slice(1000, 2000, None)),
+                                   (&#x27;space 2&#x27;, Kernelizer(),
+                                    slice(2000, 3000, None)),
+                                   (&#x27;space 3&#x27;, Kernelizer(),
+                                    slice(3000, 4000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="df6be616-bba1-4001-b63d-a1e93fb05e56" type="checkbox" ><label for="df6be616-bba1-4001-b63d-a1e93fb05e56" class="sk-toggleable__label sk-toggleable__label-arrow">space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="e7748e21-5bc4-43b9-a95d-1ab3c91d98fc" type="checkbox" ><label for="e7748e21-5bc4-43b9-a95d-1ab3c91d98fc" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="132ed2fb-cbcc-4441-a042-e7669766bc45" type="checkbox" ><label for="132ed2fb-cbcc-4441-a042-e7669766bc45" class="sk-toggleable__label sk-toggleable__label-arrow">space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="8a595fc3-ab07-4285-acc5-3f2cde02380d" type="checkbox" ><label for="8a595fc3-ab07-4285-acc5-3f2cde02380d" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d85a6cd4-d2a9-4c15-b734-e71288b14e6c" type="checkbox" ><label for="d85a6cd4-d2a9-4c15-b734-e71288b14e6c" class="sk-toggleable__label sk-toggleable__label-arrow">space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7618b3e4-5f01-48b0-8025-ac9274e0c9de" type="checkbox" ><label for="7618b3e4-5f01-48b0-8025-ac9274e0c9de" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="7fcf6421-7411-4232-a868-1831e577c461" type="checkbox" ><label for="7fcf6421-7411-4232-a868-1831e577c461" class="sk-toggleable__label sk-toggleable__label-arrow">space 3</label><div class="sk-toggleable__content"><pre>slice(3000, 4000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="e37d677f-c763-49a8-bf6e-91c3b296642a" type="checkbox" ><label for="e37d677f-c763-49a8-bf6e-91c3b296642a" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ced1b0d8-fa29-48d5-b320-dad15321cf41" type="checkbox" ><label for="ced1b0d8-fa29-48d5-b320-dad15321cf41" class="sk-toggleable__label sk-toggleable__label-arrow">WeightedKernelRidge</label><div class="sk-toggleable__content"><pre>WeightedKernelRidge(alpha=1, kernels=&#x27;precomputed&#x27;)</pre></div></div></div></div></div></div></div>
+    </div>
+    <br />
+    <br />
+
+.. GENERATED FROM PYTHON SOURCE LINES 101-102
+
+compute test score
+
+.. GENERATED FROM PYTHON SOURCE LINES 102-105
+
+.. code-block:: default
+
     test_scores_2 = pipe_2.score(X_test, Y_test)
     test_scores_2 = backend.to_numpy(test_scores_2)
 
@@ -209,12 +305,12 @@ all equal and not learnt.
 
 
 
-.. GENERATED FROM PYTHON SOURCE LINES 105-107
+.. GENERATED FROM PYTHON SOURCE LINES 106-108
 
 Compare the predictions on a test set
 -------------------------------------
 
-.. GENERATED FROM PYTHON SOURCE LINES 107-119
+.. GENERATED FROM PYTHON SOURCE LINES 108-120
 
 .. code-block:: default
 
@@ -244,7 +340,7 @@ Compare the predictions on a test set
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.340 seconds)
+   **Total running time of the script:** ( 0 minutes  0.394 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py:

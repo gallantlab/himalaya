@@ -36,7 +36,7 @@ Create a random dataset
 
     import numpy as np
     np.random.seed(0)
-    n_samples, n_features, n_targets = 10, 5, 4
+    n_samples, n_features, n_targets = 10, 20, 4
     X = np.random.randn(n_samples, n_features)
     Y = np.random.randn(n_samples, n_targets)
 
@@ -107,7 +107,7 @@ it returns a single value for alpha.
  .. code-block:: none
 
 
-    {'alpha': 10.0}
+    {'alpha': 100.0}
 
 
 
@@ -138,8 +138,6 @@ which supports any cross-validation scheme compatible with scikit-learn.
 
  .. code-block:: none
 
-    /home/jlg/tomdlt/gbox/work/github/himalaya/himalaya/kernel_ridge/_sklearn_api.py:478: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.RidgeCV would be faster. Use warn=False to silence this warning.
-      "Use warn=False to silence this warning.", UserWarning)
 
     KernelRidgeCV(alphas=array([1.e-02, 1.e-01, 1.e+00, 1.e+01, 1.e+02]))
 
@@ -165,14 +163,14 @@ KernelRidgeCV returns a separate best alpha per target.
  .. code-block:: none
 
 
-    array([ 10., 100.,  10., 100.])
+    array([1.e+00, 1.e-02, 1.e+02, 1.e+02])
 
 
 
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.029 seconds)
+   **Total running time of the script:** ( 0 minutes  0.027 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py:

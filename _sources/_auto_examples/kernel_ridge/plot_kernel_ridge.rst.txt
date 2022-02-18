@@ -34,7 +34,7 @@ Create a random dataset
 .. code-block:: default
 
     import numpy as np
-    n_samples, n_features, n_targets = 10, 5, 4
+    n_samples, n_features, n_targets = 10, 20, 4
     X = np.random.randn(n_samples, n_features)
     Y = np.random.randn(n_samples, n_targets)
 
@@ -83,9 +83,7 @@ scikit-learn estimator, with similar parameters and methods.
 
  .. code-block:: none
 
-    /home/jlg/tomdlt/gbox/work/github/himalaya/himalaya/kernel_ridge/_sklearn_api.py:194: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples > n_features (here 10 > 5). Using himalaya.ridge.Ridge would be faster. Use warn=False to silence this warning.
-      " silence this warning.", UserWarning)
-    6.328271240363392e-14
+    1.2823075934420558e-14
 
 
 
@@ -116,9 +114,9 @@ average score over targets.
 
  .. code-block:: none
 
-    0.3689802311310866
-    [0.48272061 0.42173126 0.34185216 0.22961689]
-    0.3689802311310886
+    0.9997504595014384
+    [0.99988546 0.99959208 0.99988412 0.99964019]
+    0.9997504595014384
 
 
 
@@ -126,7 +124,7 @@ average score over targets.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.029 seconds)
+   **Total running time of the script:** ( 0 minutes  0.017 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py:

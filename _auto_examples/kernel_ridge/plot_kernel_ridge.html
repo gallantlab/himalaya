@@ -109,7 +109,7 @@ himalaya’s estimator <code class="docutils literal notranslate"><span class="p
 <div class="section" id="create-a-random-dataset">
 <h2>Create a random dataset<a class="headerlink" href="#create-a-random-dataset" title="Permalink to this headline">¶</a></h2>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">4</span>
+<span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">4</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
 <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span>
 </pre></div>
@@ -138,9 +138,7 @@ scikit-learn estimator, with similar parameters and methods.</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/jlg/tomdlt/gbox/work/github/himalaya/himalaya/kernel_ridge/_sklearn_api.py:194: UserWarning: Solving linear kernel ridge is slower than solving ridge when n_samples &gt; n_features (here 10 &gt; 5). Using himalaya.ridge.Ridge would be faster. Use warn=False to silence this warning.
-  &quot; silence this warning.&quot;, UserWarning)
-6.328271240363392e-14
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>1.2823075934420558e-14
 </pre></div>
 </div>
 </div>
@@ -155,12 +153,12 @@ average score over targets.</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.3689802311310866
-[0.48272061 0.42173126 0.34185216 0.22961689]
-0.3689802311310886
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.9997504595014384
+[0.99988546 0.99959208 0.99988412 0.99964019]
+0.9997504595014384
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.029 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.017 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/5518d8fa27f48bb9a31f5cbefede1039/plot_kernel_ridge.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_kernel_ridge.py</span></code></a></p>

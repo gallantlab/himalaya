@@ -5,12 +5,12 @@
 
 Computation times
 =================
-**00:02.450** total execution time for **_auto_examples_kernel_ridge** files:
+**00:00.492** total execution time for **_auto_examples_kernel_ridge** files:
 
 +---------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_kernel_ridge_plot_model_on_gpu.py.py` (``plot_model_on_gpu.py.py``) | 00:02.393 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_kernel_ridge_plot_model_on_gpu.py.py` (``plot_model_on_gpu.py.py``) | 00:00.447 | 0.0 MB |
 +---------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py` (``plot_kernel_ridge.py``)       | 00:00.029 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py` (``plot_kernel_ridge_cv.py``) | 00:00.027 | 0.0 MB |
 +---------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py` (``plot_kernel_ridge_cv.py``) | 00:00.029 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py` (``plot_kernel_ridge.py``)       | 00:00.017 | 0.0 MB |
 +---------------------------------------------------------------------------------------------------+-----------+--------+
