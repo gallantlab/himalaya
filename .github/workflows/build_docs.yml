@@ -23,7 +23,7 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -e ."[github]"
-        pip install numpydoc sphinx sphinx_gallery
+        pip install numpydoc sphinx sphinx_gallery sphinxcontrib-mermaid
 
     - name: Build documents
       run: |

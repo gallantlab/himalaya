@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx_gallery.gen_gallery',
+    'sphinxcontrib.mermaid',
 ]
 
 # generate autosummary even if no references
