@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API Documentation &#8212; Himalaya 0.3.5 documentation</title>
+    <title>API &#8212; Himalaya 0.3.5 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
@@ -16,10 +16,12 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="himalaya.backend.set_backend" href="_generated/himalaya.backend.set_backend.html" />
-    <link rel="prev" title="Troubleshooting" href="troubleshooting.html" />
+    <link rel="prev" title="Multiple-kernel ridge refining" href="_auto_examples/multiple_kernel_ridge/plot_mkr_5_refine_results.html" />
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
@@ -56,27 +58,20 @@
 <h3>Related Topics</h3>
 <ul>
   <li><a href="index.html">Documentation overview</a><ul>
-      <li>Previous: <a href="troubleshooting.html" title="previous chapter">Troubleshooting</a></li>
+      <li>Previous: <a href="_auto_examples/multiple_kernel_ridge/plot_mkr_5_refine_results.html" title="previous chapter">Multiple-kernel ridge refining</a></li>
       <li>Next: <a href="_generated/himalaya.backend.set_backend.html" title="next chapter">himalaya.backend.set_backend</a></li>
   </ul></li>
 </ul>
 </div><h3>Navigation</h3>
-<ul class="current">
+<ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Model descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#backend">Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kernel-ridge">Kernel ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#lasso">Lasso</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ridge">Ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#other-modules">Other modules</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
-</ul>
-<ul>
 <li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
+</ul>
+<ul class="current">
+<li class="toctree-l1 current"><a class="current reference internal" href="#">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 
@@ -98,8 +93,9 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="api-documentation">
-<span id="id1"></span><h1>API Documentation<a class="headerlink" href="#api-documentation" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="api">
+<span id="api-documentation"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+<p>List of functions and classes in Himalaya.</p>
 <div class="section" id="backend">
 <h2>Backend<a class="headerlink" href="#backend" title="Permalink to this headline">¶</a></h2>
 <p>Public functions in <code class="docutils literal notranslate"><span class="pre">himalaya.backend</span></code>.</p>
@@ -274,8 +270,8 @@
 <div class="section" id="lasso">
 <h2>Lasso<a class="headerlink" href="#lasso" title="Permalink to this headline">¶</a></h2>
 <p>Public functions and classes in <code class="docutils literal notranslate"><span class="pre">himalaya.lasso</span></code>.</p>
-<div class="section" id="id2">
-<h3>Estimators<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id1">
+<h3>Estimators<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
 <p>Estimators compatible with the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> API.</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -289,8 +285,8 @@
 </tbody>
 </table>
 </div>
-<div class="section" id="id3">
-<h3>Solver functions<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id2">
+<h3>Solver functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
@@ -314,8 +310,8 @@
 <div class="section" id="ridge">
 <h2>Ridge<a class="headerlink" href="#ridge" title="Permalink to this headline">¶</a></h2>
 <p>Public functions and classes in <code class="docutils literal notranslate"><span class="pre">himalaya.ridge</span></code>.</p>
-<div class="section" id="id4">
-<h3>Estimators<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id3">
+<h3>Estimators<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
 <p>Estimators compatible with the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> API.</p>
 <table class="longtable docutils align-default">
 <colgroup>
@@ -344,8 +340,8 @@
 </tbody>
 </table>
 </div>
-<div class="section" id="id5">
-<h3>Solver functions<a class="headerlink" href="#id5" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="id4">
+<h3>Solver functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
 <table class="longtable docutils align-default">
 <colgroup>
 <col style="width: 10%" />
@@ -440,6 +436,9 @@
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.utils.compute_lipschitz_constants.html#himalaya.utils.compute_lipschitz_constants" title="himalaya.utils.compute_lipschitz_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.compute_lipschitz_constants</span></code></a></p></td>
 <td><p>Compute Lipschitz constants of gradients of linear regression problems.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="_generated/himalaya.utils.generate_multikernel_dataset.html#himalaya.utils.generate_multikernel_dataset" title="himalaya.utils.generate_multikernel_dataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.generate_multikernel_dataset</span></code></a></p></td>
+<td><p>Utility to generate datasets for the gallery of examples.</p></td>
 </tr>
 </tbody>
 </table>

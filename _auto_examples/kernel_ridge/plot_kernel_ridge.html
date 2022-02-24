@@ -16,6 +16,8 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Kernel ridge with cross-validation" href="plot_kernel_ridge_cv.html" />
@@ -63,19 +65,15 @@
   </ul></li>
 </ul>
 </div><h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">Model descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery of examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-</ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery of examples</a><ul class="current">
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#kernel-ridge">Kernel ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="../index.html#multiple-kernel-ridge">Multiple-kernel ridge</a></li>
-</ul>
-</li>
 </ul>
 
 
@@ -138,7 +136,7 @@ scikit-learn estimator, with similar parameters and methods.</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>1.2823075934420558e-14
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>9.103828801926284e-15
 </pre></div>
 </div>
 </div>
@@ -153,12 +151,12 @@ average score over targets.</p>
 </pre></div>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.9997504595014384
-[0.99988546 0.99959208 0.99988412 0.99964019]
-0.9997504595014384
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.9998742708737288
+[0.99986348 0.99991719 0.9997546  0.99996181]
+0.9998742708737288
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.017 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.054 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/5518d8fa27f48bb9a31f5cbefede1039/plot_kernel_ridge.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_kernel_ridge.py</span></code></a></p>

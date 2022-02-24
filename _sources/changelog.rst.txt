@@ -4,7 +4,8 @@ Changelog
 Development Version
 ~~~~~~~~~~~~~~~~~~~
 
-- ...
+- DOC improve documentation website, add estimator flowchart.
+- TST improve test robustness.
 
 Version 0.3.5
 ~~~~~~~~~~~~~

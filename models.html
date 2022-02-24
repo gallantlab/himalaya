@@ -17,6 +17,8 @@
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Troubleshooting" href="troubleshooting.html" />
@@ -64,22 +66,13 @@
 </div><h3>Navigation</h3>
 <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
-<li class="toctree-l1 current"><a class="current reference internal" href="#">Model descriptions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="#ridge">Ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#kernelridge">KernelRidge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#ridgecv-and-kernelridgecv">RidgeCV and KernelRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#groupridgecv-bandedridgecv">GroupRidgeCV / BandedRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#weightedkernelridge">WeightedKernelRidge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#multiplekernelridgecv">MultipleKernelRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="#sparsegrouplassocv">SparseGroupLassoCV</a></li>
-</ul>
-</li>
+<li class="toctree-l1 current"><a class="current reference internal" href="#">Model descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 
@@ -241,10 +234,44 @@ multiple-kernel ridge regression is equivalent with group-ridge regression
 </ul>
 </div>
 </div>
-<div class="section" id="sparsegrouplassocv">
-<h2>SparseGroupLassoCV<a class="headerlink" href="#sparsegrouplassocv" title="Permalink to this headline">¶</a></h2>
-<p>…</p>
-<div class="section" id="references">
+<div class="section" id="model-flowchart">
+<h2>Model flowchart<a class="headerlink" href="#model-flowchart" title="Permalink to this headline">¶</a></h2>
+<p>The following flowchart can be used as a guide to select the right estimator.</p>
+<div class="mermaid">
+            graph TD;
+  A(How many feature space ?)
+  O(Data size ?)
+  M(Data size ?)
+  OR(Hyperparameters ?)
+  OK(Hyperparameters ?)
+  MR(Hyperparameters ?)
+  MK(Hyperparameters ?)
+
+
+  A-- one--&gt;O;
+  A--multiple--&gt;M;
+  O--more samples--&gt;OR;
+  O--more features--&gt;OK;
+  M--more samples--&gt;MR;
+  M--more features--&gt;MK;
+
+  OK--known--&gt;OKH[KernelRidge];
+  OK--unknown--&gt;OKCV[KernelRidgeCV];
+  OR--known--&gt;ORH[Ridge];
+  OR--unknown--&gt;ORCV[RidgeCV];
+  MK--known--&gt;MKH[WeightedKernelRidge];
+  MK--unknown--&gt;MKCV[MultipleKernelRidgeCV];
+
+  MR--unknown--&gt;MRCV[BandedRidgeCV];
+  MR--known--&gt;MKH;
+
+  classDef fork fill:#FFDC97
+  class A,O,M,OR,OK,MR,MK fork;
+
+  classDef leaf fill:#ABBBE1
+  class ORH,OKH,MRH,MKH leaf;
+  class ORCV,OKCV,MRCV,MKCV leaf;
+        </div><div class="section" id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
 <dl class="footnote brackets">
 <dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>

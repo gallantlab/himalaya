@@ -1,0 +1,6 @@
+﻿himalaya.utils.generate\_multikernel\_dataset
+=============================================
+
+.. currentmodule:: himalaya.utils
+
+.. autofunction:: generate_multikernel_dataset

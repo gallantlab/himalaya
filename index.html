@@ -16,6 +16,8 @@
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
     <script src="_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Getting started" href="getting_started.html" />
@@ -63,11 +65,11 @@
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Model descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a></li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 
 
@@ -96,55 +98,19 @@
 <h2>Documentation<a class="headerlink" href="#documentation" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#himalaya-multiple-target-linear-models">Himalaya: Multiple-target linear models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#example">Example</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#models">Models</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#himalaya-backends">Himalaya backends</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#installation">Installation</a></li>
-<li class="toctree-l2"><a class="reference internal" href="getting_started.html#cite-this-package">Cite this package</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="models.html">Model descriptions</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="models.html#ridge">Ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#kernelridge">KernelRidge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#ridgecv-and-kernelridgecv">RidgeCV and KernelRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#groupridgecv-bandedridgecv">GroupRidgeCV / BandedRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#weightedkernelridge">WeightedKernelRidge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#multiplekernelridgecv">MultipleKernelRidgeCV</a></li>
-<li class="toctree-l2"><a class="reference internal" href="models.html#sparsegrouplassocv">SparseGroupLassoCV</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#cuda-out-of-memory">CUDA out of memory</a></li>
-<li class="toctree-l2"><a class="reference internal" href="troubleshooting.html#slow-check-array">Slow check_array</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="api.html">API Documentation</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="api.html#backend">Backend</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#kernel-ridge">Kernel ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#lasso">Lasso</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#ridge">Ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="api.html#other-modules">Other modules</a></li>
-</ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#development-version">Development Version</a></li>
-<li class="toctree-l2"><a class="reference internal" href="changelog.html#version-0-3-5">Version 0.3.5</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
 </div>
 </div>
-<div class="section" id="examples">
-<h2>Examples<a class="headerlink" href="#examples" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="package-details">
+<h2>Package details<a class="headerlink" href="#package-details" title="Permalink to this headline">¶</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="_auto_examples/index.html#kernel-ridge">Kernel ridge</a></li>
-<li class="toctree-l2"><a class="reference internal" href="_auto_examples/index.html#multiple-kernel-ridge">Multiple-kernel ridge</a></li>
-</ul>
-</li>
+<li class="toctree-l1"><a class="reference internal" href="api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="changelog.html">Changelog</a></li>
 </ul>
 </div>
 </div>

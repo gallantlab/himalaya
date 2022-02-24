@@ -16,6 +16,8 @@
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
     <script src="../../_static/doctools.js"></script>
+    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
+    <script>mermaid.initialize({startOnLoad:true});</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Multiple-kernel ridge solvers" href="plot_mkr_2_solvers.html" />
@@ -63,19 +65,15 @@
   </ul></li>
 </ul>
 </div><h3>Navigation</h3>
-<ul>
+<ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../models.html">Model descriptions</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
-<li class="toctree-l1"><a class="reference internal" href="../../api.html">API Documentation</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery of examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
-</ul>
-<ul class="current">
-<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery of examples</a><ul class="current">
-<li class="toctree-l2"><a class="reference internal" href="../index.html#kernel-ridge">Kernel ridge</a></li>
-<li class="toctree-l2 current"><a class="reference internal" href="../index.html#multiple-kernel-ridge">Multiple-kernel ridge</a></li>
-</ul>
-</li>
 </ul>
 
 
@@ -296,110 +294,110 @@ Optimal values depend on the size of your dataset.</p>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | 100 random sampling with cv |
-[                                        ] 1% | 0.13 sec | 100 random sampling with cv |
-[                                        ] 2% | 0.25 sec | 100 random sampling with cv |
-[.                                       ] 3% | 0.36 sec | 100 random sampling with cv |
-[.                                       ] 4% | 0.47 sec | 100 random sampling with cv |
-[..                                      ] 5% | 0.59 sec | 100 random sampling with cv |
-[..                                      ] 6% | 0.70 sec | 100 random sampling with cv |
-[..                                      ] 7% | 0.81 sec | 100 random sampling with cv |
-[...                                     ] 8% | 0.93 sec | 100 random sampling with cv |
-[...                                     ] 9% | 1.04 sec | 100 random sampling with cv |
-[....                                    ] 10% | 1.16 sec | 100 random sampling with cv |
-[....                                    ] 11% | 1.27 sec | 100 random sampling with cv |
-[....                                    ] 12% | 1.38 sec | 100 random sampling with cv |
-[.....                                   ] 13% | 1.49 sec | 100 random sampling with cv |
-[.....                                   ] 14% | 1.61 sec | 100 random sampling with cv |
-[......                                  ] 15% | 1.72 sec | 100 random sampling with cv |
-[......                                  ] 16% | 1.81 sec | 100 random sampling with cv |
-[......                                  ] 17% | 1.92 sec | 100 random sampling with cv |
-[.......                                 ] 18% | 2.03 sec | 100 random sampling with cv |
-[.......                                 ] 19% | 2.12 sec | 100 random sampling with cv |
-[........                                ] 20% | 2.23 sec | 100 random sampling with cv |
-[........                                ] 21% | 2.34 sec | 100 random sampling with cv |
-[........                                ] 22% | 2.45 sec | 100 random sampling with cv |
-[.........                               ] 23% | 2.54 sec | 100 random sampling with cv |
-[.........                               ] 24% | 2.62 sec | 100 random sampling with cv |
-[..........                              ] 25% | 2.70 sec | 100 random sampling with cv |
-[..........                              ] 26% | 2.79 sec | 100 random sampling with cv |
-[..........                              ] 27% | 2.90 sec | 100 random sampling with cv |
-[...........                             ] 28% | 3.01 sec | 100 random sampling with cv |
-[...........                             ] 29% | 3.13 sec | 100 random sampling with cv |
-[............                            ] 30% | 3.21 sec | 100 random sampling with cv |
-[............                            ] 31% | 3.32 sec | 100 random sampling with cv |
-[............                            ] 32% | 3.44 sec | 100 random sampling with cv |
-[.............                           ] 33% | 3.55 sec | 100 random sampling with cv |
-[.............                           ] 34% | 3.66 sec | 100 random sampling with cv |
-[..............                          ] 35% | 3.75 sec | 100 random sampling with cv |
-[..............                          ] 36% | 3.83 sec | 100 random sampling with cv |
-[..............                          ] 37% | 3.91 sec | 100 random sampling with cv |
-[...............                         ] 38% | 4.00 sec | 100 random sampling with cv |
+[                                        ] 1% | 0.16 sec | 100 random sampling with cv |
+[                                        ] 2% | 0.29 sec | 100 random sampling with cv |
+[.                                       ] 3% | 0.42 sec | 100 random sampling with cv |
+[.                                       ] 4% | 0.53 sec | 100 random sampling with cv |
+[..                                      ] 5% | 0.65 sec | 100 random sampling with cv |
+[..                                      ] 6% | 0.76 sec | 100 random sampling with cv |
+[..                                      ] 7% | 0.87 sec | 100 random sampling with cv |
+[...                                     ] 8% | 0.98 sec | 100 random sampling with cv |
+[...                                     ] 9% | 1.09 sec | 100 random sampling with cv |
+[....                                    ] 10% | 1.21 sec | 100 random sampling with cv |
+[....                                    ] 11% | 1.32 sec | 100 random sampling with cv |
+[....                                    ] 12% | 1.43 sec | 100 random sampling with cv |
+[.....                                   ] 13% | 1.55 sec | 100 random sampling with cv |
+[.....                                   ] 14% | 1.66 sec | 100 random sampling with cv |
+[......                                  ] 15% | 1.77 sec | 100 random sampling with cv |
+[......                                  ] 16% | 1.85 sec | 100 random sampling with cv |
+[......                                  ] 17% | 1.97 sec | 100 random sampling with cv |
+[.......                                 ] 18% | 2.08 sec | 100 random sampling with cv |
+[.......                                 ] 19% | 2.16 sec | 100 random sampling with cv |
+[........                                ] 20% | 2.27 sec | 100 random sampling with cv |
+[........                                ] 21% | 2.39 sec | 100 random sampling with cv |
+[........                                ] 22% | 2.50 sec | 100 random sampling with cv |
+[.........                               ] 23% | 2.58 sec | 100 random sampling with cv |
+[.........                               ] 24% | 2.66 sec | 100 random sampling with cv |
+[..........                              ] 25% | 2.75 sec | 100 random sampling with cv |
+[..........                              ] 26% | 2.83 sec | 100 random sampling with cv |
+[..........                              ] 27% | 2.94 sec | 100 random sampling with cv |
+[...........                             ] 28% | 3.03 sec | 100 random sampling with cv |
+[...........                             ] 29% | 3.14 sec | 100 random sampling with cv |
+[............                            ] 30% | 3.22 sec | 100 random sampling with cv |
+[............                            ] 31% | 3.34 sec | 100 random sampling with cv |
+[............                            ] 32% | 3.45 sec | 100 random sampling with cv |
+[.............                           ] 33% | 3.56 sec | 100 random sampling with cv |
+[.............                           ] 34% | 3.67 sec | 100 random sampling with cv |
+[..............                          ] 35% | 3.76 sec | 100 random sampling with cv |
+[..............                          ] 36% | 3.84 sec | 100 random sampling with cv |
+[..............                          ] 37% | 3.93 sec | 100 random sampling with cv |
+[...............                         ] 38% | 4.01 sec | 100 random sampling with cv |
 [...............                         ] 39% | 4.09 sec | 100 random sampling with cv |
-[................                        ] 40% | 4.20 sec | 100 random sampling with cv |
-[................                        ] 41% | 4.31 sec | 100 random sampling with cv |
-[................                        ] 42% | 4.39 sec | 100 random sampling with cv |
-[.................                       ] 43% | 4.51 sec | 100 random sampling with cv |
-[.................                       ] 44% | 4.59 sec | 100 random sampling with cv |
-[..................                      ] 45% | 4.70 sec | 100 random sampling with cv |
-[..................                      ] 46% | 4.79 sec | 100 random sampling with cv |
+[................                        ] 40% | 4.17 sec | 100 random sampling with cv |
+[................                        ] 41% | 4.29 sec | 100 random sampling with cv |
+[................                        ] 42% | 4.37 sec | 100 random sampling with cv |
+[.................                       ] 43% | 4.48 sec | 100 random sampling with cv |
+[.................                       ] 44% | 4.57 sec | 100 random sampling with cv |
+[..................                      ] 45% | 4.68 sec | 100 random sampling with cv |
+[..................                      ] 46% | 4.76 sec | 100 random sampling with cv |
 [..................                      ] 47% | 4.87 sec | 100 random sampling with cv |
-[...................                     ] 48% | 4.98 sec | 100 random sampling with cv |
+[...................                     ] 48% | 4.99 sec | 100 random sampling with cv |
 [...................                     ] 49% | 5.10 sec | 100 random sampling with cv |
 [....................                    ] 50% | 5.18 sec | 100 random sampling with cv |
 [....................                    ] 51% | 5.29 sec | 100 random sampling with cv |
 [....................                    ] 52% | 5.41 sec | 100 random sampling with cv |
-[.....................                   ] 53% | 5.52 sec | 100 random sampling with cv |
-[.....................                   ] 54% | 5.63 sec | 100 random sampling with cv |
-[......................                  ] 55% | 5.75 sec | 100 random sampling with cv |
-[......................                  ] 56% | 5.83 sec | 100 random sampling with cv |
-[......................                  ] 57% | 5.92 sec | 100 random sampling with cv |
-[.......................                 ] 58% | 6.03 sec | 100 random sampling with cv |
-[.......................                 ] 59% | 6.12 sec | 100 random sampling with cv |
-[........................                ] 60% | 6.20 sec | 100 random sampling with cv |
-[........................                ] 61% | 6.32 sec | 100 random sampling with cv |
-[........................                ] 62% | 6.40 sec | 100 random sampling with cv |
-[.........................               ] 63% | 6.52 sec | 100 random sampling with cv |
-[.........................               ] 64% | 6.63 sec | 100 random sampling with cv |
-[..........................              ] 65% | 6.74 sec | 100 random sampling with cv |
-[..........................              ] 66% | 6.85 sec | 100 random sampling with cv |
-[..........................              ] 67% | 6.97 sec | 100 random sampling with cv |
-[...........................             ] 68% | 7.05 sec | 100 random sampling with cv |
-[...........................             ] 69% | 7.16 sec | 100 random sampling with cv |
-[............................            ] 70% | 7.25 sec | 100 random sampling with cv |
-[............................            ] 71% | 7.33 sec | 100 random sampling with cv |
-[............................            ] 72% | 7.41 sec | 100 random sampling with cv |
-[.............................           ] 73% | 7.50 sec | 100 random sampling with cv |
-[.............................           ] 74% | 7.58 sec | 100 random sampling with cv |
-[..............................          ] 75% | 7.69 sec | 100 random sampling with cv |
-[..............................          ] 76% | 7.81 sec | 100 random sampling with cv |
-[..............................          ] 77% | 7.92 sec | 100 random sampling with cv |
-[...............................         ] 78% | 8.00 sec | 100 random sampling with cv |
-[...............................         ] 79% | 8.09 sec | 100 random sampling with cv |
-[................................        ] 80% | 8.17 sec | 100 random sampling with cv |
-[................................        ] 81% | 8.28 sec | 100 random sampling with cv |
-[................................        ] 82% | 8.37 sec | 100 random sampling with cv |
-[.................................       ] 83% | 8.45 sec | 100 random sampling with cv |
-[.................................       ] 84% | 8.56 sec | 100 random sampling with cv |
-[..................................      ] 85% | 8.65 sec | 100 random sampling with cv |
-[..................................      ] 86% | 8.73 sec | 100 random sampling with cv |
-[..................................      ] 87% | 8.82 sec | 100 random sampling with cv |
-[...................................     ] 88% | 8.90 sec | 100 random sampling with cv |
-[...................................     ] 89% | 8.98 sec | 100 random sampling with cv |
-[....................................    ] 90% | 9.07 sec | 100 random sampling with cv |
-[....................................    ] 91% | 9.18 sec | 100 random sampling with cv |
-[....................................    ] 92% | 9.26 sec | 100 random sampling with cv |
-[.....................................   ] 93% | 9.35 sec | 100 random sampling with cv |
-[.....................................   ] 94% | 9.46 sec | 100 random sampling with cv |
-[......................................  ] 95% | 9.58 sec | 100 random sampling with cv |
-[......................................  ] 96% | 9.69 sec | 100 random sampling with cv |
-[......................................  ] 97% | 9.77 sec | 100 random sampling with cv |
-[....................................... ] 98% | 9.86 sec | 100 random sampling with cv |
-[....................................... ] 99% | 9.97 sec | 100 random sampling with cv |
-[........................................] 100% | 10.05 sec | 100 random sampling with cv |
+[.....................                   ] 53% | 5.49 sec | 100 random sampling with cv |
+[.....................                   ] 54% | 5.57 sec | 100 random sampling with cv |
+[......................                  ] 55% | 5.69 sec | 100 random sampling with cv |
+[......................                  ] 56% | 5.80 sec | 100 random sampling with cv |
+[......................                  ] 57% | 5.91 sec | 100 random sampling with cv |
+[.......................                 ] 58% | 5.99 sec | 100 random sampling with cv |
+[.......................                 ] 59% | 6.11 sec | 100 random sampling with cv |
+[........................                ] 60% | 6.19 sec | 100 random sampling with cv |
+[........................                ] 61% | 6.27 sec | 100 random sampling with cv |
+[........................                ] 62% | 6.36 sec | 100 random sampling with cv |
+[.........................               ] 63% | 6.47 sec | 100 random sampling with cv |
+[.........................               ] 64% | 6.55 sec | 100 random sampling with cv |
+[..........................              ] 65% | 6.64 sec | 100 random sampling with cv |
+[..........................              ] 66% | 6.72 sec | 100 random sampling with cv |
+[..........................              ] 67% | 6.84 sec | 100 random sampling with cv |
+[...........................             ] 68% | 6.92 sec | 100 random sampling with cv |
+[...........................             ] 69% | 7.03 sec | 100 random sampling with cv |
+[............................            ] 70% | 7.15 sec | 100 random sampling with cv |
+[............................            ] 71% | 7.26 sec | 100 random sampling with cv |
+[............................            ] 72% | 7.34 sec | 100 random sampling with cv |
+[.............................           ] 73% | 7.43 sec | 100 random sampling with cv |
+[.............................           ] 74% | 7.51 sec | 100 random sampling with cv |
+[..............................          ] 75% | 7.62 sec | 100 random sampling with cv |
+[..............................          ] 76% | 7.74 sec | 100 random sampling with cv |
+[..............................          ] 77% | 7.82 sec | 100 random sampling with cv |
+[...............................         ] 78% | 7.90 sec | 100 random sampling with cv |
+[...............................         ] 79% | 7.99 sec | 100 random sampling with cv |
+[................................        ] 80% | 8.07 sec | 100 random sampling with cv |
+[................................        ] 81% | 8.18 sec | 100 random sampling with cv |
+[................................        ] 82% | 8.30 sec | 100 random sampling with cv |
+[.................................       ] 83% | 8.38 sec | 100 random sampling with cv |
+[.................................       ] 84% | 8.49 sec | 100 random sampling with cv |
+[..................................      ] 85% | 8.61 sec | 100 random sampling with cv |
+[..................................      ] 86% | 8.69 sec | 100 random sampling with cv |
+[..................................      ] 87% | 8.81 sec | 100 random sampling with cv |
+[...................................     ] 88% | 8.92 sec | 100 random sampling with cv |
+[...................................     ] 89% | 9.03 sec | 100 random sampling with cv |
+[....................................    ] 90% | 9.14 sec | 100 random sampling with cv |
+[....................................    ] 91% | 9.26 sec | 100 random sampling with cv |
+[....................................    ] 92% | 9.34 sec | 100 random sampling with cv |
+[.....................................   ] 93% | 9.42 sec | 100 random sampling with cv |
+[.....................................   ] 94% | 9.54 sec | 100 random sampling with cv |
+[......................................  ] 95% | 9.65 sec | 100 random sampling with cv |
+[......................................  ] 96% | 9.76 sec | 100 random sampling with cv |
+[......................................  ] 97% | 9.85 sec | 100 random sampling with cv |
+[....................................... ] 98% | 9.96 sec | 100 random sampling with cv |
+[....................................... ] 99% | 10.04 sec | 100 random sampling with cv |
+[........................................] 100% | 10.13 sec | 100 random sampling with cv |
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
-<style>#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde {color: black;background-color: white;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde pre{padding: 0;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-toggleable {background-color: white;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-estimator:hover {background-color: #d4ebff;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-item {z-index: 1;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-parallel-item:only-child::after {width: 0;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-edd56048-0573-4b91-99d6-59b4e7a7dcde div.sk-text-repr-fallback {display: none;}</style><div id="sk-edd56048-0573-4b91-99d6-59b4e7a7dcde" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+<style>#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 {color: black;background-color: white;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 pre{padding: 0;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-toggleable {background-color: white;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-estimator:hover {background-color: #d4ebff;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-item {z-index: 1;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-parallel-item:only-child::after {width: 0;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-887aa9f1-3943-4494-9f17-540dcb51ea42 div.sk-text-repr-fallback {display: none;}</style><div id="sk-887aa9f1-3943-4494-9f17-540dcb51ea42" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                  ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                  Kernelizer(),
                                                  slice(0, 1000, None)),
@@ -421,7 +419,7 @@ Optimal values depend on the size of your dataset.</p>
                                                       &#x27;n_alphas_batch&#x27;: 20,
                                                       &#x27;n_iter&#x27;: 100,
                                                       &#x27;n_targets_batch&#x27;: 1000,
-                                                      &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="182c9ea8-4ee1-4ce6-97dc-947db5bae23d" type="checkbox" ><label for="182c9ea8-4ee1-4ce6-97dc-947db5bae23d" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                                                      &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="54cf5b32-2296-45a5-8ef0-07cd624aecda" type="checkbox" ><label for="54cf5b32-2296-45a5-8ef0-07cd624aecda" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                  ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                  Kernelizer(),
                                                  slice(0, 1000, None)),
@@ -443,12 +441,12 @@ Optimal values depend on the size of your dataset.</p>
                                                       &#x27;n_alphas_batch&#x27;: 20,
                                                       &#x27;n_iter&#x27;: 100,
                                                       &#x27;n_targets_batch&#x27;: 1000,
-                                                      &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="86fc3220-5e3a-47a0-b977-f19dc5cab914" type="checkbox" ><label for="86fc3220-5e3a-47a0-b977-f19dc5cab914" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
+                                                      &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d23e77e6-dfd9-4716-974e-a83ecc1699b1" type="checkbox" ><label for="d23e77e6-dfd9-4716-974e-a83ecc1699b1" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
                                 slice(0, 1000, None)),
                                (&#x27;Feature space 1&#x27;, Kernelizer(),
                                 slice(1000, 2000, None)),
                                (&#x27;Feature space 2&#x27;, Kernelizer(),
-                                slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="8892ef42-ef58-49c9-824e-dd710ee53926" type="checkbox" ><label for="8892ef42-ef58-49c9-824e-dd710ee53926" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="481824b3-268c-4497-85ca-21ac71788a89" type="checkbox" ><label for="481824b3-268c-4497-85ca-21ac71788a89" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="cbf6ffca-29ea-48d8-8116-1ce40ce9ff13" type="checkbox" ><label for="cbf6ffca-29ea-48d8-8116-1ce40ce9ff13" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="6cfdeba4-e88d-418a-ae6b-0b51567232d9" type="checkbox" ><label for="6cfdeba4-e88d-418a-ae6b-0b51567232d9" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="abcf97b1-e340-4875-a346-74c4f932c523" type="checkbox" ><label for="abcf97b1-e340-4875-a346-74c4f932c523" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="1bc5a83e-b900-4274-b3bc-85d16db7296e" type="checkbox" ><label for="1bc5a83e-b900-4274-b3bc-85d16db7296e" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="43e5b81d-062a-4f4e-abdb-2e5e6d5b462e" type="checkbox" ><label for="43e5b81d-062a-4f4e-abdb-2e5e6d5b462e" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="f75cad6c-7248-4aee-ac58-dbf3576e6188" type="checkbox" ><label for="f75cad6c-7248-4aee-ac58-dbf3576e6188" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="da3c0f48-49a1-460a-9398-dacf8e80b8c3" type="checkbox" ><label for="da3c0f48-49a1-460a-9398-dacf8e80b8c3" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="82b81be4-8a99-4d26-b70e-6e3d8b1df5e5" type="checkbox" ><label for="82b81be4-8a99-4d26-b70e-6e3d8b1df5e5" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a583715b-d7ec-4f15-a956-0ebac1bb31c7" type="checkbox" ><label for="a583715b-d7ec-4f15-a956-0ebac1bb31c7" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="b5bc2c2f-37e5-4417-99c0-f8a8416c21e5" type="checkbox" ><label for="b5bc2c2f-37e5-4417-99c0-f8a8416c21e5" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ce9f584e-2f6b-486d-9c26-19e6131023d0" type="checkbox" ><label for="ce9f584e-2f6b-486d-9c26-19e6131023d0" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="5640ee1c-b660-491d-b00a-f8de6863dcd8" type="checkbox" ><label for="5640ee1c-b660-491d-b00a-f8de6863dcd8" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
                       solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
        1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
        1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
@@ -497,7 +495,7 @@ set.</p>
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
-<style>#sk-69695e7f-7439-471f-8e0e-875cb0e54012 {color: black;background-color: white;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 pre{padding: 0;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-toggleable {background-color: white;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-estimator:hover {background-color: #d4ebff;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-item {z-index: 1;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-parallel-item:only-child::after {width: 0;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-69695e7f-7439-471f-8e0e-875cb0e54012 div.sk-text-repr-fallback {display: none;}</style><div id="sk-69695e7f-7439-471f-8e0e-875cb0e54012" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+<style>#sk-5f721f99-9025-427f-baa6-d5915ed0d94d {color: black;background-color: white;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d pre{padding: 0;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-toggleable {background-color: white;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-estimator:hover {background-color: #d4ebff;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-item {z-index: 1;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-parallel-item:only-child::after {width: 0;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-5f721f99-9025-427f-baa6-d5915ed0d94d div.sk-text-repr-fallback {display: none;}</style><div id="sk-5f721f99-9025-427f-baa6-d5915ed0d94d" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
        1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
        1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
        1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -507,7 +505,7 @@ set.</p>
        1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
        1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
        1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
-       1.00000000e+10]))</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="8362ff51-5577-4de8-a49b-fcf00432d517" type="checkbox" checked><label for="8362ff51-5577-4de8-a49b-fcf00432d517" class="sk-toggleable__label sk-toggleable__label-arrow">KernelRidgeCV</label><div class="sk-toggleable__content"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+       1.00000000e+10]))</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="92f51b8c-9b52-4a23-9214-06085f7ff8dd" type="checkbox" checked><label for="92f51b8c-9b52-4a23-9214-06085f7ff8dd" class="sk-toggleable__label sk-toggleable__label-arrow">KernelRidgeCV</label><div class="sk-toggleable__content"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
        1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
        1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
        1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -539,7 +537,7 @@ set.</p>
 </pre></div>
 </div>
 <img alt="Histogram over targets" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_1_sklearn_api_002.png" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  12.406 seconds)</p>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  16.951 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-1-sklearn-api-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/fc308285b553b80d3c9be578d088265d/plot_mkr_1_sklearn_api.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mkr_1_sklearn_api.py</span></code></a></p>

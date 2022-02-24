@@ -1,8 +1,10 @@
 .. _api_documentation:
 
-=================
-API Documentation
-=================
+===
+API
+===
+
+List of functions and classes in Himalaya.
 
 Backend
 =======
@@ -234,6 +236,7 @@ Utils
    :template: function.rst
 
    utils.compute_lipschitz_constants
+   utils.generate_multikernel_dataset
 
 
 Visualization
