@@ -1,8 +1,8 @@
 from abc import ABC, abstractmethod
+import warnings
 
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
 from sklearn.utils.validation import check_is_fitted
-from sklearn.model_selection import check_cv
 
 from ._solvers import KERNEL_RIDGE_SOLVERS
 from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
@@ -15,6 +15,7 @@ from ._predictions import predict_and_score_weighted_kernel_ridge
 from ._predictions import primal_weights_weighted_kernel_ridge
 
 from ..validation import check_array
+from ..validation import check_cv
 from ..validation import issparse
 from ..validation import _get_string_dtype
 from ..backend import get_backend
@@ -102,6 +103,10 @@ class KernelRidge(_BaseKernelRidge):
         If True, computations will be performed on CPU, ignoring the
         current backend. If False, use the current backend.
 
+    warn : bool
+        If True, warn if the number of samples is larger than the number of
+        features, and if the kernel is linear.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -135,7 +140,7 @@ class KernelRidge(_BaseKernelRidge):
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, fit_intercept=False,
-                 force_cpu=False):
+                 force_cpu=False, warn=True):
         self.alpha = alpha
         self.kernel = kernel
         self.kernel_params = kernel_params
@@ -143,6 +148,7 @@ class KernelRidge(_BaseKernelRidge):
         self.solver_params = solver_params
         self.fit_intercept = fit_intercept
         self.force_cpu = force_cpu
+        self.warn = warn
 
     @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
@@ -178,6 +184,14 @@ class KernelRidge(_BaseKernelRidge):
                                         ndim=1)
             if sample_weight.shape[0] != y.shape[0]:
                 raise ValueError("Inconsistent number of samples.")
+
+        n_samples, n_features = X.shape
+        if n_samples > n_features and self.kernel == "linear" and self.warn:
+            warnings.warn(
+                "Solving linear kernel ridge is slower than solving ridge when"
+                f" n_samples > n_features (here {n_samples} > {n_features}). "
+                "Using himalaya.ridge.Ridge would be faster. Use warn=False to"
+                " silence this warning.", UserWarning)
 
         K = self._get_kernel(X)
 
@@ -368,6 +382,10 @@ class KernelRidgeCV(KernelRidge):
         If True, computations will be performed on CPU, ignoring the
         current backend. If False, use the current backend.
 
+    warn : bool
+        If True, warn if the number of samples is larger than the number of
+        features, and if the kernel is linear.
+
     Attributes
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
@@ -378,6 +396,8 @@ class KernelRidgeCV(KernelRidge):
 
     cv_scores_ : array of shape (n_targets, )
         Cross-validation scores averaged over splits, for the best alpha.
+        By default, the scores are computed with l2_neg_loss (in ]-inf, 0]).
+        The scoring function can be changed with solver_params["score_func"].
 
     X_fit_ : array of shape (n_samples, n_features)
         Training data. If kernel == "precomputed" this is None.
@@ -401,7 +421,7 @@ class KernelRidgeCV(KernelRidge):
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, fit_intercept=False,
-                 cv=5, Y_in_cpu=False, force_cpu=False):
+                 cv=5, Y_in_cpu=False, force_cpu=False, warn=True):
         self.alphas = alphas
         self.kernel = kernel
         self.kernel_params = kernel_params
@@ -411,6 +431,7 @@ class KernelRidgeCV(KernelRidge):
         self.cv = cv
         self.Y_in_cpu = Y_in_cpu
         self.force_cpu = force_cpu
+        self.warn = warn
 
     @force_cpu_backend
     def fit(self, X, y=None, sample_weight=None):
@@ -448,6 +469,14 @@ class KernelRidgeCV(KernelRidge):
 
         alphas = check_array(self.alphas, dtype=self.dtype_, ndim=1)
 
+        n_samples, n_features = X.shape
+        if n_samples > n_features and self.kernel == "linear" and self.warn:
+            warnings.warn(
+                "Solving linear kernel ridge is slower than solving ridge when"
+                f" n_samples > n_features (here {n_samples} > {n_features}). "
+                "Using himalaya.ridge.RidgeCV would be faster. "
+                "Use warn=False to silence this warning.", UserWarning)
+
         K = self._get_kernel(X)
 
         self.X_fit_ = _to_cpu(X) if self.kernel != "precomputed" else None
@@ -466,7 +495,7 @@ class KernelRidgeCV(KernelRidge):
             y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             K *= sw @ sw.T
 
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
 
         # ------------------ call the solver
         tmp = self._call_solver(K=K, Y=y, cv=cv, alphas=alphas,
@@ -740,6 +769,8 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
 
     cv_scores_ : array of shape (n_iter, n_targets)
         Cross-validation scores, averaged over splits.
+        By default, the scores are computed with l2_neg_loss (in ]-inf, 0]).
+        The scoring function can be changed with solver_params["score_func"].
 
     X_fit_ : array of shape (n_samples, n_features)
         Training data. If ``kernels == "precomputed"`` this is None.
@@ -854,7 +885,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
             y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             Ks *= (sw @ sw.T)[None]
 
-        cv = check_cv(self.cv)
+        cv = check_cv(self.cv, y)
 
         # ------------------ call the solver
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
@@ -930,9 +961,6 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         Additional parameters for the solver.
         See more details in the docstring of the function:
         ``WeightedKernelRidge.ALL_SOLVERS[solver]``
-
-    cv : int or scikit-learn splitter
-        Cross-validation splitter. If an int, KFold is used.
 
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
@@ -1070,7 +1098,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
                 self.deltas_ = self.deltas_[:, None]
 
         # ------------------ call the solver
-        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, deltas=self.deltas_,
+        self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, alpha=self.alpha,
+                                            deltas=self.deltas_,
                                             random_state=self.random_state)
 
         if ravel:

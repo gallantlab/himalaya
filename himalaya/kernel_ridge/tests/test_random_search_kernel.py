@@ -13,10 +13,9 @@ from himalaya.scoring import r2_score
 from himalaya.kernel_ridge import solve_multiple_kernel_ridge_random_search
 
 
-def _create_dataset(backend):
+def _create_dataset(backend, n_targets=4):
     n_featuress = (100, 200)
     n_samples = 80
-    n_targets = 4
     n_gammas = 3
 
     Xs = [
@@ -152,3 +151,49 @@ def _test_solve_multiple_kernel_ridge_random_search(
                                     backend.to_numpy(Y_64[:, tt]))
             c1 = backend.asarray_like(c1, K)
             assert_array_almost_equal(c1, refit_weights[:, tt], decimal=5)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_random_search_single_alpha_numpy(backend):
+    backend = set_backend(backend)
+    # just a smoke test, so make it minimal
+    Ks, Y, gammas, Xs = _create_dataset(backend)
+    alphas = 1.0
+    # make Y a numpy array
+    Y = backend.to_numpy(Y)
+    _ = solve_multiple_kernel_ridge_random_search(
+        Ks, Y, n_iter=gammas, alphas=alphas
+    )
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize('n_kernels', [1, 2])
+def test_solve_multiple_kernel_ridge_random_search_global_alpha(
+        backend, n_kernels):
+    backend = set_backend(backend)
+    # add more targets to make sure we get some variability
+    Ks, Y, gammas, Xs = _create_dataset(backend, n_targets=20)
+    alphas = backend.asarray_like(backend.logspace(-3, 5, 9), Ks)
+    cv = sklearn.model_selection.check_cv(5)
+
+    deltas, *_, best_alphas = solve_multiple_kernel_ridge_random_search(
+        Ks[:n_kernels],
+        Y,
+        n_iter=50,
+        progress_bar=False,
+        alphas=alphas,
+        cv=cv,
+        local_alpha=False,
+        return_alphas=True
+    )
+    # test that we return a single combination of deltas
+    deltas = backend.to_numpy(deltas)
+    if deltas.ndim == 1:
+        assert np.allclose(deltas[0], deltas)
+    else:
+        for dd in deltas:
+            assert np.allclose(dd[0], dd)
+
+    # test that we return a single alpha
+    best_alphas = backend.to_numpy(best_alphas)
+    assert np.allclose(best_alphas[0], best_alphas)

@@ -12,3 +12,12 @@
 .sphx-glr-thumbcontainer a.internal {
     padding: 150px 10px 0 !important;   /*default = 150px 10px 0 */
 }
+div.sphinxsidebar {
+    max-height: 100%;
+    overflow-y: auto;
+}
+div.sphx-glr-download a{
+    background-image: none;
+    background-color: rgb(238, 238, 238);
+    border-color: rgb(204, 204, 204);
+}

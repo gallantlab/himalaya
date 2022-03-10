@@ -3,14 +3,12 @@
 from .torch import *  # noqa
 import torch
 
-try:
-    torch.arange(1).cuda()
-except AssertionError as error:
+if not torch.cuda.is_available():
     import sys
     if "pytest" in sys.modules:  # if run through pytest
         import pytest
-        pytest.skip("PyTorch not compiled with CUDA enabled.")
-    raise AssertionError("PyTorch not compiled with CUDA enabled.") from error
+        pytest.skip("PyTorch with CUDA is not available.")
+    raise RuntimeError("PyTorch with CUDA is not available.")
 
 from ._utils import _dtype_to_str
 

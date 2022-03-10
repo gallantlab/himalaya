@@ -6,18 +6,18 @@ Welcome to ``Himalaya``'s documentation website.
 Documentation
 -------------
 .. toctree::
-   :maxdepth: 2
+   :maxdepth: 1
 
    getting_started
    models
    troubleshooting
-   api
-
-Examples
---------
-.. toctree::
-   :includehidden:
-   :maxdepth: 2
-   
-    
    _auto_examples/index
+
+
+Package details
+---------------
+.. toctree::
+   :maxdepth: 1
+
+   api
+   changelog

@@ -1,8 +1,10 @@
 .. _api_documentation:
 
-=================
-API Documentation
-=================
+===
+API
+===
+
+List of functions and classes in Himalaya.
 
 Backend
 =======
@@ -104,6 +106,9 @@ Kernels
    rbf_kernel
    sigmoid_kernel
    cosine_similarity_kernel
+
+   :template: class.rst
+   KernelCenterer
 
 |
 
@@ -219,6 +224,8 @@ Scoring functions
    scoring.r2_score
    scoring.correlation_score
    scoring.r2_score_split
+   scoring.r2_score_split_svd
+   scoring.correlation_score_split
 
 
 Utils
@@ -229,6 +236,7 @@ Utils
    :template: function.rst
 
    utils.compute_lipschitz_constants
+   utils.generate_multikernel_dataset
 
 
 Visualization

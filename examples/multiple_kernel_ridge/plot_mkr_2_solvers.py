@@ -1,18 +1,18 @@
 """
-Multiple kernel ridge solvers
+Multiple-kernel ridge solvers
 =============================
 This example demonstrates the different strategies to solve the multiple kernel
 ridge regression: the *random search*, and the *hyper-gradient descent*.
 
-The *random-search* strategy samples some kernel weights vectors from a Dirichlet
-distribution, then for each vector, it fits a ``KernelRidgeCV`` model and
-computes a cross-validation score for all targets. Then it selects for each
+The *random-search* strategy samples some kernel weights vectors from a
+Dirichlet distribution, then for each vector, it fits a ``KernelRidgeCV`` model
+and computes a cross-validation score for all targets. Then it selects for each
 target the kernel weight vector leading to the highest cross-validation score
-(e.g. the highest R\ :sup:`2` value).
-Extensively sampling the kernel weights space is exponentially expensive with
-the number of kernels, therefore this method is computationally expensive for a
-large number of kernels. However, since it reuses most of the computations for
-all targets, it scales very well with the number of targets.
+(e.g. the highest `R^2` value). Extensively sampling the kernel weights space
+is exponentially expensive with the number of kernels, therefore this method is
+computationally expensive for a large number of kernels. However, since it
+reuses most of the computations for all targets, it scales very well with the
+number of targets.
 
 The *hyper-gradient descent* strategy takes a different route. It starts with
 an initial kernel weights vector per target, and updates it iteratively
@@ -31,6 +31,7 @@ from himalaya.kernel_ridge import KernelRidgeCV
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
 from himalaya.kernel_ridge import Kernelizer
 from himalaya.kernel_ridge import ColumnKernelizer
+from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
 from sklearn import set_config
@@ -38,9 +39,9 @@ set_config(display='diagram')
 
 # sphinx_gallery_thumbnail_number = 4
 ###############################################################################
-# In this example, we use the ``torch`` backend, and fit the model on GPU.
+# In this example, we use the ``torch_cuda`` backend, and fit the model on GPU.
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset
@@ -53,63 +54,36 @@ n_targets = 50
 n_clusters = 2
 
 ###############################################################################
-# To create some clusters of weights, we take a few kernel weights samples..
-kernel_weights_true = generate_dirichlet_samples(n_clusters, n_kernels,
-                                                 concentration=[.3],
-                                                 random_state=105)
+# To create some clusters of weights, we take a few kernel weights samples.
+kernel_weights = generate_dirichlet_samples(n_clusters, n_kernels,
+                                            concentration=[.3],
+                                            random_state=105)
 
 ###############################################################################
-# .. then, we duplicate them, and add some noise, to get clusters.
+# Then, we duplicate them, and add some noise, to get clusters.
 noise = 0.05
-kernel_weights_true = backend.to_numpy(kernel_weights_true)
-kernel_weights_true = np.tile(kernel_weights_true,
-                              (n_targets // n_clusters, 1))
-kernel_weights_true += np.random.randn(n_targets, n_kernels) * noise
+kernel_weights = backend.to_numpy(kernel_weights)
+kernel_weights = np.tile(kernel_weights, (n_targets // n_clusters, 1))
+kernel_weights += np.random.randn(n_targets, n_kernels) * noise
 
 # We finish with a projection on the simplex, making kernel weights sum to one.
-kernel_weights_true[kernel_weights_true < 0] = 0.
-kernel_weights_true /= np.sum(kernel_weights_true, 1)[:, None]
+kernel_weights[kernel_weights < 0] = 0.
+kernel_weights /= np.sum(kernel_weights, 1)[:, None]
 
 ###############################################################################
 # Then, we generate a random dataset, using the arbitrary scalings.
 #
-# - Xs_train : list of arrays of shape (n_samples_train, n_features)
-# - Xs_test : list of arrays of shape (n_samples_test, n_features)
+# - X_train : array of shape (n_samples_train, n_features)
+# - X_test : array of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
-# - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
+# - Y_test : array of shape (n_samples_test, n_targets)
 
-n_samples_train = 1000
-n_samples_test = 300
-n_features_list = np.full(n_kernels, fill_value=1000)
+(X_train, X_test, Y_train, Y_test,
+ kernel_weights, n_features_list) = generate_multikernel_dataset(
+     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=600,
+     n_samples_test=300, kernel_weights=kernel_weights, random_state=42)
 
-Xs_train, Xs_test = [], []
-Y_train, Y_test = None, None
-for ii in range(n_kernels):
-    n_features = n_features_list[ii]
-
-    X_train = backend.randn(n_samples_train, n_features)
-    X_test = backend.randn(n_samples_test, n_features)
-    Xs_train.append(X_train)
-    Xs_test.append(X_test)
-
-    weights = backend.randn(n_features, n_targets) / n_features
-    weights *= backend.asarray_like(kernel_weights_true[:, ii],
-                                    ref=weights) ** 0.5
-
-    if ii == 0:
-        Y_train = X_train @ weights
-        Y_test = X_test @ weights
-    else:
-        Y_train += X_train @ weights
-        Y_test += X_test @ weights
-
-std = Y_train.std(0)[None]
-Y_train /= std
-Y_test /= std
-
-noise = 0.1
-Y_train += backend.randn(n_samples_train, n_targets) * noise
-Y_test += backend.randn(n_samples_test, n_targets) * noise
+feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
 
 ###############################################################################
 # Define a ``ColumnKernelizer``
@@ -117,14 +91,6 @@ Y_test += backend.randn(n_samples_test, n_targets) * noise
 # We define a column kernelizer, which we will use to precompute the kernels in
 # a pipeline.
 
-feature_names = ["space %d" % ii for ii in range(n_kernels)]
-
-###############################################################################
-# Concatenate the feature spaces
-X_train = backend.asarray(backend.concatenate(Xs_train, 1), dtype="float32")
-X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
-
-###############################################################################
 # Find the start and end of each feature space X in Xs
 start_and_end = np.concatenate([[0], np.cumsum(n_features_list)])
 slices = [
@@ -158,7 +124,7 @@ model_1 = MultipleKernelRidgeCV(kernels="precomputed", solver="random_search",
 ###############################################################################
 # We define the second model, using the hyper_gradient solver.
 
-solver_params = dict(max_iter=80, n_targets_batch=200, tol=1e-3,
+solver_params = dict(max_iter=30, n_targets_batch=200, tol=1e-3,
                      initial_deltas="ridgecv", max_iter_inner_hyper=1,
                      hyper_gradient_method="direct")
 
@@ -181,7 +147,8 @@ pipe_2.fit(X_train, Y_train)
 # First convergence curve.
 #
 # For the random search, ``cv_scores`` gives the scores for each sampled kernel
-# weights vector. The convergence curve is thus the current maximum for each target.
+# weights vector. The convergence curve is thus the current maximum for each
+# target.
 cv_scores = backend.to_numpy(pipe_1[1].cv_scores_)
 current_max = np.maximum.accumulate(cv_scores, axis=0)
 mean_current_max = np.mean(current_max, axis=1)
@@ -211,8 +178,9 @@ plt.show()
 ###############################################################################
 # Compare with a ``KernelRidgeCV``
 # --------------------------------
-# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated features.
-# Comparison is performed using the prediction scores on the test set.
+# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated
+# features. Comparison is performed using the prediction scores on the test
+# set.
 
 # Fit the baseline model ``KernelRidgeCV``
 baseline = KernelRidgeCV(kernel="linear", alphas=alphas)
@@ -231,18 +199,12 @@ scores_baseline = backend.to_numpy(scores_baseline)
 
 ###############################################################################
 # Plot histograms
-bins = np.linspace(
-    np.min([scores_baseline.min(),
-            scores_1.min(),
-            scores_2.min()]),
-    np.max([scores_baseline.max(),
-            scores_1.max(),
-            scores_2.max()]), 25)
-plt.hist(scores_1, bins, alpha=0.5,
+bins = np.linspace(0, 1, 50)
+plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
+plt.hist(scores_1, bins, alpha=0.7,
          label="MultipleKernelRidgeCV(solver='random_search')")
-plt.hist(scores_2, bins, alpha=0.5,
+plt.hist(scores_2, bins, alpha=0.7,
          label="MultipleKernelRidgeCV(solver='hyper_gradient')")
-plt.hist(scores_baseline, bins, alpha=0.5, label="KernelRidgeCV")
 plt.xlabel(r"$R^2$ generalization score")
 plt.title("Histogram over targets")
 plt.legend()
@@ -257,9 +219,10 @@ plt.show()
 all_kernel_weights_2 = [
     np.full((n_targets, n_kernels), fill_value=1. / n_kernels),
 ]
-for max_iter in np.unique(np.int_(np.logspace(0, np.log10(80), 3))):
-    # change max_iter and refit from scratch
-    pipe_2[1].solver_params['max_iter'] = max_iter
+max_iter = model_2.solver_params["max_iter"]
+for n_iter in np.unique(np.int_(np.logspace(0, np.log10(max_iter), 3))):
+    # change the number of iteration and refit from scratch
+    pipe_2[1].solver_params['max_iter'] = n_iter
     pipe_2.fit(X_train, Y_train)
 
     kernel_weights_2 = np.exp(backend.to_numpy(pipe_2[1].deltas_.T))
@@ -274,9 +237,10 @@ kernel_weights_1 /= kernel_weights_1.sum(1)[:, None]
 ###############################################################################
 # Plot on the simplex
 # -------------------
-# Finally, we visualize the obtained kernel weights vector, projected on the simplex.
-# The simplex is the space of positive weights that sum to one, and it has a
-# triangular shape in dimension 3.
+# Finally, we visualize the obtained kernel weights vector, projected on the
+# simplex. The simplex is the space of positive weights that sum to one, and it
+# has a triangular shape in dimension 3.
+#
 # We plot on three different panels:
 #
 # - the kernel weights used in the simulated data
@@ -310,8 +274,7 @@ def _create_simplex_projection_and_edges(ax):
     tripod = pca.transform(tripod).T
 
     # add point legend
-    points = np.array([[1, 0, 0], [0, 1, 0],
-                       [0, 0, 1]])
+    points = np.array([[1, 0, 0], [0, 1, 0], [0, 0, 1]])
     labels = points.copy()
     points = pca.transform(points * 1.15).T
     for (xx, yy), label in zip(points.T, labels):
@@ -359,10 +322,13 @@ def plot_simplex_trajectory(Xs, ax=None):
 ###############################################################################
 fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
+# selection of targets
+selection = slice(0, 50)
+
 # First panel
 ax = axs[0]
 ax.set_title("(a) Ground truth", y=0)
-plot_simplex(kernel_weights_true, ax=ax, color='C2',
+plot_simplex(kernel_weights[selection], ax=ax, color='C2',
              label="true weights")
 
 # Second panel
@@ -370,12 +336,13 @@ ax = axs[1]
 ax.set_title("(b) Random search", y=0)
 plot_simplex(backend.to_numpy(kernel_weights_sampled), ax=ax, marker='+',
              label="random candidates", zorder=10)
-plot_simplex(kernel_weights_1, ax=axs[1], label="selected candidates")
+plot_simplex(kernel_weights_1[selection], ax=axs[1],
+             label="selected candidates")
 
 # Third panel
 ax = axs[2]
 ax.set_title("(c) Gradient descent", y=0)
-plot_simplex_trajectory(all_kernel_weights_2, ax=ax)
+plot_simplex_trajectory([aa[selection] for aa in all_kernel_weights_2], ax=ax)
 ax.legend([ax.lines[2], ax.collections[0]],
           ['gradient trajectory', 'final point'])
 

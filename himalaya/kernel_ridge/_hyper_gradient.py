@@ -1,11 +1,10 @@
 import numbers
 
-from sklearn.model_selection import check_cv
-
 from ..backend import get_backend
 from ..progress_bar import ProgressBar
 from ..utils import compute_lipschitz_constants
 from ..scoring import l2_neg_loss
+from ..validation import check_cv
 
 from ._solvers import solve_weighted_kernel_ridge_conjugate_gradient
 from ._solvers import solve_weighted_kernel_ridge_gradient_descent
@@ -103,7 +102,7 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     if fit_intercept:
         raise NotImplementedError('Coming soon.')
 
-    cv = check_cv(cv)
+    cv = check_cv(cv, Y)
     n_splits = cv.get_n_splits()
     for train, val in cv.split(Y):
         if len(val) == 0 or len(train) == 0:

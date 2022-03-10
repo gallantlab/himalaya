@@ -27,11 +27,14 @@ requirements = [
 extras_require = {
     "all_backends": ["cupy", "torch"],
     "viz": ["matplotlib"],
-    "test": ["pytest", "cupy", "torch"],
+    "test": ["pytest", "matplotlib", "cupy", "torch"],
+    "github": ["pytest", "matplotlib", "torch", "pytest-rerunfailures"],
 }
 
 extras_require["all"] = sum(list(extras_require.values()), [])
-extras_require["doc"] = ["numpydoc", "sphinx", "sphinx_gallery"] + extras_require["all_backends"]
+extras_require["doc"] = ["numpydoc", "sphinx", "sphinx_gallery",
+                         "sphinxcontrib-mermaid"]
+extras_require["doc"] += extras_require["viz"] + extras_require["all_backends"]
 
 if __name__ == "__main__":
     setup(

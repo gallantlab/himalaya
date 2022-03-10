@@ -39,6 +39,7 @@ extensions = [
     'sphinx.ext.viewcode',
     'sphinx.ext.githubpages',
     'sphinx_gallery.gen_gallery',
+    'sphinxcontrib.mermaid',
 ]
 
 # generate autosummary even if no references
@@ -57,6 +58,7 @@ sphinx_gallery_conf = {
     'remove_config_comments': 'True',
     'plot_gallery': 'True',
     'thumbnail_size': (480, 250),
+    'download_all_examples': False,
 }
 
 # Add any paths that contain templates here, relative to this directory.
@@ -119,6 +121,7 @@ html_theme_options = {
     'github_repo': 'himalaya',
     'github_type': 'star',
     'page_width': '1200px',
+    'sidebar_width': '235px',
     'logo': 'logo.svg',
     'logo_name': 'himalaya',
     # 'description': 'Himalaya',

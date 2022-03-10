@@ -1,5 +1,5 @@
 """
-Multiple kernel ridge with scikit-learn API
+Multiple-kernel ridge with scikit-learn API
 ===========================================
 This example demonstrates how to solve multiple kernel ridge regression, using
 scikit-learn API.
@@ -13,65 +13,41 @@ from himalaya.kernel_ridge import KernelRidgeCV
 from himalaya.kernel_ridge import MultipleKernelRidgeCV
 from himalaya.kernel_ridge import Kernelizer
 from himalaya.kernel_ridge import ColumnKernelizer
+from himalaya.utils import generate_multikernel_dataset
 
 from sklearn.pipeline import make_pipeline
+from sklearn import set_config
+set_config(display='diagram')
 
 # sphinx_gallery_thumbnail_number = 2
 ###############################################################################
-# In this example, we use the ``torch`` backend.
+# In this example, we use the ``torch_cuda`` backend.
 #
-# Torch can perform computations both on CPU and GPU.
-# To use the CPU, use the "torch" backend.
-# To use GPU, you can either use the "torch" backend and move your data to GPU
-# with the ``.cuda`` method, or you can use the "torch_cuda" backend which calls
-# this method in ``backend.asarray``.
+# Torch can perform computations both on CPU and GPU. To use CPU, use the
+# "torch" backend, to use GPU, use the "torch_cuda" backend.
 
-backend = set_backend("torch_cuda")
+backend = set_backend("torch_cuda", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset
 # -------------------------
-# - Xs_train : list of arrays of shape (n_samples_train, n_features)
-# - Xs_test : list of arrays of shape (n_samples_test, n_features)
+# - X_train : array of shape (n_samples_train, n_features)
+# - X_test : array of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
-# - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
+# - Y_test : array of shape (n_samples_test, n_targets)
 
-n_samples_train = 1000
-n_samples_test = 300
-n_targets = 1000
-n_features_list = [1000, 1000, 500]
-feature_names = ["feature space A", "feature space B", "feature space C"]
+(X_train, X_test, Y_train, Y_test, kernel_weights,
+ n_features_list) = generate_multikernel_dataset(n_kernels=3, n_targets=50,
+                                                 n_samples_train=600,
+                                                 n_samples_test=300,
+                                                 random_state=42)
 
-Xs_train = [
-    backend.randn(n_samples_train, n_features)
-    for n_features in n_features_list
-]
-Xs_test = [
-    backend.randn(n_samples_test, n_features) for n_features in n_features_list
-]
-ws = [
-    backend.randn(n_features, n_targets) / n_features
-    for n_features in n_features_list
-]
-Y_train = backend.stack([X @ w for X, w in zip(Xs_train, ws)]).sum(0)
-Y_test = backend.stack([X @ w for X, w in zip(Xs_test, ws)]).sum(0)
-
-###############################################################################
-# Optional: Add some arbitrary scalings per kernel
-if True:
-    scalings = [0.2, 5, 1]
-    Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
-    Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
-
-###############################################################################
-# Concatenate the feature spaces and move to GPU with ``backend.asarray``.
-X_train = backend.asarray(backend.concatenate(Xs_train, 1), dtype="float32")
-X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
+feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
 
 ###############################################################################
 # We could precompute the kernels by hand on ``Xs_train``, as done in
-# ``plot_mkr_random_search.py``. Instead, here we use the
-# ``ColumnKernelizer`` to make a ``scikit-learn`` ``Pipeline``.
+# ``plot_mkr_random_search.py``. Instead, here we use the ``ColumnKernelizer``
+# to make a ``scikit-learn`` ``Pipeline``.
 
 # Find the start and end of each feature space X in Xs
 start_and_end = np.concatenate([[0], np.cumsum(n_features_list)])
@@ -161,9 +137,9 @@ plt.show()
 ###############################################################################
 # Compare to ``KernelRidgeCV``
 # ----------------------------
-# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated features.
-# Comparison is performed using the prediction scores on the test set.
-
+# Compare to a baseline ``KernelRidgeCV`` model with all the concatenated
+# features. Comparison is performed using the prediction scores on the test
+# set.
 
 ###############################################################################
 # Fit the baseline model ``KernelRidgeCV``
@@ -180,10 +156,9 @@ scores_baseline = backend.to_numpy(scores_baseline)
 
 ###############################################################################
 # Plot histograms
-bins = np.linspace(min(scores_baseline.min(), scores.min()),
-                   max(scores_baseline.max(), scores.max()), 50)
-plt.hist(scores, bins, alpha=0.5, label="MultipleKernelRidgeCV")
-plt.hist(scores_baseline, bins, alpha=0.5, label="KernelRidgeCV")
+bins = np.linspace(0, max(scores_baseline.max(), scores.max()), 50)
+plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
+plt.hist(scores, bins, alpha=0.7, label="MultipleKernelRidgeCV")
 plt.xlabel(r"$R^2$ generalization score")
 plt.title("Histogram over targets")
 plt.legend()

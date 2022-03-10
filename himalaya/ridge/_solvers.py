@@ -1,10 +1,13 @@
 import numbers
+import warnings
 
 from ..backend import get_backend
+from ..utils import _batch_or_skip
 
 
 def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
-                    negative_eigenvalues="zeros"):
+                    negative_eigenvalues="zeros", n_targets_batch=None,
+                    warn=True):
     """Solve ridge regression using SVD decomposition.
 
     Solve the ridge regression::
@@ -31,6 +34,12 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
         - "zeros" remplaces them with zeros.
         - "nan" returns nans if the regularization does not compensate
         twice the smallest negative value, else it ignores the problem.
+    n_targets_batch : int or None
+        Size of the batch for over targets during cross-validation.
+        Used for memory reasons. If None, uses all n_targets at once.
+    warn : bool
+        If True, warn if the number of samples is smaller than the number of
+        features.
 
     Returns
     -------
@@ -44,6 +53,17 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
         alpha = backend.ones_like(Y, shape=(1, )) * alpha
 
     X, Y, alpha = backend.check_arrays(X, Y, alpha)
+
+    n_samples, n_features = X.shape
+    if n_samples < n_features and warn:
+        warnings.warn(
+            "Solving ridge is slower than solving kernel ridge when n_samples "
+            f"< n_features (here {n_samples} < {n_features}). "
+            "Using a linear kernel in himalaya.kernel_ridge.KernelRidge or "
+            "himalaya.kernel_ridge.solve_kernel_ridge_eigenvalues would be "
+            "faster. Use warn=False to silence this warning.", UserWarning)
+    if X.shape[0] != Y.shape[0]:
+        raise ValueError("X and Y must have the same number of samples.")
 
     X_offset, Y_offset = None, None
     if fit_intercept:
@@ -81,16 +101,29 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
             raise ValueError("Unknown negative_eigenvalues=%r." %
                              (negative_eigenvalues, ))
 
-    iUT = inverse[:, None, :] * U.T[:, :, None]
-    if Y.shape[0] < Y.shape[1]:
-        weights = (backend.transpose(Vt.T @ iUT,
-                                     (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
-    else:
-        weights = Vt.T @ (
-            backend.transpose(iUT, (2, 0, 1)) @ Y.T[:, :, None])[:, :, 0].T
+    n_samples, n_features = X.shape
+    n_samples, n_targets = Y.shape
+    weights = backend.zeros_like(X, shape=(n_features, n_targets),
+                                 device="cpu")
+    if n_targets_batch is None:
+        n_targets_batch = n_targets
+
+    for start in range(0, n_targets, n_targets_batch):
+        batch = slice(start, start + n_targets_batch)
+
+        iUT = _batch_or_skip(inverse, batch, 1)[:, None, :] * U.T[:, :, None]
+        iUT = backend.transpose(iUT, (2, 0, 1))
+        # iUT.shape = (1 or n_targets_batch, n_samples, n_samples)
+
+        if Y.shape[0] < Y.shape[1]:
+            weights_batch = ((Vt.T @ iUT) @ Y.T[batch, :, None])[:, :, 0].T
+        else:
+            weights_batch = Vt.T @ (iUT @ Y.T[batch, :, None])[:, :, 0].T
+        weights[:, batch] = backend.to_cpu(weights_batch)
 
     if fit_intercept:
-        intercept = Y_offset - X_offset @ weights
+        intercept = backend.to_cpu(
+            Y_offset) - backend.to_cpu(X_offset) @ weights
         return weights, intercept
     else:
         return weights

@@ -1,6 +1,6 @@
 """
-Multiple kernel ridge regression
-================================
+Multiple-kernel ridge
+=====================
 This example demonstrates how to solve multiple kernel ridge regression.
 It uses random search and cross validation to select optimal hyperparameters.
 """
@@ -11,6 +11,7 @@ import matplotlib.pyplot as plt
 from himalaya.backend import set_backend
 from himalaya.kernel_ridge import solve_multiple_kernel_ridge_random_search
 from himalaya.kernel_ridge import predict_and_score_weighted_kernel_ridge
+from himalaya.utils import generate_multikernel_dataset
 from himalaya.scoring import r2_score_split
 from himalaya.viz import plot_alphas_diagnostic
 
@@ -18,45 +19,36 @@ from himalaya.viz import plot_alphas_diagnostic
 ###############################################################################
 # In this example, we use the ``cupy`` backend, and fit the model on GPU.
 
-backend = set_backend("cupy")
+backend = set_backend("cupy", on_error="warn")
 
 ###############################################################################
 # Generate a random dataset
 # -------------------------
 #
-# - Xs_train : list of arrays of shape (n_samples_train, n_features)
-# - Xs_test : list of arrays of shape (n_samples_test, n_features)
+# - X_train : array of shape (n_samples_train, n_features)
+# - X_test : array of shape (n_samples_test, n_features)
 # - Y_train : array of shape (n_samples_train, n_targets)
-# - Y_test : array of shape (n_repeat, n_samples_test, n_targets)
+# - Y_test : array of shape (n_samples_test, n_targets)
 
-n_samples_train = 1000
-n_samples_test = 300
-n_targets = 1000
-n_features_list = [1000, 1000, 500]
+n_kernels = 3
+n_targets = 50
+kernel_weights = np.tile(np.array([0.5, 0.3, 0.2])[None], (n_targets, 1))
 
-Xs_train = [
-    backend.randn(n_samples_train, n_features)
-    for n_features in n_features_list
+(X_train, X_test, Y_train, Y_test,
+ kernel_weights, n_features_list) = generate_multikernel_dataset(
+     n_kernels=n_kernels, n_targets=n_targets, n_samples_train=600,
+     n_samples_test=300, kernel_weights=kernel_weights, random_state=42)
+
+feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
+
+# Find the start and end of each feature space X in Xs
+start_and_end = np.concatenate([[0], np.cumsum(n_features_list)])
+slices = [
+    slice(start, end)
+    for start, end in zip(start_and_end[:-1], start_and_end[1:])
 ]
-Xs_test = [
-    backend.randn(n_samples_test, n_features) for n_features in n_features_list
-]
-ws = [
-    backend.randn(n_features, n_targets) / n_features
-    for n_features in n_features_list
-]
-Y_train = backend.stack([X @ w for X, w in zip(Xs_train, ws)]).sum(0)
-Y_test = backend.stack([X @ w for X, w in zip(Xs_test, ws)]).sum(0)
-
-###############################################################################
-# Optional: Add some arbitrary scalings per kernel
-if True:
-    scalings = [0.2, 5, 1]
-    Xs_train = [X * scaling for X, scaling in zip(Xs_train, scalings)]
-    Xs_test = [X * scaling for X, scaling in zip(Xs_test, scalings)]
-
-Y_train -= Y_train.mean(0)
-Y_test -= Y_test.mean(0)
+Xs_train = [X_train[:, slic] for slic in slices]
+Xs_test = [X_test[:, slic] for slic in slices]
 
 ###############################################################################
 # Precompute the linear kernels
@@ -176,13 +168,13 @@ scores = predict_and_score_weighted_kernel_ridge(
     n_targets_batch=n_targets_batch, score_func=r2_score_split)
 scores = backend.to_numpy(scores)
 
-plt.hist(scores, 50)
+plt.hist(scores, np.linspace(0, 1, 50))
 plt.xlabel(r"$R^2$ generalization score")
 plt.title("Histogram over targets")
 plt.show()
 
 ###############################################################################
-# Compute the split predictions on the test set 
+# Compute the split predictions on the test set
 # ---------------------------------------------
 # (requires the dual weights)
 #
@@ -191,14 +183,14 @@ plt.show()
 # (corrected for correlations) of each prediction.
 
 split = True
-scores = predict_and_score_weighted_kernel_ridge(
+scores_split = predict_and_score_weighted_kernel_ridge(
     Ks_test, dual_weights, deltas, Y_test, split=split,
     n_targets_batch=n_targets_batch, score_func=r2_score_split)
-scores = backend.to_numpy(scores)
+scores_split = backend.to_numpy(scores_split)
 
-bins = np.linspace(scores.min(), scores.max(), 50)
-for score in scores:
-    plt.hist(score, bins, alpha=0.5)
+for kk, score in enumerate(scores_split):
+    plt.hist(score, np.linspace(0, np.max(scores_split), 50), alpha=0.7,
+             label="kernel %d" % kk)
 plt.title(r"Histogram of $R^2$ generalization score split between kernels")
-plt.legend(["kernel %d" % kk for kk in range(scores.shape[0])])
+plt.legend()
 plt.show()

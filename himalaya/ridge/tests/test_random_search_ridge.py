@@ -42,7 +42,7 @@ def _create_dataset(backend):
 def test_solve_group_ridge_random_search_n_targets_batch(
         backend, n_targets_batch):
     _test_solve_group_ridge_random_search(backend=backend,
-                                           n_targets_batch=n_targets_batch)
+                                          n_targets_batch=n_targets_batch)
 
 
 @pytest.mark.parametrize('n_alphas_batch', [None, 2])
@@ -50,11 +50,11 @@ def test_solve_group_ridge_random_search_n_targets_batch(
 def test_solve_group_ridge_random_search_n_alphas_batch(
         backend, n_alphas_batch):
     _test_solve_group_ridge_random_search(backend=backend,
-                                           n_alphas_batch=n_alphas_batch)
+                                          n_alphas_batch=n_alphas_batch)
 
 
 def _test_solve_group_ridge_random_search(backend, n_targets_batch=None,
-                                           n_alphas_batch=None):
+                                          n_alphas_batch=None):
     backend = set_backend(backend)
 
     Xs, Y, gammas = _create_dataset(backend)
@@ -110,3 +110,12 @@ def _test_solve_group_ridge_random_search(backend, n_targets_batch=None,
         w1_scaled = backend.concatenate(
             [w * backend.sqrt(g) for w, g, in zip(w1, gamma)])
         assert_array_almost_equal(w1_scaled, refit_weights[:, tt], decimal=5)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_different_number_of_samples(backend):
+    backend = set_backend(backend)
+    Xs, Y, gammas = _create_dataset(backend)
+
+    with pytest.raises(ValueError, match="same number of samples"):
+        solve_group_ridge_random_search(Xs[:4], Y[:3])

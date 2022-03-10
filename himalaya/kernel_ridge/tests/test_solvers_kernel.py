@@ -17,8 +17,11 @@ KERNEL_RIDGE_SOLVERS['eigenvalues_svd'] = partial(
     KERNEL_RIDGE_SOLVERS['eigenvalues'], method="svd")
 
 
-def _create_dataset(backend, intercept):
-    n_samples, n_targets = 30, 3
+def _create_dataset(backend, intercept, many_targets=False):
+    if many_targets:
+        n_samples, n_targets = 10, 20
+    else:
+        n_samples, n_targets = 30, 3
 
     Xs = [
         backend.asarray(backend.randn(n_samples, n_features), backend.float64)
@@ -84,13 +87,14 @@ def test_solve_weighted_kernel_ridge(solver_name, backend):
     backend = set_backend(backend)
 
     solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
-    decimal = 1 if solver_name == "neumann_series" else 3
+    decimal = 3  # 1 if solver_name == "neumann_series" else 3
 
     Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
     exp_deltas = backend.exp(deltas)
 
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
         c2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=3000, tol=1e-6)
+        c2 = backend.to_gpu(c2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -135,6 +139,8 @@ def test_solve_weighted_kernel_ridge_intercept(solver_name, backend):
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
         c2, i2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=100, tol=1e-6,
                         fit_intercept=True)
+        c2 = backend.to_gpu(c2)
+        i2 = backend.to_gpu(i2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -153,12 +159,14 @@ def test_solve_weighted_kernel_ridge_intercept(solver_name, backend):
                                       decimal=decimal)
 
 
+@pytest.mark.parametrize('many_targets', [False, True])
 @pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_kernel_ridge(solver_name, backend):
+def test_solve_kernel_ridge(solver_name, backend, many_targets):
     backend = set_backend(backend)
 
-    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(
+        backend, intercept=False, many_targets=many_targets)
     alphas = backend.asarray_like(backend.logspace(-2, 5, 7), Ks)
 
     solver = KERNEL_RIDGE_SOLVERS[solver_name]
@@ -173,6 +181,7 @@ def test_solve_kernel_ridge(solver_name, backend):
             c2 = solver(K, Y, alpha=alpha)
         else:
             c2 = solver(K, Y, alpha=alpha, max_iter=3000, tol=1e-6)
+        c2 = backend.to_gpu(c2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -220,6 +229,8 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
         else:
             c2, i2 = solver(K, Y, alpha=alpha, fit_intercept=True,
                             max_iter=100, tol=1e-5)
+        c2 = backend.to_gpu(c2)
+        i2 = backend.to_gpu(i2)
 
         n_targets = Y.shape[1]
         for ii in range(n_targets):
@@ -234,3 +245,31 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
             prediction_sklearn = model.predict(backend.to_numpy(X_scaled))
             assert_array_almost_equal(prediction, prediction_sklearn,
                                       decimal=decimal)
+
+
+@pytest.mark.parametrize('solver_name', KERNEL_RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_different_number_of_samples(solver_name, backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
+    solver = KERNEL_RIDGE_SOLVERS[solver_name]
+
+    with pytest.raises(ValueError, match="same number of samples"):
+        solver(Ks[0][:4], Y[:3])
+
+    with pytest.raises(ValueError, match="Kernels must be square"):
+        solver(Ks[0][:4, :3], Y[:4])
+
+
+@pytest.mark.parametrize('solver_name', WEIGHTED_KERNEL_RIDGE_SOLVERS)
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_different_number_of_samples(solver_name, backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
+    solver = WEIGHTED_KERNEL_RIDGE_SOLVERS[solver_name]
+
+    with pytest.raises(ValueError, match="same number of samples"):
+        solver(Ks[:, :4], Y[:3], deltas)
+
+    with pytest.raises(ValueError, match="Kernels must be square"):
+        solver(Ks[:, :4, :3], Y[:4], deltas)

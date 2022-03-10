@@ -2,13 +2,13 @@ import warnings
 import numbers
 
 import numpy as np
-from sklearn.model_selection import check_cv
 
 from ..backend import get_backend
 from ..backend._utils import _dtype_to_str
 from ..progress_bar import bar
 from ..scoring import l2_neg_loss
 from ..validation import check_random_state
+from ..validation import check_cv
 from ._solvers import _helper_intercept
 from ._kernels import KernelCenterer
 
@@ -112,14 +112,15 @@ def solve_multiple_kernel_ridge_random_search(
     else:
         raise ValueError("Unknown parameter n_iter=%r." % (n_iter, ))
 
-    if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
-        alphas = backend.ones_like(Y, shape=(1, )) * alphas
-
     dtype = Ks.dtype
     gammas = backend.asarray(gammas, dtype=dtype)
     device = getattr(gammas, "device", None)
-    gammas, alphas, Xs = backend.check_arrays(gammas, alphas, Xs)
     Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
+
+    if isinstance(alphas, numbers.Number) or alphas.ndim == 0:
+        alphas = backend.ones_like(Y, shape=(1, )) * alphas
+
+    gammas, alphas, Xs = backend.check_arrays(gammas, alphas, Xs)
     Ks = backend.asarray(Ks, dtype=dtype,
                          device="cpu" if Ks_in_cpu else device)
 
@@ -143,7 +144,7 @@ def solve_multiple_kernel_ridge_random_search(
     if n_alphas_batch is None:
         n_alphas_batch = len(alphas)
 
-    cv = check_cv(cv)
+    cv = check_cv(cv, Y)
     n_splits = cv.get_n_splits()
     n_kernels = len(Ks)
     for train, val in cv.split(Y):
@@ -248,7 +249,12 @@ def solve_multiple_kernel_ridge_random_search(
 
         # update best_gammas and best_alphas
         epsilon = np.finfo(_dtype_to_str(dtype)).eps
-        mask = cv_scores_ii > current_best_scores + epsilon
+        if local_alpha:
+            mask = cv_scores_ii > current_best_scores + epsilon
+        else:
+            # update based on score across all targets
+            update = cv_scores_ii.mean() > current_best_scores.mean() + epsilon
+            mask = backend.full_like(cv_scores_ii, fill_value=update, dtype=bool)
         current_best_scores[mask] = cv_scores_ii[mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]

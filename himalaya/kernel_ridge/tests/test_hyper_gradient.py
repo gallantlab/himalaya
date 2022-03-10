@@ -179,7 +179,7 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
     scores_2 = backend.max(backend.asarray(cv_scores), axis=0)
 
     max_iter = 10
-    for _ in range(3):
+    for _ in range(5):
         try:
             _, _, cv_scores = \
                 solve_multiple_kernel_ridge_hyper_gradient(

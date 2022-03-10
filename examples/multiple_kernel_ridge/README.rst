@@ -1,2 +1,2 @@
-Multiple kernel ridge regression
---------------------------------
+Multiple-kernel ridge
+---------------------

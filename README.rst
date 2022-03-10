@@ -1,17 +1,19 @@
-.. raw:: html
+Himalaya: Multiple-target linear models
+=======================================
 
-   <h1>Himalaya: Multiple-target linear models</h1>
+|Github| |Python| |License| |Build| |Codecov| |Downloads|
 
 ``Himalaya`` implements machine learning linear models in Python, focusing on
 computational efficiency for large numbers of targets.
-
-|Github| |Python| |License|
 
 Use ``himalaya`` if you need a library that:
 
 - estimates linear models on large numbers of targets,
 - runs on CPU and GPU hardware,
 - provides estimators compatible with ``scikit-learn``'s API.
+
+``Himalaya`` is stable (with particular care for backward compatibility) and
+open for public use (give it a star!).
 
 Example
 =======
@@ -37,63 +39,63 @@ Example
 - The model selects the best hyperparameter ``alpha`` for each target
   independently.
 
+Gallery of examples
+-------------------
 
-Check more examples of use of ``himalaya`` in the gallery of examples.
+Check more examples of use of ``himalaya`` in the `gallery of examples
+<https://gallantlab.github.io/himalaya/_auto_examples/index.html>`_.
+
+Tutorials using ``himalaya`` for fMRI
+-------------------------------------
+
+``Himalaya`` was designed primarily for functional magnetic resonance imaging
+(fMRI) encoding models. In depth tutorials about using ``himalaya`` for fMRI
+encoding models can be found at `gallantlab/voxelwise_tutorials
+<https://github.com/gallantlab/voxelwise_tutorials>`_.
 
 Models
 ======
 
 ``Himalaya`` implements the following models:
 
-- Ridge
-- RidgeCV
-- GroupRidgeCV
-- KernelRidge
-- KernelRidgeCV
-- WeightedKernelRidge
-- MultipleKernelRidgeCV
+- Ridge, RidgeCV
+- KernelRidge, KernelRidgeCV
+- GroupRidgeCV, MultipleKernelRidgeCV, WeightedKernelRidge
 - SparseGroupLassoCV
+
+
+See the `model descriptions
+<https://gallantlab.github.io/himalaya/models.html>`_ in the documentation
+website.
 
 Himalaya backends
 =================
 
 ``Himalaya`` can be used seamlessly with different backends.
-The available backends are ``numpy`` (default), ``cupy``, and ``pytorch``.
-To change the backend (e.g. to ``cupy``), call:
+The available backends are ``numpy`` (default), ``cupy``, ``torch``, and
+``torch_cuda``.
+To change the backend, call:
 
 .. code-block:: python
 
     from himalaya.backend import set_backend
-    backend = set_backend("cupy")
+    backend = set_backend("torch")
 
 
-and give ``cupy`` arrays inputs to the ``himalaya`` solvers. For convenience,
+and give ``torch`` arrays inputs to the ``himalaya`` solvers. For convenience,
 estimators implementing ``scikit-learn``'s API can cast arrays to the correct
 input type.
 
 GPU acceleration
 ----------------
 
-To run ``himalaya`` on a graphics processing unit (GPU), you can use both
-``cupy`` or ``pytorch`` backends.
-
-To use the ``cupy`` backend, call:
+To run ``himalaya`` on a graphics processing unit (GPU), you can use either
+the ``cupy`` or the ``torch_cuda`` backend:
 
 .. code-block:: python
 
     from himalaya.backend import set_backend
-    backend = set_backend("cupy")
-
-    data = backend.asarray(data)
-
-
-To use the ``pytorch`` backend, call:
-
-.. code-block:: python
-
-    from himalaya.backend import set_backend
-    backend = set_backend("torch_cuda")
-    # "torch" uses pytorch on CPU, "torch_cuda" uses pytorch on GPU
+    backend = set_backend("cupy")  # or "torch_cuda"
 
     data = backend.asarray(data)
 
@@ -104,15 +106,14 @@ Installation
 Dependencies
 ------------
 
-``Himalaya`` requires:
-
 - Python 3
 - Numpy
 - Scikit-learn
-- PyTorch (optional GPU backend) (1.9+ preferred)
-- Cupy (optional GPU backend)
-- Matplotlib (optional, for visualization only)
-- Pytest (optional, for testing only)
+
+Optional (GPU backends):
+
+- PyTorch (1.9+ preferred)
+- Cupy
 
 
 Standard installation
@@ -155,11 +156,21 @@ Developers can also install ``himalaya`` in editable mode via:
 .. |License| image:: https://img.shields.io/badge/License-BSD%203--Clause-blue.svg
    :target: https://opensource.org/licenses/BSD-3-Clause
 
+.. |Build| image:: https://github.com/gallantlab/himalaya/actions/workflows/run_tests.yml/badge.svg
+   :target: https://github.com/gallantlab/himalaya/actions/workflows/run_tests.yml
+
+.. |Codecov| image:: https://codecov.io/gh/gallantlab/himalaya/branch/main/graph/badge.svg?token=ECzjd9gvrw
+   :target: https://codecov.io/gh/gallantlab/himalaya
+
+.. |Downloads| image:: https://pepy.tech/badge/himalaya
+   :target: https://pepy.tech/project/himalaya
+
 
 Cite this package
 =================
 
-If you use ``himalaya`` in your work, please cite our (future) publication:
+If you use ``himalaya`` in your work, please give it a star and cite our
+(future) publication:
 
 .. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
-	Variance decomposition with banded ridge regression. *In preparation*.
+	Feature-space selection with banded ridge regression. *In preparation*.

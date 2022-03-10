@@ -6,6 +6,7 @@
 numpydoc
 sphinx
 sphinx_gallery
+sphinxcontrib-mermaid
 ```
 
 ## Build the website
