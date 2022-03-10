@@ -17,6 +17,11 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
         Log kernel weights for each target.
     split : bool
         If True, the predictions is split across kernels.
+    n_targets_batch : int or None
+        Size of the batch for computing predictions. Used for memory reasons.
+        If None, uses all n_targets at once.
+    progress_bar : bool
+        If True, display a progress bar over batches and iterations.
 
     Returns
     -------
