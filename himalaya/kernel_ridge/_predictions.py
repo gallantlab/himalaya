@@ -33,7 +33,8 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
 
     Ks, dual_weights, deltas = backend.check_arrays(Ks, dual_weights, deltas)
     n_TRs = Ks.shape[1]
-    n_kernels, n_targets = deltas.shape
+    n_targets = dual_weights.shape[1]
+    n_kernels = deltas.shape[0]
 
     if split:
         Y_hat_full = backend.zeros_like(deltas, shape=(n_kernels, n_TRs, n_targets))
