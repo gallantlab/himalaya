@@ -36,9 +36,9 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
     n_kernels, n_targets = deltas.shape
 
     if split:
-        Y_hat_full = backend.zeros(shape=(n_kernels, n_TRs, n_targets))
+        Y_hat_full = backend.zeros_like(deltas, shape=(n_kernels, n_TRs, n_targets))
     else:
-        Y_hat_full = backend.zeros(shape=(n_TRs, n_targets))
+        Y_hat_full = backend.zeros_like(deltas, shape=(n_TRs, n_targets))
 
     if not n_targets_batch:
         n_targets_batch = n_targets
@@ -50,7 +50,6 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
         deltas_batch = deltas[:, batch]
         chi = backend.matmul(Ks, dual_weights_batch)
         split_predictions = backend.exp(deltas_batch[:, None, :]) * chi
-
         if split:
             Y_hat_full[:, :, batch] = split_predictions
         else:
