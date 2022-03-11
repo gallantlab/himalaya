@@ -2,7 +2,8 @@ from ..backend import get_backend
 from ..progress_bar import bar
 
 
-def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
+def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
+        n_targets_batch=None, progress_bar=False):
     """
     Compute predictions, typically on a test set.
 
@@ -16,6 +17,11 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
         Log kernel weights for each target.
     split : bool
         If True, the predictions is split across kernels.
+    n_targets_batch : int or None
+        Size of the batch for computing predictions. Used for memory reasons.
+        If None, uses all n_targets at once.
+    progress_bar : bool
+        If True, display a progress bar over batches and iterations.
 
     Returns
     -------
@@ -26,14 +32,31 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False):
     backend = get_backend()
 
     Ks, dual_weights, deltas = backend.check_arrays(Ks, dual_weights, deltas)
-    chi = backend.matmul(Ks, dual_weights)
-    split_predictions = backend.exp(deltas[:, None, :]) * chi
-    if split:
-        Y_hat = split_predictions
-    else:
-        Y_hat = split_predictions.sum(0)
+    n_TRs = Ks.shape[1]
+    n_targets = dual_weights.shape[1]
+    n_kernels = deltas.shape[0]
 
-    return Y_hat
+    if split:
+        Y_hat_full = backend.zeros_like(deltas, shape=(n_kernels, n_TRs, n_targets))
+    else:
+        Y_hat_full = backend.zeros_like(deltas, shape=(n_TRs, n_targets))
+
+    if not n_targets_batch:
+        n_targets_batch = n_targets
+
+    for start in bar(list(range(0, n_targets, n_targets_batch)),
+                                 title='predict', use_it=progress_bar):
+        batch = slice(start, start + n_targets_batch)
+        dual_weights_batch = dual_weights[:, batch]
+        deltas_batch = deltas[:, batch]
+        chi = backend.matmul(Ks, dual_weights_batch)
+        split_predictions = backend.exp(deltas_batch[:, None, :]) * chi
+        if split:
+            Y_hat_full[:, :, batch] = split_predictions
+        else:
+            Y_hat_full[:, batch] = split_predictions.sum(0)
+
+    return Y_hat_full
 
 
 def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,

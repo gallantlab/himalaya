@@ -39,3 +39,16 @@ def test_predict_weighted_kernel_ridge(backend):
     predictions_dual = predict_weighted_kernel_ridge(Ks, dual_weights, deltas)
 
     assert_array_almost_equal(predictions_primal, predictions_dual)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_predict_weighted_kernel_ridge_n_targets_batch(backend):
+    backend = set_backend(backend)
+    Xs, Ks, _, deltas, dual_weights = _create_dataset(backend)
+
+    predictions_dual = predict_weighted_kernel_ridge(Ks, dual_weights, deltas)
+
+    predictions_dual_n_targets_batch = predict_weighted_kernel_ridge(
+            Ks, dual_weights, deltas, n_targets_batch=10)
+
+    assert_array_almost_equal(predictions_dual, predictions_dual_n_targets_batch)
