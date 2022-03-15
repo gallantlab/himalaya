@@ -571,15 +571,21 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         Ks = self._get_kernels(X, self.X_fit_)
         del X
 
+        if (self.solver_params is not None
+                and "n_targets_batch" in self.solver_params):
+            n_targets_batch = self.solver_params["n_targets_batch"]
+        else:
+            n_targets_batch = None
+
         if self.dual_coef_.ndim == 1:
             Y_hat = predict_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
-                deltas=self.deltas_[:, None], split=split)[..., 0]
+                deltas=self.deltas_[:, None], split=split,
+                n_targets_batch=n_targets_batch)[..., 0]
         else:
-            Y_hat = predict_weighted_kernel_ridge(Ks=Ks,
-                                                  dual_weights=self.dual_coef_,
-                                                  deltas=self.deltas_,
-                                                  split=split)
+            Y_hat = predict_weighted_kernel_ridge(
+                Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_,
+                split=split, n_targets_batch=n_targets_batch)
         return Y_hat
 
     @force_cpu_backend
@@ -974,7 +980,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
         Representation of weight vectors in kernel space.
 
-    deltas_ : array of shape (n_kernels, n_targets)
+    deltas_ : array of shape (n_kernels, n_targets) or (n_kernels, )
         Log of kernel weights.
 
     X_fit_ : array of shape (n_samples, n_features)
@@ -1102,9 +1108,10 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
                                             deltas=self.deltas_,
                                             random_state=self.random_state)
 
+        if ravel or self.deltas_.shape[1] != self.dual_coef_.shape[1]:
+            self.deltas_ = self.deltas_[:, 0]
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
-            self.deltas_ = self.deltas_[:, 0]
 
         return self
 

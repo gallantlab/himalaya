@@ -1,9 +1,10 @@
 from ..backend import get_backend
 from ..progress_bar import bar
+from ..utils import _batch_or_skip
 
 
 def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
-        n_targets_batch=None, progress_bar=False):
+                                  n_targets_batch=None, progress_bar=False):
     """
     Compute predictions, typically on a test set.
 
@@ -13,7 +14,7 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
         Test kernels.
     dual_weights : array of shape (n_samples_train, n_targets)
         Dual weights of the kernel ridge model.
-    deltas : array of shape (n_kernels, n_targets)
+    deltas : array of shape (n_kernels, n_targets) or (n_kernels, )
         Log kernel weights for each target.
     split : bool
         If True, the predictions is split across kernels.
@@ -32,23 +33,27 @@ def predict_weighted_kernel_ridge(Ks, dual_weights, deltas, split=False,
     backend = get_backend()
 
     Ks, dual_weights, deltas = backend.check_arrays(Ks, dual_weights, deltas)
-    n_TRs = Ks.shape[1]
+    n_samples = Ks.shape[1]
     n_targets = dual_weights.shape[1]
     n_kernels = deltas.shape[0]
 
+    if deltas.ndim == 1:
+        deltas = deltas[:, None]
+
     if split:
-        Y_hat_full = backend.zeros_like(deltas, shape=(n_kernels, n_TRs, n_targets))
+        Y_hat_full = backend.zeros_like(
+            deltas, shape=(n_kernels, n_samples, n_targets))
     else:
-        Y_hat_full = backend.zeros_like(deltas, shape=(n_TRs, n_targets))
+        Y_hat_full = backend.zeros_like(deltas, shape=(n_samples, n_targets))
 
     if not n_targets_batch:
         n_targets_batch = n_targets
 
     for start in bar(list(range(0, n_targets, n_targets_batch)),
-                                 title='predict', use_it=progress_bar):
+                     title='predict', use_it=progress_bar):
         batch = slice(start, start + n_targets_batch)
         dual_weights_batch = dual_weights[:, batch]
-        deltas_batch = deltas[:, batch]
+        deltas_batch = _batch_or_skip(deltas, batch, axis=1)
         chi = backend.matmul(Ks, dual_weights_batch)
         split_predictions = backend.exp(deltas_batch[:, None, :]) * chi
         if split:
@@ -72,7 +77,7 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
         Input kernels.
     dual_weights : array of shape (n_samples_train, n_targets)
         Dual weights of the kernel ridge model.
-    deltas : array of shape (n_kernels, n_targets)
+    deltas : array of shape (n_kernels, n_targets) or (n_kernels, )
         Log kernel weights for each target.
     Y : array of shape (n_samples_test, n_targets)
         Target data.
@@ -95,6 +100,9 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
     Ks, dual_weights, deltas, Y = backend.check_arrays(Ks, dual_weights,
                                                        deltas, Y)
 
+    if deltas.ndim == 1:
+        deltas = deltas[:, None]
+
     n_kernels, _ = deltas.shape
     _, n_targets = Y.shape
     if split:
@@ -107,9 +115,9 @@ def predict_and_score_weighted_kernel_ridge(Ks, dual_weights, deltas, Y,
     for start in bar(list(range(0, n_targets, n_targets_batch)),
                      title='predict_and_score', use_it=progress_bar):
         batch = slice(start, start + n_targets_batch)
-        predictions = predict_weighted_kernel_ridge(Ks, dual_weights[:, batch],
-                                                    deltas[:, batch],
-                                                    split=split)
+        predictions = predict_weighted_kernel_ridge(
+            Ks, dual_weights[:, batch], _batch_or_skip(deltas, batch, axis=1),
+            split=split)
         score_batch = score_func(Y[:, batch], predictions)
 
         if split:

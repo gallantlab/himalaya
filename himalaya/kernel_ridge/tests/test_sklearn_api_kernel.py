@@ -476,6 +476,10 @@ def test_n_targets_batch(backend, Estimator):
                                           getattr(reference, attribute),
                                           decimal=5)
 
+        assert_array_almost_equal(model.predict(Xs[0]),
+                                  reference.predict(Xs[0]), decimal=4)
+        assert_array_almost_equal(model.score(Xs[0], Y),
+                                  reference.score(Xs[0], Y), decimal=4)
 
 @pytest.mark.parametrize('Estimator', [KernelRidge, KernelRidgeCV])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -499,6 +503,7 @@ class KernelRidge_(KernelRidge):
 
     Used for testing only.
     """
+
     def predict(self, X):
         backend = get_backend()
         return backend.to_numpy(super().predict(X))
@@ -523,6 +528,7 @@ class KernelRidgeCV_(KernelRidgeCV):
 
     Used for testing only.
     """
+
     def __init__(self, alphas=(0.1, 1), kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, cv=2):
         super().__init__(alphas=alphas, kernel=kernel,
@@ -553,6 +559,7 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
 
     Used for testing only.
     """
+
     def __init__(self, kernels=("linear", "polynomial"), kernels_params=None,
                  solver="hyper_gradient", solver_params=None, cv=2,
                  random_state=None):
@@ -574,6 +581,7 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     Used for testing only.
     """
+
     def __init__(self, alpha=1., deltas="zeros",
                  kernels=("linear", "polynomial"), kernels_params=None,
                  solver="conjugate_gradient", solver_params=None,
