@@ -1,5 +1,4 @@
 from abc import ABC, abstractmethod
-import numbers
 import warnings
 
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
@@ -221,7 +220,7 @@ class KernelRidge(_BaseKernelRidge):
 
         # select solver based on the presence of multiple alphas
         if self.solver == "auto":
-            if isinstance(self.alpha, numbers.Number) or len(self.alpha) == 1:
+            if backend.atleast_1d(self.alpha).shape[0] == 1:
                 self.solver_ = "eigenvalues"
             else:
                 self.solver_ = "conjugate_gradient"

@@ -507,7 +507,13 @@ def test_kernel_ridge_auto_solver(backend):
     assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_,
                               decimal=5)
 
+    # array with 1 element
     alpha = backend.ones_like(Y, shape=(1, ))
+    model_1 = KernelRidge(solver="auto", alpha=alpha).fit(Xs[0], Y)
+    assert model_1.solver_ == "eigenvalues"
+
+    # first element of an array (!= float with torch)
+    alpha = backend.ones_like(Y, shape=(1, ))[0]
     model_1 = KernelRidge(solver="auto", alpha=alpha).fit(Xs[0], Y)
     assert model_1.solver_ == "eigenvalues"
 
