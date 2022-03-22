@@ -7,6 +7,8 @@ Development Version
 - DOC improve documentation website, add estimator flowchart.
 - TST improve test robustness.
 - ENH add batching over targets in ``predict_weighted_kernel_ridge``.
+- ENH add "auto" solver in :class:`~himalaya.kernel_ridge.KernelRidge`, which
+  switches solver based on the presence of a separate alpha per target.
 
 Version 0.3.5
 ~~~~~~~~~~~~~

@@ -481,6 +481,7 @@ def test_n_targets_batch(backend, Estimator):
         assert_array_almost_equal(model.score(Xs[0], Y),
                                   reference.score(Xs[0], Y), decimal=4)
 
+
 @pytest.mark.parametrize('Estimator', [KernelRidge, KernelRidgeCV])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_warning_kernel_ridge_ridge(backend, Estimator):
@@ -490,6 +491,25 @@ def test_warning_kernel_ridge_ridge(backend, Estimator):
     with pytest.warns(UserWarning,
                       match="kernel ridge is slower than solving ridge"):
         Estimator(kernel="linear").fit(Xs[0][:, :10], Y)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_auto_solver(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+    model_1 = KernelRidge(solver="auto").fit(Xs[0], Y)
+    assert model_1.solver_ == "eigenvalues"
+
+    alpha = backend.ones_like(Y, shape=(Y.shape[1], ))
+    model_2 = KernelRidge(solver="auto", alpha=alpha).fit(Xs[0], Y)
+    assert model_2.solver_ == "conjugate_gradient"
+
+    assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_,
+                              decimal=5)
+
+    alpha = backend.ones_like(Y, shape=(1, ))
+    model_1 = KernelRidge(solver="auto", alpha=alpha).fit(Xs[0], Y)
+    assert model_1.solver_ == "eigenvalues"
 
 
 ###############################################################################

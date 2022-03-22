@@ -1,4 +1,5 @@
 from abc import ABC, abstractmethod
+import numbers
 import warnings
 
 from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
@@ -36,10 +37,15 @@ class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
         ...
 
     def _call_solver(self, **direct_params):
-        if self.solver not in self.ALL_SOLVERS:
-            raise ValueError("Unknown solver=%r." % self.solver)
+        """Helper function common to all classes, merging solver parameters."""
 
-        function = self.ALL_SOLVERS[self.solver]
+        # use self.solver_ if it exists, otherwise use self.solver
+        solver = getattr(self, "solver_", self.solver)
+
+        if solver not in self.ALL_SOLVERS:
+            raise ValueError("Unknown solver=%r." % solver)
+
+        function = self.ALL_SOLVERS[solver]
         solver_params = self.solver_params or {}
 
         # check duplicated parameters
@@ -87,8 +93,10 @@ class KernelRidge(_BaseKernelRidge):
         ``KernelRidge.ALL_KERNELS[kernel]``
 
     solver : str
-        Algorithm used during the fit, "eigenvalues", "conjugate_gradient", or
-        "gradient_descent".
+        Algorithm used during the fit, "eigenvalues", "conjugate_gradient",
+        "gradient_descent", or "auto".
+        If "auto", use "eigenvalues" if ``alpha`` is a float, and
+        "conjugate_gradient" is ``alpha`` is an array.
 
     solver_params : dict or None
         Additional parameters for the solver.
@@ -139,7 +147,7 @@ class KernelRidge(_BaseKernelRidge):
     ALL_SOLVERS = KERNEL_RIDGE_SOLVERS
 
     def __init__(self, alpha=1, kernel="linear", kernel_params=None,
-                 solver="eigenvalues", solver_params=None, fit_intercept=False,
+                 solver="auto", solver_params=None, fit_intercept=False,
                  force_cpu=False, warn=True):
         self.alpha = alpha
         self.kernel = kernel
@@ -210,6 +218,15 @@ class KernelRidge(_BaseKernelRidge):
             sw = backend.sqrt(sample_weight)[:, None]
             y = y * sw
             K *= sw @ sw.T
+
+        # select solver based on the presence of multiple alphas
+        if self.solver == "auto":
+            if isinstance(self.alpha, numbers.Number) or len(self.alpha) == 1:
+                self.solver_ = "eigenvalues"
+            else:
+                self.solver_ = "conjugate_gradient"
+        else:
+            self.solver_ = self.solver
 
         # ------------------ call the solver
         tmp = self._call_solver(K=K, Y=y, alpha=self.alpha,
