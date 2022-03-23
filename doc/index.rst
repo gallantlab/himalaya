@@ -10,6 +10,7 @@ Documentation
 
    getting_started
    models
+   flowchart
    troubleshooting
    _auto_examples/index
 

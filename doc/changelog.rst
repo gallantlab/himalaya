@@ -6,9 +6,10 @@ Development Version
 
 - DOC improve documentation website, add estimator flowchart.
 - TST improve test robustness.
-- ENH add batching over targets in ``predict_weighted_kernel_ridge``.
-- ENH add "auto" solver in :class:`~himalaya.kernel_ridge.KernelRidge`, which
-  switches solver based on the presence of a separate alpha per target.
+- ENH add batching over targets in
+  :func:`~himalaya.kernel_ridge.predict_weighted_kernel_ridge`.
+- ENH add ``solver="auto"`` in :class:`~himalaya.kernel_ridge.KernelRidge`,
+  which switches solver based on the presence of a separate alpha per target.
 
 Version 0.3.5
 ~~~~~~~~~~~~~
@@ -32,7 +33,8 @@ Version 0.3.4
 - FIX :class:`~himalaya.ridge.Ridge` with ``n_samples < n_targets``.
 - FIX update of alphas when ``local_alpha=False`` in
   :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`.
-- EXA refactor examples with new ``generate_multikernel_dataset`` function.
+- EXA refactor examples with new
+  :func:`~himalaya.utils.generate_multikernel_dataset` function.
 - MNT add github actions for running tests, building and publishing the doc,
   and publishing to PyPI.
 
