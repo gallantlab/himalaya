@@ -68,6 +68,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flowchart.html">Model flowchart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
@@ -180,7 +181,7 @@ current backend. If False, use the current backend.</p>
 <dd class="field-odd"><dl class="simple">
 <dt><strong>dual_coef_</strong><span class="classifier">array of shape (n_samples) or (n_samples, n_targets)</span></dt><dd><p>Representation of weight vectors in kernel space.</p>
 </dd>
-<dt><strong>deltas_</strong><span class="classifier">array of shape (n_kernels, n_targets)</span></dt><dd><p>Log of kernel weights.</p>
+<dt><strong>deltas_</strong><span class="classifier">array of shape (n_kernels, n_targets) or (n_kernels, )</span></dt><dd><p>Log of kernel weights.</p>
 </dd>
 <dt><strong>X_fit_</strong><span class="classifier">array of shape (n_samples, n_features)</span></dt><dd><p>Training data. If kernels == “precomputed” this is None.</p>
 </dd>

@@ -68,6 +68,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../flowchart.html">Model flowchart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
@@ -99,7 +100,7 @@
 <h1>himalaya.kernel_ridge.predict_weighted_kernel_ridge<a class="headerlink" href="#himalaya-kernel-ridge-predict-weighted-kernel-ridge" title="Permalink to this headline">¶</a></h1>
 <dl class="py function">
 <dt class="sig sig-object py" id="himalaya.kernel_ridge.predict_weighted_kernel_ridge">
-<span class="sig-prename descclassname"><span class="pre">himalaya.kernel_ridge.</span></span><span class="sig-name descname"><span class="pre">predict_weighted_kernel_ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/kernel_ridge/_predictions.html#predict_weighted_kernel_ridge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.kernel_ridge.predict_weighted_kernel_ridge" title="Permalink to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">himalaya.kernel_ridge.</span></span><span class="sig-name descname"><span class="pre">predict_weighted_kernel_ridge</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">Ks</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">dual_weights</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">deltas</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">split</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_targets_batch</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">progress_bar</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="../_modules/himalaya/kernel_ridge/_predictions.html#predict_weighted_kernel_ridge"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#himalaya.kernel_ridge.predict_weighted_kernel_ridge" title="Permalink to this definition">¶</a></dt>
 <dd><p>Compute predictions, typically on a test set.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters</dt>
@@ -108,9 +109,14 @@
 </dd>
 <dt><strong>dual_weights</strong><span class="classifier">array of shape (n_samples_train, n_targets)</span></dt><dd><p>Dual weights of the kernel ridge model.</p>
 </dd>
-<dt><strong>deltas</strong><span class="classifier">array of shape (n_kernels, n_targets)</span></dt><dd><p>Log kernel weights for each target.</p>
+<dt><strong>deltas</strong><span class="classifier">array of shape (n_kernels, n_targets) or (n_kernels, )</span></dt><dd><p>Log kernel weights for each target.</p>
 </dd>
 <dt><strong>split</strong><span class="classifier">bool</span></dt><dd><p>If True, the predictions is split across kernels.</p>
+</dd>
+<dt><strong>n_targets_batch</strong><span class="classifier">int or None</span></dt><dd><p>Size of the batch for computing predictions. Used for memory reasons.
+If None, uses all n_targets at once.</p>
+</dd>
+<dt><strong>progress_bar</strong><span class="classifier">bool</span></dt><dd><p>If True, display a progress bar over batches and iterations.</p>
 </dd>
 </dl>
 </dd>

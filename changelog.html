@@ -64,6 +64,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="flowchart.html">Model flowchart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
@@ -98,6 +99,10 @@
 <ul class="simple">
 <li><p>DOC improve documentation website, add estimator flowchart.</p></li>
 <li><p>TST improve test robustness.</p></li>
+<li><p>ENH add batching over targets in
+<a class="reference internal" href="_generated/himalaya.kernel_ridge.predict_weighted_kernel_ridge.html#himalaya.kernel_ridge.predict_weighted_kernel_ridge" title="himalaya.kernel_ridge.predict_weighted_kernel_ridge"><code class="xref py py-func docutils literal notranslate"><span class="pre">predict_weighted_kernel_ridge()</span></code></a>.</p></li>
+<li><p>ENH add <code class="docutils literal notranslate"><span class="pre">solver=&quot;auto&quot;</span></code> in <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a>,
+which switches solver based on the presence of a separate alpha per target.</p></li>
 </ul>
 </div>
 <div class="section" id="version-0-3-5">
@@ -122,7 +127,8 @@ samples.</p></li>
 <li><p>FIX <a class="reference internal" href="_generated/himalaya.ridge.Ridge.html#himalaya.ridge.Ridge" title="himalaya.ridge.Ridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ridge</span></code></a> with <code class="docutils literal notranslate"><span class="pre">n_samples</span> <span class="pre">&lt;</span> <span class="pre">n_targets</span></code>.</p></li>
 <li><p>FIX update of alphas when <code class="docutils literal notranslate"><span class="pre">local_alpha=False</span></code> in
 <a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a>.</p></li>
-<li><p>EXA refactor examples with new <code class="docutils literal notranslate"><span class="pre">generate_multikernel_dataset</span></code> function.</p></li>
+<li><p>EXA refactor examples with new
+<a class="reference internal" href="_generated/himalaya.utils.generate_multikernel_dataset.html#himalaya.utils.generate_multikernel_dataset" title="himalaya.utils.generate_multikernel_dataset"><code class="xref py py-func docutils literal notranslate"><span class="pre">generate_multikernel_dataset()</span></code></a> function.</p></li>
 <li><p>MNT add github actions for running tests, building and publishing the doc,
 and publishing to PyPI.</p></li>
 </ul>

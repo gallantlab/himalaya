@@ -64,6 +64,7 @@
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="../../../getting_started.html">Getting started</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../../flowchart.html">Model flowchart</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../troubleshooting.html">Troubleshooting</a></li>
 <li class="toctree-l1"><a class="reference internal" href="../../../_auto_examples/index.html">Gallery of examples</a></li>
 </ul>
@@ -94,9 +95,11 @@
   <h1>Source code for himalaya.kernel_ridge._predictions</h1><div class="highlight"><pre>
 <span></span><span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
 <span class="kn">from</span> <span class="nn">..progress_bar</span> <span class="kn">import</span> <span class="n">bar</span>
+<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">_batch_or_skip</span>
 
 
-<div class="viewcode-block" id="predict_weighted_kernel_ridge"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.predict_weighted_kernel_ridge.html#himalaya.kernel_ridge.predict_weighted_kernel_ridge">[docs]</a><span class="k">def</span> <span class="nf">predict_weighted_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<div class="viewcode-block" id="predict_weighted_kernel_ridge"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.predict_weighted_kernel_ridge.html#himalaya.kernel_ridge.predict_weighted_kernel_ridge">[docs]</a><span class="k">def</span> <span class="nf">predict_weighted_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                                  <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
     <span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Compute predictions, typically on a test set.</span>
 
@@ -106,10 +109,15 @@
 <span class="sd">        Test kernels.</span>
 <span class="sd">    dual_weights : array of shape (n_samples_train, n_targets)</span>
 <span class="sd">        Dual weights of the kernel ridge model.</span>
-<span class="sd">    deltas : array of shape (n_kernels, n_targets)</span>
+<span class="sd">    deltas : array of shape (n_kernels, n_targets) or (n_kernels, )</span>
 <span class="sd">        Log kernel weights for each target.</span>
 <span class="sd">    split : bool</span>
 <span class="sd">        If True, the predictions is split across kernels.</span>
+<span class="sd">    n_targets_batch : int or None</span>
+<span class="sd">        Size of the batch for computing predictions. Used for memory reasons.</span>
+<span class="sd">        If None, uses all n_targets at once.</span>
+<span class="sd">    progress_bar : bool</span>
+<span class="sd">        If True, display a progress bar over batches and iterations.</span>
 
 <span class="sd">    Returns</span>
 <span class="sd">    -------</span>
@@ -120,14 +128,35 @@
     <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
 
     <span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">)</span>
-    <span class="n">chi</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">)</span>
-    <span class="n">split_predictions</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">*</span> <span class="n">chi</span>
-    <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
-        <span class="n">Y_hat</span> <span class="o">=</span> <span class="n">split_predictions</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">Y_hat</span> <span class="o">=</span> <span class="n">split_predictions</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+    <span class="n">n_samples</span> <span class="o">=</span> <span class="n">Ks</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n_targets</span> <span class="o">=</span> <span class="n">dual_weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
+    <span class="n">n_kernels</span> <span class="o">=</span> <span class="n">deltas</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
 
-    <span class="k">return</span> <span class="n">Y_hat</span></div>
+    <span class="k">if</span> <span class="n">deltas</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
+        <span class="n">Y_hat_full</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
+            <span class="n">deltas</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_kernels</span><span class="p">,</span> <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">))</span>
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">Y_hat_full</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">))</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">n_targets_batch</span><span class="p">:</span>
+        <span class="n">n_targets_batch</span> <span class="o">=</span> <span class="n">n_targets</span>
+
+    <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">)),</span>
+                     <span class="n">title</span><span class="o">=</span><span class="s1">&#39;predict&#39;</span><span class="p">,</span> <span class="n">use_it</span><span class="o">=</span><span class="n">progress_bar</span><span class="p">):</span>
+        <span class="n">batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n_targets_batch</span><span class="p">)</span>
+        <span class="n">dual_weights_batch</span> <span class="o">=</span> <span class="n">dual_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span>
+        <span class="n">deltas_batch</span> <span class="o">=</span> <span class="n">_batch_or_skip</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
+        <span class="n">chi</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights_batch</span><span class="p">)</span>
+        <span class="n">split_predictions</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas_batch</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">,</span> <span class="p">:])</span> <span class="o">*</span> <span class="n">chi</span>
+        <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
+            <span class="n">Y_hat_full</span><span class="p">[:,</span> <span class="p">:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_predictions</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">Y_hat_full</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">split_predictions</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">Y_hat_full</span></div>
 
 
 <div class="viewcode-block" id="predict_and_score_weighted_kernel_ridge"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.predict_and_score_weighted_kernel_ridge.html#himalaya.kernel_ridge.predict_and_score_weighted_kernel_ridge">[docs]</a><span class="k">def</span> <span class="nf">predict_and_score_weighted_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span>
@@ -143,7 +172,7 @@
 <span class="sd">        Input kernels.</span>
 <span class="sd">    dual_weights : array of shape (n_samples_train, n_targets)</span>
 <span class="sd">        Dual weights of the kernel ridge model.</span>
-<span class="sd">    deltas : array of shape (n_kernels, n_targets)</span>
+<span class="sd">    deltas : array of shape (n_kernels, n_targets) or (n_kernels, )</span>
 <span class="sd">        Log kernel weights for each target.</span>
 <span class="sd">    Y : array of shape (n_samples_test, n_targets)</span>
 <span class="sd">        Target data.</span>
@@ -166,6 +195,9 @@
     <span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">Y</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">check_arrays</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span>
                                                        <span class="n">deltas</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
 
+    <span class="k">if</span> <span class="n">deltas</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">]</span>
+
     <span class="n">n_kernels</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">deltas</span><span class="o">.</span><span class="n">shape</span>
     <span class="n">_</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="n">Y</span><span class="o">.</span><span class="n">shape</span>
     <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
@@ -178,9 +210,9 @@
     <span class="k">for</span> <span class="n">start</span> <span class="ow">in</span> <span class="n">bar</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">)),</span>
                      <span class="n">title</span><span class="o">=</span><span class="s1">&#39;predict_and_score&#39;</span><span class="p">,</span> <span class="n">use_it</span><span class="o">=</span><span class="n">progress_bar</span><span class="p">):</span>
         <span class="n">batch</span> <span class="o">=</span> <span class="nb">slice</span><span class="p">(</span><span class="n">start</span><span class="p">,</span> <span class="n">start</span> <span class="o">+</span> <span class="n">n_targets_batch</span><span class="p">)</span>
-        <span class="n">predictions</span> <span class="o">=</span> <span class="n">predict_weighted_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
-                                                    <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
-                                                    <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">)</span>
+        <span class="n">predictions</span> <span class="o">=</span> <span class="n">predict_weighted_kernel_ridge</span><span class="p">(</span>
+            <span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span> <span class="n">_batch_or_skip</span><span class="p">(</span><span class="n">deltas</span><span class="p">,</span> <span class="n">batch</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span>
+            <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">)</span>
         <span class="n">score_batch</span> <span class="o">=</span> <span class="n">score_func</span><span class="p">(</span><span class="n">Y</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span> <span class="n">predictions</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">split</span><span class="p">:</span>
