@@ -16,7 +16,7 @@ Version 0.3.5
 (*February 2022*)
 
 - MNT speed up examples on CPU, to build the doc faster on github actions.
-- ENH add batching over targets in :class:`~himalaya.ridge.Ridge`, 
+- ENH add batching over targets in :class:`~himalaya.ridge.Ridge`,
   :class:`~himalaya.kernel_ridge.KernelRidge`, and
   :class:`~himalaya.kernel_ridge.WeightedKernelRidge`.
 - ENH add warnings to guide the user between using
@@ -87,7 +87,7 @@ Version 0.3.0
   and :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search`.
 - ENH add :class:`~himalaya.kernel_ridge.KernelCenterer`.
 - ENH allow change of backend midscript.
-- ENH Add option to return selected alpha values in 
+- ENH Add option to return selected alpha values in
   :func:`~himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search`.
 
 Version 0.2.0

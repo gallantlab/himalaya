@@ -39,8 +39,8 @@ Example
 - The model selects the best hyperparameter ``alpha`` for each target
   independently.
 
-Gallery of examples
--------------------
+More examples
+-------------
 
 Check more examples of use of ``himalaya`` in the `gallery of examples
 <https://gallantlab.github.io/himalaya/_auto_examples/index.html>`_.
@@ -173,4 +173,4 @@ If you use ``himalaya`` in your work, please give it a star and cite our
 (future) publication:
 
 .. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
-	Feature-space selection with banded ridge regression. *In preparation*.
+   Feature-space selection with banded ridge regression. *In preparation*.
