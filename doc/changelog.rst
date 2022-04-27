@@ -4,6 +4,12 @@ Changelog
 Development Version
 ~~~~~~~~~~~~~~~~~~~
 
+- 
+
+Version 0.3.6
+~~~~~~~~~~~~~
+(*April 2022*)
+
 - DOC improve documentation website, add estimator flowchart.
 - TST improve test robustness.
 - ENH add batching over targets in
@@ -12,7 +18,7 @@ Development Version
   which switches solver based on the presence of a separate alpha per target.
 
 Version 0.3.5
-~~~~~~~~~~~~~
+-------------
 (*February 2022*)
 
 - MNT speed up examples on CPU, to build the doc faster on github actions.
