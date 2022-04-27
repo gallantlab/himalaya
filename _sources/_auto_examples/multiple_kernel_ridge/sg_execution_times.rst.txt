@@ -5,18 +5,18 @@
 
 Computation times
 =================
-**00:42.053** total execution time for **_auto_examples_multiple_kernel_ridge** files:
+**04:08.676** total execution time for **_auto_examples_multiple_kernel_ridge** files:
 
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py` (``plot_mkr_0_random_search.py``)         | 00:14.834 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py` (``plot_mkr_1_sklearn_api.py``)             | 01:13.519 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py` (``plot_mkr_1_sklearn_api.py``)             | 00:12.210 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py` (``plot_mkr_2_solvers.py``)                     | 01:07.869 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py` (``plot_mkr_3_path.py``)                           | 00:07.675 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py` (``plot_mkr_0_random_search.py``)         | 00:50.328 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py` (``plot_mkr_2_solvers.py``)                     | 00:04.552 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py` (``plot_mkr_3_path.py``)                           | 00:31.822 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py` (``plot_mkr_5_refine_results.py``)       | 00:02.389 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py` (``plot_mkr_5_refine_results.py``)       | 00:21.783 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+
-| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py` (``plot_mkr_4_refit_from_deltas.py``) | 00:00.393 | 0.0 MB |
+| :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py` (``plot_mkr_4_refit_from_deltas.py``) | 00:03.353 | 0.0 MB |
 +----------------------------------------------------------------------------------------------------------------------------+-----------+--------+

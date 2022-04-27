@@ -4,14 +4,15 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Model descriptions &#8212; Himalaya 0.3.5 documentation</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
+
+    <title>Model descriptions &#8212; Himalaya 0.3.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css" />
     <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
     <script src="_static/jquery.js"></script>
     <script src="_static/underscore.js"></script>
@@ -95,10 +96,10 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="model-descriptions">
+  <section id="model-descriptions">
 <h1>Model descriptions<a class="headerlink" href="#model-descriptions" title="Permalink to this headline">¶</a></h1>
 <p>This package implements a number of models.</p>
-<div class="section" id="ridge">
+<section id="ridge">
 <h2>Ridge<a class="headerlink" href="#ridge" title="Permalink to this headline">¶</a></h2>
 <p>Let <span class="math notranslate nohighlight">\(X\in \mathbb{R}^{n\times p}\)</span> be a feature matrix with <span class="math notranslate nohighlight">\(n\)</span>
 samples and <span class="math notranslate nohighlight">\(p\)</span> features,  <span class="math notranslate nohighlight">\(y\in \mathbb{R}^n\)</span> a target vector, and
@@ -115,8 +116,8 @@ samples and <span class="math notranslate nohighlight">\(p\)</span> features,  <
 <li><p><a class="reference internal" href="_generated/himalaya.ridge.solve_ridge_svd.html#himalaya.ridge.solve_ridge_svd" title="himalaya.ridge.solve_ridge_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_ridge_svd()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="kernelridge">
+</section>
+<section id="kernelridge">
 <h2>KernelRidge<a class="headerlink" href="#kernelridge" title="Permalink to this headline">¶</a></h2>
 <p>By the Woodbury matrix identity, <span class="math notranslate nohighlight">\(b^*\)</span> can be written as <span class="math notranslate nohighlight">\(b^* =
 X^\top(XX^\top + \alpha I_n)^{-1}y\)</span>, or <span class="math notranslate nohighlight">\(b^* = X^\top w^*\)</span> for some
@@ -135,8 +136,8 @@ X^\top(XX^\top + \alpha I_n)^{-1}y\)</span>, or <span class="math notranslate no
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient.html#himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient" title="himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_conjugate_gradient()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="ridgecv-and-kernelridgecv">
+</section>
+<section id="ridgecv-and-kernelridgecv">
 <h2>RidgeCV and KernelRidgeCV<a class="headerlink" href="#ridgecv-and-kernelridgecv" title="Permalink to this headline">¶</a></h2>
 <p>In practice, because the ridge regression and kernel ridge regression
 hyperparameter <span class="math notranslate nohighlight">\(\alpha\)</span> is unknown, it is typically selected through a
@@ -157,8 +158,8 @@ loss, averaged over all cross-validation splits.</p>
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_cv_eigenvalues()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="groupridgecv-bandedridgecv">
+</section>
+<section id="groupridgecv-bandedridgecv">
 <h2>GroupRidgeCV / BandedRidgeCV<a class="headerlink" href="#groupridgecv-bandedridgecv" title="Permalink to this headline">¶</a></h2>
 <p>In some applications, features are naturally grouped into groups (or feature
 spaces). To adapt the regularization level to each feature space, ridge
@@ -192,8 +193,8 @@ of features:</p>
 <p class="admonition-title">Note</p>
 <p>“Group ridge regression” is also sometimes called “Banded ridge regression”.</p>
 </div>
-</div>
-<div class="section" id="weightedkernelridge">
+</section>
+<section id="weightedkernelridge">
 <h2>WeightedKernelRidge<a class="headerlink" href="#weightedkernelridge" title="Permalink to this headline">¶</a></h2>
 <p>To extend kernel ridge to group-regularization, we can compute the kernel as a
 weighted sum of multiple kernels, <span class="math notranslate nohighlight">\(K = \sum_{i=1}^m e^{\delta_i} K_i\)</span>.
@@ -217,8 +218,8 @@ specific algorithms to be fit.</p>
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_neumann_series()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="multiplekernelridgecv">
+</section>
+<section id="multiplekernelridgecv">
 <h2>MultipleKernelRidgeCV<a class="headerlink" href="#multiplekernelridgecv" title="Permalink to this headline">¶</a></h2>
 <p>In weighted kernel ridge regression, when the log-kernel-weights
 <span class="math notranslate nohighlight">\(\delta_i\)</span> are unknown, we can learn them over cross-validation. This
@@ -234,8 +235,8 @@ multiple-kernel ridge regression is equivalent with group-ridge regression
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_random_search()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="model-flowchart">
+</section>
+<section id="model-flowchart">
 <h2>Model flowchart<a class="headerlink" href="#model-flowchart" title="Permalink to this headline">¶</a></h2>
 <p>The following flowchart can be used as a guide to select the right estimator.</p>
 <div class="mermaid">
@@ -247,7 +248,6 @@ multiple-kernel ridge regression is equivalent with group-ridge regression
   OK(Hyperparameters ?)
   MR(Hyperparameters ?)
   MK(Hyperparameters ?)
-
 
   A-- one--&gt;O;
   A--multiple--&gt;M;
@@ -272,7 +272,7 @@ multiple-kernel ridge regression is equivalent with group-ridge regression
   classDef leaf fill:#ABBBE1
   class ORH,OKH,MRH,MKH leaf;
   class ORCV,OKCV,MRCV,MKCV leaf;
-        </div><div class="section" id="references">
+        </div><section id="references">
 <h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
 <dl class="footnote brackets">
 <dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
@@ -289,9 +289,9 @@ encoding models with non-spherical multivariate normal priors. Neuroimage,
 197, 482-492.</p>
 </dd>
 </dl>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -304,7 +304,7 @@ encoding models with non-spherical multivariate normal priors. Neuroimage,
       &copy;2020, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
