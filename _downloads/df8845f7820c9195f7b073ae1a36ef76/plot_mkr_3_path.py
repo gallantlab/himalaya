@@ -42,7 +42,7 @@ kernel_weights = np.tile(np.array([0.6, 0.4])[None], (n_targets, 1))
 (X_train, X_test, Y_train, Y_test,
  kernel_weights, n_features_list) = generate_multikernel_dataset(
      n_kernels=2, n_targets=n_targets, n_samples_train=600,
-     n_samples_test=300, random_state=42, noise=0.3,
+     n_samples_test=300, random_state=42, noise=0.31,
      kernel_weights=kernel_weights)
 
 feature_names = [f"Feature space {ii}" for ii in range(len(n_features_list))]
