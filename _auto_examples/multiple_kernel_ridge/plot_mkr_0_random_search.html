@@ -4,15 +4,14 @@
 <html>
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.17.1: http://docutils.sourceforge.net/" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Multiple-kernel ridge &#8212; Himalaya 0.3.6 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/gallery-rendered-html.css" />
     <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
     <script src="../../_static/jquery.js"></script>
     <script src="../../_static/underscore.js"></script>
@@ -102,7 +101,7 @@
 <p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"><span class="std std-ref">here</span></a>
 to download the full example code</p>
 </div>
-<section class="sphx-glr-example-title" id="multiple-kernel-ridge">
+<div class="sphx-glr-example-title section" id="multiple-kernel-ridge">
 <span id="sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"></span><h1>Multiple-kernel ridge<a class="headerlink" href="#multiple-kernel-ridge" title="Permalink to this headline">¶</a></h1>
 <p>This example demonstrates how to solve multiple kernel ridge regression.
 It uses random search and cross validation to select optimal hyperparameters.</p>
@@ -121,12 +120,7 @@ It uses random search and cross validation to select optimal hyperparameters.</p
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:56: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
-  warnings.warn(f&quot;Setting backend to {backend} failed: {str(error)}.&quot;
-</pre></div>
-</div>
-<section id="generate-a-random-dataset">
+<div class="section" id="generate-a-random-dataset">
 <h2>Generate a random dataset<a class="headerlink" href="#generate-a-random-dataset" title="Permalink to this headline">¶</a></h2>
 <ul class="simple">
 <li><p>X_train : array of shape (n_samples_train, n_features)</p></li>
@@ -155,8 +149,8 @@ It uses random search and cross validation to select optimal hyperparameters.</p
 <span class="n">Xs_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">X_test</span><span class="p">[:,</span> <span class="n">slic</span><span class="p">]</span> <span class="k">for</span> <span class="n">slic</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">]</span>
 </pre></div>
 </div>
-</section>
-<section id="precompute-the-linear-kernels">
+</div>
+<div class="section" id="precompute-the-linear-kernels">
 <h2>Precompute the linear kernels<a class="headerlink" href="#precompute-the-linear-kernels" title="Permalink to this headline">¶</a></h2>
 <p>We also cast them to float32.</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ks_train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">X_train</span> <span class="o">@</span> <span class="n">X_train</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">X_train</span> <span class="ow">in</span> <span class="n">Xs_train</span><span class="p">])</span>
@@ -169,8 +163,8 @@ It uses random search and cross validation to select optimal hyperparameters.</p
 <span class="n">Y_test</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y_test</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </pre></div>
 </div>
-</section>
-<section id="run-the-solver-using-random-search">
+</div>
+<div class="section" id="run-the-solver-using-random-search">
 <h2>Run the solver, using random search<a class="headerlink" href="#run-the-solver-using-random-search" title="Permalink to this headline">¶</a></h2>
 <p>This method should work fine for
 small number of kernels (&lt; 20). The larger the number of kenels, the larger
@@ -227,106 +221,106 @@ target and the entire dataset</p></li>
 </div>
 <p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | 100 random sampling with cv |
-[                                        ] 1% | 0.77 sec | 100 random sampling with cv |
-[                                        ] 2% | 1.21 sec | 100 random sampling with cv |
-[.                                       ] 3% | 1.84 sec | 100 random sampling with cv |
-[.                                       ] 4% | 2.48 sec | 100 random sampling with cv |
-[..                                      ] 5% | 2.88 sec | 100 random sampling with cv |
-[..                                      ] 6% | 3.38 sec | 100 random sampling with cv |
-[..                                      ] 7% | 3.84 sec | 100 random sampling with cv |
-[...                                     ] 8% | 4.52 sec | 100 random sampling with cv |
-[...                                     ] 9% | 4.94 sec | 100 random sampling with cv |
-[....                                    ] 10% | 5.56 sec | 100 random sampling with cv |
-[....                                    ] 11% | 6.05 sec | 100 random sampling with cv |
-[....                                    ] 12% | 6.66 sec | 100 random sampling with cv |
-[.....                                   ] 13% | 7.09 sec | 100 random sampling with cv |
-[.....                                   ] 14% | 7.67 sec | 100 random sampling with cv |
-[......                                  ] 15% | 8.07 sec | 100 random sampling with cv |
-[......                                  ] 16% | 8.59 sec | 100 random sampling with cv |
-[......                                  ] 17% | 8.96 sec | 100 random sampling with cv |
-[.......                                 ] 18% | 9.37 sec | 100 random sampling with cv |
-[.......                                 ] 19% | 9.79 sec | 100 random sampling with cv |
-[........                                ] 20% | 10.30 sec | 100 random sampling with cv |
-[........                                ] 21% | 10.73 sec | 100 random sampling with cv |
-[........                                ] 22% | 11.30 sec | 100 random sampling with cv |
-[.........                               ] 23% | 11.77 sec | 100 random sampling with cv |
-[.........                               ] 24% | 12.24 sec | 100 random sampling with cv |
-[..........                              ] 25% | 12.63 sec | 100 random sampling with cv |
-[..........                              ] 26% | 13.07 sec | 100 random sampling with cv |
-[..........                              ] 27% | 13.49 sec | 100 random sampling with cv |
-[...........                             ] 28% | 13.97 sec | 100 random sampling with cv |
-[...........                             ] 29% | 14.37 sec | 100 random sampling with cv |
-[............                            ] 30% | 15.03 sec | 100 random sampling with cv |
-[............                            ] 31% | 15.50 sec | 100 random sampling with cv |
-[............                            ] 32% | 16.01 sec | 100 random sampling with cv |
-[.............                           ] 33% | 16.39 sec | 100 random sampling with cv |
-[.............                           ] 34% | 16.90 sec | 100 random sampling with cv |
-[..............                          ] 35% | 17.41 sec | 100 random sampling with cv |
-[..............                          ] 36% | 18.13 sec | 100 random sampling with cv |
-[..............                          ] 37% | 18.54 sec | 100 random sampling with cv |
-[...............                         ] 38% | 19.03 sec | 100 random sampling with cv |
-[...............                         ] 39% | 19.45 sec | 100 random sampling with cv |
-[................                        ] 40% | 19.96 sec | 100 random sampling with cv |
-[................                        ] 41% | 20.44 sec | 100 random sampling with cv |
-[................                        ] 42% | 20.97 sec | 100 random sampling with cv |
-[.................                       ] 43% | 21.41 sec | 100 random sampling with cv |
-[.................                       ] 44% | 22.03 sec | 100 random sampling with cv |
-[..................                      ] 45% | 22.42 sec | 100 random sampling with cv |
-[..................                      ] 46% | 23.07 sec | 100 random sampling with cv |
-[..................                      ] 47% | 23.52 sec | 100 random sampling with cv |
-[...................                     ] 48% | 24.23 sec | 100 random sampling with cv |
-[...................                     ] 49% | 24.67 sec | 100 random sampling with cv |
-[....................                    ] 50% | 25.18 sec | 100 random sampling with cv |
-[....................                    ] 51% | 25.63 sec | 100 random sampling with cv |
-[....................                    ] 52% | 26.20 sec | 100 random sampling with cv |
-[.....................                   ] 53% | 26.65 sec | 100 random sampling with cv |
-[.....................                   ] 54% | 27.25 sec | 100 random sampling with cv |
-[......................                  ] 55% | 27.69 sec | 100 random sampling with cv |
-[......................                  ] 56% | 28.23 sec | 100 random sampling with cv |
-[......................                  ] 57% | 28.63 sec | 100 random sampling with cv |
-[.......................                 ] 58% | 29.26 sec | 100 random sampling with cv |
-[.......................                 ] 59% | 29.69 sec | 100 random sampling with cv |
-[........................                ] 60% | 30.19 sec | 100 random sampling with cv |
-[........................                ] 61% | 30.77 sec | 100 random sampling with cv |
-[........................                ] 62% | 31.23 sec | 100 random sampling with cv |
-[.........................               ] 63% | 31.62 sec | 100 random sampling with cv |
-[.........................               ] 64% | 32.25 sec | 100 random sampling with cv |
-[..........................              ] 65% | 32.95 sec | 100 random sampling with cv |
-[..........................              ] 66% | 33.41 sec | 100 random sampling with cv |
-[..........................              ] 67% | 33.96 sec | 100 random sampling with cv |
-[...........................             ] 68% | 34.49 sec | 100 random sampling with cv |
-[...........................             ] 69% | 34.89 sec | 100 random sampling with cv |
-[............................            ] 70% | 35.46 sec | 100 random sampling with cv |
-[............................            ] 71% | 35.92 sec | 100 random sampling with cv |
-[............................            ] 72% | 36.40 sec | 100 random sampling with cv |
-[.............................           ] 73% | 36.80 sec | 100 random sampling with cv |
-[.............................           ] 74% | 37.33 sec | 100 random sampling with cv |
-[..............................          ] 75% | 37.78 sec | 100 random sampling with cv |
-[..............................          ] 76% | 38.23 sec | 100 random sampling with cv |
-[..............................          ] 77% | 38.67 sec | 100 random sampling with cv |
-[...............................         ] 78% | 39.18 sec | 100 random sampling with cv |
-[...............................         ] 79% | 39.58 sec | 100 random sampling with cv |
-[................................        ] 80% | 40.15 sec | 100 random sampling with cv |
-[................................        ] 81% | 40.55 sec | 100 random sampling with cv |
-[................................        ] 82% | 41.17 sec | 100 random sampling with cv |
-[.................................       ] 83% | 41.53 sec | 100 random sampling with cv |
-[.................................       ] 84% | 42.13 sec | 100 random sampling with cv |
-[..................................      ] 85% | 42.58 sec | 100 random sampling with cv |
-[..................................      ] 86% | 43.07 sec | 100 random sampling with cv |
-[..................................      ] 87% | 43.53 sec | 100 random sampling with cv |
-[...................................     ] 88% | 44.17 sec | 100 random sampling with cv |
-[...................................     ] 89% | 44.55 sec | 100 random sampling with cv |
-[....................................    ] 90% | 44.99 sec | 100 random sampling with cv |
-[....................................    ] 91% | 45.37 sec | 100 random sampling with cv |
-[....................................    ] 92% | 45.89 sec | 100 random sampling with cv |
-[.....................................   ] 93% | 46.30 sec | 100 random sampling with cv |
-[.....................................   ] 94% | 46.75 sec | 100 random sampling with cv |
-[......................................  ] 95% | 47.17 sec | 100 random sampling with cv |
-[......................................  ] 96% | 47.81 sec | 100 random sampling with cv |
-[......................................  ] 97% | 48.21 sec | 100 random sampling with cv |
-[....................................... ] 98% | 48.73 sec | 100 random sampling with cv |
-[....................................... ] 99% | 49.14 sec | 100 random sampling with cv |
-[........................................] 100% | 49.57 sec | 100 random sampling with cv |
+[                                        ] 1% | 0.24 sec | 100 random sampling with cv |
+[                                        ] 2% | 0.43 sec | 100 random sampling with cv |
+[.                                       ] 3% | 0.57 sec | 100 random sampling with cv |
+[.                                       ] 4% | 0.70 sec | 100 random sampling with cv |
+[..                                      ] 5% | 0.84 sec | 100 random sampling with cv |
+[..                                      ] 6% | 1.01 sec | 100 random sampling with cv |
+[..                                      ] 7% | 1.18 sec | 100 random sampling with cv |
+[...                                     ] 8% | 1.32 sec | 100 random sampling with cv |
+[...                                     ] 9% | 1.49 sec | 100 random sampling with cv |
+[....                                    ] 10% | 1.66 sec | 100 random sampling with cv |
+[....                                    ] 11% | 1.84 sec | 100 random sampling with cv |
+[....                                    ] 12% | 2.01 sec | 100 random sampling with cv |
+[.....                                   ] 13% | 2.14 sec | 100 random sampling with cv |
+[.....                                   ] 14% | 2.28 sec | 100 random sampling with cv |
+[......                                  ] 15% | 2.41 sec | 100 random sampling with cv |
+[......                                  ] 16% | 2.55 sec | 100 random sampling with cv |
+[......                                  ] 17% | 2.68 sec | 100 random sampling with cv |
+[.......                                 ] 18% | 2.82 sec | 100 random sampling with cv |
+[.......                                 ] 19% | 2.95 sec | 100 random sampling with cv |
+[........                                ] 20% | 3.09 sec | 100 random sampling with cv |
+[........                                ] 21% | 3.22 sec | 100 random sampling with cv |
+[........                                ] 22% | 3.39 sec | 100 random sampling with cv |
+[.........                               ] 23% | 3.52 sec | 100 random sampling with cv |
+[.........                               ] 24% | 3.66 sec | 100 random sampling with cv |
+[..........                              ] 25% | 3.79 sec | 100 random sampling with cv |
+[..........                              ] 26% | 3.92 sec | 100 random sampling with cv |
+[..........                              ] 27% | 4.06 sec | 100 random sampling with cv |
+[...........                             ] 28% | 4.19 sec | 100 random sampling with cv |
+[...........                             ] 29% | 4.32 sec | 100 random sampling with cv |
+[............                            ] 30% | 4.46 sec | 100 random sampling with cv |
+[............                            ] 31% | 4.59 sec | 100 random sampling with cv |
+[............                            ] 32% | 4.72 sec | 100 random sampling with cv |
+[.............                           ] 33% | 4.86 sec | 100 random sampling with cv |
+[.............                           ] 34% | 4.99 sec | 100 random sampling with cv |
+[..............                          ] 35% | 5.12 sec | 100 random sampling with cv |
+[..............                          ] 36% | 5.30 sec | 100 random sampling with cv |
+[..............                          ] 37% | 5.43 sec | 100 random sampling with cv |
+[...............                         ] 38% | 5.56 sec | 100 random sampling with cv |
+[...............                         ] 39% | 5.70 sec | 100 random sampling with cv |
+[................                        ] 40% | 5.83 sec | 100 random sampling with cv |
+[................                        ] 41% | 5.96 sec | 100 random sampling with cv |
+[................                        ] 42% | 6.10 sec | 100 random sampling with cv |
+[.................                       ] 43% | 6.23 sec | 100 random sampling with cv |
+[.................                       ] 44% | 6.40 sec | 100 random sampling with cv |
+[..................                      ] 45% | 6.53 sec | 100 random sampling with cv |
+[..................                      ] 46% | 6.67 sec | 100 random sampling with cv |
+[..................                      ] 47% | 6.80 sec | 100 random sampling with cv |
+[...................                     ] 48% | 6.97 sec | 100 random sampling with cv |
+[...................                     ] 49% | 7.10 sec | 100 random sampling with cv |
+[....................                    ] 50% | 7.24 sec | 100 random sampling with cv |
+[....................                    ] 51% | 7.37 sec | 100 random sampling with cv |
+[....................                    ] 52% | 7.50 sec | 100 random sampling with cv |
+[.....................                   ] 53% | 7.64 sec | 100 random sampling with cv |
+[.....................                   ] 54% | 7.81 sec | 100 random sampling with cv |
+[......................                  ] 55% | 7.94 sec | 100 random sampling with cv |
+[......................                  ] 56% | 8.07 sec | 100 random sampling with cv |
+[......................                  ] 57% | 8.21 sec | 100 random sampling with cv |
+[.......................                 ] 58% | 8.34 sec | 100 random sampling with cv |
+[.......................                 ] 59% | 8.52 sec | 100 random sampling with cv |
+[........................                ] 60% | 8.69 sec | 100 random sampling with cv |
+[........................                ] 61% | 8.82 sec | 100 random sampling with cv |
+[........................                ] 62% | 9.00 sec | 100 random sampling with cv |
+[.........................               ] 63% | 9.13 sec | 100 random sampling with cv |
+[.........................               ] 64% | 9.30 sec | 100 random sampling with cv |
+[..........................              ] 65% | 9.44 sec | 100 random sampling with cv |
+[..........................              ] 66% | 9.61 sec | 100 random sampling with cv |
+[..........................              ] 67% | 9.75 sec | 100 random sampling with cv |
+[...........................             ] 68% | 9.88 sec | 100 random sampling with cv |
+[...........................             ] 69% | 10.02 sec | 100 random sampling with cv |
+[............................            ] 70% | 10.15 sec | 100 random sampling with cv |
+[............................            ] 71% | 10.29 sec | 100 random sampling with cv |
+[............................            ] 72% | 10.42 sec | 100 random sampling with cv |
+[.............................           ] 73% | 10.55 sec | 100 random sampling with cv |
+[.............................           ] 74% | 10.73 sec | 100 random sampling with cv |
+[..............................          ] 75% | 10.86 sec | 100 random sampling with cv |
+[..............................          ] 76% | 11.03 sec | 100 random sampling with cv |
+[..............................          ] 77% | 11.16 sec | 100 random sampling with cv |
+[...............................         ] 78% | 11.30 sec | 100 random sampling with cv |
+[...............................         ] 79% | 11.43 sec | 100 random sampling with cv |
+[................................        ] 80% | 11.57 sec | 100 random sampling with cv |
+[................................        ] 81% | 11.70 sec | 100 random sampling with cv |
+[................................        ] 82% | 11.84 sec | 100 random sampling with cv |
+[.................................       ] 83% | 12.01 sec | 100 random sampling with cv |
+[.................................       ] 84% | 12.14 sec | 100 random sampling with cv |
+[..................................      ] 85% | 12.27 sec | 100 random sampling with cv |
+[..................................      ] 86% | 12.41 sec | 100 random sampling with cv |
+[..................................      ] 87% | 12.54 sec | 100 random sampling with cv |
+[...................................     ] 88% | 12.68 sec | 100 random sampling with cv |
+[...................................     ] 89% | 12.81 sec | 100 random sampling with cv |
+[....................................    ] 90% | 12.98 sec | 100 random sampling with cv |
+[....................................    ] 91% | 13.12 sec | 100 random sampling with cv |
+[....................................    ] 92% | 13.25 sec | 100 random sampling with cv |
+[.....................................   ] 93% | 13.38 sec | 100 random sampling with cv |
+[.....................................   ] 94% | 13.56 sec | 100 random sampling with cv |
+[......................................  ] 95% | 13.69 sec | 100 random sampling with cv |
+[......................................  ] 96% | 13.82 sec | 100 random sampling with cv |
+[......................................  ] 97% | 13.96 sec | 100 random sampling with cv |
+[....................................... ] 98% | 14.09 sec | 100 random sampling with cv |
+[....................................... ] 99% | 14.23 sec | 100 random sampling with cv |
+[........................................] 100% | 14.36 sec | 100 random sampling with cv |
 </pre></div>
 </div>
 <p>As we used the <code class="docutils literal notranslate"><span class="pre">cupy</span></code> backend, the results are <code class="docutils literal notranslate"><span class="pre">cupy</span></code> arrays, which are
@@ -336,8 +330,8 @@ on GPU. Here, we cast the results back to CPU, and to <code class="docutils lite
 <span class="n">cv_scores</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 </pre></div>
 </div>
-</section>
-<section id="plot-the-convergence-curve">
+</div>
+<div class="section" id="plot-the-convergence-curve">
 <h2>Plot the convergence curve<a class="headerlink" href="#plot-the-convergence-curve" title="Permalink to this headline">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cv_scores</span></code> gives the scores for each sampled kernel weights.
 The convergence curve is thus the current maximum for each target.</p>
@@ -353,8 +347,9 @@ The convergence curve is thus the current maximum for each target.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_0_random_search_001.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_001.png" alt="Convergence curve, averaged over targets" class = "sphx-glr-single-img"/></section>
-<section id="plot-the-optimal-alphas-selected-by-the-solver">
+<img alt="Convergence curve, averaged over targets" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_001.png" />
+</div>
+<div class="section" id="plot-the-optimal-alphas-selected-by-the-solver">
 <h2>Plot the optimal alphas selected by the solver<a class="headerlink" href="#plot-the-optimal-alphas-selected-by-the-solver" title="Permalink to this headline">¶</a></h2>
 <p>This plot is helpful to refine the alpha grid if the range is too small or
 too large.</p>
@@ -364,8 +359,9 @@ too large.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_0_random_search_002.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_002.png" alt="Best alphas selected by cross-validation" class = "sphx-glr-single-img"/></section>
-<section id="compute-the-predictions-on-the-test-set">
+<img alt="Best alphas selected by cross-validation" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_002.png" />
+</div>
+<div class="section" id="compute-the-predictions-on-the-test-set">
 <h2>Compute the predictions on the test set<a class="headerlink" href="#compute-the-predictions-on-the-test-set" title="Permalink to this headline">¶</a></h2>
 <p>(requires the dual weights)</p>
 <div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">split</span> <span class="o">=</span> <span class="kc">False</span>
@@ -380,8 +376,9 @@ too large.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_0_random_search_003.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_003.png" alt="Histogram over targets" class = "sphx-glr-single-img"/></section>
-<section id="compute-the-split-predictions-on-the-test-set">
+<img alt="Histogram over targets" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_003.png" />
+</div>
+<div class="section" id="compute-the-split-predictions-on-the-test-set">
 <h2>Compute the split predictions on the test set<a class="headerlink" href="#compute-the-split-predictions-on-the-test-set" title="Permalink to this headline">¶</a></h2>
 <p>(requires the dual weights)</p>
 <p>Here we apply the dual weights on each kernel separately
@@ -401,7 +398,8 @@ too large.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_0_random_search_004.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_004.png" alt="Histogram of $R^2$ generalization score split between kernels" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  50.328 seconds)</p>
+<img alt="Histogram of $R^2$ generalization score split between kernels" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_004.png" />
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  14.890 seconds)</p>
 <div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py">
 <div class="sphx-glr-download sphx-glr-download-python docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/653b82cbcba3e05b6b8ac445ef39933b/plot_mkr_0_random_search.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mkr_0_random_search.py</span></code></a></p>
@@ -411,8 +409,8 @@ too large.</p>
 </div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</section>
-</section>
+</div>
+</div>
 
 
           </div>
@@ -425,7 +423,7 @@ too large.</p>
       &copy;2020, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.5.0</a>
+      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
       &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
       
       |
