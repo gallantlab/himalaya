@@ -172,5 +172,6 @@ Cite this package
 If you use ``himalaya`` in your work, please give it a star and cite our
 (future) publication:
 
-.. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2021).
-   Feature-space selection with banded ridge regression. *In preparation*.
+.. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2022).
+   Feature-space selection with banded ridge regression.
+   [bioRxiv](https://www.biorxiv.org/content/10.1101/2022.05.05.490831v1).
