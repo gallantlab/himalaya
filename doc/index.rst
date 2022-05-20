@@ -1,7 +1,7 @@
 Himalaya
 ========
 
-Welcome to ``Himalaya``'s documentation website.
+Welcome to ``himalaya``'s documentation website.
 
 Documentation
 -------------
