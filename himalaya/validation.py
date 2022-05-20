@@ -128,6 +128,10 @@ def check_array(array, accept_sparse=False, dtype=["float32", "float64"],
     else:
         kwargs = dict()
 
+    if array is None:
+        raise ValueError(
+            "Expected array-like (array or non-string sequence), got None")
+
     #############
     # sparse case
     if issparse(array):
