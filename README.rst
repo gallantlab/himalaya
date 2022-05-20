@@ -3,8 +3,8 @@ Himalaya: Multiple-target linear models
 
 |Github| |Python| |License| |Build| |Codecov| |Downloads|
 
-``Himalaya`` implements machine learning linear models in Python, focusing on
-computational efficiency for large numbers of targets.
+``Himalaya`` [1]_ implements machine learning linear models in Python, focusing
+on computational efficiency for large numbers of targets.
 
 Use ``himalaya`` if you need a library that:
 
@@ -170,7 +170,7 @@ Cite this package
 =================
 
 If you use ``himalaya`` in your work, please give it a star and cite our
-(future) publication:
+publication:
 
 .. [1] Dupré La Tour, T., Eickenberg, M., & Gallant, J. L. (2022).
    Feature-space selection with banded ridge regression.
