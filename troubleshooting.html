@@ -108,21 +108,22 @@ options to limit the GPU memory, often at the cost of computational speed:</p>
 <ul class="simple">
 <li><p>Some solvers implement computations over batches, to limit the size of
 intermediate arrays. See for instance <code class="docutils literal notranslate"><span class="pre">n_targets_batch</span></code>, or
-<code class="docutils literal notranslate"><span class="pre">n_alphas_batch</span></code> in <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">himalaya.kernel_ridge.KernelRidgeCV</span></code></a>.</p></li>
+<code class="docutils literal notranslate"><span class="pre">n_alphas_batch</span></code> in <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidgeCV</span></code></a>.</p></li>
 <li><p>Some solvers implement an option to keep the input kernels or the targets in
 CPU memory. See for instance <code class="docutils literal notranslate"><span class="pre">Y_in_cpu</span></code> in
-<code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.MultipleKernelRidgeCV</span></code>.</p></li>
+<a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a>.</p></li>
 <li><p>Some estimators can also be forced to use CPU, ignoring the current backend,
 using the parameter <code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code>. To limit GPU memory, some estimators
 in the same pipeline can use <code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code> and others
 <code class="docutils literal notranslate"><span class="pre">force_cpu=False</span></code>. In particular, it is possible to precompute kernels on
-CPU, using <code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.Kernelizer</span></code> or
-<code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.ColumnKernelizer</span></code> with the parameter <code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code>
-before fitting a <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">himalaya.kernel_ridge.KernelRidgeCV</span></code></a> or a
-<code class="xref py py-class docutils literal notranslate"><span class="pre">kernel_ridge.MultipleKernelRidgeCV</span></code> on GPU.</p></li>
+CPU, using <a class="reference internal" href="_generated/himalaya.kernel_ridge.Kernelizer.html#himalaya.kernel_ridge.Kernelizer" title="himalaya.kernel_ridge.Kernelizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">Kernelizer</span></code></a> or
+<a class="reference internal" href="_generated/himalaya.kernel_ridge.ColumnKernelizer.html#himalaya.kernel_ridge.ColumnKernelizer" title="himalaya.kernel_ridge.ColumnKernelizer"><code class="xref py py-class docutils literal notranslate"><span class="pre">ColumnKernelizer</span></code></a> with the parameter
+<code class="docutils literal notranslate"><span class="pre">force_cpu=True</span></code> before fitting a
+<a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV" title="himalaya.kernel_ridge.KernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidgeCV</span></code></a> or a
+<a class="reference internal" href="_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV" title="himalaya.kernel_ridge.MultipleKernelRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">MultipleKernelRidgeCV</span></code></a> on GPU.</p></li>
 </ul>
 <p>A CUDA out of memory issue can also arise with <code class="docutils literal notranslate"><span class="pre">pytorch</span> <span class="pre">&lt;</span> <span class="pre">1.9</span></code>, for example
-with <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">himalaya.kernel_ridge.KernelRidge</span></code></a>, where a solver requires
+with <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a>, where a solver requires
 ridiculously high peak memory during a broadcasting matmul operation. This
 <a class="reference external" href="https://github.com/pytorch/pytorch/pull/54616">issue</a> can be fixed by
 updating to <code class="docutils literal notranslate"><span class="pre">pytorch</span> <span class="pre">=</span> <span class="pre">1.9</span></code> or newer versions.</p>

@@ -123,7 +123,7 @@ specific algorithms to be fit.
 
 .. admonition:: This model is implemented in
 
-  - :class:`~himalaya.kernel_ridge.WeightedKernelRidgeCV` (scikit-learn-compatible estimator)
+  - :class:`~himalaya.kernel_ridge.WeightedKernelRidge` (scikit-learn-compatible estimator)
   - :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_gradient_descent` (function)
   - :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_conjugate_gradient` (function)
   - :func:`~himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series` (function)
