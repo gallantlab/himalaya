@@ -4,7 +4,10 @@ Changelog
 Development Version
 ~~~~~~~~~~~~~~~~~~~
 
-- 
+- FIX comply with most recent scikit-learn's check_estimator.
+- FIX avoid an indexing error in the hypergradient solver, when early stopping
+  after different numbers of iterations for different batches.
+
 
 Version 0.3.6
 ~~~~~~~~~~~~~
