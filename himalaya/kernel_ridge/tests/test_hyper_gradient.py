@@ -264,3 +264,27 @@ def test_solve_multiple_kernel_ridge_return_weights(backend, method,
                                     backend.to_numpy(Y_64[:, tt]))
             c1 = backend.asarray_like(c1, K)
             assert_array_almost_equal(c1, refit_weights[:, tt], decimal=5)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_hyper_gradient_early_stopping(backend):
+    # Non-regression test for https://github.com/gallantlab/himalaya/pull/37
+    backend = set_backend(backend)
+    Ks, Y, _, gammas, _, _, _ = _create_dataset(backend)
+
+    # to reproduce, need different early stooping times for different batches
+    n_targets_batch = 2
+    # trigger early stopping
+    tol = 1e-1
+    # good init for all targets for early early stopping
+    initial_deltas = backend.log(gammas)
+    # poor init for last target for later early stopping
+    initial_deltas[:, -1] = 100
+
+    _, _, cv_scores = solve_multiple_kernel_ridge_hyper_gradient(
+        Ks, Y, max_iter=100, n_targets_batch=n_targets_batch,
+        max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=tol,
+        score_func=r2_score, cv=3, hyper_gradient_method="direct",
+        initial_deltas=initial_deltas, kernel_ridge_method="conjugate_gradient",
+        progress_bar=False)
+    cv_scores = backend.asarray(cv_scores)
