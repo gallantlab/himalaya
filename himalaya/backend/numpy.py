@@ -91,6 +91,7 @@ sort = np.sort
 flip = np.flip
 atleast_1d = np.atleast_1d
 finfo = np.finfo
+eye = np.eye
 
 
 def diagonal_view(array, axis1=0, axis2=1):

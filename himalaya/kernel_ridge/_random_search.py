@@ -31,7 +31,11 @@ def solve_multiple_kernel_ridge_random_search(
     n_iter : int, or array of shape (n_iter, n_kernels)
         Number of kernel weights combination to search.
         If an array is given, the solver uses it as the list of kernel weights
-        to try, instead of sampling from a Dirichlet distribution.
+        to try, instead of sampling from a Dirichlet distribution. Examples:
+          - `n_iter=np.eye(n_kernels)` implement a winner-take-all strategy
+            over kernels.
+          - `n_iter=np.ones((1, n_kernels))/n_kernels` solves a (standard)
+            kernel ridge regression.
     concentration : float, or list of float
         Concentration parameters of the Dirichlet distribution.
         If a list, iteratively cycle through the list.
@@ -254,7 +258,8 @@ def solve_multiple_kernel_ridge_random_search(
         else:
             # update based on score across all targets
             update = cv_scores_ii.mean() > current_best_scores.mean() + epsilon
-            mask = backend.full_like(cv_scores_ii, fill_value=update, dtype=bool)
+            mask = backend.full_like(cv_scores_ii, fill_value=update,
+                                     dtype=bool)
         current_best_scores[mask] = cv_scores_ii[mask]
         best_gammas[:, mask] = gamma[:, None]
         best_alphas[mask] = alphas[alphas_argmax[mask]]

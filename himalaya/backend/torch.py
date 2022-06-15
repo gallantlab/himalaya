@@ -97,6 +97,7 @@ prod = torch.prod
 sign = torch.sign
 clip = torch.clamp
 finfo = torch.finfo
+eye = torch.eye
 
 
 def atleast_1d(array):
