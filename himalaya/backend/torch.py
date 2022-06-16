@@ -285,8 +285,13 @@ def check_arrays(*all_inputs):
 
 
 def svd(X, full_matrices=True):
-    U, s, V = torch.svd(X, some=not full_matrices)
-    return U, s, V.transpose(-2, -1)
+    try:
+        U, s, Vh = torch.linalg.svd(X, full_matrices=full_matrices)
+    except AttributeError:
+        # torch.__version__ < 1.8
+        U, s, V = torch.svd(X, some=not full_matrices)
+        Vh = V.transpose(-2, -1)
+    return U, s, Vh
 
 
 try:
