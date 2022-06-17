@@ -1,3 +1,4 @@
+import os
 import warnings
 import numbers
 
@@ -187,6 +188,17 @@ def solve_multiple_kernel_ridge_random_search(
         raise ValueError("Unknown parameter return_weights=%r." %
                          (return_weights, ))
 
+    # Possibility to entirely skip the fit and return arbitrary weights.
+    # This is to help designing integration smoke tests.
+    if os.environ.get('HIMALAYA_SKIP_FIT', default=False):
+        warnings.warn("Skip fit because HIMALAYA_SKIP_FIT=True.")
+        # skip the loop by emptying the gammas candidates
+        gammas = gammas[:0]
+        # fill with fake weights, to avoid gettings only zeros.
+        refit_weights += (backend.arange(n_targets)[None] + 1) / n_targets
+
+    ###########################################################################
+    # Main loop over hyperparameter candidates (gammas)
     for ii, gamma in enumerate(
             bar(gammas, '%d random sampling with cv' % len(gammas),
                 use_it=progress_bar)):
@@ -328,6 +340,8 @@ def solve_multiple_kernel_ridge_random_search(
                 del dual_weights
             del update_indices
         del K, mask
+    # End of main loop
+    ###########################################################################
 
     deltas = backend.log(best_gammas / best_alphas[None, :])
     if return_weights == 'dual':
