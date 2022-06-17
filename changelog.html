@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Changelog &#8212; Himalaya 0.3.6 documentation</title>
+    <title>Changelog &#8212; Himalaya 0.4.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
@@ -100,6 +100,16 @@
 <li></li>
 </ul>
 </div>
+<div class="section" id="version-0-4-0">
+<h2>Version 0.4.0<a class="headerlink" href="#version-0-4-0" title="Permalink to this headline">¶</a></h2>
+<p>(<em>June 2022</em>)</p>
+<ul class="simple">
+<li><p>DOC explain how to implement a winner-take-all model.</p></li>
+<li><p>FIX comply with most recent scikit-learn’s check_estimator.</p></li>
+<li><p>FIX avoid an indexing error in the hypergradient solver, when early stopping
+after different numbers of iterations for different batches.</p></li>
+</ul>
+</div>
 <div class="section" id="version-0-3-6">
 <h2>Version 0.3.6<a class="headerlink" href="#version-0-3-6" title="Permalink to this headline">¶</a></h2>
 <p>(<em>April 2022</em>)</p>
@@ -111,8 +121,9 @@
 <li><p>ENH add <code class="docutils literal notranslate"><span class="pre">solver=&quot;auto&quot;</span></code> in <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a>,
 which switches solver based on the presence of a separate alpha per target.</p></li>
 </ul>
+</div>
 <div class="section" id="version-0-3-5">
-<h3>Version 0.3.5<a class="headerlink" href="#version-0-3-5" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.3.5<a class="headerlink" href="#version-0-3-5" title="Permalink to this headline">¶</a></h2>
 <p>(<em>February 2022</em>)</p>
 <ul class="simple">
 <li><p>MNT speed up examples on CPU, to build the doc faster on github actions.</p></li>
@@ -128,7 +139,7 @@ samples.</p></li>
 </ul>
 </div>
 <div class="section" id="version-0-3-4">
-<h3>Version 0.3.4<a class="headerlink" href="#version-0-3-4" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.3.4<a class="headerlink" href="#version-0-3-4" title="Permalink to this headline">¶</a></h2>
 <p>(<em>November 2021</em>)</p>
 <ul class="simple">
 <li><p>FIX <a class="reference internal" href="_generated/himalaya.ridge.Ridge.html#himalaya.ridge.Ridge" title="himalaya.ridge.Ridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ridge</span></code></a> with <code class="docutils literal notranslate"><span class="pre">n_samples</span> <span class="pre">&lt;</span> <span class="pre">n_targets</span></code>.</p></li>
@@ -141,7 +152,7 @@ and publishing to PyPI.</p></li>
 </ul>
 </div>
 <div class="section" id="version-0-3-3">
-<h3>Version 0.3.3<a class="headerlink" href="#version-0-3-3" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.3.3<a class="headerlink" href="#version-0-3-3" title="Permalink to this headline">¶</a></h2>
 <p>(<em>November 2021</em>)</p>
 <ul class="simple">
 <li><p>FIX <a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-class docutils literal notranslate"><span class="pre">KernelRidge</span></code></a> with
@@ -151,7 +162,7 @@ and publishing to PyPI.</p></li>
 </ul>
 </div>
 <div class="section" id="version-0-3-2">
-<h3>Version 0.3.2<a class="headerlink" href="#version-0-3-2" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.3.2<a class="headerlink" href="#version-0-3-2" title="Permalink to this headline">¶</a></h2>
 <p>(<em>November 2021</em>)</p>
 <ul class="simple">
 <li><p>ENH add <a class="reference internal" href="_generated/himalaya.scoring.r2_score_split_svd.html#himalaya.scoring.r2_score_split_svd" title="himalaya.scoring.r2_score_split_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">r2_score_split_svd()</span></code></a> scoring function.</p></li>
@@ -166,7 +177,7 @@ and publishing to PyPI.</p></li>
 </ul>
 </div>
 <div class="section" id="version-0-3-1">
-<h3>Version 0.3.1<a class="headerlink" href="#version-0-3-1" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.3.1<a class="headerlink" href="#version-0-3-1" title="Permalink to this headline">¶</a></h2>
 <p>(<em>September 2021</em>)</p>
 <ul class="simple">
 <li><p>MNT Rename <a class="reference internal" href="_generated/himalaya.ridge.BandedRidgeCV.html#himalaya.ridge.BandedRidgeCV" title="himalaya.ridge.BandedRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">BandedRidgeCV</span></code></a> into
@@ -180,7 +191,7 @@ and <a class="reference internal" href="_generated/himalaya.ridge.GroupRidgeCV.h
 </ul>
 </div>
 <div class="section" id="version-0-3-0">
-<h3>Version 0.3.0<a class="headerlink" href="#version-0-3-0" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.3.0<a class="headerlink" href="#version-0-3-0" title="Permalink to this headline">¶</a></h2>
 <p>(<em>April 2021</em>)</p>
 <ul class="simple">
 <li><p>ENH add <code class="docutils literal notranslate"><span class="pre">fit_intercept</span></code> parameter in <a class="reference internal" href="_generated/himalaya.ridge.Ridge.html#himalaya.ridge.Ridge" title="himalaya.ridge.Ridge"><code class="xref py py-class docutils literal notranslate"><span class="pre">Ridge</span></code></a>,
@@ -197,13 +208,12 @@ and <a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_m
 </ul>
 </div>
 <div class="section" id="version-0-2-0">
-<h3>Version 0.2.0<a class="headerlink" href="#version-0-2-0" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.2.0<a class="headerlink" href="#version-0-2-0" title="Permalink to this headline">¶</a></h2>
 <p>(<em>December 2020</em>)</p>
 </div>
 <div class="section" id="version-0-1-0">
-<h3>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h3>
+<h2>Version 0.1.0<a class="headerlink" href="#version-0-1-0" title="Permalink to this headline">¶</a></h2>
 <p>(<em>March 2020</em>)</p>
-</div>
 </div>
 </div>
 

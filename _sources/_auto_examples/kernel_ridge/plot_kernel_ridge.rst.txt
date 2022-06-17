@@ -83,7 +83,7 @@ scikit-learn estimator, with similar parameters and methods.
 
  .. code-block:: none
 
-    8.548717289613705e-15
+    7.105427357601002e-15
 
 
 
@@ -114,9 +114,9 @@ average score over targets.
 
  .. code-block:: none
 
-    0.9998343193668551
-    [0.9999551  0.99962735 0.99984608 0.99990875]
-    0.9998343193668551
+    0.9999104439221304
+    [0.99990451 0.99985375 0.99994683 0.99993669]
+    0.9999104439221304
 
 
 
@@ -124,7 +124,7 @@ average score over targets.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.033 seconds)
+   **Total running time of the script:** ( 0 minutes  0.017 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py:

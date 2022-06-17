@@ -5,7 +5,7 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.kernel_ridge._hyper_gradient &#8212; Himalaya 0.3.6 documentation</title>
+    <title>himalaya.kernel_ridge._hyper_gradient &#8212; Himalaya 0.4.0 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
     <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
@@ -338,7 +338,7 @@
             <span class="k">if</span> <span class="n">tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
                 <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
                         <span class="n">backend</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">deltas_old</span> <span class="o">-</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
-                    <span class="n">cv_scores</span> <span class="o">=</span> <span class="n">cv_scores</span><span class="p">[:(</span><span class="n">ii</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span> <span class="o">*</span> <span class="n">max_iter_inner_hyper</span><span class="p">]</span>
+                    <span class="n">cv_scores</span><span class="p">[</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv_scores</span><span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span>
                     <span class="k">break</span>
 
         <span class="c1">##########################################</span>

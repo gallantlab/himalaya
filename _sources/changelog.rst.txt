@@ -2,12 +2,22 @@ Changelog
 =========
 
 Development Version
-~~~~~~~~~~~~~~~~~~~
+-------------------
 
 - 
 
+Version 0.4.0
+-------------
+(*June 2022*)
+
+- DOC explain how to implement a winner-take-all model.
+- FIX comply with most recent scikit-learn's check_estimator.
+- FIX avoid an indexing error in the hypergradient solver, when early stopping
+  after different numbers of iterations for different batches.
+
+
 Version 0.3.6
-~~~~~~~~~~~~~
+-------------
 (*April 2022*)
 
 - DOC improve documentation website, add estimator flowchart.
