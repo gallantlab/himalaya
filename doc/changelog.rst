@@ -6,6 +6,8 @@ Development Version
 
 - FIX avoid error in :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`
   with ``solver_params(return_alphas=True)``.
+- ENH add ``fit_intercept`` in
+  :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`.
 
 Version 0.4.0
 -------------

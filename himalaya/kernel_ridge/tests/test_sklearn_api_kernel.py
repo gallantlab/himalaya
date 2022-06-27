@@ -518,15 +518,35 @@ def test_kernel_ridge_auto_solver(backend):
     assert model_1.solver_ == "eigenvalues"
 
 
+@pytest.mark.parametrize('fit_intercept', [True, False])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_multiple_kernel_ridge_return_alphas(backend):
+def test_multiple_kernel_ridge_intercept_return_alphas(backend, fit_intercept):
     backend = set_backend(backend)
     Xs, Ks, Y = _create_dataset(backend)
 
-    model_1 = MultipleKernelRidgeCV(solver_params=dict(
-        n_iter=1,
-        return_alphas=True,
-    )).fit(Xs[0], Y)
+    solver_params = dict(n_iter=1, return_alphas=True)
+
+    model_1 = MultipleKernelRidgeCV(kernels="precomputed",
+                                    fit_intercept=fit_intercept,
+                                    solver_params=solver_params)
+    model_1.fit(Ks, Y)
+    Y_pred_1 = model_1.predict(Ks)
+    scores_1 = model_1.score(Ks, Y)
+
+    if fit_intercept:
+        Y += 10
+    model_2 = MultipleKernelRidgeCV(kernels="precomputed",
+                                    fit_intercept=fit_intercept,
+                                    solver_params=solver_params).fit(Ks, Y)
+    model_2.fit(Ks, Y)
+    Y_pred_2 = model_2.predict(Ks)
+    scores_2 = model_2.score(Ks, Y)
+    if fit_intercept:
+        Y_pred_2 -= 10
+
+    assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
+    assert_array_almost_equal(Y_pred_1, Y_pred_2)
+    assert_array_almost_equal(scores_1, scores_2)
 
 
 ###############################################################################

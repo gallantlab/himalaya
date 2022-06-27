@@ -593,15 +593,22 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
         else:
             n_targets_batch = None
 
+        if getattr(self, "fit_intercept", False):
+            intercept = self.intercept_
+        else:
+            intercept = None
+
         if self.dual_coef_.ndim == 1:
             Y_hat = predict_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
                 deltas=self.deltas_[:, None], split=split,
-                n_targets_batch=n_targets_batch)[..., 0]
+                n_targets_batch=n_targets_batch, intercept=intercept)[..., 0]
         else:
             Y_hat = predict_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_,
-                split=split, n_targets_batch=n_targets_batch)
+                split=split, n_targets_batch=n_targets_batch,
+                intercept=intercept)
+
         return Y_hat
 
     @force_cpu_backend
@@ -652,16 +659,21 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             n_targets_batch = None
 
         score_func = r2_score_split if split else r2_score
+        if getattr(self, "fit_intercept", False):
+            intercept = self.intercept_
+        else:
+            intercept = None
 
         if self.dual_coef_.ndim == 1:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_[:, None],
                 deltas=self.deltas_[:, None], Y=y[:, None], split=split,
-                score_func=score_func, n_targets_batch=n_targets_batch)[..., 0]
+                score_func=score_func, intercept=intercept,
+                n_targets_batch=n_targets_batch)[..., 0]
         else:
             score = predict_and_score_weighted_kernel_ridge(
                 Ks=Ks, dual_weights=self.dual_coef_, deltas=self.deltas_, Y=y,
-                split=split, score_func=score_func,
+                split=split, score_func=score_func, intercept=intercept,
                 n_targets_batch=n_targets_batch)
         return score
 
@@ -768,6 +780,10 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         See more details in the docstring of the function:
         ``MultipleKernelRidgeCV.ALL_SOLVERS[solver]``
 
+    fit_intercept : boolean
+        Whether to fit an intercept.
+        If False, X and Y must be zero-mean over samples.
+
     cv : int or scikit-learn splitter
         Cross-validation splitter. If an int, KFold is used.
 
@@ -785,6 +801,9 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     ----------
     dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)
         Representation of weight vectors in kernel space.
+
+    intercept_ : float or array of shape (n_targets, )
+        Intercept. Only present if fit_intercept is True.
 
     deltas_ : array of shape (n_kernels, n_targets)
         Log of kernel weights.
@@ -837,12 +856,14 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
     ALL_SOLVERS = MULTIPLE_KERNEL_RIDGE_SOLVERS
 
     def __init__(self, kernels=["linear", "polynomial"], kernels_params=None,
-                 solver="random_search", solver_params=None, cv=5,
-                 random_state=None, Y_in_cpu=False, force_cpu=False):
+                 solver="random_search", solver_params=None,
+                 fit_intercept=False, cv=5, random_state=None, Y_in_cpu=False,
+                 force_cpu=False):
         self.kernels = kernels
         self.kernels_params = kernels_params
         self.solver = solver
         self.solver_params = solver_params
+        self.fit_intercept = fit_intercept
         self.cv = cv
         self.random_state = random_state
         self.Y_in_cpu = Y_in_cpu
@@ -912,18 +933,23 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         # ------------------ call the solver
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
                                 Xs=None, random_state=self.random_state,
+                                fit_intercept=self.fit_intercept,
                                 Y_in_cpu=self.Y_in_cpu)
 
         # ------------------ store results
         self.deltas_, self.dual_coef_, self.cv_scores_ = tmp[:3]
         tmp = list(tmp[3:])
 
-        if self.solver_params.get("return_alphas", False):
+        if (self.solver_params is not None
+                and self.solver_params.get("return_alphas", False)):
             self.best_alphas_ = tmp.pop(0)
         elif self.solver == "random_search":
             self.best_alphas_ = 1. / backend.exp(self.deltas_).sum(0)
         else:
             self.best_alphas_ = None
+
+        if self.fit_intercept:
+            self.intercept_ = tmp.pop(0)
 
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
