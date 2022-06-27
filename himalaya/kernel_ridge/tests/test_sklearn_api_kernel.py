@@ -518,6 +518,17 @@ def test_kernel_ridge_auto_solver(backend):
     assert model_1.solver_ == "eigenvalues"
 
 
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_multiple_kernel_ridge_return_alphas(backend):
+    backend = set_backend(backend)
+    Xs, Ks, Y = _create_dataset(backend)
+
+    model_1 = MultipleKernelRidgeCV(solver_params=dict(
+        n_iter=1,
+        return_alphas=True,
+    )).fit(Xs[0], Y)
+
+
 ###############################################################################
 ###############################################################################
 ###############################################################################

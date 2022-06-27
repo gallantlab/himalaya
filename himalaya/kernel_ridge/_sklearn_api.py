@@ -913,9 +913,14 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         tmp = self._call_solver(Ks=Ks, Y=y, cv=cv, return_weights="dual",
                                 Xs=None, random_state=self.random_state,
                                 Y_in_cpu=self.Y_in_cpu)
-        self.deltas_, self.dual_coef_, self.cv_scores_ = tmp
 
-        if self.solver == "random_search":
+        # ------------------ store results
+        self.deltas_, self.dual_coef_, self.cv_scores_ = tmp[:3]
+        tmp = list(tmp[3:])
+
+        if self.solver_params.get("return_alphas", False):
+            self.best_alphas_ = tmp.pop(0)
+        elif self.solver == "random_search":
             self.best_alphas_ = 1. / backend.exp(self.deltas_).sum(0)
         else:
             self.best_alphas_ = None

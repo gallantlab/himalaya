@@ -4,7 +4,8 @@ Changelog
 Development Version
 -------------------
 
-- 
+- FIX avoid error in :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`
+  with ``solver_params(return_alphas=True)``.
 
 Version 0.4.0
 -------------
