@@ -85,7 +85,7 @@ This is equivalent to solving a ridge regression:
 
 where the feature space :math:`X_i` is scaled by a group scaling :math:`Z_i =
 e^{\delta_i} X_i`. The hyperparameters :math:`\delta_i = - \log(\alpha_i)` are
-then learned over cross-validation.
+then learned over cross-validation [4]_. 
 
 .. admonition:: This model is implemented in
 
@@ -160,3 +160,6 @@ References
 .. [3] Nunez-Elizalde, A. O., Huth, A. G., & Gallant, J. L. (2019). Voxelwise
   encoding models with non-spherical multivariate normal priors. Neuroimage,
   197, 482-492.
+
+.. [4] Dupré La Tour, T., Eickenberg, M., Nunez-Elizalde, A.O., & Gallant, J. L. (2022).
+   Feature-space selection with banded ridge regression. bioRxiv.

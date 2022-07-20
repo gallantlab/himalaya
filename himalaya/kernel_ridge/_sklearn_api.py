@@ -597,6 +597,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             intercept = self.intercept_
         else:
             intercept = None
+            
 
         if self.dual_coef_.ndim == 1:
             Y_hat = predict_weighted_kernel_ridge(
