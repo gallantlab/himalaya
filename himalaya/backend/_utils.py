@@ -3,7 +3,6 @@ import importlib
 import warnings
 from functools import wraps
 
-
 ALL_BACKENDS = [
     "numpy",
     "cupy",
@@ -110,3 +109,20 @@ def force_cpu_backend(func):
         return result
 
     return wrapper
+
+
+_already_warned = [False]
+
+
+def warn_if_not_float32(dtype):
+    """Warn if X is not float32."""
+    if _already_warned[0]:  # avoid warning multiple times
+        return None
+
+    if _dtype_to_str(dtype) != "float32":
+        backend = get_backend()
+        warnings.warn(
+            f"GPU backend {backend.name} is much faster with single "
+            f"precision floats (float32), got input in {dtype}. "
+            "Consider casting your data to float32.", UserWarning)
+        _already_warned[0] = True

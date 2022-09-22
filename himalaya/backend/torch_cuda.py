@@ -11,6 +11,7 @@ if not torch.cuda.is_available():
     raise RuntimeError("PyTorch with CUDA is not available.")
 
 from ._utils import _dtype_to_str
+from ._utils import warn_if_not_float32
 
 ###############################################################################
 
@@ -55,6 +56,7 @@ def check_arrays(*all_inputs):
     all_tensors = []
     all_tensors.append(asarray(all_inputs[0]))
     dtype = all_tensors[0].dtype
+    warn_if_not_float32(dtype)
     device = all_tensors[0].device
     for tensor in all_inputs[1:]:
         if tensor is None:

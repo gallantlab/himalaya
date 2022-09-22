@@ -7,6 +7,8 @@ except ImportError as error:
         pytest.skip("Cupy not installed.")
     raise ImportError("Cupy not installed.") from error
 
+from ._utils import warn_if_not_float32
+
 ###############################################################################
 
 
@@ -182,6 +184,7 @@ def check_arrays(*all_inputs):
     all_arrays = []
     all_arrays.append(asarray(all_inputs[0]))
     dtype = all_arrays[0].dtype
+    warn_if_not_float32(dtype)
     for tensor in all_inputs[1:]:
         if tensor is None:
             pass
