@@ -117,22 +117,23 @@ def generate_multikernel_dataset(n_kernels=4, n_targets=500,
     if n_features_list is None:
         n_features_list = np.full(n_kernels, fill_value=1000)
 
+    rng = check_random_state(random_state)
+
     # Then, generate a random dataset, using the arbitrary scalings.
     Xs_train, Xs_test = [], []
     Y_train, Y_test = None, None
     for ii in range(n_kernels):
         n_features = n_features_list[ii]
 
-        X_train = backend.randn(n_samples_train, n_features)
-        X_test = backend.randn(n_samples_test, n_features)
+        X_train = rng.randn(n_samples_train, n_features)
+        X_test = rng.randn(n_samples_test, n_features)
         X_train -= X_train.mean(0)
         X_test -= X_test.mean(0)
         Xs_train.append(X_train)
         Xs_test.append(X_test)
 
-        weights = backend.randn(n_features, n_targets) / n_features
-        weights *= backend.asarray_like(kernel_weights[:, ii],
-                                        ref=weights) ** 0.5
+        weights = rng.randn(n_features, n_targets) / n_features
+        weights *= kernel_weights[:, ii] ** 0.5
 
         if ii == 0:
             Y_train = X_train @ weights
@@ -145,15 +146,17 @@ def generate_multikernel_dataset(n_kernels=4, n_targets=500,
     Y_train /= std
     Y_test /= std
 
-    Y_train += backend.randn(n_samples_train, n_targets) * noise
-    Y_test += backend.randn(n_samples_test, n_targets) * noise
+    Y_train += rng.randn(n_samples_train, n_targets) * noise
+    Y_test += rng.randn(n_samples_test, n_targets) * noise
     Y_train -= Y_train.mean(0)
     Y_test -= Y_test.mean(0)
 
     # Concatenate the feature spaces.
-    X_train = backend.asarray(backend.concatenate(Xs_train, 1),
-                              dtype="float32")
-    X_test = backend.asarray(backend.concatenate(Xs_test, 1), dtype="float32")
+    X_train = backend.asarray(np.concatenate(Xs_train, 1), dtype="float32")
+    X_test = backend.asarray(np.concatenate(Xs_test, 1), dtype="float32")
+    Y_train = backend.asarray(Y_train, dtype="float32")
+    Y_test = backend.asarray(Y_test, dtype="float32")
+    kernel_weights = backend.asarray(kernel_weights, dtype="float32")
 
     return X_train, X_test, Y_train, Y_test, kernel_weights, n_features_list
 
