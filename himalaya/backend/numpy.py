@@ -1,3 +1,7 @@
+"""The "numpy" CPU backend, based on NumPy.
+
+To use this backend, call ``himalaya.backend.set_backend("numpy")``.
+"""
 import numpy as np
 try:
     import scipy.linalg as linalg

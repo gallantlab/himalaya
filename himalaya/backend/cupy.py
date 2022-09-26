@@ -1,3 +1,7 @@
+"""The "cupy" GPU backend, based on CuPy.
+
+To use this backend, call ``himalaya.backend.set_backend("cupy")``.
+"""
 try:
     import cupy
 except ImportError as error:

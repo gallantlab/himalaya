@@ -1,3 +1,7 @@
+"""The "torch" CPU backend, based on PyTorch.
+
+To use this backend, call ``himalaya.backend.set_backend("torch")``.
+"""
 from functools import partial
 
 try:

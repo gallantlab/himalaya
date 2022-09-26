@@ -1,5 +1,7 @@
-"""Used for testing on GPU."""
+"""The "torch_cuda" GPU backend, based on PyTorch.
 
+To use this backend, call ``himalaya.backend.set_backend("torch_cuda")``.
+"""
 from .torch import *  # noqa
 import torch
 
