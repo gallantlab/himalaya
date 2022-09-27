@@ -169,9 +169,9 @@ Developers can also install ``himalaya`` in editable mode via:
 Cite this package
 =================
 
-If you use ``himalaya`` in your work, please give it a star and cite our
+If you use ``himalaya`` in your work, please give it a star, and cite our
 publication:
 
 .. [1] Dupré La Tour, T., Eickenberg, M., Nunez-Elizalde, A.O., & Gallant, J. L. (2022).
    Feature-space selection with banded ridge regression.
-   [`bioRxiv <https://www.biorxiv.org/content/10.1101/2022.05.05.490831v1>`_].
+   [`bioRxiv <https://www.biorxiv.org/content/10.1101/2022.05.05.490831v2>`_].
