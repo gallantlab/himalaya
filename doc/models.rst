@@ -162,4 +162,4 @@ References
   197, 482-492.
 
 .. [4] Dupré La Tour, T., Eickenberg, M., Nunez-Elizalde, A.O., & Gallant, J. L. (2022).
-   Feature-space selection with banded ridge regression. bioRxiv.
+   Feature-space selection with banded ridge regression. NeuroImage.
