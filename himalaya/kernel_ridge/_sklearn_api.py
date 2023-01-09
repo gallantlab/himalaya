@@ -987,41 +987,42 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
     Parameters
     ----------
     alpha : float, or array of shape (n_targets, )
-        L2 regularization parameter.
+        L2 regularization parameter. This parameter is partly redundant with
+        ``deltas``, because the effective kernel weights are::
+        ``exp(deltas)/alpha``. If refitting a model with fixed hyperparameters
+        learned with MultipleKernelRidgeCV, this parameter must be set to 1,
+        and the deltas must be set to MultipleKernelRidgeCV().deltas_.
 
     deltas : array of shape (n_kernels, ) or (n_kernels, n_targets)
-        Kernel weights.
-        Default to "zeros", an array of shape (n_kernels, ) filled with zeros.
+        Log of kernel weights. Default to "zeros", an array of shape
+        (n_kernels, ) filled with zeros.
 
     kernels : list of (str or callable), default=["linear", "polynomial"]
-        List of kernel mapping. Available kernels are: 'linear',
-        'polynomial, 'poly', 'rbf', 'sigmoid', 'cosine'.
-        Set to 'precomputed' in order to pass a precomputed kernel matrix to
-        the estimator methods instead of samples.
-        A callable should accept two arguments and the keyword arguments passed
-        to this object as kernel_params, and should return a floating point
-        number.
+        List of kernel mapping. Available kernels are: 'linear', 'polynomial,
+        'poly', 'rbf', 'sigmoid', 'cosine'. Set to 'precomputed' in order to
+        pass a precomputed kernel matrix to the estimator methods instead of
+        samples. A callable should accept two arguments and the keyword
+        arguments passed to this object as kernel_params, and should return a
+        floating point number.
 
     kernels_params : list of dict, or None
-        Additional parameters for the kernel functions.
-        See more details in the docstring of the function:
-        ``WeightedKernelRidge.ALL_KERNELS[kernel]``
+        Additional parameters for the kernel functions. See more details in the
+        docstring of the function: ``WeightedKernelRidge.ALL_KERNELS[kernel]``
 
     solver : str
         Algorithm used during the fit, "conjugate_gradient", or
         "gradient_descent".
 
     solver_params : dict or None
-        Additional parameters for the solver.
-        See more details in the docstring of the function:
-        ``WeightedKernelRidge.ALL_SOLVERS[solver]``
+        Additional parameters for the solver. See more details in the docstring
+        of the function: ``WeightedKernelRidge.ALL_SOLVERS[solver]``
 
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
 
     force_cpu : bool
-        If True, computations will be performed on CPU, ignoring the
-        current backend. If False, use the current backend.
+        If True, computations will be performed on CPU, ignoring the current
+        backend. If False, use the current backend.
 
     Attributes
     ----------
