@@ -40,7 +40,7 @@ def _create_dataset(backend, n_targets=4):
 
 @pytest.mark.parametrize('local_alpha', [True, False])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_multiple_kernel_ridge_random_search_local_alphah(
+def test_solve_multiple_kernel_ridge_random_search_local_alpha(
         backend, local_alpha):
     _test_solve_multiple_kernel_ridge_random_search(backend=backend,
                                                     local_alpha=local_alpha)

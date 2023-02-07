@@ -4,6 +4,8 @@ Changelog
 Development Version
 -------------------
 
+- ENH add better error message when torch.linalg.eigh fails.
+
 Version 0.4.1
 -------------
 (*February 2023*)

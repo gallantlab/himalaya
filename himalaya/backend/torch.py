@@ -14,6 +14,7 @@ except ImportError as error:
     raise ImportError("PyTorch not installed.") from error
 
 from ._utils import _dtype_to_str
+from ._utils import _add_error_message
 
 ###############################################################################
 
@@ -288,18 +289,24 @@ def check_arrays(*all_inputs):
     return all_tensors
 
 
-def svd(X, full_matrices=True):
-    try:
-        U, s, Vh = torch.linalg.svd(X, full_matrices=full_matrices)
-    except AttributeError:
-        # torch.__version__ < 1.8
+try:
+    svd = torch.linalg.svd
+except AttributeError:
+    # torch.__version__ < 1.8
+
+    def svd(X, full_matrices=True):
         U, s, V = torch.svd(X, some=not full_matrices)
         Vh = V.transpose(-2, -1)
-    return U, s, Vh
+        return U, s, Vh
 
 
 try:
-    eigh = torch.linalg.eigh
+    eigh = _add_error_message(
+        torch.linalg.eigh,
+        msg=(f"The eigenvalues decomposition failed on backend {name}. You may"
+             " try using `diagonalize_method='svd'`, or `solver_params={"
+             "'diagonalize_method': 'svd'}` if called through the class API."))
+
 except AttributeError:
     # torch.__version__ < 1.8
     eigh = partial(torch.symeig, eigenvectors=True)

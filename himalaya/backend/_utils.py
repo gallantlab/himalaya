@@ -111,6 +111,20 @@ def force_cpu_backend(func):
     return wrapper
 
 
+def _add_error_message(func, msg=""):
+    """Decorator to add a custom error message to a function."""
+
+    @wraps(func)
+    def with_error_message(*args, **kwargs):
+        try:
+            return func(*args, **kwargs)
+        except Exception as e:
+            raise RuntimeError(
+                f"{msg}\nOriginal error:\n{type(e).__name__}: {e}")
+
+    return with_error_message
+
+
 _already_warned = [False]
 
 
