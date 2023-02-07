@@ -303,11 +303,12 @@ def solve_group_ridge_random_search(
                             backend.arange(len(used_alphas))[alpha_batch],
                             alphas_indices[mask2])
                         # update corresponding weights
-                        tmp = weights[alphas_indices, :,
-                                      backend.arange(weights.shape[2])[mask2]]
+                        mask_target = backend.arange(weights.shape[2])
+                        mask_target = backend.to_gpu(mask_target)[mask2]
+                        tmp = weights[alphas_indices, :, mask_target]
                         primal_weights[:, batch][:, backend.to_cpu(mask2)] = \
                             backend.to_cpu(tmp).T
-                        del weights, alphas_indices, mask2
+                        del weights, alphas_indices, mask2, mask_target
                     del matrix
 
                 # multiply again by np.sqrt(g), as we then want to use

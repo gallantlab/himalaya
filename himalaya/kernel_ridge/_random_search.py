@@ -322,7 +322,7 @@ def solve_multiple_kernel_ridge_random_search(
                         tmp = weights[alphas_indices, :, mask_target]
                         dual_weights[:, batch][:, backend.to_cpu(mask2)] = \
                             backend.to_cpu(tmp).T
-                        del weights, alphas_indices, mask2
+                        del weights, alphas_indices, mask2, mask_target
                     del matrix
 
                 if return_weights == 'primal':
