@@ -4,10 +4,15 @@ Changelog
 Development Version
 -------------------
 
+Version 0.4.1
+-------------
+(*February 2023*)
+
 - FIX avoid error in :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`
   with ``solver_params(return_alphas=True)``.
 - ENH add ``fit_intercept`` in
   :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`.
+- FIX torch 1.13.1 requires tensor masks to be on the same device as tensors.
 
 Version 0.4.0
 -------------
@@ -17,7 +22,6 @@ Version 0.4.0
 - FIX comply with most recent scikit-learn's check_estimator.
 - FIX avoid an indexing error in the hypergradient solver, when early stopping
   after different numbers of iterations for different batches.
-
 
 Version 0.3.6
 -------------
