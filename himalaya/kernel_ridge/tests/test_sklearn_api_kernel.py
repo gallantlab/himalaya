@@ -254,15 +254,15 @@ def test_kernel_ridge_wrong_solver(backend):
         model.fit(X, Y)
 
 
-@pytest.mark.parametrize('solver', ['eigenvalues'])
+@pytest.mark.parametrize('solver', ['eigenvalues', 'svd'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_cv_precomputed(backend, solver):
     backend = set_backend(backend)
     Xs, Ks, Y = _create_dataset(backend)
 
-    model_1 = KernelRidgeCV(kernel="linear")
+    model_1 = KernelRidgeCV(kernel="linear", solver=solver)
     model_1.fit(Xs[0], Y)
-    model_2 = KernelRidgeCV(kernel="precomputed")
+    model_2 = KernelRidgeCV(kernel="precomputed", solver=solver)
     model_2.fit(Ks[0], Y)
 
     assert_array_almost_equal(model_1.dual_coef_, model_2.dual_coef_)
@@ -388,7 +388,7 @@ def test_kernel_ridge_cv_predict(backend):
     assert_array_almost_equal(model_0.predict(Ks.sum(0)), model_1.predict(Ks))
 
 
-@pytest.mark.parametrize('solver', ['eigenvalues'])
+@pytest.mark.parametrize('solver', ['eigenvalues', 'svd'])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_kernel_ridge_cv_Y_in_cpu(backend, solver):
     backend = set_backend(backend)

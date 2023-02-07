@@ -7,7 +7,7 @@ from sklearn.utils.validation import check_is_fitted
 from ._solvers import KERNEL_RIDGE_SOLVERS
 from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
 from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
-from ._random_search import solve_kernel_ridge_cv_eigenvalues
+from ._random_search import KERNEL_RIDGE_CV_SOLVERS
 from ._kernels import pairwise_kernels
 from ._kernels import PAIRWISE_KERNEL_FUNCTIONS
 from ._predictions import predict_weighted_kernel_ridge
@@ -376,8 +376,8 @@ class KernelRidgeCV(KernelRidge):
         See more details in the docstring of the function:
         ``KernelRidgeCV.ALL_KERNELS[kernel]``
 
-    solver : str
-        Algorithm used during the fit, "eigenvalues" only for now.
+    solver : str in {'eigenvalues', 'svd'}
+        Algorithm used during the fit. 'svd' is slower but more stable.
 
     solver_params : dict or None
         Additional parameters for the solver.
@@ -433,7 +433,7 @@ class KernelRidgeCV(KernelRidge):
     >>> clf.fit(X, Y)
     KernelRidgeCV()
     """
-    ALL_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues)
+    ALL_SOLVERS = KERNEL_RIDGE_CV_SOLVERS
 
     def __init__(self, alphas=[0.1, 1], kernel="linear", kernel_params=None,
                  solver="eigenvalues", solver_params=None, fit_intercept=False,

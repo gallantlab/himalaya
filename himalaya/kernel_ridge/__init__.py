@@ -11,6 +11,8 @@ from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
 from ._random_search import solve_multiple_kernel_ridge_random_search
 from ._random_search import generate_dirichlet_samples
 from ._random_search import solve_kernel_ridge_cv_eigenvalues
+from ._random_search import solve_kernel_ridge_cv_svd
+from ._random_search import KERNEL_RIDGE_CV_SOLVERS
 from ._predictions import predict_weighted_kernel_ridge
 from ._predictions import predict_and_score_weighted_kernel_ridge
 from ._predictions import primal_weights_kernel_ridge
@@ -36,10 +38,12 @@ __all__ = [
     "solve_weighted_kernel_ridge_conjugate_gradient",
     "solve_weighted_kernel_ridge_neumann_series",
     "solve_kernel_ridge_cv_eigenvalues",
+    "solve_kernel_ridge_cv_svd",
     "solve_kernel_ridge_eigenvalues",
     "solve_kernel_ridge_gradient_descent",
     "solve_kernel_ridge_conjugate_gradient",
     "KERNEL_RIDGE_SOLVERS",
+    "KERNEL_RIDGE_CV_SOLVERS",
     "WEIGHTED_KERNEL_RIDGE_SOLVERS",
     # multiple kernel ridge solvers
     "MULTIPLE_KERNEL_RIDGE_SOLVERS",

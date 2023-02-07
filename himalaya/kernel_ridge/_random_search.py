@@ -1,6 +1,7 @@
 import os
 import warnings
 import numbers
+from functools import partial
 
 import numpy as np
 
@@ -588,12 +589,11 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
         del matrices
 
 
-def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
-                                      cv=5, fit_intercept=False,
-                                      local_alpha=True, n_targets_batch=None,
-                                      n_targets_batch_refit=None,
-                                      n_alphas_batch=None, conservative=False,
-                                      Y_in_cpu=False):
+def solve_kernel_ridge_cv_eigenvalues(
+        K, Y, alphas=1.0, score_func=l2_neg_loss, cv=5, fit_intercept=False,
+        local_alpha=True, n_targets_batch=None, n_targets_batch_refit=None,
+        n_alphas_batch=None, conservative=False, Y_in_cpu=False,
+        diagonalize_method="eigh"):
     """Solve kernel ridge regression with a grid search over alphas.
 
     Parameters
@@ -628,6 +628,8 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
         If False, take the best.
     Y_in_cpu : bool
         If True, keep the target values ``Y`` in CPU memory (slower).
+    diagonalize_method : str in {"eigh", "svd"}
+        Method used to diagonalize the kernel.
 
     Returns
     -------
@@ -651,7 +653,8 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
                          n_targets_batch=n_targets_batch,
                          n_targets_batch_refit=n_targets_batch_refit,
                          n_alphas_batch=n_alphas_batch,
-                         conservative=conservative, Y_in_cpu=Y_in_cpu)
+                         conservative=conservative, Y_in_cpu=Y_in_cpu,
+                         diagonalize_method=diagonalize_method)
 
     tmp = solve_multiple_kernel_ridge_random_search(K[None], Y,
                                                     **copied_params,
@@ -666,3 +669,11 @@ def solve_kernel_ridge_cv_eigenvalues(K, Y, alphas=1.0, score_func=l2_neg_loss,
         best_alphas = backend.exp(-deltas[0])
         dual_weights /= backend.to_cpu(best_alphas)
         return best_alphas, dual_weights, cv_scores
+
+
+solve_kernel_ridge_cv_svd = partial(solve_kernel_ridge_cv_eigenvalues,
+                                    diagonalize_method="svd")
+solve_kernel_ridge_cv_svd.__doc__ = solve_kernel_ridge_cv_eigenvalues.__doc__
+
+KERNEL_RIDGE_CV_SOLVERS = dict(eigenvalues=solve_kernel_ridge_cv_eigenvalues,
+                               svd=solve_kernel_ridge_cv_svd)
