@@ -4,9 +4,16 @@ Changelog
 Development Version
 -------------------
 
-- ENH add better error message when torch.linalg.eigh fails.
+- 
+
+Version 0.4.2
+-------------
+(*February 2023*)
+
+- ENH add better error message when ``torch.linalg.eigh`` fails.
 - ENH add :func:`~himalaya.kernel_ridge.solve_kernel_ridge_cv_svd` solver. It
-  can be used with :class:`~himalaya.kernel_ridge.KernelRidgeCV``solver="svd"`.
+  can be used with:class:`~himalaya.kernel_ridge.KernelRidgeCV`
+  ``(solver="svd")``.
 
 Version 0.4.1
 -------------
