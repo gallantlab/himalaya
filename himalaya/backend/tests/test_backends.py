@@ -6,6 +6,9 @@ from himalaya.backend._utils import _dtype_to_str
 from himalaya.utils import assert_array_almost_equal
 
 
+BACKENDS_NO_MPS = ALL_BACKENDS.copy()
+BACKENDS_NO_MPS.remove("torch_mps")
+
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_apply_argmax(backend):
     backend = set_backend(backend)
@@ -151,7 +154,7 @@ def test_svd(backend, full_matrices, three_dim):
 @pytest.mark.parametrize('backend_in', ALL_BACKENDS)
 def test_changed_backend_asarray(backend_in, backend_out):
     backend = set_backend(backend_in)
-    array_in = backend.asarray([1.2, 2.4, 4.8])
+    array_in = backend.asarray([1.2, 2.4, 4.8], dtype="float32")
     assert array_in is not None
 
     # change the backend, and cast to the correct class
@@ -183,6 +186,9 @@ def test_changed_backend_asarray(backend_in, backend_out):
 @pytest.mark.parametrize('backend_out', ALL_BACKENDS)
 @pytest.mark.parametrize('backend_in', ALL_BACKENDS)
 def test_asarray_dtype(backend_in, backend_out, dtype_in, dtype_out):
+    if (backend_in == "torch_mps" and dtype_in == "float64") or \
+            (backend_out == "torch_mps" and dtype_out == "float64"):
+        pytest.skip("torch_mps does not support float64 dtype")
     backend = set_backend(backend_in)
     array_in = backend.asarray([1.2, 2.4, 4.8], dtype=dtype_in)
     assert _dtype_to_str(array_in.dtype) == dtype_in
