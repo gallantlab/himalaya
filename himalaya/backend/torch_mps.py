@@ -106,23 +106,31 @@ def to_gpu(array, device="mps"):
     return asarray(array, device=device)
 
 
-# Workaround to maintain the same API and allow torch_mps
 def std_float64(X, axis=None, demean=True, keepdims=False):
-    """Compute the standard deviation of X with double precision,
-    and cast back the result to original dtype.
+    """Compute the standard deviation of X with double precision on CPU,
+    then cast back the result to original dtype on the original device.
     """
-    X_64 = torch.as_tensor(X, dtype=torch.float32)
-    X_std = (X_64 ** 2).sum(dim=axis, dtype=torch.float32)
+    X_64 = torch.as_tensor(X.to("cpu"), dtype=torch.float64, device="cpu")
+    X_std = (X_64 ** 2).sum(dim=axis, dtype=torch.float64)
     if demean:
-        X_std -= X_64.sum(axis, dtype=torch.float32) ** 2 / X.shape[axis]
+        X_std -= X_64.sum(axis, dtype=torch.float64) ** 2 / X.shape[axis]
     X_std = X_std ** .5
     X_std /= (X.shape[axis] ** .5)
 
-    X_std = torch.as_tensor(X_std, dtype=X.dtype, device=X.device)
+    X_std = torch.as_tensor(X_std, dtype=torch.float32, device=X.device)
     if keepdims:
         X_std = X_std.unsqueeze(dim=axis)
 
     return X_std
 
 
-eigh = torch.linalg.eigh
+def mean_float64(X, axis=None, keepdims=False):
+    """Compute the mean of X with double precision on CPU,
+    then cast back the result to original dtype on the original device.
+    """
+    X_mean = X.to("cpu").sum(axis, dtype=torch.float64) / X.shape[axis]
+
+    X_mean = torch.as_tensor(X_mean, dtype=X.dtype, device=X.device)
+    if keepdims:
+        X_mean = X_mean.unsqueeze(dim=axis)
+    return X_mean
