@@ -176,7 +176,7 @@ def asarray(x, dtype=None, device="cpu"):
         tensor = torch.as_tensor(x, dtype=dtype, device=device)
     except Exception:
         import numpy as np
-        if x.device != "cpu":
+        if torch.is_tensor(x) and x.device != "cpu":
             x = x.cpu()
         array = np.asarray(x, dtype=_dtype_to_str(dtype))
         tensor = torch.as_tensor(array, dtype=dtype, device=device)
