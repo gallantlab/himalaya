@@ -30,6 +30,29 @@ def test_apply_argmax(backend):
 
 @pytest.mark.parametrize('dtype_str', ["float32", "float64"])
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_mean_float64(backend, dtype_str):
+    backend = set_backend(backend)
+    for array in [
+        backend.randn(1),
+        backend.randn(10),
+        backend.randn(10, 1),
+        backend.randn(10, 4),
+        backend.randn(10, 1, 8),
+        backend.randn(10, 4, 8),
+    ]:
+        array = backend.asarray(array, dtype=dtype_str)
+        array_64 = backend.asarray(array, dtype="float64")
+        for axis in range(array.ndim):
+            result = backend.mean_float64(array, axis=axis)
+            reference = backend.to_numpy(array_64).mean(
+                axis=axis, dtype="float64"
+            )
+            reference = backend.asarray(reference, dtype=dtype_str)
+            assert_array_almost_equal(result, reference)
+
+
+@pytest.mark.parametrize('dtype_str', ["float32", "float64"])
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_std_float64(backend, dtype_str):
     backend = set_backend(backend)
     for array in [
@@ -100,15 +123,20 @@ def test_eigh(backend):
     values, vectors = backend.eigh(kernel)
     values_ref, vectors_ref = scipy.linalg.eigh(backend.to_numpy(kernel))
 
-    assert_array_almost_equal(values, values_ref)
+    decimal = 4 if backend.name == "torch_mps" else 6
+    assert_array_almost_equal(values, values_ref, decimal=decimal)
 
     # vectors can be flipped in sign
     assert vectors.shape == vectors_ref.shape
     for ii in range(vectors.shape[1]):
         try:
-            assert_array_almost_equal(vectors[:, ii], vectors_ref[:, ii])
+            assert_array_almost_equal(
+                vectors[:, ii], vectors_ref[:, ii], decimal=decimal
+            )
         except AssertionError:
-            assert_array_almost_equal(vectors[:, ii], -vectors_ref[:, ii])
+            assert_array_almost_equal(
+                vectors[:, ii], -vectors_ref[:, ii], decimal=decimal
+            )
 
 
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
@@ -129,7 +157,8 @@ def test_svd(backend, full_matrices, three_dim):
     U_ref, s_ref, V_ref = numpy.linalg.svd(backend.to_numpy(array),
                                            full_matrices=full_matrices)
 
-    assert_array_almost_equal(s, s_ref)
+    decimal = 4 if backend.name == "torch_mps" else 6
+    assert_array_almost_equal(s, s_ref, decimal=decimal)
 
     if not three_dim:
         U_ref = U_ref[None]
@@ -143,11 +172,19 @@ def test_svd(backend, full_matrices, three_dim):
     for kk in range(U.shape[0]):
         for ii in range(U.shape[2]):
             try:
-                assert_array_almost_equal(U[kk, :, ii], U_ref[kk, :, ii])
-                assert_array_almost_equal(V[kk, ii, :], V_ref[kk, ii, :])
+                assert_array_almost_equal(
+                    U[kk, :, ii], U_ref[kk, :, ii], decimal=decimal
+                )
+                assert_array_almost_equal(
+                    V[kk, ii, :], V_ref[kk, ii, :], decimal=decimal
+                )
             except AssertionError:
-                assert_array_almost_equal(U[kk, :, ii], -U_ref[kk, :, ii])
-                assert_array_almost_equal(V[kk, ii, :], -V_ref[kk, ii, :])
+                assert_array_almost_equal(
+                    U[kk, :, ii], -U_ref[kk, :, ii], decimal=decimal
+                )
+                assert_array_almost_equal(
+                    V[kk, ii, :], -V_ref[kk, ii, :], decimal=decimal
+                )
 
 
 @pytest.mark.parametrize('backend_out', ALL_BACKENDS)
