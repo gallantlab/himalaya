@@ -52,8 +52,9 @@ def test_diagonal_view(backend):
     backend = set_backend(backend)
     try:
         import torch
-    except ImportError:
+    except ImportError as error:
         pytest.skip("PyTorch not installed.")
+        raise ImportError("PyTorch not installed.") from error
     import numpy as np
 
     for array in [

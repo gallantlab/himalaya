@@ -124,8 +124,9 @@ def test_kernel_ridge_vs_scikit_learn_sparse(backend, kernel, format):
 
     try:
         import scipy.sparse
-    except ImportError:
+    except ImportError as error:
         pytest.skip("Scipy is not installed.")
+        raise ImportError("Scipy not installed.") from error
 
     with warnings.catch_warnings():
         warnings.simplefilter('ignore', scipy.sparse.SparseEfficiencyWarning)
