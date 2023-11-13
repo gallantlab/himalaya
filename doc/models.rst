@@ -114,7 +114,7 @@ Then, we can use :math:`K_i = X_i X_i^\top` for different groups of features
     w^* = \arg\min_w \left\|\sum_{i=1}^m e^{\delta_i} K_{i} w - y\right\|_2^2
     + \alpha \sum_{i=1}^m e^{\delta_i} w^\top K_{i} w.
 
-This model is called weighted kernel ridge regresion. The log-kernel-weights
+This model is called weighted kernel ridge regression. The log-kernel-weights
 :math:`\delta_i` are here fixed. When all the targets use the same
 log-kernel-weights, a single weighted kernel can be precomputed and used in a
 kernel ridge regression. However, when the log-kernel-weights are different for

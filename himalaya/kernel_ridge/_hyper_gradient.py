@@ -477,7 +477,7 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
 def _compute_deltas_hessian(exp_delta_chi, residuals):
     """Compute the hessian of the direct gradient.
 
-    The direct gradient correponds to a linear problem:
+    The direct gradient corresponds to a linear problem:
         argmin_delta ||exp(delta) @ chi - Y||^2
     where chi = Ks @ dual_weights.
 

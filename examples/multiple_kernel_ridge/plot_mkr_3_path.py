@@ -72,7 +72,7 @@ pipe = make_pipeline(column_kernelizer, model)
 pipe
 
 ###############################################################################
-# Then, we manually perfom a hyperparameter grid search for the kernel weights.
+# Then, we manually perform a hyperparameter grid search for the kernel weights.
 
 # Make the score method use `split=True` by default.
 model.score = partial(model.score, split=True)

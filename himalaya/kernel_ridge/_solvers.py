@@ -24,7 +24,7 @@ def _weighted_kernel_ridge_gradient(Ks, Y, dual_weights, exp_deltas, alpha=1.,
         Regularization parameter.
     double_K : bool
         If True, multiply the gradient by the kernel to obtain the true
-        gradients, which are less well conditionned.
+        gradients, which are less well conditioned.
     return_objective : bool
         If True, returns the objective function as well as the gradient.
 
@@ -107,7 +107,7 @@ def solve_weighted_kernel_ridge_gradient_descent(
         Tolerance for the stopping criterion.
     double_K : bool
         If True, multiply the gradient by the kernel to obtain the true
-        gradients, which are less well conditionned.
+        gradients, which are less well conditioned.
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
     debug : bool
@@ -681,7 +681,7 @@ def solve_kernel_ridge_gradient_descent(K, Y, alpha=1., fit_intercept=False,
         Tolerance for the stopping criterion.
     double_K : bool
         If True, multiply the gradient by the kernel to obtain the true
-        gradients, which are less well conditionned.
+        gradients, which are less well conditioned.
     random_state : int, or None
         Random generator seed. Use an int for deterministic search.
     debug : bool
@@ -734,7 +734,7 @@ def solve_kernel_ridge_eigenvalues(K, Y, alpha=1., method="eigh",
         If the decomposition leads to negative eigenvalues (wrongly emerging
         from float32 errors):
         - "error" raises an error.
-        - "zeros" remplaces them with zeros.
+        - "zeros" replaces them with zeros.
         - "nan" returns nans if the regularization does not compensate
         twice the smallest negative value, else it ignores the problem.
     n_targets_batch : int or None
