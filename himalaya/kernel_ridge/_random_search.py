@@ -385,7 +385,7 @@ def _select_best_alphas(scores, alphas, local_alpha, conservative):
     -------
     alphas_argmax : array of shape (n_targets, )
         Indices of the best alphas.
-    best_scores_mean : arrya of shape (n_targets, )
+    best_scores_mean : array of shape (n_targets, )
         Scores, averaged over splits, and maximized over alphas.
     """
     backend = get_backend()
@@ -518,7 +518,7 @@ def _decompose_kernel_ridge(Ktrain, alphas, Ktest=None, n_alphas_batch=None,
         If the decomposition leads to negative eigenvalues (wrongly emerging
         from float32 errors):
             - "error" raises an error.
-            - "zeros" remplaces them with zeros.
+            - "zeros" replaces them with zeros.
             - "nan" returns nans if the regularization does not compensate
                 twice the smallest negative value, else it ignores the problem.
 

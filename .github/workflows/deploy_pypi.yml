@@ -18,7 +18,7 @@ jobs:
     - uses: actions/setup-python@v2
 
     - name: Get versions
-      # Compare the latest verion on PyPI, and the current version
+      # Compare the latest version on PyPI, and the current version
       run: |
         python -m pip install --upgrade -q pip
         pip index versions himalaya

@@ -31,7 +31,7 @@ def solve_ridge_svd(X, Y, alpha=1., method="svd", fit_intercept=False,
         If the decomposition leads to negative eigenvalues (wrongly emerging
         from float32 errors):
         - "error" raises an error.
-        - "zeros" remplaces them with zeros.
+        - "zeros" replaces them with zeros.
         - "nan" returns nans if the regularization does not compensate
         twice the smallest negative value, else it ignores the problem.
     n_targets_batch : int or None
