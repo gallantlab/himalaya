@@ -1,16 +1,17 @@
-from sklearn.compose import ColumnTransformer
-from sklearn.compose import make_column_selector  # noqa
+from packaging import version
+
+import sklearn
 from sklearn.base import BaseEstimator, TransformerMixin
+from sklearn.compose import (
+    ColumnTransformer,
+    make_column_selector,  # noqa
+)
+from sklearn.pipeline import _name_estimators, make_pipeline
 from sklearn.utils.validation import check_is_fitted
-from sklearn.pipeline import make_pipeline, _name_estimators
 
-from ..backend import get_backend
-from ..backend import force_cpu_backend
-from ..validation import check_array
-from ..validation import _get_string_dtype
-
-from ._kernels import pairwise_kernels
-from ._kernels import PAIRWISE_KERNEL_FUNCTIONS
+from ..backend import force_cpu_backend, get_backend
+from ..validation import _get_string_dtype, check_array
+from ._kernels import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
 
 
 class Kernelizer(TransformerMixin, BaseEstimator):
@@ -363,8 +364,17 @@ class ColumnKernelizer(ColumnTransformer):
         """
         check_is_fitted(self)
 
+        if version.parse(sklearn.__version__) < version.parse("1.4"):
+            iter_kwargs = {"replace_strings": True}
+        else:
+            iter_kwargs = {
+                "column_as_labels": False, 
+                "skip_drop": True, 
+                "skip_empty_columns": True
+            }
+
         Xs = []
-        for (_, trans, _, _) in self._iter(fitted=True, replace_strings=True):
+        for (_, trans, _, _) in self._iter(fitted=True, **iter_kwargs):
             if hasattr(trans, "get_X_fit"):
                 X = trans.get_X_fit()
             else:
