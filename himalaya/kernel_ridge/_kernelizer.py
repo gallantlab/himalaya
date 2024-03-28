@@ -336,7 +336,7 @@ class ColumnKernelizer(ColumnTransformer):
 
             yield (name, trans, column, weight)
 
-    def _hstack(self, Xs):
+    def _hstack(self, Xs, **kwargs):
         """Stack the kernels.
 
         In ColumnTransformer, this methods stacks Xs horizontally.
