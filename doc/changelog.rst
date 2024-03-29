@@ -6,6 +6,12 @@ Development Version
 
 - 
 
+Version 0.4.3
+-------------
+(*March 2024*)
+
+- FIX update `~himalaya.kernel_ridge.ColumnKernelizer` for scikit-learn versions > 1.4
+
 Version 0.4.2
 -------------
 (*February 2023*)
