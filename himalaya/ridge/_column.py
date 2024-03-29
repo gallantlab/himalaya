@@ -129,7 +129,7 @@ class ColumnTransformerNoStack(ColumnTransformer):
     (2, 4, 4)
     """
 
-    def _hstack(self, Xs):
+    def _hstack(self, Xs, **kwargs):
         """Do *not* stack the feature spaces.
 
         In ColumnTransformer, this methods stacks Xs horizontally.

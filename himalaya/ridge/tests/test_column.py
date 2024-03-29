@@ -40,7 +40,7 @@ def test_column_transformer_remainder(backend):
     backend = set_backend(backend)
     X = np.random.randn(10, 5)
 
-    ct = ColumnTransformerNoStack([("name", "passthrough", [])],
+    ct = ColumnTransformerNoStack([("name", "passthrough", slice(0, 0))],
                                   remainder="passthrough")
     Xt = ct.fit_transform(X)
     assert len(Xt) == 2
