@@ -111,7 +111,7 @@ def to_numpy(array):
 def isin(x, y):
     import numpy as np  # XXX
     np_result = np.isin(to_numpy(x), to_numpy(y))
-    return asarray(np_result, dtype=cupy.bool)
+    return asarray(np_result, dtype=bool)
 
 
 def searchsorted(x, y):
