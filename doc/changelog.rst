@@ -6,6 +6,12 @@ Development Version
 
 - 
 
+Version 0.4.4
+-------------
+(*March 2024*)
+
+- FIX cupy boolean dtype
+
 Version 0.4.3
 -------------
 (*March 2024*)
