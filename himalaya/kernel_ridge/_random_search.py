@@ -195,7 +195,7 @@ def solve_multiple_kernel_ridge_random_search(
         warnings.warn("Skip fit because HIMALAYA_SKIP_FIT=True.")
         # skip the loop by emptying the gammas candidates
         gammas = gammas[:0]
-        # fill with fake weights, to avoid gettings only zeros.
+        # fill with fake weights, to avoid getting only zeros.
         refit_weights += (backend.arange(n_targets)[None] + 1) / n_targets
 
     ###########################################################################
