@@ -245,7 +245,7 @@ class ColumnKernelizer(ColumnTransformer):
         If True, computations will be performed on CPU, ignoring the
         current backend. If False, use the current backend.
 
-    force_int_remainder_colsbool, default=True
+    force_int_remainder_cols : bool, default=True
         Force the columns of the last entry of transformers_, which corresponds 
         to the “remainder” transformer, to always be stored as indices (int) 
         rather than column names (str). 
@@ -313,7 +313,8 @@ class ColumnKernelizer(ColumnTransformer):
     kernelizer = False
 
     def __init__(self, transformers, remainder='drop', n_jobs=None,
-                 transformer_weights=None, verbose=False, force_cpu=False, force_int_remainder_cols=True):
+                 transformer_weights=None, verbose=False, force_cpu=False,
+                 force_int_remainder_cols=True):
         self.transformers = transformers
         self.remainder = remainder
         self.sparse_threshold = 0
