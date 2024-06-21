@@ -47,4 +47,4 @@ jobs:
 
     - name: Run codecov
       run: |
-        codecov
+        codecov --token ${{ secrets.CODECOV_TOKEN }}
