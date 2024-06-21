@@ -2,7 +2,10 @@ import numbers
 import warnings
 
 import numpy as np
-from numpy.core.numeric import ComplexWarning
+try:
+    from numpy.core.numeric import ComplexWarning
+except ImportError:
+    from numpy.exceptions import ComplexWarning
 
 try:
     from scipy.sparse import issparse
