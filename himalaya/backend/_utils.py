@@ -8,6 +8,7 @@ ALL_BACKENDS = [
     "cupy",
     "torch",
     "torch_cuda",
+    "torch_mps",
 ]
 
 CURRENT_BACKEND = "numpy"
@@ -17,6 +18,7 @@ MATCHING_CPU_BACKEND = {
     "cupy": "numpy",
     "torch": "torch",
     "torch_cuda": "torch",
+    "torch_mps": "torch",
 }
 
 
