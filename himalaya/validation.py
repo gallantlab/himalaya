@@ -263,7 +263,7 @@ def _assert_all_finite(X, force_all_finite, numpy=False, batch_size=2 ** 24):
 
     for start in range(0, np.prod(X.shape), batch_size):
         batch = slice(start, start + batch_size)
-        X_batch = X.flatten()[batch]
+        X_batch = X.ravel()[batch]
 
         if backend.any(backend.isinf(X_batch)):
             raise ValueError(msg)
