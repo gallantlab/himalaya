@@ -1,5 +1,6 @@
 import re
 from pathlib import Path
+
 from setuptools import find_packages, setup
 
 # get version from himalaya/__init__.py
@@ -18,6 +19,7 @@ long_description = (this_directory / "README.rst").read_text()
 requirements = [
     "numpy",
     "scikit-learn",
+    "sklearn-compat"  # for backward compatibility
     # "cupy",  # optional backend
     # "torch",  # optional backend, 1.9+ preferred
     # "matplotlib",  # for visualization only

@@ -3,18 +3,17 @@ import warnings
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
+from sklearn_compat.utils.validation import validate_data
 
-from himalaya.backend import set_backend
-from himalaya.backend import get_backend
-from himalaya.backend import ALL_BACKENDS
+from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
+from himalaya.kernel_ridge import (
+    KernelRidge,
+    KernelRidgeCV,
+    MultipleKernelRidgeCV,
+    WeightedKernelRidge,
+)
+from himalaya.ridge import Ridge, RidgeCV
 from himalaya.utils import assert_array_almost_equal
-
-from himalaya.ridge import Ridge
-from himalaya.ridge import RidgeCV
-from himalaya.kernel_ridge import KernelRidge
-from himalaya.kernel_ridge import KernelRidgeCV
-from himalaya.kernel_ridge import MultipleKernelRidgeCV
-from himalaya.kernel_ridge import WeightedKernelRidge
 
 
 def _create_dataset(backend):
@@ -564,12 +563,15 @@ class KernelRidge_(KernelRidge):
 
     def predict(self, X):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
         from himalaya.scoring import r2_score
+        from himalaya.validation import check_array
         backend = get_backend()
+
+        X, y = validate_data(self, X, y, reset=False)
 
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
@@ -595,12 +597,15 @@ class KernelRidgeCV_(KernelRidgeCV):
 
     def predict(self, X):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
         from himalaya.scoring import r2_score
+        from himalaya.validation import check_array
         backend = get_backend()
+
+        X, y = validate_data(self, X, y, reset=False)
 
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
@@ -627,10 +632,12 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
 
     def predict(self, X, split=False):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
+        X, y = validate_data(self, X, y, reset=False)
         return backend.to_numpy(super().score(X, y, split=split))
 
 
@@ -651,10 +658,12 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     def predict(self, X, split=False):
         backend = get_backend()
+        X = validate_data(X, reset=False)
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
+        X, y = validate_data(X, y, reset=False)
         return backend.to_numpy(super().score(X, y, split=split))
 
 

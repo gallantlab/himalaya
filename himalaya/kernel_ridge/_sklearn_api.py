@@ -1,27 +1,33 @@
-from abc import ABC, abstractmethod
 import warnings
+from abc import ABC, abstractmethod
+from dataclasses import dataclass, field, fields
 
-from sklearn.base import BaseEstimator, RegressorMixin, MultiOutputMixin
+from sklearn.base import BaseEstimator, MultiOutputMixin, RegressorMixin
 from sklearn.utils.validation import check_is_fitted
+from sklearn_compat.utils._tags import Tags
 
-from ._solvers import KERNEL_RIDGE_SOLVERS
-from ._solvers import WEIGHTED_KERNEL_RIDGE_SOLVERS
+from ..backend import force_cpu_backend, get_backend
+from ..scoring import r2_score, r2_score_split
+from ..validation import _get_string_dtype, check_array, check_cv, issparse
 from ._hyper_gradient import MULTIPLE_KERNEL_RIDGE_SOLVERS
+from ._kernels import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
+from ._predictions import (
+    predict_and_score_weighted_kernel_ridge,
+    predict_weighted_kernel_ridge,
+    primal_weights_weighted_kernel_ridge,
+)
 from ._random_search import KERNEL_RIDGE_CV_SOLVERS
-from ._kernels import pairwise_kernels
-from ._kernels import PAIRWISE_KERNEL_FUNCTIONS
-from ._predictions import predict_weighted_kernel_ridge
-from ._predictions import predict_and_score_weighted_kernel_ridge
-from ._predictions import primal_weights_weighted_kernel_ridge
+from ._solvers import KERNEL_RIDGE_SOLVERS, WEIGHTED_KERNEL_RIDGE_SOLVERS
 
-from ..validation import check_array
-from ..validation import check_cv
-from ..validation import issparse
-from ..validation import _get_string_dtype
-from ..backend import get_backend
-from ..backend import force_cpu_backend
-from ..scoring import r2_score
-from ..scoring import r2_score_split
+
+@dataclass
+class MyTagsKR(Tags):
+    require_y: bool = True
+    _xfail_checks: dict = field(default_factory=lambda: {
+        'check_sample_weights_invariance':
+        'zero sample_weight is not equivalent to removing samples, '
+        'because of the cross-validation splits.',
+    })
 
 
 class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
@@ -60,6 +66,22 @@ class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
 
     def _more_tags(self):
         return {'requires_y': True}
+
+    def __sklearn_tags__(self):
+        tags_orig = super().__sklearn_tags__()
+        as_dict = {
+            field.name: getattr(tags_orig, field.name)
+            for field in fields(tags_orig)
+        }
+        as_dict["input_tags"].sparse = True  # allow sparse input
+        tags = MyTagsKR(**as_dict)
+        tags.requires_y = True
+        tags._xfail_checks = {
+            'check_sample_weights_invariance':
+            'zero sample_weight is not equivalent to removing samples, '
+            'because of the cross-validation splits.',
+        }
+        return tags
 
 
 class KernelRidge(_BaseKernelRidge):
@@ -539,6 +561,22 @@ class KernelRidgeCV(KernelRidge):
                 'because of the cross-validation splits.',
             }
         }
+    
+    def __sklearn_tags__(self):
+        tags_orig = super().__sklearn_tags__()
+        as_dict = {
+            field.name: getattr(tags_orig, field.name)
+            for field in fields(tags_orig)
+        }
+        as_dict["input_tags"].sparse = True  # allow sparse input
+        tags = MyTagsKR(**as_dict)
+        tags.requires_y = True
+        tags._xfail_checks = {
+            'check_sample_weights_invariance':
+            'zero sample_weight is not equivalent to removing samples, '
+            'because of the cross-validation splits.',
+        }
+        return tags
 
 
 ###############################################################################
@@ -966,6 +1004,21 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
                 'because of the cross-validation splits.',
             }
         }
+
+    def __sklearn_tags__(self):
+        tags_orig = super().__sklearn_tags__()
+        as_dict = {
+            field.name: getattr(tags_orig, field.name)
+            for field in fields(tags_orig)
+        }
+        as_dict["input_tags"].sparse = True  # allow sparse input
+        tags = MyTagsKR(**as_dict)
+        tags._xfail_checks = {
+            'check_sample_weights_invariance':
+            'zero sample_weight is not equivalent to removing samples, '
+            'because of the cross-validation splits.',
+        }
+        return tags
 
 
 class WeightedKernelRidge(_BaseWeightedKernelRidge):

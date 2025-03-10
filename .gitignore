@@ -10,6 +10,7 @@ __pycache__
 htmlcov/
 build/
 dist/
+.cache
 
 # Documentation build
 doc/_build/

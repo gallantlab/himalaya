@@ -1,17 +1,12 @@
-from himalaya.scoring import r2_score
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
+from sklearn_compat.utils.validation import validate_data
 
-from himalaya.backend import set_backend
-from himalaya.backend import get_backend
-from himalaya.backend import ALL_BACKENDS
+from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
+from himalaya.ridge import GroupRidgeCV, Ridge, RidgeCV, solve_group_ridge_random_search
+from himalaya.scoring import r2_score
 from himalaya.utils import assert_array_almost_equal
-
-from himalaya.ridge import Ridge
-from himalaya.ridge import RidgeCV
-from himalaya.ridge import GroupRidgeCV
-from himalaya.ridge import solve_group_ridge_random_search
 
 
 def _create_dataset(backend):
@@ -146,13 +141,15 @@ class Ridge_(Ridge):
 
     def predict(self, X):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
         from himalaya.scoring import r2_score
+        from himalaya.validation import check_array
         backend = get_backend()
 
+        X, y = validate_data(self, X, y, reset=False)
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
@@ -176,13 +173,15 @@ class RidgeCV_(RidgeCV):
 
     def predict(self, X):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
         from himalaya.scoring import r2_score
+        from himalaya.validation import check_array
         backend = get_backend()
 
+        X, y = validate_data(self, X, y, reset=False)
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
@@ -214,10 +213,12 @@ class GroupRidgeCV_(GroupRidgeCV):
 
     def predict(self, X, split=False):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
+        X, y = validate_data(self, X, y, reset=False)
         return backend.to_numpy(super().score(X, y, split=split))
 
 
