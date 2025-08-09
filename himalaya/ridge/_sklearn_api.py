@@ -163,7 +163,7 @@ class Ridge(_BaseRidge):
         Y_hat : array of shape (n_samples,) or (n_samples, n_targets)
             Returns predicted values.
         """
-        check_is_fitted(self)
+        check_is_fitted(self, ['coef_', 'dtype_'])
         backend = get_backend()
         X = check_array(X, dtype=self.dtype_, ndim=2)
         if X.shape[1] != self.n_features_in_:

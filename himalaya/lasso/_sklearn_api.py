@@ -104,17 +104,12 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
         self : returns an instance of self.
         """
         # Use custom validate_data for sklearn compatibility and backend support
-        if y is None:
-            X = validate_data(self, X, accept_sparse=False, ndim=2)
-        else:
-            X, y = validate_data(self, X, y, validate_separately=True, 
-                               accept_sparse=False, ndim=2)
+        # This will handle y=None validation based on estimator tags
+        X, y = validate_data(self, X, y, validate_separately=True, 
+                           accept_sparse=False, ndim=2)
         self.dtype_ = _get_string_dtype(X)
-        # Ensure y has correct dtype and dimensions (only if y is not None)
-        if y is not None:
-            y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
-        if y is None:
-            raise ValueError("y cannot be None for SparseGroupLassoCV")
+        # Ensure y has correct dtype and dimensions
+        y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
         
         cv = check_cv(self.cv, y)
         ravel = False
@@ -190,8 +185,17 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
         score : array of shape (n_targets, )
             R^2 of self.predict(X) versus y.
         """
-        y_pred = self.predict(X)
+        # Validate data once to avoid double validation
+        check_is_fitted(self, ['coef_'])
+        # Get dtype from fitted estimator, fallback to default if not available
+        dtype = getattr(self, 'dtype_', ["float32", "float64"])
+        X_validated = validate_data(self, X, reset=False, dtype=dtype, accept_sparse=False, ndim=2)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
+        
+        # Use internal prediction logic to avoid re-validation
+        backend = get_backend()
+        y_pred = backend.to_numpy(X_validated) @ backend.to_numpy(self.coef_)
+        y_pred = backend.asarray_like(y_pred, ref=X_validated)
 
         if y_true.ndim == 1:
             return r2_score(y_true[:, None], y_pred[:, None])[0]

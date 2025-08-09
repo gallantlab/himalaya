@@ -1,12 +1,14 @@
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
-from himalaya._sklearn_compat import validate_data
+from sklearn.utils.validation import check_is_fitted
 
+from himalaya._sklearn_compat import validate_data
 from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
 from himalaya.ridge import GroupRidgeCV, Ridge, RidgeCV, solve_group_ridge_random_search
 from himalaya.scoring import r2_score
 from himalaya.utils import assert_array_almost_equal
+from himalaya.validation import check_array
 
 
 def _create_dataset(backend):
@@ -141,12 +143,12 @@ class Ridge_(Ridge):
 
     def predict(self, X):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main Ridge predict method
+        check_is_fitted(self, ['coef_', 'dtype_'])
+        X = check_array(X, dtype=self.dtype_, ndim=2)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.scoring import r2_score
-        from himalaya.validation import check_array
         backend = get_backend()
 
         X, y = validate_data(self, X, y, reset=False, validate_separately=True)
@@ -173,12 +175,12 @@ class RidgeCV_(RidgeCV):
 
     def predict(self, X):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main RidgeCV predict method  
+        check_is_fitted(self, ['coef_', 'dtype_'])
+        X = check_array(X, dtype=self.dtype_, ndim=2)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.scoring import r2_score
-        from himalaya.validation import check_array
         backend = get_backend()
 
         X, y = validate_data(self, X, y, reset=False, validate_separately=True)
@@ -213,7 +215,9 @@ class GroupRidgeCV_(GroupRidgeCV):
 
     def predict(self, X, split=False):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main GroupRidgeCV predict method
+        check_is_fitted(self, ['coef_', 'dtype_'])
+        X = check_array(X, dtype=self.dtype_, ndim=2) 
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):

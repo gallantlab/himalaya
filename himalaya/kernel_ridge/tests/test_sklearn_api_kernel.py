@@ -3,9 +3,12 @@ import warnings
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
-from himalaya._sklearn_compat import validate_data
+from sklearn.utils.validation import check_is_fitted
 
+from himalaya._sklearn_compat import validate_data
 from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
+from himalaya.scoring import r2_score
+from himalaya.validation import check_array, issparse
 from himalaya.kernel_ridge import (
     KernelRidge,
     KernelRidgeCV,
@@ -563,12 +566,13 @@ class KernelRidge_(KernelRidge):
 
     def predict(self, X):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main KernelRidge predict method
+        check_is_fitted(self, ['dual_coef_', 'dtype_'])
+        accept_sparse = False if self.kernel == "precomputed" else ("csr", "csc")
+        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse, ndim=2)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.scoring import r2_score
-        from himalaya.validation import check_array
         backend = get_backend()
 
         X, y = validate_data(self, X, y, reset=False, validate_separately=True)
@@ -597,12 +601,13 @@ class KernelRidgeCV_(KernelRidgeCV):
 
     def predict(self, X):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main KernelRidgeCV predict method
+        check_is_fitted(self, ['dual_coef_', 'dtype_'])
+        accept_sparse = False if self.kernel == "precomputed" else ("csr", "csc")
+        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse, ndim=2)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.scoring import r2_score
-        from himalaya.validation import check_array
         backend = get_backend()
 
         X, y = validate_data(self, X, y, reset=False, validate_separately=True)
@@ -632,7 +637,11 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
 
     def predict(self, X, split=False):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main MultipleKernelRidgeCV predict method
+        check_is_fitted(self, ['dual_coef_', 'dtype_'])
+        ndim = 3 if self.kernels == "precomputed" else 2
+        accept_sparse = False if self.kernels == "precomputed" else ("csr", "csc")
+        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse, ndim=ndim)
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
@@ -658,7 +667,11 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     def predict(self, X, split=False):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main WeightedKernelRidge predict method
+        check_is_fitted(self, ['dual_coef_', 'dtype_'])
+        ndim = 3 if self.kernels == "precomputed" else 2
+        accept_sparse = False if self.kernels == "precomputed" else ("csr", "csc")
+        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse, ndim=ndim)
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):

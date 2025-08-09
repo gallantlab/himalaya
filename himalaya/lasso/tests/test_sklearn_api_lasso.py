@@ -1,10 +1,13 @@
 import pytest
 import sklearn.utils.estimator_checks
+from sklearn.utils.validation import check_is_fitted
 
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya._sklearn_compat import validate_data
+from himalaya.validation import check_array
+from himalaya.scoring import r2_score
 
 from himalaya.lasso import SparseGroupLassoCV
 
@@ -25,17 +28,26 @@ class SparseGroupLassoCV_(SparseGroupLassoCV):
 
     def predict(self, X):
         backend = get_backend()
-        X = validate_data(self, X, reset=False)
+        # Use check_array directly like the main SparseGroupLassoCV predict method
+        check_is_fitted(self, ['coef_'])
+        # Get dtype from fitted estimator, fallback to default if not available
+        dtype = getattr(self, 'dtype_', ["float32", "float64"])
+        X = check_array(X, dtype=dtype, accept_sparse=False, ndim=2)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
-        from himalaya.scoring import r2_score
         backend = get_backend()
 
-        X = validate_data(self, X, reset=False)
-        y_pred = super().predict(X)
+        # Validate data once to avoid double validation
+        check_is_fitted(self, ['coef_'])
+        # Get dtype from fitted estimator, fallback to default if not available
+        dtype = getattr(self, 'dtype_', ["float32", "float64"])
+        X = check_array(X, dtype=dtype, accept_sparse=False, ndim=2)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
+        
+        # Use internal prediction logic to avoid re-validation
+        Y_hat = backend.to_numpy(X) @ backend.to_numpy(self.coef_)
+        y_pred = backend.asarray_like(Y_hat, ref=X)
 
         if y_true.ndim == 1:
             return backend.to_numpy(

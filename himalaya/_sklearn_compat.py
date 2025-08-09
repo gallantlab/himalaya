@@ -190,6 +190,16 @@ def validate_data(estimator, X, y=None, reset=True, validate_separately=False,
     from .validation import check_array
     
     if y is None:
+        # Check if the estimator requires y based on its tags
+        if _HAS_NEW_TAGS and hasattr(estimator, '__sklearn_tags__'):
+            tags = estimator.__sklearn_tags__()
+            if hasattr(tags, 'target_tags') and tags.target_tags.required:
+                raise ValueError(f"This {estimator.__class__.__name__} estimator requires y to be passed, but the target y is None.")
+        elif hasattr(estimator, '_more_tags'):
+            tags = estimator._more_tags()
+            if tags.get('requires_y', True):
+                raise ValueError(f"This {estimator.__class__.__name__} estimator requires y to be passed, but the target y is None.")
+        
         # Only validate X
         X_validated = check_array(X, **check_params)
         
@@ -220,7 +230,8 @@ def validate_data(estimator, X, y=None, reset=True, validate_separately=False,
             X_validated = check_array(X, **check_params)
             y_check_params = check_params.copy()
             y_check_params.pop('accept_sparse', None)  
-            y_check_params.pop('ndim', None)  # Allow y flexible dimensions
+            # Consistent with validate_separately=True: always allow flexible y dimensions
+            y_check_params['ndim'] = [1, 2]
             y_validated = check_array(y, **y_check_params)
         
         # Check consistent number of samples

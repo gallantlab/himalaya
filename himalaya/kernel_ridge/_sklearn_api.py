@@ -251,7 +251,7 @@ class KernelRidge(_BaseKernelRidge):
         Y_hat : array of shape (n_samples,) or (n_samples, n_targets)
             Returns predicted values.
         """
-        check_is_fitted(self)
+        check_is_fitted(self, ['dual_coef_', 'dtype_'])
         backend = get_backend()
         accept_sparse = False if self.kernel == "precomputed" else ("csr",
                                                                     "csc")
@@ -559,7 +559,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             If parameter split is True, the array is of shape
             (n_kernels, n_samples,) or (n_kernels, n_samples, n_targets).
         """
-        check_is_fitted(self)
+        check_is_fitted(self, ['dual_coef_', 'dtype_'])
 
         ndim = 3 if self.kernels == "precomputed" else 2
         accept_sparse = False if self.kernels == "precomputed" else ("csr",
