@@ -1,7 +1,7 @@
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
-from sklearn_compat.utils.validation import validate_data
+from himalaya._sklearn_compat import validate_data
 
 from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
 from himalaya.ridge import GroupRidgeCV, Ridge, RidgeCV, solve_group_ridge_random_search

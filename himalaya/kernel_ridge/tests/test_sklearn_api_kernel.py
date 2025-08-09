@@ -3,7 +3,7 @@ import warnings
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
-from sklearn_compat.utils.validation import validate_data
+from himalaya._sklearn_compat import validate_data
 
 from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
 from himalaya.kernel_ridge import (
@@ -658,12 +658,12 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     def predict(self, X, split=False):
         backend = get_backend()
-        X = validate_data(X, reset=False)
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
-        X, y = validate_data(X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False)
         return backend.to_numpy(super().score(X, y, split=split))
 
 

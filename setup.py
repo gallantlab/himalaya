@@ -19,7 +19,7 @@ long_description = (this_directory / "README.rst").read_text()
 requirements = [
     "numpy",
     "scikit-learn",
-    "sklearn-compat"  # for backward compatibility
+    "packaging",  # for version parsing in sklearn compatibility
     # "cupy",  # optional backend
     # "torch",  # optional backend, 1.9+ preferred
     # "matplotlib",  # for visualization only

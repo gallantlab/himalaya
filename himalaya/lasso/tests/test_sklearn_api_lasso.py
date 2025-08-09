@@ -4,6 +4,7 @@ import sklearn.utils.estimator_checks
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
+from himalaya._sklearn_compat import validate_data
 
 from himalaya.lasso import SparseGroupLassoCV
 
@@ -24,6 +25,7 @@ class SparseGroupLassoCV_(SparseGroupLassoCV):
 
     def predict(self, X):
         backend = get_backend()
+        X = validate_data(self, X, reset=False)
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
@@ -31,6 +33,7 @@ class SparseGroupLassoCV_(SparseGroupLassoCV):
         from himalaya.scoring import r2_score
         backend = get_backend()
 
+        X = validate_data(self, X, reset=False)
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 

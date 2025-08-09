@@ -1,22 +1,17 @@
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, fields
 
 from sklearn.base import BaseEstimator, MultiOutputMixin, RegressorMixin
 from sklearn.utils.validation import check_is_fitted
-from sklearn_compat.utils._tags import Tags
 
 from ..backend import force_cpu_backend, get_backend
 from ..scoring import r2_score, r2_score_split
 from ..validation import _get_string_dtype, check_array, check_cv
+from .._sklearn_compat import setup_ridge_tags
 from ._random_search import GROUP_RIDGE_SOLVERS, solve_ridge_cv_svd
 from ._solvers import RIDGE_SOLVERS
 
 
-@dataclass
-class MyTags(Tags):
-    require_y: bool = True
-
-
+@setup_ridge_tags
 class _BaseRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
     """Base class for ridge estimators"""
 
@@ -44,18 +39,6 @@ class _BaseRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
 
         return function(**direct_params, **solver_params)
 
-    def _more_tags(self):
-        return {'requires_y': True}
-
-    def __sklearn_tags__(self):
-        tags_orig = super().__sklearn_tags__()
-        as_dict = {
-            field.name: getattr(tags_orig, field.name)
-            for field in fields(tags_orig)
-        }
-        tags = MyTags(**as_dict)
-        tags.requires_y = True
-        return tags
 
 
 class Ridge(_BaseRidge):
