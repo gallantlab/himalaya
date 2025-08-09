@@ -213,8 +213,7 @@ def validate_data(estimator, X, y=None, reset=True, validate_separately=False,
             y_check_params = check_params.copy()
             y_check_params.pop('accept_sparse', None)  # y typically shouldn't be sparse
             # Allow y to have flexible dimensions (1D or 2D)
-            if 'ndim' in y_check_params:
-                y_check_params['ndim'] = [1, 2]
+            y_check_params['ndim'] = [1, 2]  # Always allow flexible y dimensions
             y_validated = check_array(y, **y_check_params)
         else:
             # Use default check_array approach - allow y to be flexible

@@ -571,7 +571,7 @@ class KernelRidge_(KernelRidge):
         from himalaya.validation import check_array
         backend = get_backend()
 
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
 
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
@@ -605,7 +605,7 @@ class KernelRidgeCV_(KernelRidgeCV):
         from himalaya.validation import check_array
         backend = get_backend()
 
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
 
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.dual_coef_.ndim)
@@ -637,7 +637,7 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
 
     def score(self, X, y, split=False):
         backend = get_backend()
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
         return backend.to_numpy(super().score(X, y, split=split))
 
 
@@ -663,7 +663,7 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     def score(self, X, y, split=False):
         backend = get_backend()
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
         return backend.to_numpy(super().score(X, y, split=split))
 
 

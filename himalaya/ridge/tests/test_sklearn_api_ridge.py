@@ -149,7 +149,7 @@ class Ridge_(Ridge):
         from himalaya.validation import check_array
         backend = get_backend()
 
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
@@ -181,7 +181,7 @@ class RidgeCV_(RidgeCV):
         from himalaya.validation import check_array
         backend = get_backend()
 
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
         y_pred = super().predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
@@ -218,7 +218,7 @@ class GroupRidgeCV_(GroupRidgeCV):
 
     def score(self, X, y, split=False):
         backend = get_backend()
-        X, y = validate_data(self, X, y, reset=False)
+        X, y = validate_data(self, X, y, reset=False, validate_separately=True)
         return backend.to_numpy(super().score(X, y, split=split))
 
 
