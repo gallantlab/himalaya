@@ -5,6 +5,7 @@ from ._group_lasso import solve_sparse_group_lasso_cv
 
 from ..validation import check_array
 from ..validation import check_cv
+from ..validation import validate_data
 from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..backend import force_cpu_backend
@@ -101,13 +102,11 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
         -------
         self : returns an instance of self.
         """
-        X = check_array(X, accept_sparse=False, ndim=2)
+        X, y = validate_data(self, X, y, reset=True, accept_sparse=False, ndim=2)
         self.dtype_ = _get_string_dtype(X)
         y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
         if X.shape[0] != y.shape[0]:
             raise ValueError("Inconsistent number of samples.")
-
-        self.n_features_in_ = X.shape[1]
         cv = check_cv(self.cv, y)
         ravel = False
         if y.ndim == 1:
@@ -159,10 +158,7 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
         """
         backend = get_backend()
         check_is_fitted(self)
-        X = check_array(X, dtype=self.dtype_, accept_sparse=False, ndim=2)
-        if X.shape[1] != self.n_features_in_:
-            raise ValueError(
-                'Different number of features in X than during fit.')
+        X = validate_data(self, X, reset=False, dtype=self.dtype_, accept_sparse=False, ndim=2)
         Y_hat = backend.to_numpy(X) @ backend.to_numpy(self.coef_)
         return backend.asarray_like(Y_hat, ref=X)
 
@@ -183,7 +179,7 @@ class SparseGroupLassoCV(MultiOutputMixin, RegressorMixin, BaseEstimator):
         score : array of shape (n_targets, )
             R^2 of self.predict(X) versus y.
         """
-        y_pred = self.predict(X, y)
+        y_pred = self.predict(X)
         y_true = check_array(y, dtype=self.dtype_, ndim=self.coef_.ndim)
 
         if y_true.ndim == 1:
