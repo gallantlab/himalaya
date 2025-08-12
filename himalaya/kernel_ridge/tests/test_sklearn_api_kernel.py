@@ -2,20 +2,20 @@ import warnings
 
 import numpy as np
 import pytest
+import sklearn
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
+from packaging import version
 
-from himalaya.backend import set_backend
-from himalaya.backend import get_backend
-from himalaya.backend import ALL_BACKENDS
+from himalaya.backend import ALL_BACKENDS, get_backend, set_backend
+from himalaya.kernel_ridge import (
+    KernelRidge,
+    KernelRidgeCV,
+    MultipleKernelRidgeCV,
+    WeightedKernelRidge,
+)
+from himalaya.ridge import Ridge, RidgeCV
 from himalaya.utils import assert_array_almost_equal
-
-from himalaya.ridge import Ridge
-from himalaya.ridge import RidgeCV
-from himalaya.kernel_ridge import KernelRidge
-from himalaya.kernel_ridge import KernelRidgeCV
-from himalaya.kernel_ridge import MultipleKernelRidgeCV
-from himalaya.kernel_ridge import WeightedKernelRidge
 
 
 def _create_dataset(backend):
@@ -568,8 +568,8 @@ class KernelRidge_(KernelRidge):
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
         from himalaya.scoring import r2_score
+        from himalaya.validation import check_array
         backend = get_backend()
 
         y_pred = super().predict(X)
@@ -604,8 +604,8 @@ class KernelRidgeCV_(KernelRidgeCV):
         return backend.to_numpy(super().predict(X))
 
     def score(self, X, y):
-        from himalaya.validation import check_array
         from himalaya.scoring import r2_score
+        from himalaya.validation import check_array
         backend = get_backend()
 
         y_pred = super().predict(X)
@@ -700,12 +700,17 @@ def expected_failed_checks(estimator):
     return {}
 
 
+# Handle sklearn version compatibility for expected_failed_checks parameter
+parametrize_kwargs = {}
+if version.parse(sklearn.__version__) >= version.parse("1.6"):
+    parametrize_kwargs['expected_failed_checks'] = expected_failed_checks
+
 @sklearn.utils.estimator_checks.parametrize_with_checks([
     KernelRidge_(),
     KernelRidgeCV_(),
     MultipleKernelRidgeCV_(),
     WeightedKernelRidge_(),
-], expected_failed_checks=expected_failed_checks)
+], **parametrize_kwargs)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
