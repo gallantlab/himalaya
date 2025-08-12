@@ -678,12 +678,33 @@ class WeightedKernelRidge_(WeightedKernelRidge):
         return tags
 
 
+def expected_failed_checks(estimator):
+    """Return expected failed checks for sklearn 1.6+ compatibility.
+
+    This replaces the deprecated _xfail_checks mechanism.
+    """
+    estimator_name = estimator.__class__.__name__
+
+    # Only handle estimators that previously had _xfail_checks
+    if estimator_name in ['KernelRidgeCV_', 'MultipleKernelRidgeCV_']:
+        return {
+            'check_sample_weight_equivalence_on_dense_data':
+            'zero sample_weight is not equivalent to removing samples, '
+            'because of the cross-validation splits.',
+            'check_sample_weight_equivalence_on_sparse_data':
+            'zero sample_weight is not equivalent to removing samples, '
+            'because of the cross-validation splits.',
+        }
+
+    return {}
+
+
 @sklearn.utils.estimator_checks.parametrize_with_checks([
     KernelRidge_(),
     KernelRidgeCV_(),
     MultipleKernelRidgeCV_(),
     WeightedKernelRidge_(),
-])
+], expected_failed_checks=expected_failed_checks)
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
