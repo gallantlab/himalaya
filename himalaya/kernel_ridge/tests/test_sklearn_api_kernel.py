@@ -580,6 +580,11 @@ class KernelRidge_(KernelRidge):
         else:
             return backend.to_numpy(r2_score(y_true, y_pred))
 
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.input_tags.sparse = True
+        return tags
+
 
 class KernelRidgeCV_(KernelRidgeCV):
     """Cast predictions to numpy arrays, to be used in scikit-learn tests.
@@ -611,6 +616,11 @@ class KernelRidgeCV_(KernelRidgeCV):
         else:
             return backend.to_numpy(r2_score(y_true, y_pred))
 
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.input_tags.sparse = True
+        return tags
+
 
 class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
     """Cast predictions to numpy arrays, to be used in scikit-learn tests.
@@ -632,6 +642,11 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
     def score(self, X, y, split=False):
         backend = get_backend()
         return backend.to_numpy(super().score(X, y, split=split))
+
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.input_tags.sparse = True
+        return tags
 
 
 class WeightedKernelRidge_(WeightedKernelRidge):
@@ -656,6 +671,11 @@ class WeightedKernelRidge_(WeightedKernelRidge):
     def score(self, X, y, split=False):
         backend = get_backend()
         return backend.to_numpy(super().score(X, y, split=split))
+
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.input_tags.sparse = True
+        return tags
 
 
 @sklearn.utils.estimator_checks.parametrize_with_checks([
