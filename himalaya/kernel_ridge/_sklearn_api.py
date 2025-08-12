@@ -61,6 +61,11 @@ class _BaseKernelRidge(ABC, MultiOutputMixin, RegressorMixin, BaseEstimator):
     def _more_tags(self):
         return {'requires_y': True}
 
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.target_tags.required = True
+        return tags
+
 
 class KernelRidge(_BaseKernelRidge):
     """Kernel ridge regression.
@@ -540,6 +545,11 @@ class KernelRidgeCV(KernelRidge):
             }
         }
 
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        # Note: _xfail_checks is excluded as it's deprecated in sklearn 1.6+
+        return tags
+
 
 ###############################################################################
 ###############################################################################
@@ -966,6 +976,11 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
                 'because of the cross-validation splits.',
             }
         }
+
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        # Note: _xfail_checks is excluded as it's deprecated in sklearn 1.6+
+        return tags
 
 
 class WeightedKernelRidge(_BaseWeightedKernelRidge):
