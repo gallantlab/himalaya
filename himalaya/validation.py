@@ -283,6 +283,81 @@ def _get_string_dtype(array):
     return _dtype_to_str(dtype)
 
 
+def validate_data(estimator, X='no_validation', y='no_validation', reset=True, **check_params):
+    """Input validation for estimators that wraps check_array with n_features_in_ management.
+    
+    This function provides sklearn 1.6+ compatible input validation by wrapping
+    the existing check_array function and managing the n_features_in_ attribute
+    for sklearn compatibility.
+    
+    Parameters
+    ----------
+    estimator : object
+        The estimator instance for which to validate data.
+    X : array-like, default='no_validation'
+        Input data to validate. If 'no_validation', skip X validation.
+    y : array-like, default='no_validation'  
+        Target data to validate. If 'no_validation', skip y validation.
+    reset : bool, default=True
+        Whether to reset the n_features_in_ attribute. Set to True during fit(),
+        False during predict().
+    **check_params : dict
+        Additional parameters to pass to check_array for X validation.
+        
+    Returns
+    -------
+    X_validated : array-like or 'no_validation'
+        Validated input data.
+    y_validated : array-like or 'no_validation'  
+        Validated target data.
+    """
+    # Handle X validation
+    validate_X = not (isinstance(X, str) and X == 'no_validation')
+    if validate_X:
+        X_validated = check_array(X, **check_params)
+        
+        # Manage n_features_in_ attribute
+        if reset:
+            # During fit: store number of features
+            estimator.n_features_in_ = X_validated.shape[1]
+        else:
+            # During predict: check consistency with stored value
+            if hasattr(estimator, 'n_features_in_'):
+                if X_validated.shape[1] != estimator.n_features_in_:
+                    raise ValueError(
+                        f"X has {X_validated.shape[1]} features, but {estimator.__class__.__name__} "
+                        f"is expecting {estimator.n_features_in_} features as input."
+                    )
+    else:
+        X_validated = X
+        
+    # Handle y validation  
+    validate_y = not (isinstance(y, str) and y == 'no_validation')
+    if validate_y:
+        # For y, we don't pass all check_params, just extract relevant ones
+        y_check_params = {k: v for k, v in check_params.items() 
+                         if k in ['dtype', 'accept_sparse', 'copy', 'force_all_finite', 'device']}
+        # y typically has different ndim requirements
+        if 'ndim' not in y_check_params:
+            y_check_params['ndim'] = [1, 2]
+        y_validated = check_array(y, **y_check_params)
+    else:
+        y_validated = y
+        
+    # Return appropriate format based on what was validated
+    if validate_X and validate_y:
+        return X_validated, y_validated
+    elif validate_X:
+        return X_validated
+    elif validate_y:
+        return y_validated
+    else:
+        # Return 'no_validation' if only that was passed (matches sklearn behavior)
+        if X == 'no_validation' and y == 'no_validation':
+            return 'no_validation'
+        return None
+
+
 def check_cv(cv, y):
     """Check the cross-validation generator object.
 

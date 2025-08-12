@@ -9,6 +9,7 @@ from ._random_search import solve_ridge_cv_svd
 
 from ..validation import check_array
 from ..validation import check_cv
+from ..validation import validate_data
 from ..validation import _get_string_dtype
 from ..backend import get_backend
 from ..backend import force_cpu_backend
@@ -132,13 +133,11 @@ class Ridge(_BaseRidge):
         self : returns an instance of self.
         """
         # backend = get_backend()
-        X = check_array(X, ndim=2)
+        X, y = validate_data(self, X, y, reset=True, ndim=2)
         self.dtype_ = _get_string_dtype(X)
         y = check_array(y, dtype=self.dtype_, ndim=[1, 2])
         if X.shape[0] != y.shape[0]:
             raise ValueError("Inconsistent number of samples.")
-
-        self.n_features_in_ = X.shape[1]
 
         ravel = False
         if y.ndim == 1:
@@ -176,10 +175,7 @@ class Ridge(_BaseRidge):
         """
         check_is_fitted(self)
         backend = get_backend()
-        X = check_array(X, dtype=self.dtype_, ndim=2)
-        if X.shape[1] != self.n_features_in_:
-            raise ValueError(
-                'Different number of features in X than during fit.')
+        X = validate_data(self, X, reset=False, dtype=self.dtype_, ndim=2)
 
         Y_hat = backend.to_cpu(X) @ backend.to_cpu(self.coef_)
         if self.fit_intercept:
@@ -305,7 +301,7 @@ class RidgeCV(Ridge):
         self : returns an instance of self.
         """
         # backend = get_backend()
-        X = check_array(X, ndim=2)
+        X, y = validate_data(self, X, y, reset=True, ndim=2)
         self.dtype_ = _get_string_dtype(X)
         device = "cpu" if self.Y_in_cpu else None
         y = check_array(y, dtype=self.dtype_, ndim=[1, 2], device=device)
@@ -313,7 +309,6 @@ class RidgeCV(Ridge):
             raise ValueError("Inconsistent number of samples.")
 
         alphas = check_array(self.alphas, dtype=self.dtype_, ndim=1)
-        self.n_features_in_ = X.shape[1]
 
         ravel = False
         if y.ndim == 1:
@@ -483,10 +478,16 @@ class GroupRidgeCV(_BaseRidge):
         """
         backend = get_backend()
 
-        Xs = self._split_groups(X, check=True)
+        # For GroupRidgeCV, we need special handling since X might be a list
+        if isinstance(self.groups, str) and self.groups == "input":
+            # X is a list of arrays - validate each and set n_features_in_ manually
+            Xs = self._split_groups(X, check=True)
+            self.n_features_in_ = sum(Xi.shape[1] for Xi in Xs)
+        else:
+            # X is a single array - use validate_data
+            X = validate_data(self, X, reset=True, ndim=2)
+            Xs = self._split_groups(X, check=False)
         del X
-
-        self.n_features_in_ = sum(Xi.shape[1] for Xi in Xs)
 
         self.dtype_ = _get_string_dtype(Xs[0])
         device = "cpu" if self.Y_in_cpu else None
@@ -553,12 +554,20 @@ class GroupRidgeCV(_BaseRidge):
         backend = get_backend()
         check_is_fitted(self)
 
-        Xs = self._split_groups(X, dtype=self.dtype_, check=True)
-
-        n_features = sum(Xi.shape[1] for Xi in Xs)
-        if n_features != self.n_features_in_:
-            raise ValueError(
-                'Different number of features in X than during fit.')
+        # For GroupRidgeCV, we need special handling since X might be a list
+        if isinstance(self.groups, str) and self.groups == "input":
+            # X is a list of arrays - validate each and check n_features_in_ manually
+            Xs = self._split_groups(X, dtype=self.dtype_, check=True)
+            n_features = sum(Xi.shape[1] for Xi in Xs)
+            if n_features != self.n_features_in_:
+                raise ValueError(
+                    f'X has {n_features} features, but {self.__class__.__name__} '
+                    f'is expecting {self.n_features_in_} features as input.'
+                )
+        else:
+            # X is a single array - use validate_data
+            X = validate_data(self, X, reset=False, dtype=self.dtype_, ndim=2)
+            Xs = self._split_groups(X, check=False)
         if split:
             if self.fit_intercept:
                 raise NotImplementedError(
