@@ -310,7 +310,7 @@ class KernelRidge(_BaseKernelRidge):
     def _get_kernel(self, X, Y=None):
         backend = get_backend()
         kernel_params = self.kernel_params or {}
-        if Y is not None and not issparse(X):
+        if Y is not None and not issparse(X) and not issparse(Y):
             Y = backend.asarray_like(Y, ref=X)
         kernel = pairwise_kernels(X, Y, metric=self.kernel, **kernel_params)
         return backend.asarray(kernel)
@@ -695,7 +695,7 @@ class _BaseWeightedKernelRidge(_BaseKernelRidge):
             n_kernels = len(self.kernels)
             kernels_params = self.kernels_params or [{}] * n_kernels
 
-            if Y is not None and not issparse(X):
+            if Y is not None and not issparse(X) and not issparse(Y):
                 Y = backend.asarray_like(Y, ref=X)
 
             kernels = []
