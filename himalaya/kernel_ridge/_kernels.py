@@ -182,10 +182,15 @@ def linear_kernel(X, Y=None):
     backend = get_backend()
     X, Y = check_pairwise_arrays(X, Y)
 
-    K = X @ Y.T
-    if issparse(K):
-        K = K.toarray()
-    K = backend.asarray(K)
+    # Convert to backend arrays before matrix operations to handle transpose properly
+    if issparse(X):
+        X = X.toarray()
+    if issparse(Y):
+        Y = Y.toarray()
+    X = backend.asarray(X)
+    Y = backend.asarray(Y)
+    
+    K = backend.matmul(X, backend.transpose(Y))
     return K
 
 
