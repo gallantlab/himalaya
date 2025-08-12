@@ -1,5 +1,6 @@
 import warnings
 
+import numpy as np
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
@@ -709,3 +710,151 @@ def expected_failed_checks(estimator):
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
     check(estimator)
+
+
+###############################################################################
+###############################################################################
+###############################################################################
+# Sample weight tests
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_sample_weight_basic(backend):
+    """Test basic sample_weight functionality for KernelRidge."""
+    backend = set_backend(backend)
+    
+    # Create small test dataset
+    n_samples, n_features, n_targets = 10, 3, 2
+    X = backend.asarray(backend.randn(n_samples, n_features), backend.float64)
+    y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
+    
+    # Create sample weights
+    sample_weight = backend.asarray([1.0, 2.0, 0.5, 1.5, 0.1, 
+                                   2.5, 1.0, 0.8, 1.2, 0.3], backend.float64)
+    
+    # Test that sample_weight affects predictions
+    model_no_weight = KernelRidge(alpha=1.0, kernel="linear")
+    model_no_weight.fit(X, y)
+    pred_no_weight = model_no_weight.predict(X)
+    
+    model_with_weight = KernelRidge(alpha=1.0, kernel="linear")
+    model_with_weight.fit(X, y, sample_weight=sample_weight)
+    pred_with_weight = model_with_weight.predict(X)
+    
+    # Predictions should be different when sample weights are used
+    assert not np.allclose(backend.to_numpy(pred_no_weight), 
+                          backend.to_numpy(pred_with_weight))
+    
+    # Test with zero weights should raise no error
+    zero_weight = backend.zeros_like(sample_weight)
+    model_zero_weight = KernelRidge(alpha=1.0, kernel="linear")
+    model_zero_weight.fit(X, y, sample_weight=zero_weight)
+    
+    # Test comparison with sklearn KernelRidge (they may differ significantly)
+    import sklearn.kernel_ridge
+    sk_model = sklearn.kernel_ridge.KernelRidge(alpha=1.0, kernel="linear")
+    sk_model.fit(backend.to_numpy(X), backend.to_numpy(y), 
+                 sample_weight=backend.to_numpy(sample_weight))
+    sk_pred = sk_model.predict(backend.to_numpy(X))
+    
+    # Compare implementation - should now be very close
+    max_diff = np.max(np.abs(backend.to_numpy(pred_with_weight) - sk_pred))
+    print(f"Max difference between Himalaya and sklearn: {max_diff}")
+    
+    # After fixing dual coefficient scaling, should match sklearn closely
+    assert_array_almost_equal(pred_with_weight, sk_pred, decimal=10)
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_kernel_ridge_sample_weight_equivalence(backend):
+    """Test sample weight equivalence (similar to sklearn's check).
+    
+    This test examines whether using sample_weight=[2, 1, 3] is equivalent
+    to duplicating samples [0, 0, 1, 2, 2, 2]. This helps understand why
+    the sklearn check_sample_weight_equivalence tests fail.
+    """
+    backend = set_backend(backend)
+    
+    # Create small test dataset
+    n_samples, n_features = 6, 3
+    X = backend.asarray([[1.0, 2.0, 3.0],
+                        [4.0, 5.0, 6.0], 
+                        [7.0, 8.0, 9.0],
+                        [2.0, 3.0, 4.0],
+                        [5.0, 6.0, 7.0],
+                        [8.0, 9.0, 1.0]], backend.float64)
+    y = backend.asarray([[1.0], [2.0], [3.0], [1.5], [2.5], [3.5]], backend.float64)
+    
+    # Use simple integer weights for exact replication
+    sample_weight = backend.asarray([2.0, 1.0, 3.0, 1.0, 2.0, 1.0], backend.float64)
+    
+    # Fit with sample weights
+    model_weighted = KernelRidge(alpha=1.0, kernel="linear")
+    model_weighted.fit(X, y, sample_weight=sample_weight)
+    pred_weighted = model_weighted.predict(X)
+    
+    # Create equivalent dataset by repeating samples according to weights
+    X_repeated = backend.concatenate([
+        X[0:1], X[0:1],  # sample 0 repeated 2 times
+        X[1:2],          # sample 1 repeated 1 time  
+        X[2:3], X[2:3], X[2:3],  # sample 2 repeated 3 times
+        X[3:4],          # sample 3 repeated 1 time
+        X[4:5], X[4:5],  # sample 4 repeated 2 times
+        X[5:6],          # sample 5 repeated 1 time
+    ], axis=0)
+    
+    y_repeated = backend.concatenate([
+        y[0:1], y[0:1],  # sample 0 repeated 2 times
+        y[1:2],          # sample 1 repeated 1 time
+        y[2:3], y[2:3], y[2:3],  # sample 2 repeated 3 times  
+        y[3:4],          # sample 3 repeated 1 time
+        y[4:5], y[4:5],  # sample 4 repeated 2 times
+        y[5:6],          # sample 5 repeated 1 time
+    ], axis=0)
+    
+    # Fit with repeated samples
+    model_repeated = KernelRidge(alpha=1.0, kernel="linear")
+    model_repeated.fit(X_repeated, y_repeated)
+    pred_repeated = model_repeated.predict(X)
+    
+    # Compare predictions
+    print(f"Backend: {backend.name}")
+    print(f"Weighted predictions shape: {pred_weighted.shape}")
+    print(f"Repeated predictions shape: {pred_repeated.shape}")
+    max_diff = np.max(np.abs(backend.to_numpy(pred_weighted) - backend.to_numpy(pred_repeated)))
+    print(f"Max absolute difference: {max_diff}")
+    print(f"Are they close? {np.allclose(backend.to_numpy(pred_weighted), backend.to_numpy(pred_repeated), atol=1e-10)}")
+    
+    # After the fix, equivalence should now work
+    assert_array_almost_equal(pred_weighted, pred_repeated, decimal=10)
+    print("Sample weight equivalence PASSED - fix successful!")
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_weighted_kernel_ridge_sample_weight_basic(backend):
+    """Test that WeightedKernelRidge sample weight fix works."""
+    backend = set_backend(backend)
+    
+    # Create small test dataset
+    n_samples, n_features, n_targets = 8, 3, 2
+    X = backend.asarray(backend.randn(n_samples, n_features), backend.float64)
+    y = backend.asarray(backend.randn(n_samples, n_targets), backend.float64)
+    
+    # Create sample weights
+    sample_weight = backend.asarray([1.0, 2.0, 0.5, 1.5, 2.5, 1.0, 0.8, 1.2], 
+                                   backend.float64)
+    
+    # Test that sample_weight affects predictions
+    model_no_weight = WeightedKernelRidge(kernels=["linear"])
+    model_no_weight.fit(X, y)
+    pred_no_weight = model_no_weight.predict(X)
+    
+    model_with_weight = WeightedKernelRidge(kernels=["linear"])
+    model_with_weight.fit(X, y, sample_weight=sample_weight)
+    pred_with_weight = model_with_weight.predict(X)
+    
+    # Predictions should be different when sample weights are used
+    assert not np.allclose(backend.to_numpy(pred_no_weight), 
+                          backend.to_numpy(pred_with_weight))
+    
+    print("WeightedKernelRidge sample weight functionality verified!")

@@ -240,6 +240,10 @@ class KernelRidge(_BaseKernelRidge):
         else:
             self.dual_coef_ = tmp
 
+        # Apply sample weight scaling to dual coefficients (sklearn compatibility)
+        if sample_weight is not None:
+            self.dual_coef_ = self.dual_coef_ * sw
+
         if ravel:
             self.dual_coef_ = self.dual_coef_[:, 0]
             if self.fit_intercept:
@@ -1159,6 +1163,10 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         self.dual_coef_ = self._call_solver(Ks=Ks, Y=y, alpha=self.alpha,
                                             deltas=self.deltas_,
                                             random_state=self.random_state)
+
+        # Apply sample weight scaling to dual coefficients (sklearn compatibility)
+        if sample_weight is not None:
+            self.dual_coef_ = self.dual_coef_ * sw
 
         if ravel or self.deltas_.shape[1] != self.dual_coef_.shape[1]:
             self.deltas_ = self.deltas_[:, 0]
