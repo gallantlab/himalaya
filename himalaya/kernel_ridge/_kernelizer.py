@@ -10,7 +10,7 @@ from sklearn.pipeline import _name_estimators, make_pipeline
 from sklearn.utils.validation import check_is_fitted
 
 from ..backend import force_cpu_backend, get_backend
-from ..validation import _get_string_dtype, check_array
+from ..validation import _get_string_dtype, check_array, validate_data
 from ._kernels import PAIRWISE_KERNEL_FUNCTIONS, pairwise_kernels
 
 
@@ -88,11 +88,10 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         """
         accept_sparse = False if self.kernel == "precomputed" else ("csr",
                                                                     "csc")
-        X = check_array(X, accept_sparse=accept_sparse, ndim=2)
+        X = validate_data(self, X, reset=True, accept_sparse=accept_sparse, ndim=2)
 
         self.X_fit_ = _to_cpu(X) if self.kernel != "precomputed" else None
         self.dtype_ = _get_string_dtype(X)
-        self.n_features_in_ = X.shape[1]
 
         K = self._get_kernel(X)
         return K
@@ -136,11 +135,8 @@ class Kernelizer(TransformerMixin, BaseEstimator):
         check_is_fitted(self)
         accept_sparse = False if self.kernel == "precomputed" else ("csr",
                                                                     "csc")
-        X = check_array(X, dtype=self.dtype_, accept_sparse=accept_sparse,
+        X = validate_data(self, X, reset=False, dtype=self.dtype_, accept_sparse=accept_sparse,
                         ndim=2)
-        if X.shape[1] != self.n_features_in_:
-            raise ValueError(
-                'Different number of features in X than during fit.')
         K = self._get_kernel(X, self.X_fit_)
         return K
 

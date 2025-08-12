@@ -60,7 +60,7 @@ def test_kernelizer_wrong_input(backend):
     with pytest.raises(ValueError, match="Unknown metric"):
         Kernelizer(kernel="wrong").fit(X1)
 
-    with pytest.raises(ValueError, match="Different number of features"):
+    with pytest.raises(ValueError, match="X has .* features.*expecting .* features"):
         Kernelizer().fit(X1).transform(X2)
 
 
