@@ -60,7 +60,7 @@ def test_kernelizer_wrong_input(backend):
     with pytest.raises(ValueError, match="Unknown metric"):
         Kernelizer(kernel="wrong").fit(X1)
 
-    with pytest.raises(ValueError, match="Different number of features"):
+    with pytest.raises(ValueError, match="X has .* features.*expecting .* features"):
         Kernelizer().fit(X1).transform(X2)
 
 
@@ -334,6 +334,11 @@ class Kernelizer_(Kernelizer):
     def transform(self, X):
         backend = get_backend()
         return backend.to_numpy(super().transform(X))
+
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.input_tags.sparse = True
+        return tags
 
 
 @sklearn.utils.estimator_checks.parametrize_with_checks([

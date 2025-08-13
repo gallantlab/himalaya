@@ -1,17 +1,14 @@
 """Adapt functions from scikit-learn to use different backends."""
 
 import itertools
-from functools import partial
 import math
+from functools import partial
 
 from sklearn.base import BaseEstimator, TransformerMixin
 from sklearn.utils.validation import check_is_fitted
 
-from ..backend import get_backend
-from ..backend import force_cpu_backend
-from ..validation import _get_string_dtype
-from ..validation import check_array
-from ..validation import issparse
+from ..backend import force_cpu_backend, get_backend
+from ..validation import _get_string_dtype, check_array, issparse
 
 
 def check_pairwise_arrays(X, Y, precomputed=False, dtype=None,
@@ -182,10 +179,15 @@ def linear_kernel(X, Y=None):
     backend = get_backend()
     X, Y = check_pairwise_arrays(X, Y)
 
-    K = X @ Y.T
-    if issparse(K):
-        K = K.toarray()
-    K = backend.asarray(K)
+    # Convert to backend arrays before matrix operations to handle transpose properly
+    if issparse(X):
+        X = X.toarray()
+    if issparse(Y):
+        Y = Y.toarray()
+    X = backend.asarray(X)
+    Y = backend.asarray(Y)
+    
+    K = backend.matmul(X, backend.transpose(Y))
     return K
 
 
@@ -218,10 +220,15 @@ def polynomial_kernel(X, Y=None, degree=3, gamma=None, coef0=1):
     if gamma is None:
         gamma = 1.0 / X.shape[1]
 
-    K = X @ Y.T
-    if issparse(K):
-        K = K.toarray()
-    K = backend.asarray(K)
+    # Convert to backend arrays before matrix operations to handle transpose properly
+    if issparse(X):
+        X = X.toarray()
+    if issparse(Y):
+        Y = Y.toarray()
+    X = backend.asarray(X)
+    Y = backend.asarray(Y)
+
+    K = backend.matmul(X, backend.transpose(Y))
     K *= gamma
     K += coef0
     K = backend.power(K, degree, out=K)
@@ -669,3 +676,8 @@ class KernelCenterer(TransformerMixin, BaseEstimator):
 
     def _more_tags(self):
         return {'pairwise': True}
+
+    def __sklearn_tags__(self):
+        tags = super().__sklearn_tags__()
+        tags.input_tags.pairwise = True
+        return tags
