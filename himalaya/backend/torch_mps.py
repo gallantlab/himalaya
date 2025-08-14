@@ -2,6 +2,10 @@
 
 To use this backend, call ``himalaya.backend.set_backend("torch_mps")``.
 """
+import os
+# Enable MPS fallback to CPU for unsupported operations
+os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
+
 from .torch import *  # noqa
 import torch
 import warnings
@@ -134,3 +138,8 @@ def mean_float64(X, axis=None, keepdims=False):
     if keepdims:
         X_mean = X_mean.unsqueeze(dim=axis)
     return X_mean
+
+
+def is_in_gpu(array):
+    """Check if array is on MPS device."""
+    return array.device.type == "mps"
