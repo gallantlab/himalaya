@@ -15,3 +15,7 @@ dist/
 doc/_build/
 doc/_auto_examples/
 doc/_generated/
+
+# Claude stuff
+CLAUDE.md
+.claude
