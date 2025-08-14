@@ -2,10 +2,6 @@
 
 To use this backend, call ``himalaya.backend.set_backend("torch_mps")``.
 """
-import os
-# Enable MPS fallback to CPU for unsupported operations
-os.environ["PYTORCH_ENABLE_MPS_FALLBACK"] = "1"
-
 from .torch import *  # noqa
 import torch
 import warnings
@@ -18,7 +14,6 @@ if not torch.backends.mps.is_available():
     raise RuntimeError("PyTorch with MPS is not available.")
 
 from ._utils import _dtype_to_str
-from ._utils import warn_if_not_float32
 
 ###############################################################################
 
@@ -143,3 +138,27 @@ def mean_float64(X, axis=None, keepdims=False):
 def is_in_gpu(array):
     """Check if array is on MPS device."""
     return array.device.type == "mps"
+
+
+def eigh(input):
+    """Compute eigendecomposition on CPU and move results back to MPS.
+
+    PyTorch's MPS backend doesn't fully support torch.linalg.eigh, so we
+    perform the computation on CPU and move the results back to MPS device.
+    """
+    try:
+        # Move to CPU, compute eigendecomposition, then move back to MPS
+        input_cpu = input.cpu()
+        eigenvalues, eigenvectors = torch.linalg.eigh(input_cpu)
+
+        # Move results back to original device (MPS)
+        eigenvalues = eigenvalues.to(input.device)
+        eigenvectors = eigenvectors.to(input.device)
+
+        return eigenvalues, eigenvectors
+    except Exception as e:
+        msg = (f"The eigenvalues decomposition failed on backend {name}. You may"
+               " try using `diagonalize_method='svd'`, or `solver_params={"
+               "'diagonalize_method': 'svd'}` if called through the class API.")
+        raise RuntimeError(
+            f"{msg}\nOriginal error:\n{type(e).__name__}: {e}")
