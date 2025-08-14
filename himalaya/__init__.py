@@ -1,13 +1,6 @@
-from . import backend
-from . import kernel_ridge
-from . import lasso
-from . import ridge
-from . import progress_bar
-from . import scoring
-from . import utils
-from . import viz
+from . import backend, kernel_ridge, lasso, progress_bar, ridge, scoring, utils, viz
 
-__version__ = '0.4.7'
+__version__ = '0.4.8'
 
 __all__ = [
     backend,
