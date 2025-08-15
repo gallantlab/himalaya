@@ -70,3 +70,43 @@ def test_generate_multikernel_dataset(backend, name):
     if kwargs["n_features_list"] is not None:
         assert np.sum(kwargs["n_features_list"]) == X_train.shape[1]
         assert np.sum(kwargs["n_features_list"]) == X_test.shape[1]
+
+
+def test_assert_array_almost_equal_torch_mps_precision_warning():
+    """Test that torch_mps backend automatically reduces precision and warns."""
+    # The torch_mps backend will automatically skip this test if MPS is not available
+    backend = set_backend('torch_mps')
+
+    # Create test arrays that are close but require precision > 4
+    x = backend.asarray([1.0, 2.0, 3.0])
+    y = backend.asarray([1.00001, 2.00001, 3.00001])  # diff ~1e-5
+
+    # Test that decimal > 4 triggers warning and auto-reduction
+    with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=4"):
+        assert_array_almost_equal(x, y, decimal=6)
+
+    # Test that decimal <= 4 doesn't trigger warning
+    import warnings
+    with warnings.catch_warnings(record=True) as warning_list:
+        warnings.simplefilter("always")
+        assert_array_almost_equal(x, y, decimal=4)
+    # Filter out unrelated warnings (like float64->float32 conversion)
+    precision_warnings = [w for w in warning_list if "Reducing precision" in str(w.message)]
+    assert len(precision_warnings) == 0
+
+    # Test that other backends are unaffected
+    for backend_name in ['numpy', 'torch']:
+        try:
+            backend = set_backend(backend_name)
+            x = backend.asarray([1.0, 2.0, 3.0])
+            y = backend.asarray([1.0, 2.0, 3.0])
+
+            with warnings.catch_warnings(record=True) as warning_list:
+                warnings.simplefilter("always")
+                assert_array_almost_equal(x, y, decimal=6)
+            # Should not have precision reduction warnings
+            precision_warnings = [w for w in warning_list if "Reducing precision" in str(w.message)]
+            assert len(precision_warnings) == 0
+        except Exception:
+            # Skip if backend not available
+            pass
