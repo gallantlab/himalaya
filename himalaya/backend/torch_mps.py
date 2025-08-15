@@ -68,6 +68,21 @@ def _check_dtype_torch_mps(dtype):
     return dtype
 
 
+def solve_float64(A, b):
+    """Solve linear system with double precision on CPU,
+    then cast back the result to original dtype on the original device.
+    """
+    A_64 = torch.as_tensor(A.to("cpu"), dtype=torch.float64, device="cpu")
+    b_64 = torch.as_tensor(b.to("cpu"), dtype=torch.float64, device="cpu")
+    result = torch.linalg.solve(A_64, b_64)
+    
+    # Cast back to float32 and move to original device
+    result = torch.as_tensor(result, dtype=torch.float32, device=A.device)
+    return result
+
+
+
+
 def check_arrays(*all_inputs):
     """Change all inputs into Tensors (or list of Tensors) using the same
     precision and device as the first one. Some tensors can be None. float64 tensors

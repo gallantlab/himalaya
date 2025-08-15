@@ -76,8 +76,8 @@ def test_kernel_ridge_vs_ridge(backend, fit_intercept):
         Y += 10
         X += 1
 
-    # torch with cuda has more limited precision in mean
-    decimal = 3 if backend.name == "torch_cuda" else 6
+    # torch with cuda and torch_mps have more limited precision due to float32
+    decimal = 3 if backend.name in ["torch_cuda", "torch_mps"] else 6
 
     for alpha in backend.asarray_like(backend.logspace(0, 3, 7), X):
         model = KernelRidge(alpha=alpha, fit_intercept=fit_intercept)
