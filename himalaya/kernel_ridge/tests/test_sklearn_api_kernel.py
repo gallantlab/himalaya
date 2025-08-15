@@ -565,7 +565,11 @@ class KernelRidge_(KernelRidge):
 
     def predict(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        result = backend.to_numpy(super().predict(X))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def score(self, X, y):
         from himalaya.scoring import r2_score
@@ -601,7 +605,11 @@ class KernelRidgeCV_(KernelRidgeCV):
 
     def predict(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        result = backend.to_numpy(super().predict(X))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def score(self, X, y):
         from himalaya.scoring import r2_score
@@ -638,7 +646,11 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
 
     def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X, split=split))
+        result = backend.to_numpy(super().predict(X, split=split))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def score(self, X, y, split=False):
         backend = get_backend()
@@ -667,7 +679,11 @@ class WeightedKernelRidge_(WeightedKernelRidge):
 
     def predict(self, X, split=False):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X, split=split))
+        result = backend.to_numpy(super().predict(X, split=split))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def score(self, X, y, split=False):
         backend = get_backend()
