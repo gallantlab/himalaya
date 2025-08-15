@@ -75,12 +75,10 @@ def solve_float64(A, b):
     A_64 = torch.as_tensor(A.to("cpu"), dtype=torch.float64, device="cpu")
     b_64 = torch.as_tensor(b.to("cpu"), dtype=torch.float64, device="cpu")
     result = torch.linalg.solve(A_64, b_64)
-    
+
     # Cast back to float32 and move to original device
     result = torch.as_tensor(result, dtype=torch.float32, device=A.device)
     return result
-
-
 
 
 def check_arrays(*all_inputs):
@@ -108,6 +106,11 @@ def zeros(shape, dtype="float32", device="mps"):
     if isinstance(shape, int):
         shape = (shape, )
     if isinstance(dtype, str):
+        # Convert float64 to float32 since MPS doesn't support float64
+        if dtype == "float64":
+            warnings.warn("GPU backend torch_mps requires single precision floats (float32), "
+                          f"got dtype {dtype}. Data will be automatically cast to float32")
+            dtype = "float32"
         dtype = getattr(torch, dtype)
     return torch.zeros(shape, dtype=dtype, device=device)
 
