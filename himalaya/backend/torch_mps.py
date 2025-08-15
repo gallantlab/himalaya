@@ -162,3 +162,27 @@ def eigh(input):
                "'diagonalize_method': 'svd'}` if called through the class API.")
         raise RuntimeError(
             f"{msg}\nOriginal error:\n{type(e).__name__}: {e}")
+
+
+def svd(input, full_matrices=True):
+    """Compute SVD on CPU and move results back to MPS.
+
+    PyTorch's MPS backend doesn't natively support torch.linalg.svd and falls
+    back to CPU. We make this explicit to avoid warnings and ensure consistent behavior.
+    """
+    try:
+        # Move to CPU, compute SVD, then move back to MPS
+        input_cpu = input.cpu()
+        U, S, Vh = torch.linalg.svd(input_cpu, full_matrices=full_matrices)
+
+        # Move results back to original device (MPS)
+        U = U.to(input.device)
+        S = S.to(input.device)
+        Vh = Vh.to(input.device)
+
+        return U, S, Vh
+    except Exception as e:
+        msg = (f"The SVD decomposition failed on backend {name}. You may"
+               " try using a different solver if available.")
+        raise RuntimeError(
+            f"{msg}\nOriginal error:\n{type(e).__name__}: {e}")
