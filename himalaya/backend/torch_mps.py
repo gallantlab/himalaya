@@ -12,9 +12,12 @@ Important Notes:
     - Reduced precision in iterative algorithms and gradient computations
     - Some sklearn compatibility tests are skipped due to precision requirements
 """
-from .torch import *  # noqa
-import torch
 import warnings
+
+import torch
+
+from ._utils import _dtype_to_str
+from .torch import *  # noqa
 
 if not torch.backends.mps.is_available():
     import sys
@@ -32,7 +35,6 @@ warnings.warn(
     stacklevel=2
 )
 
-from ._utils import _dtype_to_str
 
 ###############################################################################
 
@@ -40,11 +42,11 @@ name = "torch_mps"
 
 
 def randn(*args, **kwargs):
-    return torch.randn(*args, **kwargs).to("mps")
+    return torch.randn(*args, **kwargs, device="mps")
 
 
 def rand(*args, **kwargs):
-    return torch.rand(*args, **kwargs).to("mps")
+    return torch.rand(*args, **kwargs, device="mps")
 
 
 def asarray(x, dtype=None, device="mps"):
@@ -85,19 +87,6 @@ def _check_dtype_torch_mps(dtype):
             _already_warned[0] = True
         return "float32"
     return dtype
-
-
-def solve_float64(A, b):
-    """Solve linear system with double precision on CPU,
-    then cast back the result to original dtype on the original device.
-    """
-    A_64 = torch.as_tensor(A.to("cpu"), dtype=torch.float64, device="cpu")
-    b_64 = torch.as_tensor(b.to("cpu"), dtype=torch.float64, device="cpu")
-    result = torch.linalg.solve(A_64, b_64)
-
-    # Cast back to float32 and move to original device
-    result = torch.as_tensor(result, dtype=torch.float32, device=A.device)
-    return result
 
 
 def check_arrays(*all_inputs):
@@ -248,8 +237,10 @@ def eigh(input):
     """
     try:
         # Move to CPU, compute eigendecomposition, then move back to MPS
-        input_cpu = input.cpu()
+        input_cpu = input.cpu().to(torch.float64)
         eigenvalues, eigenvectors = torch.linalg.eigh(input_cpu)
+        eigenvalues = eigenvalues.to(torch.float32)
+        eigenvectors = eigenvectors.to(torch.float32)
 
         # Move results back to original device (MPS)
         eigenvalues = eigenvalues.to(input.device)
@@ -272,13 +263,13 @@ def svd(input, full_matrices=True):
     """
     try:
         # Move to CPU, compute SVD, then move back to MPS
-        input_cpu = input.cpu()
+        input_cpu = input.cpu().to(torch.float64)
         U, S, Vh = torch.linalg.svd(input_cpu, full_matrices=full_matrices)
 
         # Move results back to original device (MPS)
-        U = U.to(input.device)
-        S = S.to(input.device)
-        Vh = Vh.to(input.device)
+        U = U.to(dtype=torch.float32, device=input.device)
+        S = S.to(dtype=torch.float32, device=input.device)
+        Vh = Vh.to(dtype=torch.float32, device=input.device)
 
         return U, S, Vh
     except Exception as e:

@@ -1,5 +1,5 @@
-import types
 import importlib
+import types
 import warnings
 from functools import wraps
 
@@ -94,6 +94,8 @@ def _dtype_to_str(dtype):
         return str(dtype)[6:]
     elif dtype is None:
         return None
+    elif dtype is bool:
+        return "bool"
     else:
         raise NotImplementedError()
 

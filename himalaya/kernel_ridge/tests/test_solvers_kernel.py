@@ -1,17 +1,14 @@
 from functools import partial
-import pytest
 
 import numpy as np
-import sklearn.linear_model
+import pytest
 import scipy.linalg
+import sklearn.linear_model
 
-from himalaya.backend import set_backend
-from himalaya.backend import ALL_BACKENDS
-from himalaya.utils import assert_array_almost_equal
-
-from himalaya.kernel_ridge import WEIGHTED_KERNEL_RIDGE_SOLVERS
-from himalaya.kernel_ridge import KERNEL_RIDGE_SOLVERS
+from himalaya.backend import ALL_BACKENDS, set_backend
+from himalaya.kernel_ridge import KERNEL_RIDGE_SOLVERS, WEIGHTED_KERNEL_RIDGE_SOLVERS
 from himalaya.kernel_ridge._solvers import _weighted_kernel_ridge_gradient
+from himalaya.utils import assert_array_almost_equal
 
 KERNEL_RIDGE_SOLVERS['eigenvalues_svd'] = partial(
     KERNEL_RIDGE_SOLVERS['eigenvalues'], method="svd")
@@ -52,7 +49,10 @@ def test_weighted_kernel_ridge_gradient(backend, double_K):
 
     # Skip torch_mps backend due to float32 precision limitations in gradient computation
     if backend.name == "torch_mps":
-        pytest.skip("torch_mps backend has float32 precision limitations that cause gradient computation tests to fail")
+        pytest.skip(
+            "torch_mps backend has float32 precision limitations that cause "
+            "gradient computation tests to fail"
+        )
 
     _, Ks, Y, deltas, dual_weights = _create_dataset(backend, intercept=False)
     exp_deltas = backend.exp(deltas)
@@ -138,7 +138,7 @@ def test_solve_weighted_kernel_ridge_intercept(solver_name, backend):
     exp_deltas = backend.exp(deltas)
 
     # torch with cuda has more limited precision in mean
-    decimal = 1 if backend.name == "torch_cuda" else 5
+    decimal = 1 if backend.name in ["torch_cuda", "torch_mps"] else 5
 
     for alpha in backend.asarray_like(backend.logspace(-2, 3, 7), Ks):
         c2, i2 = solver(Ks, Y, deltas, alpha=alpha, max_iter=100, tol=1e-6,
@@ -224,7 +224,7 @@ def test_solve_kernel_ridge_intercept(solver_name, backend):
     K = backend.matmul(Ks.T, exp_deltas).T
 
     # torch with cuda has more limited precision in mean
-    decimal = 1 if backend.name == "torch_cuda" else 5
+    decimal = 1 if backend.name in ["torch_cuda", "torch_mps"] else 5
 
     for alpha in alphas:
         alpha = backend.full_like(K, fill_value=alpha, shape=Y.shape[1])

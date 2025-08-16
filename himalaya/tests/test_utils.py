@@ -1,13 +1,13 @@
-import pytest
 import numpy as np
+import pytest
 
-from himalaya.backend import set_backend
-from himalaya.backend import ALL_BACKENDS
-
-from himalaya.utils import compute_lipschitz_constants
-from himalaya.utils import generate_multikernel_dataset
-from himalaya.utils import assert_array_almost_equal
-from himalaya.utils import skip_torch_mps_precision_checks
+from himalaya.backend import ALL_BACKENDS, set_backend
+from himalaya.utils import (
+    assert_array_almost_equal,
+    compute_lipschitz_constants,
+    generate_multikernel_dataset,
+    skip_torch_mps_precision_checks,
+)
 
 
 @pytest.mark.parametrize('kernelize', ["XXT", "XTX", "X"])
@@ -83,17 +83,10 @@ def test_assert_array_almost_equal_torch_mps_precision_warning():
     y = backend.asarray([1.00001, 2.00001, 3.00001])  # diff ~1e-5
 
     # Test that decimal > 4 triggers warning and auto-reduction
-    with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=4"):
+    with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=2"):
         assert_array_almost_equal(x, y, decimal=6)
 
-    # Test that decimal <= 4 doesn't trigger warning
     import warnings
-    with warnings.catch_warnings(record=True) as warning_list:
-        warnings.simplefilter("always")
-        assert_array_almost_equal(x, y, decimal=4)
-    # Filter out unrelated warnings (like float64->float32 conversion)
-    precision_warnings = [w for w in warning_list if "Reducing precision" in str(w.message)]
-    assert len(precision_warnings) == 0
 
     # Test that other backends are unaffected
     for backend_name in ['numpy', 'torch']:

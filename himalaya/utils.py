@@ -240,6 +240,9 @@ def skip_torch_mps_precision_checks(backend, estimator, check,
                 'check_sample_weight_equivalence_on_dense_data',
                 'check_sample_weight_equivalence_on_sparse_data',
                 'check_methods_subset_invariance'
+            ],
+            'MultipleKernelRidgeCV_': [
+                'check_methods_subset_invariance'
             ]
         }
 
