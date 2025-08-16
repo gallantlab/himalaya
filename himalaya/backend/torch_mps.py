@@ -1,6 +1,16 @@
 """The "torch_mps" GPU backend, based on PyTorch.
 
 To use this backend, call ``himalaya.backend.set_backend("torch_mps")``.
+
+Important Notes:
+    This backend uses float32 precision due to MPS framework limitations.
+    This may result in reduced numerical precision compared to float64 backends.
+    For high-precision requirements, consider using 'torch' (CPU) or 'numpy' backends.
+
+    Known limitations:
+    - Automatic conversion from float64 to float32 inputs
+    - Reduced precision in iterative algorithms and gradient computations
+    - Some sklearn compatibility tests are skipped due to precision requirements
 """
 from .torch import *  # noqa
 import torch
@@ -12,6 +22,15 @@ if not torch.backends.mps.is_available():
         import pytest
         pytest.skip("PyTorch with MPS is not available.")
     raise RuntimeError("PyTorch with MPS is not available.")
+
+# Warn users about precision limitations
+warnings.warn(
+    "torch_mps backend uses float32 precision due to MPS framework limitations. "
+    "This may result in reduced numerical precision compared to float64 backends. "
+    "For high-precision requirements, consider using 'torch' (CPU) or 'numpy' backends.",
+    UserWarning,
+    stacklevel=2
+)
 
 from ._utils import _dtype_to_str
 
@@ -106,13 +125,27 @@ def zeros(shape, dtype="float32", device="mps"):
     if isinstance(shape, int):
         shape = (shape, )
     if isinstance(dtype, str):
-        # Convert float64 to float32 since MPS doesn't support float64
-        if dtype == "float64":
-            warnings.warn("GPU backend torch_mps requires single precision floats (float32), "
-                          f"got dtype {dtype}. Data will be automatically cast to float32")
-            dtype = "float32"
+        dtype = _check_dtype_torch_mps(dtype)
         dtype = getattr(torch, dtype)
     return torch.zeros(shape, dtype=dtype, device=device)
+
+
+def ones(shape, dtype="float32", device="mps"):
+    if isinstance(shape, int):
+        shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = _check_dtype_torch_mps(dtype)
+        dtype = getattr(torch, dtype)
+    return torch.ones(shape, dtype=dtype, device=device)
+
+
+def full(shape, fill_value, dtype="float32", device="mps"):
+    if isinstance(shape, int):
+        shape = (shape, )
+    if isinstance(dtype, str):
+        dtype = _check_dtype_torch_mps(dtype)
+        dtype = getattr(torch, dtype)
+    return torch.full(shape, fill_value, dtype=dtype, device=device)
 
 
 def to_cpu(array):
@@ -156,6 +189,55 @@ def mean_float64(X, axis=None, keepdims=False):
 def is_in_gpu(array):
     """Check if array is on MPS device."""
     return array.device.type == "mps"
+
+
+def zeros_like(array, shape=None, dtype=None, device=None):
+    """Add a shape parameter in zeros_like with MPS float64 handling."""
+    if shape is None:
+        shape = array.shape
+    if isinstance(shape, int):
+        shape = (shape, )
+    if dtype is None:
+        dtype = array.dtype
+    # Always check and convert dtype for MPS compatibility
+    dtype_str = _check_dtype_torch_mps(_dtype_to_str(dtype))
+    dtype = getattr(torch, dtype_str)
+    if device is None:
+        device = array.device
+    return torch.zeros(shape, dtype=dtype, device=device, layout=array.layout)
+
+
+def ones_like(array, shape=None, dtype=None, device=None):
+    """Add a shape parameter in ones_like with MPS float64 handling."""
+    if shape is None:
+        shape = array.shape
+    if isinstance(shape, int):
+        shape = (shape, )
+    if dtype is None:
+        dtype = array.dtype
+    # Always check and convert dtype for MPS compatibility
+    dtype_str = _check_dtype_torch_mps(_dtype_to_str(dtype))
+    dtype = getattr(torch, dtype_str)
+    if device is None:
+        device = array.device
+    return torch.ones(shape, dtype=dtype, device=device, layout=array.layout)
+
+
+def full_like(array, fill_value, shape=None, dtype=None, device=None):
+    """Add a shape parameter in full_like with MPS float64 handling."""
+    if shape is None:
+        shape = array.shape
+    if isinstance(shape, int):
+        shape = (shape, )
+    if dtype is None:
+        dtype = array.dtype
+    # Always check and convert dtype for MPS compatibility
+    dtype_str = _check_dtype_torch_mps(_dtype_to_str(dtype))
+    dtype = getattr(torch, dtype_str)
+    if device is None:
+        device = array.device
+    return torch.full(shape, fill_value, dtype=dtype, device=device,
+                      layout=array.layout)
 
 
 def eigh(input):
