@@ -9,7 +9,7 @@ from sklearn.base import clone
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
-from himalaya.utils import assert_array_almost_equal
+from himalaya.utils import assert_array_almost_equal, skip_torch_mps_precision_checks
 
 from himalaya.kernel_ridge import Kernelizer
 from himalaya.kernel_ridge import ColumnKernelizer
@@ -357,10 +357,8 @@ class Kernelizer_(Kernelizer):
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
     
-    # Skip check_methods_subset_invariance for torch_mps due to precision issues
-    if (backend.name == "torch_mps" and 
-        hasattr(check, 'func') and 
-        check.func.__name__ == 'check_methods_subset_invariance'):
+    # Skip precision-sensitive checks for torch_mps due to float32 limitations
+    if skip_torch_mps_precision_checks(backend, estimator, check):
         pytest.skip("torch_mps backend uses float32 precision which causes small "
                    "numerical differences that exceed sklearn tolerance.")
     

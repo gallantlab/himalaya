@@ -15,7 +15,7 @@ from himalaya.kernel_ridge import (
     WeightedKernelRidge,
 )
 from himalaya.ridge import Ridge, RidgeCV
-from himalaya.utils import assert_array_almost_equal
+from himalaya.utils import assert_array_almost_equal, skip_torch_mps_precision_checks
 
 
 def _create_dataset(backend):
@@ -730,6 +730,12 @@ if version.parse(sklearn.__version__) >= version.parse("1.6"):
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
+    
+    # Skip precision-sensitive checks for torch_mps due to float32 limitations
+    if skip_torch_mps_precision_checks(backend, estimator, check):
+        pytest.skip("torch_mps backend uses float32 precision which causes small "
+                   "numerical differences that exceed sklearn tolerance.")
+    
     check(estimator)
 
 

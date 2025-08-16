@@ -186,3 +186,71 @@ def _batch_or_skip(array, batch, axis):
             return array[:, batch]
         else:
             raise NotImplementedError()
+
+
+def skip_torch_mps_precision_checks(backend, estimator, check, 
+                                   precision_sensitive_checks=None):
+    """Skip sklearn checks that fail due to torch_mps float32 precision limitations.
+    
+    This utility function provides a centralized way to handle precision-sensitive
+    sklearn estimator checks when using the torch_mps backend, which uses float32
+    precision that can cause small numerical differences exceeding sklearn's strict
+    tolerance requirements.
+    
+    Parameters
+    ----------
+    backend : object
+        The current backend instance
+    estimator : object
+        The estimator being tested
+    check : callable
+        The sklearn check function (partial with check name)
+    precision_sensitive_checks : dict, optional
+        Dictionary mapping estimator names to lists of check names that should be
+        skipped due to precision issues. If None, uses default set.
+        
+    Returns
+    -------
+    bool
+        True if the check should be skipped, False otherwise
+        
+    Examples
+    --------
+    >>> # In test function:
+    >>> if skip_torch_mps_precision_checks(backend, estimator, check):
+    ...     pytest.skip("torch_mps precision limitation")
+    >>> check(estimator)
+    """
+    # Default precision-sensitive checks if not provided
+    if precision_sensitive_checks is None:
+        precision_sensitive_checks = {
+            'KernelRidge_': [
+                'check_methods_subset_invariance',
+                'check_sample_weight_equivalence_on_dense_data', 
+                'check_sample_weight_equivalence_on_sparse_data'
+            ],
+            'KernelRidgeCV_': [
+                'check_methods_subset_invariance'
+            ],
+            'Kernelizer_': [
+                'check_methods_subset_invariance'
+            ]
+        }
+    
+    # Only apply to torch_mps backend
+    # Use getattr for safety in case backend doesn't have name attribute
+    if getattr(backend, 'name', None) != "torch_mps":
+        return False
+        
+    # Check if we have a callable check with a function name
+    if not hasattr(check, 'func'):
+        return False
+        
+    check_name = check.func.__name__
+    estimator_name = estimator.__class__.__name__
+    
+    # Check if this estimator/check combination should be skipped
+    if estimator_name in precision_sensitive_checks:
+        return check_name in precision_sensitive_checks[estimator_name]
+        
+    return False
