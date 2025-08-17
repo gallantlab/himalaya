@@ -237,14 +237,11 @@ def eigh(input):
     """
     try:
         # Move to CPU, compute eigendecomposition, then move back to MPS
-        input_cpu = input.cpu().to(torch.float64)
-        eigenvalues, eigenvectors = torch.linalg.eigh(input_cpu)
-        eigenvalues = eigenvalues.to(torch.float32)
-        eigenvectors = eigenvectors.to(torch.float32)
-
-        # Move results back to original device (MPS)
-        eigenvalues = eigenvalues.to(input.device)
-        eigenvectors = eigenvectors.to(input.device)
+        input_device = input.device
+        input = input.cpu().to(torch.float64)
+        eigenvalues, eigenvectors = torch.linalg.eigh(input)
+        eigenvalues = eigenvalues.to(dtype=torch.float32, device=input_device)
+        eigenvectors = eigenvectors.to(dtype=torch.float32, device=input_device)
 
         return eigenvalues, eigenvectors
     except Exception as e:
@@ -263,13 +260,14 @@ def svd(input, full_matrices=True):
     """
     try:
         # Move to CPU, compute SVD, then move back to MPS
-        input_cpu = input.cpu().to(torch.float64)
-        U, S, Vh = torch.linalg.svd(input_cpu, full_matrices=full_matrices)
+        input_device = input.device
+        input = input.cpu().to(torch.float64)
+        U, S, Vh = torch.linalg.svd(input, full_matrices=full_matrices)
 
         # Move results back to original device (MPS)
-        U = U.to(dtype=torch.float32, device=input.device)
-        S = S.to(dtype=torch.float32, device=input.device)
-        Vh = Vh.to(dtype=torch.float32, device=input.device)
+        U = U.to(dtype=torch.float32, device=input_device)
+        S = S.to(dtype=torch.float32, device=input_device)
+        Vh = Vh.to(dtype=torch.float32, device=input_device)
 
         return U, S, Vh
     except Exception as e:
