@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import sklearn.utils.estimator_checks
 
@@ -24,7 +25,11 @@ class SparseGroupLassoCV_(SparseGroupLassoCV):
 
     def predict(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        result = backend.to_numpy(super().predict(X))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def score(self, X, y):
         from himalaya.validation import check_array

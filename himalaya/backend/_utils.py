@@ -1,5 +1,5 @@
-import types
 import importlib
+import types
 import warnings
 from functools import wraps
 
@@ -8,6 +8,7 @@ ALL_BACKENDS = [
     "cupy",
     "torch",
     "torch_cuda",
+    "torch_mps",
 ]
 
 CURRENT_BACKEND = "numpy"
@@ -17,6 +18,7 @@ MATCHING_CPU_BACKEND = {
     "cupy": "numpy",
     "torch": "torch",
     "torch_cuda": "torch",
+    "torch_mps": "torch",
 }
 
 
@@ -48,6 +50,15 @@ def set_backend(backend, on_error="raise"):
 
         module = importlib.import_module(__package__ + "." + backend)
         CURRENT_BACKEND = backend
+
+        # Additional warning for torch_mps precision limitations
+        if backend == "torch_mps":
+            warnings.warn(
+                "You are using the torch_mps backend which operates with float32 precision. "
+                "Results may be less precise than other backends due to MPS framework limitations. "
+                "Consider 'torch' (CPU) or 'numpy' backends for maximum precision.",
+                UserWarning
+            )
     except Exception as error:
         if on_error == "raise":
             raise error
@@ -83,6 +94,8 @@ def _dtype_to_str(dtype):
         return str(dtype)[6:]
     elif dtype is None:
         return None
+    elif dtype is bool:
+        return "bool"
     else:
         raise NotImplementedError()
 

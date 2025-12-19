@@ -1,3 +1,4 @@
+import numpy as np
 import pytest
 import sklearn.utils.estimator_checks
 from sklearn.pipeline import make_pipeline
@@ -8,7 +9,7 @@ from sklearn.base import clone
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
-from himalaya.utils import assert_array_almost_equal
+from himalaya.utils import assert_array_almost_equal, skip_torch_mps_precision_checks
 
 from himalaya.kernel_ridge import Kernelizer
 from himalaya.kernel_ridge import ColumnKernelizer
@@ -329,11 +330,19 @@ class Kernelizer_(Kernelizer):
 
     def fit_transform(self, X, y=None):
         backend = get_backend()
-        return backend.to_numpy(super().fit_transform(X, y))
+        result = backend.to_numpy(super().fit_transform(X, y))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def transform(self, X):
         backend = get_backend()
-        return backend.to_numpy(super().transform(X))
+        result = backend.to_numpy(super().transform(X))
+        # Convert to float64 for sklearn compatibility if backend is torch_mps
+        if backend.name == "torch_mps" and result.dtype == np.float32:
+            result = result.astype(np.float64)
+        return result
 
     def __sklearn_tags__(self):
         tags = super().__sklearn_tags__()
@@ -347,4 +356,10 @@ class Kernelizer_(Kernelizer):
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
+    
+    # Skip precision-sensitive checks for torch_mps due to float32 limitations
+    if skip_torch_mps_precision_checks(backend, estimator, check):
+        pytest.skip("torch_mps backend uses float32 precision which causes small "
+                   "numerical differences that exceed sklearn tolerance.")
+    
     check(estimator)

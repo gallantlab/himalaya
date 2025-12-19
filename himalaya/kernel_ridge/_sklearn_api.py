@@ -219,6 +219,7 @@ class KernelRidge(_BaseKernelRidge):
         if sample_weight is not None:
             # We need to support sample_weight directly because K might be a
             # precomputed kernel.
+            sample_weight = backend.asarray(sample_weight)
             sw = backend.sqrt(sample_weight)[:, None]
             y = y * sw
             K *= sw @ sw.T
@@ -242,6 +243,8 @@ class KernelRidge(_BaseKernelRidge):
 
         # Apply sample weight scaling to dual coefficients (sklearn compatibility)
         if sample_weight is not None:
+            # Ensure sw is on the same device as dual_coef_
+            sw = backend.asarray(sw, device=self.dual_coef_.device if hasattr(self.dual_coef_, 'device') else None)
             self.dual_coef_ = self.dual_coef_ * sw
 
         if ravel:
@@ -270,8 +273,8 @@ class KernelRidge(_BaseKernelRidge):
         backend = get_backend()
         accept_sparse = False if self.kernel == "precomputed" else ("csr",
                                                                     "csc")
-        X = validate_data(self, X, reset=False, dtype=self.dtype_, 
-                         accept_sparse=accept_sparse, ndim=2)
+        X = validate_data(self, X, reset=False, dtype=self.dtype_,
+                          accept_sparse=accept_sparse, ndim=2)
 
         K = self._get_kernel(X, self.X_fit_)
         del X
@@ -512,6 +515,7 @@ class KernelRidgeCV(KernelRidge):
         if sample_weight is not None:
             # We need to support sample_weight directly because K might be a
             # pre-computed kernel.
+            sample_weight = backend.asarray(sample_weight)
             sw = backend.sqrt(sample_weight)[:, None]
             y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             K *= sw @ sw.T
@@ -928,6 +932,7 @@ class MultipleKernelRidgeCV(_BaseWeightedKernelRidge):
         if sample_weight is not None:
             # We need to support sample_weight directly because K might be a
             # precomputed kernel.
+            sample_weight = backend.asarray(sample_weight)
             sw = backend.sqrt(sample_weight)[:, None]
             y = y * backend.to_cpu(sw) if self.Y_in_cpu else y * sw
             Ks *= (sw @ sw.T)[None]
@@ -1142,6 +1147,7 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         if sample_weight is not None:
             # We need to support sample_weight directly because K might be a
             # precomputed kernel.
+            sample_weight = backend.asarray(sample_weight)
             sw = backend.sqrt(sample_weight)[:, None]
             y = y * sw
             Ks *= (sw @ sw.T)[None]
@@ -1166,6 +1172,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
 
         # Apply sample weight scaling to dual coefficients (sklearn compatibility)
         if sample_weight is not None:
+            # Ensure sw is on the same device as dual_coef_
+            sw = backend.asarray(sw, device=self.dual_coef_.device if hasattr(self.dual_coef_, 'device') else None)
             self.dual_coef_ = self.dual_coef_ * sw
 
         if ravel or self.deltas_.shape[1] != self.dual_coef_.shape[1]:
