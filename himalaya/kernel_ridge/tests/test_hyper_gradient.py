@@ -26,28 +26,29 @@ def _create_dataset(backend):
     n_targets = 4
 
     Xs = [
-        backend.asarray(backend.randn(n_samples_train, n_features),
-                        backend.float64) for n_features in n_featuress
+        backend.asarray(backend.randn(n_samples_train, n_features), backend.float64)
+        for n_features in n_featuress
     ]
     Ks = backend.stack([X @ X.T for X in Xs])
     Xs_val = [
-        backend.asarray(backend.randn(n_samples_val, n_features),
-                        backend.float64) for n_features in n_featuress
+        backend.asarray(backend.randn(n_samples_val, n_features), backend.float64)
+        for n_features in n_featuress
     ]
     Ks_val = backend.stack([X_val @ X.T for X, X_val in zip(Xs, Xs_val)])
 
-    true_gammas = backend.asarray(backend.rand(len(Xs), n_targets),
-                                  backend.float64)
+    true_gammas = backend.asarray(backend.rand(len(Xs), n_targets), backend.float64)
 
     ws = [
         backend.asarray(backend.randn(n_features, n_targets), backend.float64)
         for n_features in n_featuress
     ]
     Ys = backend.stack(
-        [X @ w * backend.sqrt(g) for X, w, g in zip(Xs, ws, true_gammas)])
+        [X @ w * backend.sqrt(g) for X, w, g in zip(Xs, ws, true_gammas)]
+    )
     Y = Ys.sum(0)
     Ys_val = backend.stack(
-        [X @ w * backend.sqrt(g) for X, w, g in zip(Xs_val, ws, true_gammas)])
+        [X @ w * backend.sqrt(g) for X, w, g in zip(Xs_val, ws, true_gammas)]
+    )
     Y_val = Ys_val.sum(0)
 
     gammas = backend.asarray(backend.rand(len(Xs), n_targets), backend.float64)
@@ -57,8 +58,8 @@ def _create_dataset(backend):
     return Ks, Y, dual_weights, gammas, Ks_val, Y_val, Xs
 
 
-@pytest.mark.parametrize('n_targets_batch', [None, 3])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize("n_targets_batch", [None, 3])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_delta_gradient_direct(backend, n_targets_batch):
     backend = set_backend(backend)
 
@@ -71,8 +72,9 @@ def test_delta_gradient_direct(backend, n_targets_batch):
     deltas2 = deltas + epsilons * step
 
     # check direct gradient with a finite difference
-    gradients = _compute_delta_gradient(Ks, Y, deltas, dual_weights,
-                                        hyper_gradient_method='direct')[0]
+    gradients = _compute_delta_gradient(
+        Ks, Y, deltas, dual_weights, hyper_gradient_method="direct"
+    )[0]
     scores = _compute_delta_loss(Ks, Y, deltas, dual_weights)
     scores2 = _compute_delta_loss(Ks, Y, deltas2, dual_weights)
 
@@ -80,12 +82,13 @@ def test_delta_gradient_direct(backend, n_targets_batch):
     gradient_direction_product = (gradients * epsilons[:, :]).sum(0)
     norm = backend.norm(gradient_direction_product)
 
-    assert_array_almost_equal(gradient_direction_product / norm,
-                              directional_derivatives / norm, decimal=5)
+    assert_array_almost_equal(
+        gradient_direction_product / norm, directional_derivatives / norm, decimal=5
+    )
 
 
-@pytest.mark.parametrize('n_targets_batch', [None, 3])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize("n_targets_batch", [None, 3])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_delta_gradient_indirect(backend, n_targets_batch):
     backend = set_backend(backend)
 
@@ -106,63 +109,82 @@ def test_delta_gradient_indirect(backend, n_targets_batch):
 
     def compute_loss(deltas):
         dual_weights = solve_weighted_kernel_ridge_conjugate_gradient(
-            Ks, Y, deltas=deltas, initial_dual_weights=None, alpha=1,
-            max_iter=1000, tol=1e-5)
-        loss = predict_and_score_weighted_kernel_ridge(Ks_val, dual_weights,
-                                                       deltas, Y_val,
-                                                       score_func=score_func)
+            Ks,
+            Y,
+            deltas=deltas,
+            initial_dual_weights=None,
+            alpha=1,
+            max_iter=1000,
+            tol=1e-5,
+        )
+        loss = predict_and_score_weighted_kernel_ridge(
+            Ks_val, dual_weights, deltas, Y_val, score_func=score_func
+        )
         return loss, dual_weights
 
     loss, dual_weights = compute_loss(deltas)
     loss2, dual_weights2 = compute_loss(deltas2)
 
     gradients = _compute_delta_gradient(
-        Ks_val, Y_val, deltas, dual_weights, Ks_train=Ks,
-        hyper_gradient_method='conjugate_gradient', tol=1e-5)[0]
+        Ks_val,
+        Y_val,
+        deltas,
+        dual_weights,
+        Ks_train=Ks,
+        hyper_gradient_method="conjugate_gradient",
+        tol=1e-5,
+    )[0]
 
     directional_derivatives = (loss2 - loss) / step
     gradient_direction_product = (gradients * epsilons[:, :]).sum(0)
     norm = backend.norm(gradient_direction_product)
 
-    assert_array_almost_equal(gradient_direction_product / norm,
-                              directional_derivatives / norm, decimal=4)
+    assert_array_almost_equal(
+        gradient_direction_product / norm, directional_derivatives / norm, decimal=4
+    )
 
 
-@pytest.mark.parametrize('n_targets_batch', [None, 3])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize("n_targets_batch", [None, 3])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_hyper_gradient_n_targets_batch(
-        backend, n_targets_batch):
+    backend, n_targets_batch
+):
     _test_solve_multiple_kernel_ridge_hyper_gradient(
-        backend=backend, n_targets_batch=n_targets_batch)
+        backend=backend, n_targets_batch=n_targets_batch
+    )
 
 
-@pytest.mark.parametrize('method', ["direct", "conjugate_gradient", "neumann"])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize("method", ["direct", "conjugate_gradient", "neumann"])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_hyper_gradient_method(backend, method):
-    _test_solve_multiple_kernel_ridge_hyper_gradient(backend=backend,
-                                                     method=method)
+    _test_solve_multiple_kernel_ridge_hyper_gradient(backend=backend, method=method)
 
 
-@pytest.mark.parametrize('initial_deltas', [0, 5, 'ridgecv'])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize("initial_deltas", [0, 5, "ridgecv"])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_solve_multiple_kernel_ridge_hyper_gradient_initial_deltas(
-        backend, initial_deltas):
+    backend, initial_deltas
+):
     _test_solve_multiple_kernel_ridge_hyper_gradient(
-        backend=backend, initial_deltas=initial_deltas)
+        backend=backend, initial_deltas=initial_deltas
+    )
 
 
-@pytest.mark.parametrize('kernel_ridge',
-                         ["conjugate_gradient", "gradient_descent"])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_multiple_kernel_ridge_hyper_gradient_kernel_ridge(
-        backend, kernel_ridge):
-    _test_solve_multiple_kernel_ridge_hyper_gradient(backend=backend,
-                                                     kernel_ridge=kernel_ridge)
+@pytest.mark.parametrize("kernel_ridge", ["conjugate_gradient", "gradient_descent"])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_hyper_gradient_kernel_ridge(backend, kernel_ridge):
+    _test_solve_multiple_kernel_ridge_hyper_gradient(
+        backend=backend, kernel_ridge=kernel_ridge
+    )
 
 
 def _test_solve_multiple_kernel_ridge_hyper_gradient(
-        backend, n_targets_batch=None, method="direct", initial_deltas=0,
-        kernel_ridge="conjugate_gradient"):
+    backend,
+    n_targets_batch=None,
+    method="direct",
+    initial_deltas=0,
+    kernel_ridge="conjugate_gradient",
+):
     backend = set_backend(backend)
     Ks, Y, dual_weights, gammas, Ks_val, Y_val, Xs = _create_dataset(backend)
     cv = 3
@@ -170,26 +192,39 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
 
     # compare bilinear gradient descent and dirichlet sampling
     alphas = backend.logspace(-5, 5, 11)
-    gammas = generate_dirichlet_samples(50, len(Ks), concentration=[.1, 1.],
-                                        random_state=0)
-    _, _, cv_scores = \
-        solve_multiple_kernel_ridge_random_search(
-            Ks, Y, gammas, alphas, n_targets_batch=n_targets_batch,
-            score_func=r2_score, cv=cv, progress_bar=progress_bar)
+    gammas = generate_dirichlet_samples(
+        50, len(Ks), concentration=[0.1, 1.0], random_state=0
+    )
+    _, _, cv_scores = solve_multiple_kernel_ridge_random_search(
+        Ks,
+        Y,
+        gammas,
+        alphas,
+        n_targets_batch=n_targets_batch,
+        score_func=r2_score,
+        cv=cv,
+        progress_bar=progress_bar,
+    )
     scores_2 = backend.max(backend.asarray(cv_scores), axis=0)
 
     max_iter = 10
     for _ in range(5):
         try:
-            _, _, cv_scores = \
-                solve_multiple_kernel_ridge_hyper_gradient(
-                    Ks, Y, max_iter=max_iter, n_targets_batch=n_targets_batch,
-                    max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=None,
-                    score_func=r2_score, cv=cv,
-                    hyper_gradient_method=method,
-                    initial_deltas=initial_deltas,
-                    kernel_ridge_method=kernel_ridge,
-                    progress_bar=progress_bar)
+            _, _, cv_scores = solve_multiple_kernel_ridge_hyper_gradient(
+                Ks,
+                Y,
+                max_iter=max_iter,
+                n_targets_batch=n_targets_batch,
+                max_iter_inner_dual=1,
+                max_iter_inner_hyper=1,
+                tol=None,
+                score_func=r2_score,
+                cv=cv,
+                hyper_gradient_method=method,
+                initial_deltas=initial_deltas,
+                kernel_ridge_method=kernel_ridge,
+                progress_bar=progress_bar,
+            )
             cv_scores = backend.asarray(cv_scores)
             scores_1 = cv_scores[cv_scores.sum(axis=1) != 0][-1]
 
@@ -201,13 +236,13 @@ def _test_solve_multiple_kernel_ridge_hyper_gradient(
         raise AssertionError
 
 
-@pytest.mark.parametrize('n_targets_batch', [None, 3])
-@pytest.mark.parametrize('return_weights', ['primal', 'dual'])
-@pytest.mark.parametrize('method', ['hyper_gradient', 'random_search'])
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
-def test_solve_multiple_kernel_ridge_return_weights(backend, method,
-                                                    return_weights,
-                                                    n_targets_batch):
+@pytest.mark.parametrize("n_targets_batch", [None, 3])
+@pytest.mark.parametrize("return_weights", ["primal", "dual"])
+@pytest.mark.parametrize("method", ["hyper_gradient", "random_search"])
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
+def test_solve_multiple_kernel_ridge_return_weights(
+    backend, method, return_weights, n_targets_batch
+):
     backend = set_backend(backend)
 
     Ks, Y, _, _, Ks_val, Y_val, Xs = _create_dataset(backend)
@@ -218,19 +253,34 @@ def test_solve_multiple_kernel_ridge_return_weights(backend, method,
     # run solver
     if method == "hyper_gradient":
         results = solve_multiple_kernel_ridge_hyper_gradient(
-            Ks, Y, score_func=r2_score, cv=cv, max_iter=1,
-            n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
-            return_weights=return_weights)
+            Ks,
+            Y,
+            score_func=r2_score,
+            cv=cv,
+            max_iter=1,
+            n_targets_batch=n_targets_batch,
+            Xs=Xs,
+            progress_bar=False,
+            return_weights=return_weights,
+        )
         best_deltas, refit_weights, cv_scores = results
     elif method == "random_search":
         alphas = backend.asarray_like(backend.logspace(-3, 5, 2), Ks)
         results = solve_multiple_kernel_ridge_random_search(
-            Ks, Y, n_iter=1, alphas=alphas, score_func=r2_score, cv=cv,
-            n_targets_batch=n_targets_batch, Xs=Xs, progress_bar=False,
-            return_weights=return_weights)
+            Ks,
+            Y,
+            n_iter=1,
+            alphas=alphas,
+            score_func=r2_score,
+            cv=cv,
+            n_targets_batch=n_targets_batch,
+            Xs=Xs,
+            progress_bar=False,
+            return_weights=return_weights,
+        )
         best_deltas, refit_weights, cv_scores = results
     else:
-        raise ValueError("Unknown parameter method=%r." % (method, ))
+        raise ValueError("Unknown parameter method=%r." % (method,))
 
     ######################
     # test refited_weights
@@ -238,35 +288,72 @@ def test_solve_multiple_kernel_ridge_return_weights(backend, method,
         gamma = backend.exp(best_deltas[:, tt])
         alpha = 1.0
 
-        if return_weights == 'primal':
+        if return_weights == "primal":
             # compare primal weights with sklearn.linear_model.Ridge
-            X = backend.concatenate(
-                [t * backend.sqrt(g) for t, g in zip(Xs, gamma)], 1)
-            model = sklearn.linear_model.Ridge(fit_intercept=False,
-                                               alpha=backend.to_numpy(alpha))
-            w1 = model.fit(backend.to_numpy(X),
-                           backend.to_numpy(Y[:, tt])).coef_
+            X = backend.concatenate([t * backend.sqrt(g) for t, g in zip(Xs, gamma)], 1)
+            model = sklearn.linear_model.Ridge(
+                fit_intercept=False, alpha=backend.to_numpy(alpha)
+            )
+            w1 = model.fit(backend.to_numpy(X), backend.to_numpy(Y[:, tt])).coef_
             w1 = np.split(w1, np.cumsum([X.shape[1] for X in Xs][:-1]), axis=0)
             w1 = [backend.asarray(w) for w in w1]
             w1_scaled = backend.concatenate(
-                [w * backend.sqrt(g) for w, g, in zip(w1, gamma)])
-            assert_array_almost_equal(w1_scaled, refit_weights[:, tt],
-                                      decimal=5)
+                [w * backend.sqrt(g) for w, g in zip(w1, gamma)]
+            )
+            assert_array_almost_equal(w1_scaled, refit_weights[:, tt], decimal=5)
 
-        elif return_weights == 'dual':
+        elif return_weights == "dual":
             # compare dual weights with scipy.linalg.solve
             Ks_64 = backend.asarray(Ks, dtype=backend.float64)
             gamma_64 = backend.asarray(gamma, dtype=backend.float64)
             K = backend.matmul(Ks_64.T, gamma_64).T
             reg = backend.asarray_like(np.eye(K.shape[0]), K) * alpha
             Y_64 = backend.asarray(Y, dtype=backend.float64)
-            c1 = scipy.linalg.solve(backend.to_numpy(K + reg),
-                                    backend.to_numpy(Y_64[:, tt]))
+            c1 = scipy.linalg.solve(
+                backend.to_numpy(K + reg), backend.to_numpy(Y_64[:, tt])
+            )
             c1 = backend.asarray_like(c1, K)
             assert_array_almost_equal(c1, refit_weights[:, tt], decimal=5)
 
 
-@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
+def test_hyper_gradient_convergence_at_last_iteration(backend):
+    # Regression test for https://github.com/gallantlab/himalaya/issues/89
+    # When convergence happens at the very last iteration, the code tries to
+    # access cv_scores[it + 1, batch] which is out of bounds.
+    backend = set_backend(backend)
+    Ks, Y, _, gammas, _, _, _ = _create_dataset(backend)
+
+    # Use minimal iterations so we hit the last iteration quickly
+    max_iter = 1
+    max_iter_inner_hyper = 1
+    # Use large tolerance to trigger convergence check
+    tol = 1e10
+    # Use good initial_deltas so convergence criterion is met
+    initial_deltas = backend.log(gammas)
+
+    # This should not raise an IndexError
+    _, _, cv_scores = solve_multiple_kernel_ridge_hyper_gradient(
+        Ks,
+        Y,
+        max_iter=max_iter,
+        n_targets_batch=None,
+        max_iter_inner_dual=1,
+        max_iter_inner_hyper=max_iter_inner_hyper,
+        tol=tol,
+        score_func=r2_score,
+        cv=3,
+        hyper_gradient_method="direct",
+        initial_deltas=initial_deltas,
+        kernel_ridge_method="conjugate_gradient",
+        progress_bar=False,
+    )
+    cv_scores = backend.asarray(cv_scores)
+    # Verify we got valid scores
+    assert cv_scores.shape[0] == max_iter * max_iter_inner_hyper
+
+
+@pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_hyper_gradient_early_stopping(backend):
     # Non-regression test for https://github.com/gallantlab/himalaya/pull/37
     backend = set_backend(backend)
@@ -282,9 +369,18 @@ def test_hyper_gradient_early_stopping(backend):
     initial_deltas[:, -1] = 100
 
     _, _, cv_scores = solve_multiple_kernel_ridge_hyper_gradient(
-        Ks, Y, max_iter=100, n_targets_batch=n_targets_batch,
-        max_iter_inner_dual=1, max_iter_inner_hyper=1, tol=tol,
-        score_func=r2_score, cv=3, hyper_gradient_method="direct",
-        initial_deltas=initial_deltas, kernel_ridge_method="conjugate_gradient",
-        progress_bar=False)
+        Ks,
+        Y,
+        max_iter=100,
+        n_targets_batch=n_targets_batch,
+        max_iter_inner_dual=1,
+        max_iter_inner_hyper=1,
+        tol=tol,
+        score_func=r2_score,
+        cv=3,
+        hyper_gradient_method="direct",
+        initial_deltas=initial_deltas,
+        kernel_ridge_method="conjugate_gradient",
+        progress_bar=False,
+    )
     cv_scores = backend.asarray(cv_scores)

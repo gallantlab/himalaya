@@ -13,12 +13,26 @@ from ._random_search import solve_multiple_kernel_ridge_random_search
 
 
 def solve_multiple_kernel_ridge_hyper_gradient(
-        Ks, Y, score_func=l2_neg_loss, cv=5, fit_intercept=False,
-        return_weights=None, Xs=None, initial_deltas=0, max_iter=10, tol=1e-2,
-        max_iter_inner_dual=1, max_iter_inner_hyper=1, cg_tol=1e-3,
-        n_targets_batch=None, hyper_gradient_method="conjugate_gradient",
-        kernel_ridge_method="gradient_descent", random_state=None,
-        progress_bar=True, Y_in_cpu=False):
+    Ks,
+    Y,
+    score_func=l2_neg_loss,
+    cv=5,
+    fit_intercept=False,
+    return_weights=None,
+    Xs=None,
+    initial_deltas=0,
+    max_iter=10,
+    tol=1e-2,
+    max_iter_inner_dual=1,
+    max_iter_inner_hyper=1,
+    cg_tol=1e-3,
+    n_targets_batch=None,
+    hyper_gradient_method="conjugate_gradient",
+    kernel_ridge_method="gradient_descent",
+    random_state=None,
+    progress_bar=True,
+    Y_in_cpu=False,
+):
     """Solve bilinear kernel ridge regression with cross-validation.
 
     The hyper-parameters deltas correspond to::
@@ -100,34 +114,37 @@ def solve_multiple_kernel_ridge_hyper_gradient(
     Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
 
     if fit_intercept:
-        raise NotImplementedError('Coming soon.')
+        raise NotImplementedError("Coming soon.")
 
     cv = check_cv(cv, Y)
     n_splits = cv.get_n_splits()
     for train, val in cv.split(Y):
         if len(val) == 0 or len(train) == 0:
-            raise ValueError("Empty train or validation set. "
-                             "Check that `cv` is correctly defined.")
+            raise ValueError(
+                "Empty train or validation set. "
+                "Check that `cv` is correctly defined."
+            )
 
-    deltas = _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv,
-                                         n_targets_batch=n_targets_batch,
-                                         Y_in_cpu=Y_in_cpu)
+    deltas = _init_multiple_kernel_ridge(
+        Ks, Y, initial_deltas, cv, n_targets_batch=n_targets_batch, Y_in_cpu=Y_in_cpu
+    )
 
-    if return_weights == 'primal':
+    if return_weights == "primal":
         if Xs is None:
             raise ValueError("Xs is needed to compute the primal weights.")
         n_features = sum(X.shape[1] for X in Xs)
-        refit_weights = backend.zeros_like(Ks, shape=(n_features, n_targets),
-                                           device="cpu")
+        refit_weights = backend.zeros_like(
+            Ks, shape=(n_features, n_targets), device="cpu"
+        )
 
-    elif return_weights == 'dual':
-        refit_weights = backend.zeros_like(Ks, shape=(n_samples, n_targets),
-                                           device="cpu")
+    elif return_weights == "dual":
+        refit_weights = backend.zeros_like(
+            Ks, shape=(n_samples, n_targets), device="cpu"
+        )
     elif return_weights is None:
         refit_weights = None
     else:
-        raise ValueError("Unknown parameter return_weights=%r." %
-                         (return_weights, ))
+        raise ValueError("Unknown parameter return_weights=%r." % (return_weights,))
 
     lipschitz_constants = None
     name = "hypergradient_" + hyper_gradient_method
@@ -142,19 +159,21 @@ def solve_multiple_kernel_ridge_hyper_gradient(
             train = backend.to_gpu(train, device=device)
             Ks_train = Ks[:, train[:, None], train]
             lipschitz_constants.append(
-                compute_lipschitz_constants(Ks_train,
-                                            random_state=random_state))
+                compute_lipschitz_constants(Ks_train, random_state=random_state)
+            )
     else:
-        raise ValueError("Unknown parameter kernel_ridge_method=%r." %
-                         (kernel_ridge_method, ))
+        raise ValueError(
+            "Unknown parameter kernel_ridge_method=%r." % (kernel_ridge_method,)
+        )
 
     if isinstance(cg_tol, (int, float)):
-        cg_tol = backend.full_like(Y, shape=(max_iter, ), fill_value=cg_tol)
+        cg_tol = backend.full_like(Y, shape=(max_iter,), fill_value=cg_tol)
 
     alpha = 1.0
 
     cv_scores = backend.zeros_like(
-        Ks, shape=(max_iter * max_iter_inner_hyper, n_targets), device='cpu')
+        Ks, shape=(max_iter * max_iter_inner_hyper, n_targets), device="cpu"
+    )
 
     batch_iterates = range(0, n_targets, n_targets_batch)
     bar = None
@@ -197,18 +216,24 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                     kwargs = dict()
 
                 dual_weights_cv[kk] = inner_function_(
-                    Ks_train, Y_train, deltas[:, batch],
-                    initial_dual_weights=dual_weights_cv[kk], alpha=alpha,
-                    max_iter=max_iter_inner_dual_, tol=cg_tol_, **kwargs)
+                    Ks_train,
+                    Y_train,
+                    deltas[:, batch],
+                    initial_dual_weights=dual_weights_cv[kk],
+                    alpha=alpha,
+                    max_iter=max_iter_inner_dual_,
+                    tol=cg_tol_,
+                    **kwargs,
+                )
 
             ###################
             # update the deltas
             deltas_old = backend.copy(deltas[:, batch])
             for jj in range(max_iter_inner_hyper):
-
                 gradients = backend.zeros_like(deltas[:, batch])
                 scores = backend.zeros_like(
-                    Ks, shape=(n_splits, deltas[:, batch].shape[1]))
+                    Ks, shape=(n_splits, deltas[:, batch].shape[1])
+                )
                 for kk, (train, val) in enumerate(cv.split(Y)):
                     val = backend.to_gpu(val, device=device)
                     train = backend.to_gpu(train, device=device)
@@ -217,13 +242,22 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                     Ks_train = Ks[:, train[:, None], train]
                     Y_val = Y_batch[val]
 
-                    (gradients_kk, step_sizes[kk], predictions,
-                     previous_solutions[kk]) = _compute_delta_gradient(
-                         Ks_val=Ks_val, Y_val=Y_val, deltas=deltas[:, batch],
-                         dual_weights=dual_weights_cv[kk], Ks_train=Ks_train,
-                         tol=cg_tol[ii], random_state=random_state,
-                         hyper_gradient_method=hyper_gradient_method,
-                         previous_solution=previous_solutions[kk])
+                    (
+                        gradients_kk,
+                        step_sizes[kk],
+                        predictions,
+                        previous_solutions[kk],
+                    ) = _compute_delta_gradient(
+                        Ks_val=Ks_val,
+                        Y_val=Y_val,
+                        deltas=deltas[:, batch],
+                        dual_weights=dual_weights_cv[kk],
+                        Ks_train=Ks_train,
+                        tol=cg_tol[ii],
+                        random_state=random_state,
+                        hyper_gradient_method=hyper_gradient_method,
+                        previous_solution=previous_solutions[kk],
+                    )
 
                     gradients += gradients_kk * Y_val.shape[0] / n_samples
 
@@ -235,38 +269,47 @@ def solve_multiple_kernel_ridge_hyper_gradient(
                 # update deltas, using the minimum step size over splits
                 step_size = backend.min(backend.stack(step_sizes), axis=0)
                 deltas[:, batch] -= gradients * step_size[None, :]
-                assert not backend.any(
-                    backend.isinf(backend.exp(deltas[:, batch])))
+                assert not backend.any(backend.isinf(backend.exp(deltas[:, batch])))
 
             ####################
             # stopping criterion
             if tol is not None:
-                if backend.max(
-                        backend.abs(deltas_old - deltas[:, batch])) < tol:
-                    cv_scores[it + 1, batch] = cv_scores[it, batch]
+                if backend.max(backend.abs(deltas_old - deltas[:, batch])) < tol:
+                    if it + 1 < cv_scores.shape[0]:
+                        cv_scores[it + 1, batch] = cv_scores[it, batch]
                     break
 
         ##########################################
         # refit dual weights on the entire dataset
         if return_weights in ["primal", "dual"]:
             dual_weights = solve_weighted_kernel_ridge_conjugate_gradient(
-                Ks, Y_batch, deltas[:, batch], initial_dual_weights=None,
-                alpha=alpha, max_iter=100, tol=1e-4)
-            if return_weights == 'primal':
+                Ks,
+                Y_batch,
+                deltas[:, batch],
+                initial_dual_weights=None,
+                alpha=alpha,
+                max_iter=100,
+                tol=1e-4,
+            )
+            if return_weights == "primal":
                 # multiply by g and not np.sqrt(g), as we then want to use
                 # the primal weights on the unscaled features Xs, and not
                 # on the scaled features (np.sqrt(g) * Xs)
                 X = None
                 for tt in range(refit_weights[:, batch].shape[1]):
-                    X = backend.concatenate([
-                        t * g for t, g in zip(
-                            Xs, backend.exp(deltas[:, batch][:, tt]))
-                    ], 1)
+                    X = backend.concatenate(
+                        [
+                            t * g
+                            for t, g in zip(Xs, backend.exp(deltas[:, batch][:, tt]))
+                        ],
+                        1,
+                    )
                     refit_weights[:, batch][:, tt] = backend.to_cpu(
-                        backend.matmul(X.T, dual_weights[:, tt]))
+                        backend.matmul(X.T, dual_weights[:, tt])
+                    )
                 del X
 
-            elif return_weights == 'dual':
+            elif return_weights == "dual":
                 refit_weights[:, batch] = backend.to_cpu(dual_weights)
 
             del dual_weights
@@ -320,17 +363,25 @@ def _init_multiple_kernel_ridge(Ks, Y, initial_deltas, cv, **ridgecv_kwargs):
     if initial_deltas is None:
         initial_deltas = 0
 
-    if ((isinstance(initial_deltas, str) and (initial_deltas == 'ridgecv'))):
+    if isinstance(initial_deltas, str) and (initial_deltas == "ridgecv"):
         alphas = backend.logspace(-10, 20, 30)
-        gammas = backend.full_like(Y, shape=n_kernels,
-                                   fill_value=1. / n_kernels)[None]
+        gammas = backend.full_like(Y, shape=n_kernels, fill_value=1.0 / n_kernels)[None]
         deltas, _, _ = solve_multiple_kernel_ridge_random_search(
-            Ks, Y, n_iter=gammas, alphas=alphas, cv=cv, n_alphas_batch=5,
-            return_weights=None, progress_bar=False, **ridgecv_kwargs)
+            Ks,
+            Y,
+            n_iter=gammas,
+            alphas=alphas,
+            cv=cv,
+            n_alphas_batch=5,
+            return_weights=None,
+            progress_bar=False,
+            **ridgecv_kwargs,
+        )
 
     elif isinstance(initial_deltas, numbers.Number):
-        deltas = backend.full_like(Ks, shape=(n_kernels, n_targets),
-                                   fill_value=initial_deltas)
+        deltas = backend.full_like(
+            Ks, shape=(n_kernels, n_targets), fill_value=initial_deltas
+        )
 
     else:
         deltas = backend.copy(backend.asarray_like(initial_deltas, ref=Ks))
@@ -368,10 +419,17 @@ def _compute_delta_loss(Ks_val, Y_val, deltas, dual_weights):
     return loss
 
 
-def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
-                            tol=None, previous_solution=None,
-                            hyper_gradient_method='conjugate_gradient',
-                            random_state=None):
+def _compute_delta_gradient(
+    Ks_val,
+    Y_val,
+    deltas,
+    dual_weights,
+    Ks_train=None,
+    tol=None,
+    previous_solution=None,
+    hyper_gradient_method="conjugate_gradient",
+    random_state=None,
+):
     """Compute the gradient over deltas on the validation dataset.
 
     Parameters
@@ -426,11 +484,10 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
     # estimate a step size
     XTXs = _compute_deltas_hessian(exp_delta_chi_val, residuals)
     # (these lipschitz constants only correspond to the direct gradient)
-    lipschitz_1 = compute_lipschitz_constants(XTXs, "X",
-                                              random_state=random_state)
-    step_size = 1. / (lipschitz_1 + 1e-15)
+    lipschitz_1 = compute_lipschitz_constants(XTXs, "X", random_state=random_state)
+    step_size = 1.0 / (lipschitz_1 + 1e-15)
 
-    if hyper_gradient_method == 'direct':
+    if hyper_gradient_method == "direct":
         gradient = direct_gradient
         solution = None
     else:
@@ -440,27 +497,38 @@ def _compute_delta_gradient(Ks_val, Y_val, deltas, dual_weights, Ks_train=None,
         tmp = backend.matmul(backend.transpose(Ks_val, (2, 0, 1)), residuals)
         tmp = backend.transpose(tmp, (2, 0, 1))
         nabla_g_1 = backend.matmul(
-            tmp,
-            backend.transpose(exp_delta, (1, 0))[:, :, None])
+            tmp, backend.transpose(exp_delta, (1, 0))[:, :, None]
+        )
         nabla_g_1 = backend.transpose(nabla_g_1[:, :, 0], (1, 0))
         assert nabla_g_1.shape == dual_weights.shape
 
         # solve linear system (sum_i gamma[i]*K[i] + 1) @ X = nabla_g_1
         alpha = 1
         assert Ks_train is not None
-        if hyper_gradient_method == 'conjugate_gradient':
+        if hyper_gradient_method == "conjugate_gradient":
             assert tol is not None
             solution = solve_weighted_kernel_ridge_conjugate_gradient(
-                Ks=Ks_train, Y=nabla_g_1, deltas=deltas,
-                initial_dual_weights=previous_solution, max_iter=100, tol=tol,
-                alpha=alpha)
-        elif hyper_gradient_method == 'neumann':
+                Ks=Ks_train,
+                Y=nabla_g_1,
+                deltas=deltas,
+                initial_dual_weights=previous_solution,
+                max_iter=100,
+                tol=tol,
+                alpha=alpha,
+            )
+        elif hyper_gradient_method == "neumann":
             solution = solve_weighted_kernel_ridge_neumann_series(
-                Ks=Ks_train, Y=nabla_g_1, deltas=deltas, max_iter=5,
-                factor=0.00001, alpha=alpha)
+                Ks=Ks_train,
+                Y=nabla_g_1,
+                deltas=deltas,
+                max_iter=5,
+                factor=0.00001,
+                alpha=alpha,
+            )
         else:
-            raise ValueError("Unknown parameter hyper_gradient_method=%r." %
-                             (hyper_gradient_method, ))
+            raise ValueError(
+                "Unknown parameter hyper_gradient_method=%r." % (hyper_gradient_method,)
+            )
 
         # finish the indirect gradient
         chi_train = backend.matmul(Ks_train, dual_weights)
@@ -498,11 +566,14 @@ def _compute_deltas_hessian(exp_delta_chi, residuals):
     """
     backend = get_backend()
 
-    XTXs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
-                          backend.transpose(exp_delta_chi, (2, 1, 0)))
-    XTbs = backend.matmul(backend.transpose(exp_delta_chi, (2, 0, 1)),
-                          backend.transpose(residuals,
-                                            (1, 0))[:, :, None])[:, :, 0]
+    XTXs = backend.matmul(
+        backend.transpose(exp_delta_chi, (2, 0, 1)),
+        backend.transpose(exp_delta_chi, (2, 1, 0)),
+    )
+    XTbs = backend.matmul(
+        backend.transpose(exp_delta_chi, (2, 0, 1)),
+        backend.transpose(residuals, (1, 0))[:, :, None],
+    )[:, :, 0]
     diagonal_view = backend.diagonal_view(XTXs, axis1=1, axis2=2)
     diagonal_view += XTbs
     return XTXs
