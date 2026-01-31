@@ -44,3 +44,20 @@ In himalaya, the scikit-learn compatible estimators validate the input data,
 checking the absence of NaN or infinite values. For large datasets, this check
 can take significant computational time. To skip this check, simply call
 ``sklearn.set_config(assume_finite=True)`` before fitting your models.
+
+
+Eigenvalue decomposition error in kernel ridge solvers
+------------------------------------------------------
+
+When using GPU backends (e.g. ``torch_cuda``) with float32 precision, the
+eigenvalue decomposition (``eigh``) used internally by
+:class:`~himalaya.kernel_ridge.KernelRidgeCV` and
+:class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV` solvers can fail on
+ill-conditioned kernel matrices. This typically raises errors from the
+underlying ``eigh`` routine.
+
+To work around this, pass ``solver_params=dict(diagonalize_method="svd")`` to
+use SVD instead of ``eigh`` for the decomposition. SVD is slower but more
+numerically robust::
+
+    model = KernelRidgeCV(solver_params=dict(diagonalize_method="svd"))

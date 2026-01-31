@@ -1,20 +1,21 @@
 :orphan:
 
-
-
-.. _sphx_glr__auto_examples:
-
 Gallery of examples
 ===================
 
 
+
 .. raw:: html
 
-    <div class="sphx-glr-clear"></div>
+    <div class="sphx-glr-thumbnails">
 
+.. thumbnail-parent-div-open
 
+.. thumbnail-parent-div-close
 
-.. _sphx_glr__auto_examples_kernel_ridge:
+.. raw:: html
+
+    </div>
 
 Kernel ridge
 ------------
@@ -23,45 +24,43 @@ Kernel ridge
 
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to solve kernel ridge regression, using himalaya&#x27;s estimator Kern...">
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to solve kernel ridge regression, using himalaya&#x27;s estimator KernelRidge compatible with scikit-learn&#x27;s API.">
 
 .. only:: html
 
- .. figure:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_kernel_ridge_thumb.png
-     :alt: Kernel ridge
+  .. image:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_kernel_ridge_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py`
+  :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Kernel ridge</div>
     </div>
 
 
-.. toctree::
-   :hidden:
-
-   /_auto_examples/kernel_ridge/plot_kernel_ridge
-
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to solve kernel ridge regression with a cross-validation of the r...">
+    <div class="sphx-glr-thumbcontainer" tooltip="This example demonstrates how to solve kernel ridge regression with a cross-validation of the regularization parameter, using himalaya&#x27;s estimator KernelRidgeCV.">
 
 .. only:: html
 
- .. figure:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_kernel_ridge_cv_thumb.png
-     :alt: Kernel ridge with cross-validation
+  .. image:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_kernel_ridge_cv_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py`
+  :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Kernel ridge with cross-validation</div>
     </div>
 
-
-.. toctree::
-   :hidden:
-
-   /_auto_examples/kernel_ridge/plot_kernel_ridge_cv
 
 .. raw:: html
 
@@ -69,27 +68,22 @@ Kernel ridge
 
 .. only:: html
 
- .. figure:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_model_on_gpu.py_thumb.png
-     :alt: Fitting a model on GPU
+  .. image:: /_auto_examples/kernel_ridge/images/thumb/sphx_glr_plot_model_on_gpu.py_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_kernel_ridge_plot_model_on_gpu.py.py`
+  :ref:`sphx_glr__auto_examples_kernel_ridge_plot_model_on_gpu.py.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Fitting a model on GPU</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
 
 .. raw:: html
 
     </div>
-
-
-.. toctree::
-   :hidden:
-
-   /_auto_examples/kernel_ridge/plot_model_on_gpu.py
-.. raw:: html
-
-    <div class="sphx-glr-clear"></div>
-
-
-
-.. _sphx_glr__auto_examples_multiple_kernel_ridge:
 
 Multiple-kernel ridge
 ---------------------
@@ -98,24 +92,26 @@ Multiple-kernel ridge
 
 .. raw:: html
 
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
     <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge">
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_0_random_search_thumb.png
-     :alt: Multiple-kernel ridge
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_0_random_search_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py`
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge</div>
     </div>
 
-
-.. toctree::
-   :hidden:
-
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_0_random_search
 
 .. raw:: html
 
@@ -123,41 +119,33 @@ Multiple-kernel ridge
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_1_sklearn_api_thumb.png
-     :alt: Multiple-kernel ridge with scikit-learn API
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_1_sklearn_api_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py`
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge with scikit-learn API</div>
     </div>
 
 
-.. toctree::
-   :hidden:
-
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_1_sklearn_api
-
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="The *random-search* strategy samples some kernel weights vectors from a Dirichlet distribution,...">
+    <div class="sphx-glr-thumbcontainer" tooltip="The random-search strategy samples some kernel weights vectors from a Dirichlet distribution, then for each vector, it fits a KernelRidgeCV model and computes a cross-validation score for all targets. Then it selects for each target the kernel weight vector leading to the highest cross-validation score (e.g. the highest R^2 value). Extensively sampling the kernel weights space is exponentially expensive with the number of kernels, therefore this method is computationally expensive for a large number of kernels. However, since it reuses most of the computations for all targets, it scales very well with the number of targets.">
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_2_solvers_thumb.png
-     :alt: Multiple-kernel ridge solvers
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_2_solvers_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py`
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge solvers</div>
     </div>
 
-
-.. toctree::
-   :hidden:
-
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_2_solvers
 
 .. raw:: html
 
@@ -165,41 +153,33 @@ Multiple-kernel ridge
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_3_path_thumb.png
-     :alt: Multiple-kernel ridge path between two kernels
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_3_path_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py`
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge path between two kernels</div>
     </div>
 
 
-.. toctree::
-   :hidden:
-
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_3_path
-
 .. raw:: html
 
-    <div class="sphx-glr-thumbcontainer" tooltip="- If the kernel weights hyper-parameters are known and identical across   targets, the kernels ...">
+    <div class="sphx-glr-thumbcontainer" tooltip="- If the kernel weights hyper-parameters are known and identical across   targets, the kernels can be scaled and summed, and a simple KernelRidgeCV can   be used to fit the model. - If the kernel weights hyper-parameters are unknown and different across   targets, a MultipleKernelRidgeCV can be use to search the best   hyper-parameters per target. - If the kernel weights hyper-parameters are known and different across   targets, a WeightedKernelRidge model can be used to fit the ridge models on   each target independently.">
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_4_refit_from_deltas_thumb.png
-     :alt: Multiple-kernel ridge fit from fixed hyper-parameters
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_4_refit_from_deltas_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py`
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py`
 
 .. raw:: html
 
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge fit from fixed hyper-parameters</div>
     </div>
 
-
-.. toctree::
-   :hidden:
-
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_4_refit_from_deltas
 
 .. raw:: html
 
@@ -207,10 +187,18 @@ Multiple-kernel ridge
 
 .. only:: html
 
- .. figure:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_5_refine_results_thumb.png
-     :alt: Multiple-kernel ridge refining
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_5_refine_results_thumb.png
+    :alt:
 
-     :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py`
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge refining</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
 
 .. raw:: html
 
@@ -219,11 +207,11 @@ Multiple-kernel ridge
 
 .. toctree::
    :hidden:
+   :includehidden:
 
-   /_auto_examples/multiple_kernel_ridge/plot_mkr_5_refine_results
-.. raw:: html
 
-    <div class="sphx-glr-clear"></div>
+   /_auto_examples/kernel_ridge/index.rst
+   /_auto_examples/multiple_kernel_ridge/index.rst
 
 
 

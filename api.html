@@ -1,23 +1,20 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>API &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-rendered-html.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>API &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="himalaya.backend.set_backend" href="_generated/himalaya.backend.set_backend.html" />
@@ -25,17 +22,20 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
-    <img class="logo" src="_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -76,7 +76,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -84,8 +84,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -94,17 +94,13 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="api">
-<span id="api-documentation"></span><h1>API<a class="headerlink" href="#api" title="Permalink to this headline">¶</a></h1>
+  <section id="api">
+<span id="api-documentation"></span><h1>API<a class="headerlink" href="#api" title="Link to this heading">¶</a></h1>
 <p>List of functions and classes in Himalaya.</p>
-<div class="section" id="backend">
-<h2>Backend<a class="headerlink" href="#backend" title="Permalink to this headline">¶</a></h2>
+<section id="backend">
+<h2>Backend<a class="headerlink" href="#backend" title="Link to this heading">¶</a></h2>
 <p>Public functions in <code class="docutils literal notranslate"><span class="pre">himalaya.backend</span></code>.</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.backend.set_backend.html#himalaya.backend.set_backend" title="himalaya.backend.set_backend"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_backend</span></code></a></p></td>
 <td><p>Set the backend using a global variable, and return the backend module.</p></td>
@@ -120,19 +116,15 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</div>
+</section>
 <hr class="docutils" />
-<div class="section" id="kernel-ridge">
-<h2>Kernel ridge<a class="headerlink" href="#kernel-ridge" title="Permalink to this headline">¶</a></h2>
+<section id="kernel-ridge">
+<h2>Kernel ridge<a class="headerlink" href="#kernel-ridge" title="Link to this heading">¶</a></h2>
 <p>Public functions and classes in <code class="docutils literal notranslate"><span class="pre">himalaya.kernel_ridge</span></code>.</p>
-<div class="section" id="estimators">
-<h3>Estimators<a class="headerlink" href="#estimators" title="Permalink to this headline">¶</a></h3>
+<section id="estimators">
+<h3>Estimators<a class="headerlink" href="#estimators" title="Link to this heading">¶</a></h3>
 <p>Estimators compatible with the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> API.</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge" title="himalaya.kernel_ridge.KernelRidge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KernelRidge</span></code></a></p></td>
 <td><p>Kernel ridge regression.</p></td>
@@ -157,14 +149,10 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="solver-functions">
-<h3>Solver functions<a class="headerlink" href="#solver-functions" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="solver-functions">
+<h3>Solver functions<a class="headerlink" href="#solver-functions" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.KERNEL_RIDGE_SOLVERS.html#himalaya.kernel_ridge.KERNEL_RIDGE_SOLVERS" title="himalaya.kernel_ridge.KERNEL_RIDGE_SOLVERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">KERNEL_RIDGE_SOLVERS</span></code></a></p></td>
 <td><p></p></td>
@@ -204,14 +192,10 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="helpers">
-<h3>Helpers<a class="headerlink" href="#helpers" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="helpers">
+<h3>Helpers<a class="headerlink" href="#helpers" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.generate_dirichlet_samples.html#himalaya.kernel_ridge.generate_dirichlet_samples" title="himalaya.kernel_ridge.generate_dirichlet_samples"><code class="xref py py-obj docutils literal notranslate"><span class="pre">generate_dirichlet_samples</span></code></a></p></td>
 <td><p>Generate samples from a Dirichlet distribution.</p></td>
@@ -230,14 +214,10 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="kernels">
-<h3>Kernels<a class="headerlink" href="#kernels" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="kernels">
+<h3>Kernels<a class="headerlink" href="#kernels" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS.html#himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS" title="himalaya.kernel_ridge.PAIRWISE_KERNEL_FUNCTIONS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PAIRWISE_KERNEL_FUNCTIONS</span></code></a></p></td>
 <td><p></p></td>
@@ -265,34 +245,26 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 <hr class="docutils" />
-<div class="section" id="lasso">
-<h2>Lasso<a class="headerlink" href="#lasso" title="Permalink to this headline">¶</a></h2>
+<section id="lasso">
+<h2>Lasso<a class="headerlink" href="#lasso" title="Link to this heading">¶</a></h2>
 <p>Public functions and classes in <code class="docutils literal notranslate"><span class="pre">himalaya.lasso</span></code>.</p>
-<div class="section" id="id1">
-<h3>Estimators<a class="headerlink" href="#id1" title="Permalink to this headline">¶</a></h3>
+<section id="id1">
+<h3>Estimators<a class="headerlink" href="#id1" title="Link to this heading">¶</a></h3>
 <p>Estimators compatible with the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> API.</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.lasso.SparseGroupLassoCV.html#himalaya.lasso.SparseGroupLassoCV" title="himalaya.lasso.SparseGroupLassoCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SparseGroupLassoCV</span></code></a></p></td>
 <td><p>Sparse group Lasso</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="id2">
-<h3>Solver functions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="id2">
+<h3>Solver functions<a class="headerlink" href="#id2" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.lasso.solve_sparse_group_lasso.html#himalaya.lasso.solve_sparse_group_lasso" title="himalaya.lasso.solve_sparse_group_lasso"><code class="xref py py-obj docutils literal notranslate"><span class="pre">solve_sparse_group_lasso</span></code></a></p></td>
 <td><p>Solves the sparse group Lasso.</p></td>
@@ -305,20 +277,16 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 <hr class="docutils" />
-<div class="section" id="ridge">
-<h2>Ridge<a class="headerlink" href="#ridge" title="Permalink to this headline">¶</a></h2>
+<section id="ridge">
+<h2>Ridge<a class="headerlink" href="#ridge" title="Link to this heading">¶</a></h2>
 <p>Public functions and classes in <code class="docutils literal notranslate"><span class="pre">himalaya.ridge</span></code>.</p>
-<div class="section" id="id3">
-<h3>Estimators<a class="headerlink" href="#id3" title="Permalink to this headline">¶</a></h3>
+<section id="id3">
+<h3>Estimators<a class="headerlink" href="#id3" title="Link to this heading">¶</a></h3>
 <p>Estimators compatible with the <code class="docutils literal notranslate"><span class="pre">scikit-learn</span></code> API.</p>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.ridge.Ridge.html#himalaya.ridge.Ridge" title="himalaya.ridge.Ridge"><code class="xref py py-obj docutils literal notranslate"><span class="pre">Ridge</span></code></a></p></td>
 <td><p>Ridge regression.</p></td>
@@ -330,7 +298,7 @@
 <td><p>Group ridge regression with cross-validation.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/himalaya.ridge.BandedRidgeCV.html#himalaya.ridge.BandedRidgeCV" title="himalaya.ridge.BandedRidgeCV"><code class="xref py py-obj docutils literal notranslate"><span class="pre">BandedRidgeCV</span></code></a></p></td>
-<td><p>alias of <a class="reference internal" href="_generated/himalaya.ridge.GroupRidgeCV.html#himalaya.ridge.GroupRidgeCV" title="himalaya.ridge._sklearn_api.GroupRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">himalaya.ridge._sklearn_api.GroupRidgeCV</span></code></a></p></td>
+<td><p>alias of <a class="reference internal" href="_generated/himalaya.ridge.GroupRidgeCV.html#himalaya.ridge.GroupRidgeCV" title="himalaya.ridge._sklearn_api.GroupRidgeCV"><code class="xref py py-class docutils literal notranslate"><span class="pre">GroupRidgeCV</span></code></a></p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.ridge.ColumnTransformerNoStack.html#himalaya.ridge.ColumnTransformerNoStack" title="himalaya.ridge.ColumnTransformerNoStack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ColumnTransformerNoStack</span></code></a></p></td>
 <td><p>Applies transformers to columns of an array, and does not stack them.</p></td>
@@ -340,14 +308,10 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="id4">
-<h3>Solver functions<a class="headerlink" href="#id4" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="id4">
+<h3>Solver functions<a class="headerlink" href="#id4" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.ridge.RIDGE_SOLVERS.html#himalaya.ridge.RIDGE_SOLVERS" title="himalaya.ridge.RIDGE_SOLVERS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RIDGE_SOLVERS</span></code></a></p></td>
 <td><p></p></td>
@@ -375,19 +339,15 @@
 <div class="line-block">
 <div class="line"><br /></div>
 </div>
-</div>
-</div>
+</section>
+</section>
 <hr class="docutils" />
-<div class="section" id="other-modules">
-<h2>Other modules<a class="headerlink" href="#other-modules" title="Permalink to this headline">¶</a></h2>
+<section id="other-modules">
+<h2>Other modules<a class="headerlink" href="#other-modules" title="Link to this heading">¶</a></h2>
 <p>Public functions and classes in other minor modules.</p>
-<div class="section" id="progress-bar">
-<h3>Progress bar<a class="headerlink" href="#progress-bar" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+<section id="progress-bar">
+<h3>Progress bar<a class="headerlink" href="#progress-bar" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.progress_bar.ProgressBar.html#himalaya.progress_bar.ProgressBar" title="himalaya.progress_bar.ProgressBar"><code class="xref py py-obj docutils literal notranslate"><span class="pre">progress_bar.ProgressBar</span></code></a></p></td>
 <td><p>Generate a command-line progress bar.</p></td>
@@ -397,20 +357,16 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="scoring-functions">
-<h3>Scoring functions<a class="headerlink" href="#scoring-functions" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="scoring-functions">
+<h3>Scoring functions<a class="headerlink" href="#scoring-functions" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.scoring.l2_neg_loss.html#himalaya.scoring.l2_neg_loss" title="himalaya.scoring.l2_neg_loss"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scoring.l2_neg_loss</span></code></a></p></td>
 <td><p>L2 negative loss, computed for multiple predictions.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="_generated/himalaya.scoring.r2_score.html#himalaya.scoring.r2_score" title="himalaya.scoring.r2_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scoring.r2_score</span></code></a></p></td>
-<td><p>R2 score, computed for multiple predictions (e.g.</p></td>
+<td><p>R2 score, computed for multiple predictions (e.g. multiple alphas).</p></td>
 </tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.scoring.correlation_score.html#himalaya.scoring.correlation_score" title="himalaya.scoring.correlation_score"><code class="xref py py-obj docutils literal notranslate"><span class="pre">scoring.correlation_score</span></code></a></p></td>
 <td><p>Correlation score, computed for multiple predictions.</p></td>
@@ -426,14 +382,10 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="utils">
-<h3>Utils<a class="headerlink" href="#utils" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="utils">
+<h3>Utils<a class="headerlink" href="#utils" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.utils.compute_lipschitz_constants.html#himalaya.utils.compute_lipschitz_constants" title="himalaya.utils.compute_lipschitz_constants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">utils.compute_lipschitz_constants</span></code></a></p></td>
 <td><p>Compute Lipschitz constants of gradients of linear regression problems.</p></td>
@@ -443,23 +395,19 @@
 </tr>
 </tbody>
 </table>
-</div>
-<div class="section" id="visualization">
-<h3>Visualization<a class="headerlink" href="#visualization" title="Permalink to this headline">¶</a></h3>
-<table class="longtable docutils align-default">
-<colgroup>
-<col style="width: 10%" />
-<col style="width: 90%" />
-</colgroup>
+</section>
+<section id="visualization">
+<h3>Visualization<a class="headerlink" href="#visualization" title="Link to this heading">¶</a></h3>
+<table class="autosummary longtable docutils align-default">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="_generated/himalaya.viz.plot_alphas_diagnostic.html#himalaya.viz.plot_alphas_diagnostic" title="himalaya.viz.plot_alphas_diagnostic"><code class="xref py py-obj docutils literal notranslate"><span class="pre">viz.plot_alphas_diagnostic</span></code></a></p></td>
 <td><p>Plot a diagnostic plot for the selected alphas during cross-validation.</p></td>
 </tr>
 </tbody>
 </table>
-</div>
-</div>
-</div>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -469,11 +417,11 @@
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
       <a href="_sources/api.rst.txt"

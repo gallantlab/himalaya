@@ -1,41 +1,41 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kernel ridge &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery-rendered-html.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Kernel ridge &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Kernel ridge with cross-validation" href="plot_kernel_ridge_cv.html" />
-    <link rel="prev" title="Gallery of examples" href="../index.html" />
+    <link rel="prev" title="Kernel ridge" href="index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../index.html">
-    <img class="logo" src="../../_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="../../_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -59,8 +59,10 @@
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">Gallery of examples</a><ul>
-      <li>Previous: <a href="../index.html" title="previous chapter">Gallery of examples</a></li>
+  <li><a href="index.html">Kernel ridge</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Kernel ridge</a></li>
       <li>Next: <a href="plot_kernel_ridge_cv.html" title="next chapter">Kernel ridge with cross-validation</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -78,7 +80,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -86,8 +88,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -98,28 +100,28 @@
             
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-py"><span class="std std-ref">here</span></a>
-to download the full example code</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
 </div>
-<div class="sphx-glr-example-title section" id="kernel-ridge">
-<span id="sphx-glr-auto-examples-kernel-ridge-plot-kernel-ridge-py"></span><h1>Kernel ridge<a class="headerlink" href="#kernel-ridge" title="Permalink to this headline">¶</a></h1>
+<section class="sphx-glr-example-title" id="kernel-ridge">
+<span id="sphx-glr-auto-examples-kernel-ridge-plot-kernel-ridge-py"></span><h1>Kernel ridge<a class="headerlink" href="#kernel-ridge" title="Link to this heading">¶</a></h1>
 <p>This example demonstrates how to solve kernel ridge regression, using
 himalaya’s estimator <code class="docutils literal notranslate"><span class="pre">KernelRidge</span></code> compatible with scikit-learn’s API.</p>
-<div class="section" id="create-a-random-dataset">
-<h2>Create a random dataset<a class="headerlink" href="#create-a-random-dataset" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<section id="create-a-random-dataset">
+<h2>Create a random dataset<a class="headerlink" href="#create-a-random-dataset" title="Link to this heading">¶</a></h2>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 <span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span> <span class="o">=</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">4</span>
 <span class="n">X</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_features</span><span class="p">)</span>
 <span class="n">Y</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randn</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="scikit-learn-api">
-<h2>Scikit-learn API<a class="headerlink" href="#scikit-learn-api" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="scikit-learn-api">
+<h2>Scikit-learn API<a class="headerlink" href="#scikit-learn-api" title="Link to this heading">¶</a></h2>
 <p>Himalaya implements a <code class="docutils literal notranslate"><span class="pre">KernelRidge</span></code> estimator, similar to the corresponding
 scikit-learn estimator, with similar parameters and methods.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sklearn.kernel_ridge</span>
-<span class="kn">import</span> <span class="nn">himalaya.kernel_ridge</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">sklearn.kernel_ridge</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">himalaya.kernel_ridge</span>
 
 <span class="c1"># Fit a scikit-learn model</span>
 <span class="n">model_skl</span> <span class="o">=</span> <span class="n">sklearn</span><span class="o">.</span><span class="n">kernel_ridge</span><span class="o">.</span><span class="n">KernelRidge</span><span class="p">(</span><span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.1</span><span class="p">)</span>
@@ -136,39 +138,40 @@ scikit-learn estimator, with similar parameters and methods.</p>
 <span class="nb">print</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">Y_pred_skl</span> <span class="o">-</span> <span class="n">Y_pred_him</span><span class="p">)))</span>
 </pre></div>
 </div>
-<p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>7.105427357601002e-15
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>1.1102230246251565e-14
 </pre></div>
 </div>
-</div>
-<div class="section" id="small-api-difference">
-<h2>Small API difference<a class="headerlink" href="#small-api-difference" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="small-api-difference">
+<h2>Small API difference<a class="headerlink" href="#small-api-difference" title="Link to this heading">¶</a></h2>
 <p>Since himalaya focuses on fitting multiple targets, the <code class="docutils literal notranslate"><span class="pre">score</span></code> method
 returns the score on each target separately, while scikit-learn returns the
 average score over targets.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">model_skl</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">))</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">model_skl</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">model_him</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">))</span>
 <span class="nb">print</span><span class="p">(</span><span class="n">model_him</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span><span class="o">.</span><span class="n">mean</span><span class="p">())</span>
 </pre></div>
 </div>
-<p class="sphx-glr-script-out">Out:</p>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.9999104439221304
-[0.99990451 0.99985375 0.99994683 0.99993669]
-0.9999104439221304
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>0.999901707232072
+[0.99994141 0.99991882 0.99981273 0.99993386]
+0.999901707232072
 </pre></div>
 </div>
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  0.017 seconds)</p>
-<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-py">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/5518d8fa27f48bb9a31f5cbefede1039/plot_kernel_ridge.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_kernel_ridge.py</span></code></a></p>
-</div>
+<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 0.014 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-kernel-ridge-plot-kernel-ridge-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/79add15c04f675c28cad6df4356fcd0e/plot_kernel_ridge.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_kernel_ridge.ipynb</span></code></a></p>
 </div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/5518d8fa27f48bb9a31f5cbefede1039/plot_kernel_ridge.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_kernel_ridge.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/482499f03dbc502c9417392390c1a202/plot_kernel_ridge.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_kernel_ridge.zip</span></code></a></p>
+</div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -178,11 +181,11 @@ average score over targets.</p>
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
       <a href="../../_sources/_auto_examples/kernel_ridge/plot_kernel_ridge.rst.txt"

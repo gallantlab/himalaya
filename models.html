@@ -1,24 +1,386 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="./">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Model descriptions &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="_static/gallery-rendered-html.css" />
-    <script data-url_root="./" id="documentation_options" src="_static/documentation_options.js"></script>
-    <script src="_static/jquery.js"></script>
-    <script src="_static/underscore.js"></script>
-    <script src="_static/doctools.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Model descriptions &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="_static/doctools.js?v=9a2dae69"></script>
+    <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <script async="async" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
     <link rel="index" title="Index" href="genindex.html" />
     <link rel="search" title="Search" href="search.html" />
     <link rel="next" title="Model flowchart" href="flowchart.html" />
@@ -26,17 +388,20 @@
    
   <link rel="stylesheet" href="_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="index.html">
-    <img class="logo" src="_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -77,7 +442,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="search.html" method="get">
@@ -85,8 +450,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -95,15 +460,15 @@
 
           <div class="body" role="main">
             
-  <div class="section" id="model-descriptions">
-<h1>Model descriptions<a class="headerlink" href="#model-descriptions" title="Permalink to this headline">¶</a></h1>
+  <section id="model-descriptions">
+<h1>Model descriptions<a class="headerlink" href="#model-descriptions" title="Link to this heading">¶</a></h1>
 <p>This package implements a number of models.</p>
-<div class="section" id="ridge">
-<h2>Ridge<a class="headerlink" href="#ridge" title="Permalink to this headline">¶</a></h2>
+<section id="ridge">
+<h2>Ridge<a class="headerlink" href="#ridge" title="Link to this heading">¶</a></h2>
 <p>Let <span class="math notranslate nohighlight">\(X\in \mathbb{R}^{n\times p}\)</span> be a feature matrix with <span class="math notranslate nohighlight">\(n\)</span>
 samples and <span class="math notranslate nohighlight">\(p\)</span> features,  <span class="math notranslate nohighlight">\(y\in \mathbb{R}^n\)</span> a target vector, and
 <span class="math notranslate nohighlight">\(\alpha &gt; 0\)</span> a fixed regularization hyperparameter. Ridge regression
-<a class="footnote-reference brackets" href="#id4" id="id1">1</a> defines the weight vector <span class="math notranslate nohighlight">\(b^*\in \mathbb{R}^p\)</span> as:</p>
+<a class="footnote-reference brackets" href="#id5" id="id1" role="doc-noteref"><span class="fn-bracket">[</span>1<span class="fn-bracket">]</span></a> defines the weight vector <span class="math notranslate nohighlight">\(b^*\in \mathbb{R}^p\)</span> as:</p>
 <div class="math notranslate nohighlight">
 \[b^* = \arg\min_b \|Xb - y\|_2^2 + \alpha \|b\|_2^2.\]</div>
 <p>The equation has a  closed-form solution <span class="math notranslate nohighlight">\(b^* = M y\)</span>, where <span class="math notranslate nohighlight">\(M =
@@ -115,9 +480,9 @@ samples and <span class="math notranslate nohighlight">\(p\)</span> features,  <
 <li><p><a class="reference internal" href="_generated/himalaya.ridge.solve_ridge_svd.html#himalaya.ridge.solve_ridge_svd" title="himalaya.ridge.solve_ridge_svd"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_ridge_svd()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="kernelridge">
-<h2>KernelRidge<a class="headerlink" href="#kernelridge" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="kernelridge">
+<h2>KernelRidge<a class="headerlink" href="#kernelridge" title="Link to this heading">¶</a></h2>
 <p>By the Woodbury matrix identity, <span class="math notranslate nohighlight">\(b^*\)</span> can be written as <span class="math notranslate nohighlight">\(b^* =
 X^\top(XX^\top + \alpha I_n)^{-1}y\)</span>, or <span class="math notranslate nohighlight">\(b^* = X^\top w^*\)</span> for some
 <span class="math notranslate nohighlight">\(w^*\in \mathbb{R}^n\)</span>. Noting the linear kernel <span class="math notranslate nohighlight">\(K = X X^\top \in
@@ -125,7 +490,7 @@ X^\top(XX^\top + \alpha I_n)^{-1}y\)</span>, or <span class="math notranslate no
 <div class="math notranslate nohighlight">
 \[w^* = \arg\min_w \|Kw - y\|_2^2 + \alpha w^\top Kw.\]</div>
 <p>This model can be extended to arbitrary positive semidefinite kernels
-<span class="math notranslate nohighlight">\(K\)</span>, leading to the more general kernel ridge regression <a class="footnote-reference brackets" href="#id5" id="id2">2</a>.</p>
+<span class="math notranslate nohighlight">\(K\)</span>, leading to the more general kernel ridge regression <a class="footnote-reference brackets" href="#id6" id="id2" role="doc-noteref"><span class="fn-bracket">[</span>2<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition-this-model-is-implemented-in admonition">
 <p class="admonition-title">This model is implemented in</p>
 <ul class="simple">
@@ -135,9 +500,9 @@ X^\top(XX^\top + \alpha I_n)^{-1}y\)</span>, or <span class="math notranslate no
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient.html#himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient" title="himalaya.kernel_ridge.solve_kernel_ridge_conjugate_gradient"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_conjugate_gradient()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="ridgecv-and-kernelridgecv">
-<h2>RidgeCV and KernelRidgeCV<a class="headerlink" href="#ridgecv-and-kernelridgecv" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="ridgecv-and-kernelridgecv">
+<h2>RidgeCV and KernelRidgeCV<a class="headerlink" href="#ridgecv-and-kernelridgecv" title="Link to this heading">¶</a></h2>
 <p>In practice, because the ridge regression and kernel ridge regression
 hyperparameter <span class="math notranslate nohighlight">\(\alpha\)</span> is unknown, it is typically selected through a
 grid-search with cross-validation. In cross-validation, we split the data set
@@ -157,13 +522,13 @@ loss, averaged over all cross-validation splits.</p>
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues.html#himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues" title="himalaya.kernel_ridge.solve_kernel_ridge_cv_eigenvalues"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_kernel_ridge_cv_eigenvalues()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="groupridgecv-bandedridgecv">
-<h2>GroupRidgeCV / BandedRidgeCV<a class="headerlink" href="#groupridgecv-bandedridgecv" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="groupridgecv-bandedridgecv">
+<h2>GroupRidgeCV / BandedRidgeCV<a class="headerlink" href="#groupridgecv-bandedridgecv" title="Link to this heading">¶</a></h2>
 <p>In some applications, features are naturally grouped into groups (or feature
 spaces). To adapt the regularization level to each feature space, ridge
 regression can be extended to group-regularized ridge regression (also known
-as banded ridge regression <a class="footnote-reference brackets" href="#id6" id="id3">3</a>). In this model, a separate hyperparameter is
+as banded ridge regression <a class="footnote-reference brackets" href="#id7" id="id3" role="doc-noteref"><span class="fn-bracket">[</span>3<span class="fn-bracket">]</span></a>). In this model, a separate hyperparameter is
 optimized for each feature space:</p>
 <div class="math notranslate nohighlight">
 \[b^* = \arg\min_b \|\sum_{i=1}^m X_i b_i - y\|_2^2 + \sum_{i=1}^m \alpha_i \|b_i\|_2^2.\]</div>
@@ -172,7 +537,7 @@ optimized for each feature space:</p>
 \[b^* = \arg\min_b \|Z b - Y\|_2^2 + \|b\|_2^2\]</div>
 <p>where the feature space <span class="math notranslate nohighlight">\(X_i\)</span> is scaled by a group scaling <span class="math notranslate nohighlight">\(Z_i =
 e^{\delta_i} X_i\)</span>. The hyperparameters <span class="math notranslate nohighlight">\(\delta_i = - \log(\alpha_i)\)</span> are
-then learned over cross-validation.</p>
+then learned over cross-validation <a class="footnote-reference brackets" href="#id8" id="id4" role="doc-noteref"><span class="fn-bracket">[</span>4<span class="fn-bracket">]</span></a>.</p>
 <div class="admonition-this-model-is-implemented-in admonition">
 <p class="admonition-title">This model is implemented in</p>
 <ul class="simple">
@@ -192,9 +557,9 @@ of features:</p>
 <p class="admonition-title">Note</p>
 <p>“Group ridge regression” is also sometimes called “Banded ridge regression”.</p>
 </div>
-</div>
-<div class="section" id="weightedkernelridge">
-<h2>WeightedKernelRidge<a class="headerlink" href="#weightedkernelridge" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="weightedkernelridge">
+<h2>WeightedKernelRidge<a class="headerlink" href="#weightedkernelridge" title="Link to this heading">¶</a></h2>
 <p>To extend kernel ridge to group-regularization, we can compute the kernel as a
 weighted sum of multiple kernels, <span class="math notranslate nohighlight">\(K = \sum_{i=1}^m e^{\delta_i} K_i\)</span>.
 Then, we can use <span class="math notranslate nohighlight">\(K_i = X_i X_i^\top\)</span> for different groups of features
@@ -202,7 +567,7 @@ Then, we can use <span class="math notranslate nohighlight">\(K_i = X_i X_i^\top
 <div class="math notranslate nohighlight">
 \[w^* = \arg\min_w \left\|\sum_{i=1}^m e^{\delta_i} K_{i} w - y\right\|_2^2
 + \alpha \sum_{i=1}^m e^{\delta_i} w^\top K_{i} w.\]</div>
-<p>This model is called weighted kernel ridge regresion. The log-kernel-weights
+<p>This model is called weighted kernel ridge regression. The log-kernel-weights
 <span class="math notranslate nohighlight">\(\delta_i\)</span> are here fixed. When all the targets use the same
 log-kernel-weights, a single weighted kernel can be precomputed and used in a
 kernel ridge regression. However, when the log-kernel-weights are different for
@@ -217,9 +582,9 @@ specific algorithms to be fit.</p>
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series.html#himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series" title="himalaya.kernel_ridge.solve_weighted_kernel_ridge_neumann_series"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_weighted_kernel_ridge_neumann_series()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="multiplekernelridgecv">
-<h2>MultipleKernelRidgeCV<a class="headerlink" href="#multiplekernelridgecv" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="multiplekernelridgecv">
+<h2>MultipleKernelRidgeCV<a class="headerlink" href="#multiplekernelridgecv" title="Link to this heading">¶</a></h2>
 <p>In weighted kernel ridge regression, when the log-kernel-weights
 <span class="math notranslate nohighlight">\(\delta_i\)</span> are unknown, we can learn them over cross-validation. This
 model is called multiple-kernel ridge regression. When the kernels are defined
@@ -234,12 +599,12 @@ multiple-kernel ridge regression is equivalent with group-ridge regression
 <li><p><a class="reference internal" href="_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search" title="himalaya.kernel_ridge.solve_multiple_kernel_ridge_random_search"><code class="xref py py-func docutils literal notranslate"><span class="pre">solve_multiple_kernel_ridge_random_search()</span></code></a> (function)</p></li>
 </ul>
 </div>
-</div>
-<div class="section" id="model-flowchart">
-<h2>Model flowchart<a class="headerlink" href="#model-flowchart" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="model-flowchart">
+<h2>Model flowchart<a class="headerlink" href="#model-flowchart" title="Link to this heading">¶</a></h2>
 <p>The following flowchart can be used as a guide to select the right estimator.</p>
-<div class="mermaid">
-            graph TD;
+<pre  class="mermaid">
+        graph TD;
   A(How many feature space ?)
   O(Data size ?)
   M(Data size ?)
@@ -279,26 +644,34 @@ multiple-kernel ridge regression is equivalent with group-ridge regression
   click OKCV &quot;https://gallantlab.github.io/himalaya/_generated/himalaya.kernel_ridge.KernelRidgeCV.html&quot;
   click MKH &quot;https://gallantlab.github.io/himalaya/_generated/himalaya.kernel_ridge.WeightedKernelRidge.html&quot;
   click MKCV &quot;https://gallantlab.github.io/himalaya/_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html&quot;
-        </div><div class="section" id="references">
-<h3>References<a class="headerlink" href="#references" title="Permalink to this headline">¶</a></h3>
-<dl class="footnote brackets">
-<dt class="label" id="id4"><span class="brackets"><a class="fn-backref" href="#id1">1</a></span></dt>
-<dd><p>Hoerl, A. E., &amp; Kennard, R. W. (1970). Ridge regression: Biased
+    </pre><section id="references">
+<h3>References<a class="headerlink" href="#references" title="Link to this heading">¶</a></h3>
+<aside class="footnote-list brackets">
+<aside class="footnote brackets" id="id5" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id1">1</a><span class="fn-bracket">]</span></span>
+<p>Hoerl, A. E., &amp; Kennard, R. W. (1970). Ridge regression: Biased
 estimation for nonorthogonal problems. Technometrics, 12(1), 55-67.</p>
-</dd>
-<dt class="label" id="id5"><span class="brackets"><a class="fn-backref" href="#id2">2</a></span></dt>
-<dd><p>Saunders, C., Gammerman, A., &amp; Vovk, V. (1998). Ridge regression
+</aside>
+<aside class="footnote brackets" id="id6" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id2">2</a><span class="fn-bracket">]</span></span>
+<p>Saunders, C., Gammerman, A., &amp; Vovk, V. (1998). Ridge regression
 learning algorithm in dual variables.</p>
-</dd>
-<dt class="label" id="id6"><span class="brackets"><a class="fn-backref" href="#id3">3</a></span></dt>
-<dd><p>Nunez-Elizalde, A. O., Huth, A. G., &amp; Gallant, J. L. (2019). Voxelwise
+</aside>
+<aside class="footnote brackets" id="id7" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id3">3</a><span class="fn-bracket">]</span></span>
+<p>Nunez-Elizalde, A. O., Huth, A. G., &amp; Gallant, J. L. (2019). Voxelwise
 encoding models with non-spherical multivariate normal priors. Neuroimage,
 197, 482-492.</p>
-</dd>
-</dl>
-</div>
-</div>
-</div>
+</aside>
+<aside class="footnote brackets" id="id8" role="doc-footnote">
+<span class="label"><span class="fn-bracket">[</span><a role="doc-backlink" href="#id4">4</a><span class="fn-bracket">]</span></span>
+<p>Dupré La Tour, T., Eickenberg, M., Nunez-Elizalde, A.O., &amp; Gallant, J. L. (2022).
+Feature-space selection with banded ridge regression. NeuroImage.</p>
+</aside>
+</aside>
+</section>
+</section>
+</section>
 
 
           </div>
@@ -308,11 +681,11 @@ encoding models with non-spherical multivariate normal priors. Neuroimage,
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
       <a href="_sources/models.rst.txt"

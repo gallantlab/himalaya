@@ -10,8 +10,8 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py>`
-        to download the full example code
+        :ref:`Go to the end <sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py>`
+        to download the full example code.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -42,7 +42,7 @@ descent scales very well with the number of kernels.
 
 .. GENERATED FROM PYTHON SOURCE LINES 24-40
 
-.. code-block:: default
+.. code-block:: Python
 
     import numpy as np
     import matplotlib.pyplot as plt
@@ -73,7 +73,7 @@ In this example, we use the ``torch_cuda`` backend, and fit the model on GPU.
 
 .. GENERATED FROM PYTHON SOURCE LINES 43-46
 
-.. code-block:: default
+.. code-block:: Python
 
 
     backend = set_backend("torch_cuda", on_error="warn")
@@ -81,6 +81,13 @@ In this example, we use the ``torch_cuda`` backend, and fit the model on GPU.
 
 
 
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
+      warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 
 
@@ -94,7 +101,7 @@ samples on a Dirichlet distribution.
 
 .. GENERATED FROM PYTHON SOURCE LINES 51-56
 
-.. code-block:: default
+.. code-block:: Python
 
 
     n_kernels = 3
@@ -114,7 +121,7 @@ To create some clusters of weights, we take a few kernel weights samples.
 
 .. GENERATED FROM PYTHON SOURCE LINES 58-62
 
-.. code-block:: default
+.. code-block:: Python
 
     kernel_weights = generate_dirichlet_samples(n_clusters, n_kernels,
                                                 concentration=[.3],
@@ -133,7 +140,7 @@ Then, we duplicate them, and add some noise, to get clusters.
 
 .. GENERATED FROM PYTHON SOURCE LINES 64-73
 
-.. code-block:: default
+.. code-block:: Python
 
     noise = 0.05
     kernel_weights = backend.to_numpy(kernel_weights)
@@ -162,7 +169,7 @@ Then, we generate a random dataset, using the arbitrary scalings.
 
 .. GENERATED FROM PYTHON SOURCE LINES 80-88
 
-.. code-block:: default
+.. code-block:: Python
 
 
     (X_train, X_test, Y_train, Y_test,
@@ -188,7 +195,7 @@ a pipeline.
 
 .. GENERATED FROM PYTHON SOURCE LINES 93-105
 
-.. code-block:: default
+.. code-block:: Python
 
 
     # Find the start and end of each feature space X in Xs
@@ -217,7 +224,7 @@ We define the first model, using the random search solver.
 
 .. GENERATED FROM PYTHON SOURCE LINES 109-124
 
-.. code-block:: default
+.. code-block:: Python
 
 
     # (We pregenerate the Dirichlet random samples, to latter plot them.)
@@ -247,7 +254,7 @@ We define the second model, using the hyper_gradient solver.
 
 .. GENERATED FROM PYTHON SOURCE LINES 126-134
 
-.. code-block:: default
+.. code-block:: Python
 
 
     solver_params = dict(max_iter=30, n_targets_batch=200, tol=1e-3,
@@ -270,7 +277,7 @@ We fit the two models on the train data.
 
 .. GENERATED FROM PYTHON SOURCE LINES 136-140
 
-.. code-block:: default
+.. code-block:: Python
 
 
     pipe_1 = make_pipeline(column_kernelizer, model_1)
@@ -282,100 +289,502 @@ We fit the two models on the train data.
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | 20 random sampling with cv |     [..                                      ] 5% | 0.11 sec | 20 random sampling with cv |     [....                                    ] 10% | 0.23 sec | 20 random sampling with cv |     [......                                  ] 15% | 0.31 sec | 20 random sampling with cv |     [........                                ] 20% | 0.42 sec | 20 random sampling with cv |     [..........                              ] 25% | 0.54 sec | 20 random sampling with cv |     [............                            ] 30% | 0.62 sec | 20 random sampling with cv |     [..............                          ] 35% | 0.71 sec | 20 random sampling with cv |     [................                        ] 40% | 0.82 sec | 20 random sampling with cv |     [..................                      ] 45% | 0.93 sec | 20 random sampling with cv |     [....................                    ] 50% | 1.02 sec | 20 random sampling with cv |     [......................                  ] 55% | 1.10 sec | 20 random sampling with cv |     [........................                ] 60% | 1.21 sec | 20 random sampling with cv |     [..........................              ] 65% | 1.33 sec | 20 random sampling with cv |     [............................            ] 70% | 1.44 sec | 20 random sampling with cv |     [..............................          ] 75% | 1.55 sec | 20 random sampling with cv |     [................................        ] 80% | 1.64 sec | 20 random sampling with cv |     [..................................      ] 85% | 1.72 sec | 20 random sampling with cv |     [....................................    ] 90% | 1.84 sec | 20 random sampling with cv |     [......................................  ] 95% | 1.92 sec | 20 random sampling with cv |     [........................................] 100% | 2.00 sec | 20 random sampling with cv | 
+    [                                        ] 0% | 0.00 sec | 20 random sampling with cv |     [..                                      ] 5% | 1.46 sec | 20 random sampling with cv |     [....                                    ] 10% | 3.05 sec | 20 random sampling with cv |     [......                                  ] 15% | 4.20 sec | 20 random sampling with cv |     [........                                ] 20% | 5.70 sec | 20 random sampling with cv |     [..........                              ] 25% | 7.26 sec | 20 random sampling with cv |     [............                            ] 30% | 8.36 sec | 20 random sampling with cv |     [..............                          ] 35% | 9.74 sec | 20 random sampling with cv |     [................                        ] 40% | 11.33 sec | 20 random sampling with cv |     [..................                      ] 45% | 12.85 sec | 20 random sampling with cv |     [....................                    ] 50% | 13.71 sec | 20 random sampling with cv |     [......................                  ] 55% | 14.91 sec | 20 random sampling with cv |     [........................                ] 60% | 16.44 sec | 20 random sampling with cv |     [..........................              ] 65% | 17.58 sec | 20 random sampling with cv |     [............................            ] 70% | 18.85 sec | 20 random sampling with cv |     [..............................          ] 75% | 20.36 sec | 20 random sampling with cv |     [................................        ] 80% | 21.56 sec | 20 random sampling with cv |     [..................................      ] 85% | 22.79 sec | 20 random sampling with cv |     [....................................    ] 90% | 24.32 sec | 20 random sampling with cv |     [......................................  ] 95% | 25.49 sec | 20 random sampling with cv |     [........................................] 100% | 26.86 sec | 20 random sampling with cv | 
 
 
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 {color: black;background-color: white;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 pre{padding: 0;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-toggleable {background-color: white;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-estimator:hover {background-color: #d4ebff;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-item {z-index: 1;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-parallel-item:only-child::after {width: 0;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93 div.sk-text-repr-fallback {display: none;}</style><div id="sk-ca44ae48-bcec-4525-a4fe-2e4b56524d93" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+    <style>#sk-container-id-6 {
+      /* Definition of color scheme common for light and dark mode */
+      --sklearn-color-text: #000;
+      --sklearn-color-text-muted: #666;
+      --sklearn-color-line: gray;
+      /* Definition of color scheme for unfitted estimators */
+      --sklearn-color-unfitted-level-0: #fff5e6;
+      --sklearn-color-unfitted-level-1: #f6e4d2;
+      --sklearn-color-unfitted-level-2: #ffe0b3;
+      --sklearn-color-unfitted-level-3: chocolate;
+      /* Definition of color scheme for fitted estimators */
+      --sklearn-color-fitted-level-0: #f0f8ff;
+      --sklearn-color-fitted-level-1: #d4ebff;
+      --sklearn-color-fitted-level-2: #b3dbfd;
+      --sklearn-color-fitted-level-3: cornflowerblue;
+
+      /* Specific color for light theme */
+      --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+      --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-icon: #696969;
+
+      @media (prefers-color-scheme: dark) {
+        /* Redefinition of color scheme for dark theme */
+        --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+        --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-icon: #878787;
+      }
+    }
+
+    #sk-container-id-6 {
+      color: var(--sklearn-color-text);
+    }
+
+    #sk-container-id-6 pre {
+      padding: 0;
+    }
+
+    #sk-container-id-6 input.sk-hidden--visually {
+      border: 0;
+      clip: rect(1px 1px 1px 1px);
+      clip: rect(1px, 1px, 1px, 1px);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    #sk-container-id-6 div.sk-dashed-wrapped {
+      border: 1px dashed var(--sklearn-color-line);
+      margin: 0 0.4em 0.5em 0.4em;
+      box-sizing: border-box;
+      padding-bottom: 0.4em;
+      background-color: var(--sklearn-color-background);
+    }
+
+    #sk-container-id-6 div.sk-container {
+      /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+         but bootstrap.min.css set `[hidden] { display: none !important; }`
+         so we also need the `!important` here to be able to override the
+         default hidden behavior on the sphinx rendered scikit-learn.org.
+         See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+      display: inline-block !important;
+      position: relative;
+    }
+
+    #sk-container-id-6 div.sk-text-repr-fallback {
+      display: none;
+    }
+
+    div.sk-parallel-item,
+    div.sk-serial,
+    div.sk-item {
+      /* draw centered vertical line to link estimators */
+      background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+      background-size: 2px 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    /* Parallel-specific style estimator block */
+
+    #sk-container-id-6 div.sk-parallel-item::after {
+      content: "";
+      width: 100%;
+      border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+      flex-grow: 1;
+    }
+
+    #sk-container-id-6 div.sk-parallel {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background-color: var(--sklearn-color-background);
+      position: relative;
+    }
+
+    #sk-container-id-6 div.sk-parallel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sk-container-id-6 div.sk-parallel-item:first-child::after {
+      align-self: flex-end;
+      width: 50%;
+    }
+
+    #sk-container-id-6 div.sk-parallel-item:last-child::after {
+      align-self: flex-start;
+      width: 50%;
+    }
+
+    #sk-container-id-6 div.sk-parallel-item:only-child::after {
+      width: 0;
+    }
+
+    /* Serial-specific style estimator block */
+
+    #sk-container-id-6 div.sk-serial {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--sklearn-color-background);
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+
+
+    /* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+    clickable and can be expanded/collapsed.
+    - Pipeline and ColumnTransformer use this feature and define the default style
+    - Estimators will overwrite some part of the style using the `sk-estimator` class
+    */
+
+    /* Pipeline and ColumnTransformer style (default) */
+
+    #sk-container-id-6 div.sk-toggleable {
+      /* Default theme specific background. It is overwritten whether we have a
+      specific estimator or a Pipeline/ColumnTransformer */
+      background-color: var(--sklearn-color-background);
+    }
+
+    /* Toggleable label */
+    #sk-container-id-6 label.sk-toggleable__label {
+      cursor: pointer;
+      display: flex;
+      width: 100%;
+      margin-bottom: 0;
+      padding: 0.5em;
+      box-sizing: border-box;
+      text-align: center;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.5em;
+    }
+
+    #sk-container-id-6 label.sk-toggleable__label .caption {
+      font-size: 0.6rem;
+      font-weight: lighter;
+      color: var(--sklearn-color-text-muted);
+    }
+
+    #sk-container-id-6 label.sk-toggleable__label-arrow:before {
+      /* Arrow on the left of the label */
+      content: "▸";
+      float: left;
+      margin-right: 0.25em;
+      color: var(--sklearn-color-icon);
+    }
+
+    #sk-container-id-6 label.sk-toggleable__label-arrow:hover:before {
+      color: var(--sklearn-color-text);
+    }
+
+    /* Toggleable content - dropdown */
+
+    #sk-container-id-6 div.sk-toggleable__content {
+      max-height: 0;
+      max-width: 0;
+      overflow: hidden;
+      text-align: left;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-6 div.sk-toggleable__content.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-6 div.sk-toggleable__content pre {
+      margin: 0.2em;
+      border-radius: 0.25em;
+      color: var(--sklearn-color-text);
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-6 div.sk-toggleable__content.fitted pre {
+      /* unfitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-6 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+      /* Expand drop-down */
+      max-height: 200px;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #sk-container-id-6 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+      content: "▾";
+    }
+
+    /* Pipeline/ColumnTransformer-specific style */
+
+    #sk-container-id-6 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-6 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator-specific style */
+
+    /* Colorize estimator box */
+    #sk-container-id-6 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-6 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    #sk-container-id-6 div.sk-label label.sk-toggleable__label,
+    #sk-container-id-6 div.sk-label label {
+      /* The background is the default theme color */
+      color: var(--sklearn-color-text-on-default-background);
+    }
+
+    /* On hover, darken the color of the background */
+    #sk-container-id-6 div.sk-label:hover label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    /* Label box, darken color on hover, fitted */
+    #sk-container-id-6 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator label */
+
+    #sk-container-id-6 div.sk-label label {
+      font-family: monospace;
+      font-weight: bold;
+      display: inline-block;
+      line-height: 1.2em;
+    }
+
+    #sk-container-id-6 div.sk-label-container {
+      text-align: center;
+    }
+
+    /* Estimator-specific */
+    #sk-container-id-6 div.sk-estimator {
+      font-family: monospace;
+      border: 1px dotted var(--sklearn-color-border-box);
+      border-radius: 0.25em;
+      box-sizing: border-box;
+      margin-bottom: 0.5em;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-6 div.sk-estimator.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    /* on hover */
+    #sk-container-id-6 div.sk-estimator:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-6 div.sk-estimator.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Specification for estimator info (e.g. "i" and "?") */
+
+    /* Common style for "i" and "?" */
+
+    .sk-estimator-doc-link,
+    a:link.sk-estimator-doc-link,
+    a:visited.sk-estimator-doc-link {
+      float: right;
+      font-size: smaller;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1em;
+      height: 1em;
+      width: 1em;
+      text-decoration: none !important;
+      margin-left: 0.5em;
+      text-align: center;
+      /* unfitted */
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+      color: var(--sklearn-color-unfitted-level-1);
+    }
+
+    .sk-estimator-doc-link.fitted,
+    a:link.sk-estimator-doc-link.fitted,
+    a:visited.sk-estimator-doc-link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    div.sk-estimator:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    /* Span, style for the box shown on hovering the info icon */
+    .sk-estimator-doc-link span {
+      display: none;
+      z-index: 9999;
+      position: relative;
+      font-weight: normal;
+      right: .2ex;
+      padding: .5ex;
+      margin: .5ex;
+      width: min-content;
+      min-width: 20ex;
+      max-width: 50ex;
+      color: var(--sklearn-color-text);
+      box-shadow: 2pt 2pt 4pt #999;
+      /* unfitted */
+      background: var(--sklearn-color-unfitted-level-0);
+      border: .5pt solid var(--sklearn-color-unfitted-level-3);
+    }
+
+    .sk-estimator-doc-link.fitted span {
+      /* fitted */
+      background: var(--sklearn-color-fitted-level-0);
+      border: var(--sklearn-color-fitted-level-3);
+    }
+
+    .sk-estimator-doc-link:hover span {
+      display: block;
+    }
+
+    /* "?"-specific style due to the `<a>` HTML tag */
+
+    #sk-container-id-6 a.estimator_doc_link {
+      float: right;
+      font-size: 1rem;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1rem;
+      height: 1rem;
+      width: 1rem;
+      text-decoration: none;
+      /* unfitted */
+      color: var(--sklearn-color-unfitted-level-1);
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+    }
+
+    #sk-container-id-6 a.estimator_doc_link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    #sk-container-id-6 a.estimator_doc_link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    #sk-container-id-6 a.estimator_doc_link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+    }
+    </style><div id="sk-container-id-6" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                      ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
-                                                     slice(0, 1000, None)),
+                                                     slice(np.int64(0), np.int64(1000), None)),
                                                     (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
-                                                     slice(1000, 2000, None)),
+                                                     slice(np.int64(1000), np.int64(2000), None)),
                                                     (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
-                                                     slice(2000, 3000, None))])),
+                                                     slice(np.int64(2000), np.int64(3000), None))])),
                     (&#x27;multiplekernelridgecv&#x27;,
-                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
-                                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.1622776...
-            [0.0967, 0.7845, 0.1188],
-            [0.6945, 0.1770, 0.1285],
-            [0.1278, 0.6189, 0.2533],
-            [0.4615, 0.0104, 0.5280],
-            [0.1979, 0.2006, 0.6015],
-            [0.5289, 0.2058, 0.2653],
-            [0.5074, 0.0264, 0.4662],
-            [0.7480, 0.1591, 0.0930],
-            [0.2262, 0.2698, 0.5040],
-            [0.1123, 0.8667, 0.0209],
-            [0.1595, 0.1198, 0.7207],
-            [0.2433, 0.5232, 0.2335]], device=&#x27;cuda:0&#x27;, dtype=torch.float64),
+                     MultipleKernelRidgeCV(kernels=&#x27;precompu...
+           [0.46154885, 0.01041838, 0.52803277],
+           [0.19793179, 0.20055514, 0.60151307],
+           [0.52888616, 0.20576417, 0.26534967],
+           [0.50744124, 0.02635203, 0.46620673],
+           [0.74796126, 0.15907966, 0.09295908],
+           [0.22617954, 0.26983245, 0.50398801],
+           [0.11233178, 0.86672533, 0.0209429 ],
+           [0.15950187, 0.11975399, 0.72074414],
+           [0.24333979, 0.52315424, 0.23350597]]),
                                                           &#x27;n_targets_batch&#x27;: 200,
-                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4c699f51-fa9a-4e56-a096-412082e3fd07" type="checkbox" ><label for="4c699f51-fa9a-4e56-a096-412082e3fd07" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-16" type="checkbox" ><label for="sk-estimator-id-16" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                      ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
-                                                     slice(0, 1000, None)),
+                                                     slice(np.int64(0), np.int64(1000), None)),
                                                     (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
-                                                     slice(1000, 2000, None)),
+                                                     slice(np.int64(1000), np.int64(2000), None)),
                                                     (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
-                                                     slice(2000, 3000, None))])),
+                                                     slice(np.int64(2000), np.int64(3000), None))])),
                     (&#x27;multiplekernelridgecv&#x27;,
-                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
-                                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.1622776...
-            [0.0967, 0.7845, 0.1188],
-            [0.6945, 0.1770, 0.1285],
-            [0.1278, 0.6189, 0.2533],
-            [0.4615, 0.0104, 0.5280],
-            [0.1979, 0.2006, 0.6015],
-            [0.5289, 0.2058, 0.2653],
-            [0.5074, 0.0264, 0.4662],
-            [0.7480, 0.1591, 0.0930],
-            [0.2262, 0.2698, 0.5040],
-            [0.1123, 0.8667, 0.0209],
-            [0.1595, 0.1198, 0.7207],
-            [0.2433, 0.5232, 0.2335]], device=&#x27;cuda:0&#x27;, dtype=torch.float64),
+                     MultipleKernelRidgeCV(kernels=&#x27;precompu...
+           [0.46154885, 0.01041838, 0.52803277],
+           [0.19793179, 0.20055514, 0.60151307],
+           [0.52888616, 0.20576417, 0.26534967],
+           [0.50744124, 0.02635203, 0.46620673],
+           [0.74796126, 0.15907966, 0.09295908],
+           [0.22617954, 0.26983245, 0.50398801],
+           [0.11233178, 0.86672533, 0.0209429 ],
+           [0.15950187, 0.11975399, 0.72074414],
+           [0.24333979, 0.52315424, 0.23350597]]),
                                                           &#x27;n_targets_batch&#x27;: 200,
-                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="0d6a6b1d-4f01-46eb-b66a-333a9063ed49" type="checkbox" ><label for="0d6a6b1d-4f01-46eb-b66a-333a9063ed49" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
-                                    slice(0, 1000, None)),
+                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div> </div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-17" type="checkbox" ><label for="sk-estimator-id-17" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>columnkernelizer: ColumnKernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
+                                    slice(np.int64(0), np.int64(1000), None)),
                                    (&#x27;Feature space 1&#x27;, Kernelizer(),
-                                    slice(1000, 2000, None)),
+                                    slice(np.int64(1000), np.int64(2000), None)),
                                    (&#x27;Feature space 2&#x27;, Kernelizer(),
-                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="05da2758-bfd5-4e4a-b35a-80d9808dab85" type="checkbox" ><label for="05da2758-bfd5-4e4a-b35a-80d9808dab85" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a55eed50-6962-46d9-9a15-ca235f367016" type="checkbox" ><label for="a55eed50-6962-46d9-9a15-ca235f367016" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="e4d978bc-c100-4e6c-b4d5-0ad51c4434cc" type="checkbox" ><label for="e4d978bc-c100-4e6c-b4d5-0ad51c4434cc" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="195e2541-fce4-4195-a5e6-9a7f4970951a" type="checkbox" ><label for="195e2541-fce4-4195-a5e6-9a7f4970951a" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="28859a58-44aa-4df5-867b-59a9bbe672da" type="checkbox" ><label for="28859a58-44aa-4df5-867b-59a9bbe672da" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="eab6bb04-b24c-47e5-8d35-7f34ffbf96a1" type="checkbox" ><label for="eab6bb04-b24c-47e5-8d35-7f34ffbf96a1" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="62cb31f8-399e-48dd-8224-54250b691d31" type="checkbox" ><label for="62cb31f8-399e-48dd-8224-54250b691d31" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                    slice(np.int64(2000), np.int64(3000), None))])</pre></div> </div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-18" type="checkbox" ><label for="sk-estimator-id-18" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 0</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(0), np.int64(1000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-19" type="checkbox" ><label for="sk-estimator-id-19" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-20" type="checkbox" ><label for="sk-estimator-id-20" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 1</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(1000), np.int64(2000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-21" type="checkbox" ><label for="sk-estimator-id-21" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-22" type="checkbox" ><label for="sk-estimator-id-22" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 2</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(2000), np.int64(3000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-23" type="checkbox" ><label for="sk-estimator-id-23" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-24" type="checkbox" ><label for="sk-estimator-id-24" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>MultipleKernelRidgeCV</div></div></label><div class="sk-toggleable__content fitted"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
            1.00000000e-02, 3.16227766e-02, 1.000...
-            [0.0967, 0.7845, 0.1188],
-            [0.6945, 0.1770, 0.1285],
-            [0.1278, 0.6189, 0.2533],
-            [0.4615, 0.0104, 0.5280],
-            [0.1979, 0.2006, 0.6015],
-            [0.5289, 0.2058, 0.2653],
-            [0.5074, 0.0264, 0.4662],
-            [0.7480, 0.1591, 0.0930],
-            [0.2262, 0.2698, 0.5040],
-            [0.1123, 0.8667, 0.0209],
-            [0.1595, 0.1198, 0.7207],
-            [0.2433, 0.5232, 0.2335]], device=&#x27;cuda:0&#x27;, dtype=torch.float64),
+           [0.46154885, 0.01041838, 0.52803277],
+           [0.19793179, 0.20055514, 0.60151307],
+           [0.52888616, 0.20576417, 0.26534967],
+           [0.50744124, 0.02635203, 0.46620673],
+           [0.74796126, 0.15907966, 0.09295908],
+           [0.22617954, 0.26983245, 0.50398801],
+           [0.11233178, 0.86672533, 0.0209429 ],
+           [0.15950187, 0.11975399, 0.72074414],
+           [0.24333979, 0.52315424, 0.23350597]]),
                                          &#x27;n_targets_batch&#x27;: 200,
-                                         &#x27;n_targets_batch_refit&#x27;: 200})</pre></div></div></div></div></div></div></div>
+                                         &#x27;n_targets_batch_refit&#x27;: 200})</pre></div> </div></div></div></div></div></div>
     </div>
     <br />
     <br />
 
 .. GENERATED FROM PYTHON SOURCE LINES 141-144
 
-.. code-block:: default
+.. code-block:: Python
 
     pipe_2 = make_pipeline(column_kernelizer, model_2)
     pipe_2.fit(X_train, Y_train)
@@ -386,26 +795,439 @@ We fit the two models on the train data.
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 3% | 0.09 sec | hypergradient_direct |     [..                                      ] 7% | 0.10 sec | hypergradient_direct |     [....                                    ] 10% | 0.11 sec | hypergradient_direct |     [.....                                   ] 13% | 0.12 sec | hypergradient_direct |     [......                                  ] 17% | 0.13 sec | hypergradient_direct |     [........                                ] 20% | 0.14 sec | hypergradient_direct |     [.........                               ] 23% | 0.16 sec | hypergradient_direct |     [..........                              ] 27% | 0.17 sec | hypergradient_direct |     [............                            ] 30% | 0.18 sec | hypergradient_direct |     [.............                           ] 33% | 0.19 sec | hypergradient_direct |     [..............                          ] 37% | 0.20 sec | hypergradient_direct |     [................                        ] 40% | 0.21 sec | hypergradient_direct |     [.................                       ] 43% | 0.22 sec | hypergradient_direct |     [..................                      ] 47% | 0.23 sec | hypergradient_direct |     [....................                    ] 50% | 0.25 sec | hypergradient_direct |     [.....................                   ] 53% | 0.26 sec | hypergradient_direct |     [......................                  ] 57% | 0.27 sec | hypergradient_direct |     [........................                ] 60% | 0.28 sec | hypergradient_direct |     [.........................               ] 63% | 0.29 sec | hypergradient_direct |     [..........................              ] 67% | 0.30 sec | hypergradient_direct |     [............................            ] 70% | 0.31 sec | hypergradient_direct |     [.............................           ] 73% | 0.32 sec | hypergradient_direct |     [..............................          ] 77% | 0.34 sec | hypergradient_direct |     [................................        ] 80% | 0.35 sec | hypergradient_direct |     [.................................       ] 83% | 0.36 sec | hypergradient_direct |     [..................................      ] 87% | 0.37 sec | hypergradient_direct |     [....................................    ] 90% | 0.38 sec | hypergradient_direct |     [.....................................   ] 93% | 0.39 sec | hypergradient_direct |     [......................................  ] 97% | 0.40 sec | hypergradient_direct |     [........................................] 100% | 0.49 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 3% | 2.96 sec | hypergradient_direct |     [..                                      ] 7% | 3.21 sec | hypergradient_direct |     [....                                    ] 10% | 3.45 sec | hypergradient_direct |     [.....                                   ] 13% | 3.70 sec | hypergradient_direct |     [......                                  ] 17% | 3.94 sec | hypergradient_direct |     [........                                ] 20% | 4.19 sec | hypergradient_direct |     [.........                               ] 23% | 4.43 sec | hypergradient_direct |     [..........                              ] 27% | 4.68 sec | hypergradient_direct |     [............                            ] 30% | 4.92 sec | hypergradient_direct |     [.............                           ] 33% | 5.17 sec | hypergradient_direct |     [..............                          ] 37% | 5.41 sec | hypergradient_direct |     [................                        ] 40% | 5.64 sec | hypergradient_direct |     [.................                       ] 43% | 5.88 sec | hypergradient_direct |     [..................                      ] 47% | 6.13 sec | hypergradient_direct |     [....................                    ] 50% | 6.37 sec | hypergradient_direct |     [.....................                   ] 53% | 6.61 sec | hypergradient_direct |     [......................                  ] 57% | 6.85 sec | hypergradient_direct |     [........................                ] 60% | 7.09 sec | hypergradient_direct |     [.........................               ] 63% | 7.34 sec | hypergradient_direct |     [..........................              ] 67% | 7.58 sec | hypergradient_direct |     [............................            ] 70% | 7.82 sec | hypergradient_direct |     [.............................           ] 73% | 8.06 sec | hypergradient_direct |     [..............................          ] 77% | 8.30 sec | hypergradient_direct |     [................................        ] 80% | 8.55 sec | hypergradient_direct |     [.................................       ] 83% | 8.80 sec | hypergradient_direct |     [..................................      ] 87% | 9.03 sec | hypergradient_direct |     [....................................    ] 90% | 9.28 sec | hypergradient_direct |     [.....................................   ] 93% | 9.52 sec | hypergradient_direct |     [......................................  ] 97% | 9.77 sec | hypergradient_direct |     [........................................] 100% | 10.07 sec | hypergradient_direct | 
 
 
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be {color: black;background-color: white;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be pre{padding: 0;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-toggleable {background-color: white;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-estimator:hover {background-color: #d4ebff;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-item {z-index: 1;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-parallel-item:only-child::after {width: 0;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be div.sk-text-repr-fallback {display: none;}</style><div id="sk-bc5acdb1-e81d-477d-8cde-9d5cc435f3be" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+    <style>#sk-container-id-7 {
+      /* Definition of color scheme common for light and dark mode */
+      --sklearn-color-text: #000;
+      --sklearn-color-text-muted: #666;
+      --sklearn-color-line: gray;
+      /* Definition of color scheme for unfitted estimators */
+      --sklearn-color-unfitted-level-0: #fff5e6;
+      --sklearn-color-unfitted-level-1: #f6e4d2;
+      --sklearn-color-unfitted-level-2: #ffe0b3;
+      --sklearn-color-unfitted-level-3: chocolate;
+      /* Definition of color scheme for fitted estimators */
+      --sklearn-color-fitted-level-0: #f0f8ff;
+      --sklearn-color-fitted-level-1: #d4ebff;
+      --sklearn-color-fitted-level-2: #b3dbfd;
+      --sklearn-color-fitted-level-3: cornflowerblue;
+
+      /* Specific color for light theme */
+      --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+      --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-icon: #696969;
+
+      @media (prefers-color-scheme: dark) {
+        /* Redefinition of color scheme for dark theme */
+        --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+        --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-icon: #878787;
+      }
+    }
+
+    #sk-container-id-7 {
+      color: var(--sklearn-color-text);
+    }
+
+    #sk-container-id-7 pre {
+      padding: 0;
+    }
+
+    #sk-container-id-7 input.sk-hidden--visually {
+      border: 0;
+      clip: rect(1px 1px 1px 1px);
+      clip: rect(1px, 1px, 1px, 1px);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    #sk-container-id-7 div.sk-dashed-wrapped {
+      border: 1px dashed var(--sklearn-color-line);
+      margin: 0 0.4em 0.5em 0.4em;
+      box-sizing: border-box;
+      padding-bottom: 0.4em;
+      background-color: var(--sklearn-color-background);
+    }
+
+    #sk-container-id-7 div.sk-container {
+      /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+         but bootstrap.min.css set `[hidden] { display: none !important; }`
+         so we also need the `!important` here to be able to override the
+         default hidden behavior on the sphinx rendered scikit-learn.org.
+         See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+      display: inline-block !important;
+      position: relative;
+    }
+
+    #sk-container-id-7 div.sk-text-repr-fallback {
+      display: none;
+    }
+
+    div.sk-parallel-item,
+    div.sk-serial,
+    div.sk-item {
+      /* draw centered vertical line to link estimators */
+      background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+      background-size: 2px 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    /* Parallel-specific style estimator block */
+
+    #sk-container-id-7 div.sk-parallel-item::after {
+      content: "";
+      width: 100%;
+      border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+      flex-grow: 1;
+    }
+
+    #sk-container-id-7 div.sk-parallel {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background-color: var(--sklearn-color-background);
+      position: relative;
+    }
+
+    #sk-container-id-7 div.sk-parallel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sk-container-id-7 div.sk-parallel-item:first-child::after {
+      align-self: flex-end;
+      width: 50%;
+    }
+
+    #sk-container-id-7 div.sk-parallel-item:last-child::after {
+      align-self: flex-start;
+      width: 50%;
+    }
+
+    #sk-container-id-7 div.sk-parallel-item:only-child::after {
+      width: 0;
+    }
+
+    /* Serial-specific style estimator block */
+
+    #sk-container-id-7 div.sk-serial {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--sklearn-color-background);
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+
+
+    /* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+    clickable and can be expanded/collapsed.
+    - Pipeline and ColumnTransformer use this feature and define the default style
+    - Estimators will overwrite some part of the style using the `sk-estimator` class
+    */
+
+    /* Pipeline and ColumnTransformer style (default) */
+
+    #sk-container-id-7 div.sk-toggleable {
+      /* Default theme specific background. It is overwritten whether we have a
+      specific estimator or a Pipeline/ColumnTransformer */
+      background-color: var(--sklearn-color-background);
+    }
+
+    /* Toggleable label */
+    #sk-container-id-7 label.sk-toggleable__label {
+      cursor: pointer;
+      display: flex;
+      width: 100%;
+      margin-bottom: 0;
+      padding: 0.5em;
+      box-sizing: border-box;
+      text-align: center;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.5em;
+    }
+
+    #sk-container-id-7 label.sk-toggleable__label .caption {
+      font-size: 0.6rem;
+      font-weight: lighter;
+      color: var(--sklearn-color-text-muted);
+    }
+
+    #sk-container-id-7 label.sk-toggleable__label-arrow:before {
+      /* Arrow on the left of the label */
+      content: "▸";
+      float: left;
+      margin-right: 0.25em;
+      color: var(--sklearn-color-icon);
+    }
+
+    #sk-container-id-7 label.sk-toggleable__label-arrow:hover:before {
+      color: var(--sklearn-color-text);
+    }
+
+    /* Toggleable content - dropdown */
+
+    #sk-container-id-7 div.sk-toggleable__content {
+      max-height: 0;
+      max-width: 0;
+      overflow: hidden;
+      text-align: left;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-7 div.sk-toggleable__content.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-7 div.sk-toggleable__content pre {
+      margin: 0.2em;
+      border-radius: 0.25em;
+      color: var(--sklearn-color-text);
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-7 div.sk-toggleable__content.fitted pre {
+      /* unfitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-7 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+      /* Expand drop-down */
+      max-height: 200px;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #sk-container-id-7 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+      content: "▾";
+    }
+
+    /* Pipeline/ColumnTransformer-specific style */
+
+    #sk-container-id-7 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-7 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator-specific style */
+
+    /* Colorize estimator box */
+    #sk-container-id-7 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-7 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    #sk-container-id-7 div.sk-label label.sk-toggleable__label,
+    #sk-container-id-7 div.sk-label label {
+      /* The background is the default theme color */
+      color: var(--sklearn-color-text-on-default-background);
+    }
+
+    /* On hover, darken the color of the background */
+    #sk-container-id-7 div.sk-label:hover label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    /* Label box, darken color on hover, fitted */
+    #sk-container-id-7 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator label */
+
+    #sk-container-id-7 div.sk-label label {
+      font-family: monospace;
+      font-weight: bold;
+      display: inline-block;
+      line-height: 1.2em;
+    }
+
+    #sk-container-id-7 div.sk-label-container {
+      text-align: center;
+    }
+
+    /* Estimator-specific */
+    #sk-container-id-7 div.sk-estimator {
+      font-family: monospace;
+      border: 1px dotted var(--sklearn-color-border-box);
+      border-radius: 0.25em;
+      box-sizing: border-box;
+      margin-bottom: 0.5em;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-7 div.sk-estimator.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    /* on hover */
+    #sk-container-id-7 div.sk-estimator:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-7 div.sk-estimator.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Specification for estimator info (e.g. "i" and "?") */
+
+    /* Common style for "i" and "?" */
+
+    .sk-estimator-doc-link,
+    a:link.sk-estimator-doc-link,
+    a:visited.sk-estimator-doc-link {
+      float: right;
+      font-size: smaller;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1em;
+      height: 1em;
+      width: 1em;
+      text-decoration: none !important;
+      margin-left: 0.5em;
+      text-align: center;
+      /* unfitted */
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+      color: var(--sklearn-color-unfitted-level-1);
+    }
+
+    .sk-estimator-doc-link.fitted,
+    a:link.sk-estimator-doc-link.fitted,
+    a:visited.sk-estimator-doc-link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    div.sk-estimator:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    /* Span, style for the box shown on hovering the info icon */
+    .sk-estimator-doc-link span {
+      display: none;
+      z-index: 9999;
+      position: relative;
+      font-weight: normal;
+      right: .2ex;
+      padding: .5ex;
+      margin: .5ex;
+      width: min-content;
+      min-width: 20ex;
+      max-width: 50ex;
+      color: var(--sklearn-color-text);
+      box-shadow: 2pt 2pt 4pt #999;
+      /* unfitted */
+      background: var(--sklearn-color-unfitted-level-0);
+      border: .5pt solid var(--sklearn-color-unfitted-level-3);
+    }
+
+    .sk-estimator-doc-link.fitted span {
+      /* fitted */
+      background: var(--sklearn-color-fitted-level-0);
+      border: var(--sklearn-color-fitted-level-3);
+    }
+
+    .sk-estimator-doc-link:hover span {
+      display: block;
+    }
+
+    /* "?"-specific style due to the `<a>` HTML tag */
+
+    #sk-container-id-7 a.estimator_doc_link {
+      float: right;
+      font-size: 1rem;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1rem;
+      height: 1rem;
+      width: 1rem;
+      text-decoration: none;
+      /* unfitted */
+      color: var(--sklearn-color-unfitted-level-1);
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+    }
+
+    #sk-container-id-7 a.estimator_doc_link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    #sk-container-id-7 a.estimator_doc_link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    #sk-container-id-7 a.estimator_doc_link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+    }
+    </style><div id="sk-container-id-7" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                      ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
-                                                     slice(0, 1000, None)),
+                                                     slice(np.int64(0), np.int64(1000), None)),
                                                     (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
-                                                     slice(1000, 2000, None)),
+                                                     slice(np.int64(1000), np.int64(2000), None)),
                                                     (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
-                                                     slice(2000, 3000, None))])),
+                                                     slice(np.int64(2000), np.int64(3000), None))])),
                     (&#x27;multiplekernelridgecv&#x27;,
                      MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
                                            solver=&#x27;hyper_gradient&#x27;,
@@ -414,16 +1236,16 @@ We fit the two models on the train data.
                                                           &#x27;max_iter&#x27;: 30,
                                                           &#x27;max_iter_inner_hyper&#x27;: 1,
                                                           &#x27;n_targets_batch&#x27;: 200,
-                                                          &#x27;tol&#x27;: 0.001}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="5abe90d3-66d3-4642-9220-4317e42c823a" type="checkbox" ><label for="5abe90d3-66d3-4642-9220-4317e42c823a" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                                                          &#x27;tol&#x27;: 0.001}))])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-25" type="checkbox" ><label for="sk-estimator-id-25" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                      ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
-                                                     slice(0, 1000, None)),
+                                                     slice(np.int64(0), np.int64(1000), None)),
                                                     (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
-                                                     slice(1000, 2000, None)),
+                                                     slice(np.int64(1000), np.int64(2000), None)),
                                                     (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
-                                                     slice(2000, 3000, None))])),
+                                                     slice(np.int64(2000), np.int64(3000), None))])),
                     (&#x27;multiplekernelridgecv&#x27;,
                      MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
                                            solver=&#x27;hyper_gradient&#x27;,
@@ -432,16 +1254,16 @@ We fit the two models on the train data.
                                                           &#x27;max_iter&#x27;: 30,
                                                           &#x27;max_iter_inner_hyper&#x27;: 1,
                                                           &#x27;n_targets_batch&#x27;: 200,
-                                                          &#x27;tol&#x27;: 0.001}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="ce5504b5-97fd-425a-8b6a-67b36d9d2461" type="checkbox" ><label for="ce5504b5-97fd-425a-8b6a-67b36d9d2461" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
-                                    slice(0, 1000, None)),
+                                                          &#x27;tol&#x27;: 0.001}))])</pre></div> </div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-26" type="checkbox" ><label for="sk-estimator-id-26" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>columnkernelizer: ColumnKernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
+                                    slice(np.int64(0), np.int64(1000), None)),
                                    (&#x27;Feature space 1&#x27;, Kernelizer(),
-                                    slice(1000, 2000, None)),
+                                    slice(np.int64(1000), np.int64(2000), None)),
                                    (&#x27;Feature space 2&#x27;, Kernelizer(),
-                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="2f938046-1324-4c08-8493-96d64cf6f51a" type="checkbox" ><label for="2f938046-1324-4c08-8493-96d64cf6f51a" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="89053460-6867-40bb-855c-52389fce3818" type="checkbox" ><label for="89053460-6867-40bb-855c-52389fce3818" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="cf73dab1-c50e-46e5-b326-c0d9755820d3" type="checkbox" ><label for="cf73dab1-c50e-46e5-b326-c0d9755820d3" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="fadafed0-8bfd-4557-929c-839025c72ea7" type="checkbox" ><label for="fadafed0-8bfd-4557-929c-839025c72ea7" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="4a17dd99-4cb4-4f1d-be7e-799779471412" type="checkbox" ><label for="4a17dd99-4cb4-4f1d-be7e-799779471412" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c6adf7f6-ab07-4f32-a6d3-a0e8ca87c7e6" type="checkbox" ><label for="c6adf7f6-ab07-4f32-a6d3-a0e8ca87c7e6" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="b8ae06a1-edf1-4ffc-9dc4-a540010fac38" type="checkbox" ><label for="b8ae06a1-edf1-4ffc-9dc4-a540010fac38" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;, solver=&#x27;hyper_gradient&#x27;,
+                                    slice(np.int64(2000), np.int64(3000), None))])</pre></div> </div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-27" type="checkbox" ><label for="sk-estimator-id-27" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 0</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(0), np.int64(1000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-28" type="checkbox" ><label for="sk-estimator-id-28" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-29" type="checkbox" ><label for="sk-estimator-id-29" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 1</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(1000), np.int64(2000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-30" type="checkbox" ><label for="sk-estimator-id-30" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-31" type="checkbox" ><label for="sk-estimator-id-31" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 2</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(2000), np.int64(3000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-32" type="checkbox" ><label for="sk-estimator-id-32" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-33" type="checkbox" ><label for="sk-estimator-id-33" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>MultipleKernelRidgeCV</div></div></label><div class="sk-toggleable__content fitted"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;, solver=&#x27;hyper_gradient&#x27;,
                           solver_params={&#x27;hyper_gradient_method&#x27;: &#x27;direct&#x27;,
                                          &#x27;initial_deltas&#x27;: &#x27;ridgecv&#x27;,
                                          &#x27;max_iter&#x27;: 30, &#x27;max_iter_inner_hyper&#x27;: 1,
-                                         &#x27;n_targets_batch&#x27;: 200, &#x27;tol&#x27;: 0.001})</pre></div></div></div></div></div></div></div>
+                                         &#x27;n_targets_batch&#x27;: 200, &#x27;tol&#x27;: 0.001})</pre></div> </div></div></div></div></div></div>
     </div>
     <br />
     <br />
@@ -458,7 +1280,7 @@ target.
 
 .. GENERATED FROM PYTHON SOURCE LINES 152-164
 
-.. code-block:: default
+.. code-block:: Python
 
     cv_scores = backend.to_numpy(pipe_1[1].cv_scores_)
     current_max = np.maximum.accumulate(cv_scores, axis=0)
@@ -475,9 +1297,10 @@ target.
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_001.png
-    :alt: Convergence curve, averaged over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_001.png
+   :alt: Convergence curve, averaged over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_001.png
+   :class: sphx-glr-single-img
 
 
 
@@ -489,7 +1312,7 @@ Plot the second convergence curve.
 
 .. GENERATED FROM PYTHON SOURCE LINES 166-178
 
-.. code-block:: default
+.. code-block:: Python
 
 
     cv_scores = backend.to_numpy(pipe_2[1].cv_scores_)
@@ -506,9 +1329,10 @@ Plot the second convergence curve.
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_002.png
-    :alt: Convergence curve, averaged over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_002.png
+   :alt: Convergence curve, averaged over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_002.png
+   :class: sphx-glr-single-img
 
 
 
@@ -524,7 +1348,7 @@ set.
 
 .. GENERATED FROM PYTHON SOURCE LINES 184-189
 
-.. code-block:: default
+.. code-block:: Python
 
 
     # Fit the baseline model ``KernelRidgeCV``
@@ -539,7 +1363,422 @@ set.
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b {color: black;background-color: white;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b pre{padding: 0;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-toggleable {background-color: white;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-estimator:hover {background-color: #d4ebff;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-item {z-index: 1;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-parallel-item:only-child::after {width: 0;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b div.sk-text-repr-fallback {display: none;}</style><div id="sk-13bb02c6-2eac-4628-9d32-ff2cea9ae50b" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+    <style>#sk-container-id-8 {
+      /* Definition of color scheme common for light and dark mode */
+      --sklearn-color-text: #000;
+      --sklearn-color-text-muted: #666;
+      --sklearn-color-line: gray;
+      /* Definition of color scheme for unfitted estimators */
+      --sklearn-color-unfitted-level-0: #fff5e6;
+      --sklearn-color-unfitted-level-1: #f6e4d2;
+      --sklearn-color-unfitted-level-2: #ffe0b3;
+      --sklearn-color-unfitted-level-3: chocolate;
+      /* Definition of color scheme for fitted estimators */
+      --sklearn-color-fitted-level-0: #f0f8ff;
+      --sklearn-color-fitted-level-1: #d4ebff;
+      --sklearn-color-fitted-level-2: #b3dbfd;
+      --sklearn-color-fitted-level-3: cornflowerblue;
+
+      /* Specific color for light theme */
+      --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+      --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-icon: #696969;
+
+      @media (prefers-color-scheme: dark) {
+        /* Redefinition of color scheme for dark theme */
+        --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+        --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-icon: #878787;
+      }
+    }
+
+    #sk-container-id-8 {
+      color: var(--sklearn-color-text);
+    }
+
+    #sk-container-id-8 pre {
+      padding: 0;
+    }
+
+    #sk-container-id-8 input.sk-hidden--visually {
+      border: 0;
+      clip: rect(1px 1px 1px 1px);
+      clip: rect(1px, 1px, 1px, 1px);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    #sk-container-id-8 div.sk-dashed-wrapped {
+      border: 1px dashed var(--sklearn-color-line);
+      margin: 0 0.4em 0.5em 0.4em;
+      box-sizing: border-box;
+      padding-bottom: 0.4em;
+      background-color: var(--sklearn-color-background);
+    }
+
+    #sk-container-id-8 div.sk-container {
+      /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+         but bootstrap.min.css set `[hidden] { display: none !important; }`
+         so we also need the `!important` here to be able to override the
+         default hidden behavior on the sphinx rendered scikit-learn.org.
+         See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+      display: inline-block !important;
+      position: relative;
+    }
+
+    #sk-container-id-8 div.sk-text-repr-fallback {
+      display: none;
+    }
+
+    div.sk-parallel-item,
+    div.sk-serial,
+    div.sk-item {
+      /* draw centered vertical line to link estimators */
+      background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+      background-size: 2px 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    /* Parallel-specific style estimator block */
+
+    #sk-container-id-8 div.sk-parallel-item::after {
+      content: "";
+      width: 100%;
+      border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+      flex-grow: 1;
+    }
+
+    #sk-container-id-8 div.sk-parallel {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background-color: var(--sklearn-color-background);
+      position: relative;
+    }
+
+    #sk-container-id-8 div.sk-parallel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sk-container-id-8 div.sk-parallel-item:first-child::after {
+      align-self: flex-end;
+      width: 50%;
+    }
+
+    #sk-container-id-8 div.sk-parallel-item:last-child::after {
+      align-self: flex-start;
+      width: 50%;
+    }
+
+    #sk-container-id-8 div.sk-parallel-item:only-child::after {
+      width: 0;
+    }
+
+    /* Serial-specific style estimator block */
+
+    #sk-container-id-8 div.sk-serial {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--sklearn-color-background);
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+
+
+    /* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+    clickable and can be expanded/collapsed.
+    - Pipeline and ColumnTransformer use this feature and define the default style
+    - Estimators will overwrite some part of the style using the `sk-estimator` class
+    */
+
+    /* Pipeline and ColumnTransformer style (default) */
+
+    #sk-container-id-8 div.sk-toggleable {
+      /* Default theme specific background. It is overwritten whether we have a
+      specific estimator or a Pipeline/ColumnTransformer */
+      background-color: var(--sklearn-color-background);
+    }
+
+    /* Toggleable label */
+    #sk-container-id-8 label.sk-toggleable__label {
+      cursor: pointer;
+      display: flex;
+      width: 100%;
+      margin-bottom: 0;
+      padding: 0.5em;
+      box-sizing: border-box;
+      text-align: center;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.5em;
+    }
+
+    #sk-container-id-8 label.sk-toggleable__label .caption {
+      font-size: 0.6rem;
+      font-weight: lighter;
+      color: var(--sklearn-color-text-muted);
+    }
+
+    #sk-container-id-8 label.sk-toggleable__label-arrow:before {
+      /* Arrow on the left of the label */
+      content: "▸";
+      float: left;
+      margin-right: 0.25em;
+      color: var(--sklearn-color-icon);
+    }
+
+    #sk-container-id-8 label.sk-toggleable__label-arrow:hover:before {
+      color: var(--sklearn-color-text);
+    }
+
+    /* Toggleable content - dropdown */
+
+    #sk-container-id-8 div.sk-toggleable__content {
+      max-height: 0;
+      max-width: 0;
+      overflow: hidden;
+      text-align: left;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-8 div.sk-toggleable__content.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-8 div.sk-toggleable__content pre {
+      margin: 0.2em;
+      border-radius: 0.25em;
+      color: var(--sklearn-color-text);
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-8 div.sk-toggleable__content.fitted pre {
+      /* unfitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-8 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+      /* Expand drop-down */
+      max-height: 200px;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #sk-container-id-8 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+      content: "▾";
+    }
+
+    /* Pipeline/ColumnTransformer-specific style */
+
+    #sk-container-id-8 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-8 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator-specific style */
+
+    /* Colorize estimator box */
+    #sk-container-id-8 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-8 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    #sk-container-id-8 div.sk-label label.sk-toggleable__label,
+    #sk-container-id-8 div.sk-label label {
+      /* The background is the default theme color */
+      color: var(--sklearn-color-text-on-default-background);
+    }
+
+    /* On hover, darken the color of the background */
+    #sk-container-id-8 div.sk-label:hover label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    /* Label box, darken color on hover, fitted */
+    #sk-container-id-8 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator label */
+
+    #sk-container-id-8 div.sk-label label {
+      font-family: monospace;
+      font-weight: bold;
+      display: inline-block;
+      line-height: 1.2em;
+    }
+
+    #sk-container-id-8 div.sk-label-container {
+      text-align: center;
+    }
+
+    /* Estimator-specific */
+    #sk-container-id-8 div.sk-estimator {
+      font-family: monospace;
+      border: 1px dotted var(--sklearn-color-border-box);
+      border-radius: 0.25em;
+      box-sizing: border-box;
+      margin-bottom: 0.5em;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-8 div.sk-estimator.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    /* on hover */
+    #sk-container-id-8 div.sk-estimator:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-8 div.sk-estimator.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Specification for estimator info (e.g. "i" and "?") */
+
+    /* Common style for "i" and "?" */
+
+    .sk-estimator-doc-link,
+    a:link.sk-estimator-doc-link,
+    a:visited.sk-estimator-doc-link {
+      float: right;
+      font-size: smaller;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1em;
+      height: 1em;
+      width: 1em;
+      text-decoration: none !important;
+      margin-left: 0.5em;
+      text-align: center;
+      /* unfitted */
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+      color: var(--sklearn-color-unfitted-level-1);
+    }
+
+    .sk-estimator-doc-link.fitted,
+    a:link.sk-estimator-doc-link.fitted,
+    a:visited.sk-estimator-doc-link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    div.sk-estimator:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    /* Span, style for the box shown on hovering the info icon */
+    .sk-estimator-doc-link span {
+      display: none;
+      z-index: 9999;
+      position: relative;
+      font-weight: normal;
+      right: .2ex;
+      padding: .5ex;
+      margin: .5ex;
+      width: min-content;
+      min-width: 20ex;
+      max-width: 50ex;
+      color: var(--sklearn-color-text);
+      box-shadow: 2pt 2pt 4pt #999;
+      /* unfitted */
+      background: var(--sklearn-color-unfitted-level-0);
+      border: .5pt solid var(--sklearn-color-unfitted-level-3);
+    }
+
+    .sk-estimator-doc-link.fitted span {
+      /* fitted */
+      background: var(--sklearn-color-fitted-level-0);
+      border: var(--sklearn-color-fitted-level-3);
+    }
+
+    .sk-estimator-doc-link:hover span {
+      display: block;
+    }
+
+    /* "?"-specific style due to the `<a>` HTML tag */
+
+    #sk-container-id-8 a.estimator_doc_link {
+      float: right;
+      font-size: 1rem;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1rem;
+      height: 1rem;
+      width: 1rem;
+      text-decoration: none;
+      /* unfitted */
+      color: var(--sklearn-color-unfitted-level-1);
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+    }
+
+    #sk-container-id-8 a.estimator_doc_link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    #sk-container-id-8 a.estimator_doc_link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    #sk-container-id-8 a.estimator_doc_link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+    }
+    </style><div id="sk-container-id-8" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -549,7 +1788,7 @@ set.
            1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
            1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
            1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
-           1.00000000e+10]))</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d05a171f-eb7e-4ac3-b5b3-c34b8c002575" type="checkbox" checked><label for="d05a171f-eb7e-4ac3-b5b3-c34b8c002575" class="sk-toggleable__label sk-toggleable__label-arrow">KernelRidgeCV</label><div class="sk-toggleable__content"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+           1.00000000e+10]))</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-34" type="checkbox" checked><label for="sk-estimator-id-34" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>KernelRidgeCV</div></div><div><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -559,7 +1798,7 @@ set.
            1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
            1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
            1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
-           1.00000000e+10]))</pre></div></div></div></div></div>
+           1.00000000e+10]))</pre></div> </div></div></div></div>
     </div>
     <br />
     <br />
@@ -570,7 +1809,7 @@ Compute scores of all models
 
 .. GENERATED FROM PYTHON SOURCE LINES 191-200
 
-.. code-block:: default
+.. code-block:: Python
 
     scores_1 = pipe_1.score(X_test, Y_test)
     scores_1 = backend.to_numpy(scores_1)
@@ -594,7 +1833,7 @@ Plot histograms
 
 .. GENERATED FROM PYTHON SOURCE LINES 202-213
 
-.. code-block:: default
+.. code-block:: Python
 
     bins = np.linspace(0, 1, 50)
     plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
@@ -610,9 +1849,10 @@ Plot histograms
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_003.png
-    :alt: Histogram over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_003.png
+   :alt: Histogram over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_003.png
+   :class: sphx-glr-single-img
 
 
 
@@ -627,7 +1867,7 @@ trajectories.
 
 .. GENERATED FROM PYTHON SOURCE LINES 218-232
 
-.. code-block:: default
+.. code-block:: Python
 
 
     all_kernel_weights_2 = [
@@ -649,13 +1889,11 @@ trajectories.
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [........................................] 100% | 0.16 sec | hypergradient_direct | 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [........                                ] 20% | 0.09 sec | hypergradient_direct |     [................                        ] 40% | 0.10 sec | hypergradient_direct |     [........................                ] 60% | 0.11 sec | hypergradient_direct |     [................................        ] 80% | 0.12 sec | hypergradient_direct |     [........................................] 100% | 0.21 sec | hypergradient_direct | 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 3% | 0.09 sec | hypergradient_direct |     [..                                      ] 7% | 0.10 sec | hypergradient_direct |     [....                                    ] 10% | 0.11 sec | hypergradient_direct |     [.....                                   ] 14% | 0.12 sec | hypergradient_direct |     [......                                  ] 17% | 0.13 sec | hypergradient_direct |     [........                                ] 21% | 0.14 sec | hypergradient_direct |     [.........                               ] 24% | 0.15 sec | hypergradient_direct |     [...........                             ] 28% | 0.17 sec | hypergradient_direct |     [............                            ] 31% | 0.18 sec | hypergradient_direct |     [.............                           ] 34% | 0.19 sec | hypergradient_direct |     [...............                         ] 38% | 0.20 sec | hypergradient_direct |     [................                        ] 41% | 0.21 sec | hypergradient_direct |     [.................                       ] 45% | 0.22 sec | hypergradient_direct |     [...................                     ] 48% | 0.23 sec | hypergradient_direct |     [....................                    ] 52% | 0.24 sec | hypergradient_direct |     [......................                  ] 55% | 0.25 sec | hypergradient_direct |     [.......................                 ] 59% | 0.27 sec | hypergradient_direct |     [........................                ] 62% | 0.28 sec | hypergradient_direct |     [..........................              ] 66% | 0.29 sec | hypergradient_direct |     [...........................             ] 69% | 0.30 sec | hypergradient_direct |     [............................            ] 72% | 0.31 sec | hypergradient_direct |     [..............................          ] 76% | 0.32 sec | hypergradient_direct |     [...............................         ] 79% | 0.33 sec | hypergradient_direct |     [.................................       ] 83% | 0.34 sec | hypergradient_direct |     [..................................      ] 86% | 0.36 sec | hypergradient_direct |     [...................................     ] 90% | 0.37 sec | hypergradient_direct |     [.....................................   ] 93% | 0.38 sec | hypergradient_direct |     [......................................  ] 97% | 0.39 sec | hypergradient_direct |     [........................................] 100% | 0.48 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [........................................] 100% | 3.04 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [........                                ] 20% | 2.95 sec | hypergradient_direct |     [................                        ] 40% | 3.20 sec | hypergradient_direct |     [........................                ] 60% | 3.44 sec | hypergradient_direct |     [................................        ] 80% | 3.69 sec | hypergradient_direct |     [........................................] 100% | 3.98 sec | hypergradient_direct | 
+    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [.                                       ] 3% | 2.95 sec | hypergradient_direct |     [..                                      ] 7% | 3.20 sec | hypergradient_direct |     [....                                    ] 10% | 3.45 sec | hypergradient_direct |     [.....                                   ] 14% | 3.69 sec | hypergradient_direct |     [......                                  ] 17% | 3.93 sec | hypergradient_direct |     [........                                ] 21% | 4.18 sec | hypergradient_direct |     [.........                               ] 24% | 4.43 sec | hypergradient_direct |     [...........                             ] 28% | 4.67 sec | hypergradient_direct |     [............                            ] 31% | 4.92 sec | hypergradient_direct |     [.............                           ] 34% | 5.17 sec | hypergradient_direct |     [...............                         ] 38% | 5.41 sec | hypergradient_direct |     [................                        ] 41% | 5.66 sec | hypergradient_direct |     [.................                       ] 45% | 5.90 sec | hypergradient_direct |     [...................                     ] 48% | 6.14 sec | hypergradient_direct |     [....................                    ] 52% | 6.39 sec | hypergradient_direct |     [......................                  ] 55% | 6.64 sec | hypergradient_direct |     [.......................                 ] 59% | 6.88 sec | hypergradient_direct |     [........................                ] 62% | 7.12 sec | hypergradient_direct |     [..........................              ] 66% | 7.37 sec | hypergradient_direct |     [...........................             ] 69% | 7.61 sec | hypergradient_direct |     [............................            ] 72% | 7.85 sec | hypergradient_direct |     [..............................          ] 76% | 8.09 sec | hypergradient_direct |     [...............................         ] 79% | 8.34 sec | hypergradient_direct |     [.................................       ] 83% | 8.58 sec | hypergradient_direct |     [..................................      ] 86% | 8.82 sec | hypergradient_direct |     [...................................     ] 90% | 9.07 sec | hypergradient_direct |     [.....................................   ] 93% | 9.32 sec | hypergradient_direct |     [......................................  ] 97% | 9.56 sec | hypergradient_direct |     [........................................] 100% | 9.87 sec | hypergradient_direct | 
 
 
 
@@ -666,7 +1904,7 @@ Get the normalized kernel weights for the first model
 
 .. GENERATED FROM PYTHON SOURCE LINES 234-237
 
-.. code-block:: default
+.. code-block:: Python
 
     kernel_weights_1 = np.exp(backend.to_numpy(pipe_1[1].deltas_.T))
     kernel_weights_1 /= kernel_weights_1.sum(1)[:, None]
@@ -694,7 +1932,7 @@ We plot on three different panels:
 
 .. GENERATED FROM PYTHON SOURCE LINES 249-322
 
-.. code-block:: default
+.. code-block:: Python
 
 
 
@@ -778,7 +2016,7 @@ We plot on three different panels:
 
 .. GENERATED FROM PYTHON SOURCE LINES 323-352
 
-.. code-block:: default
+.. code-block:: Python
 
     fig, axs = plt.subplots(1, 3, figsize=(12, 4))
 
@@ -812,9 +2050,10 @@ We plot on three different panels:
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_004.png
-    :alt: (a) Ground truth, (b) Random search, (c) Gradient descent
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_004.png
+   :alt: (a) Ground truth, (b) Random search, (c) Gradient descent
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_2_solvers_004.png
+   :class: sphx-glr-single-img
 
 
 
@@ -823,28 +2062,26 @@ We plot on three different panels:
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  4.563 seconds)
+   **Total running time of the script:** (1 minutes 9.778 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py:
 
+.. only:: html
 
-.. only :: html
+  .. container:: sphx-glr-footer sphx-glr-footer-example
 
- .. container:: sphx-glr-footer
-    :class: sphx-glr-footer-example
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
+      :download:`Download Jupyter notebook: plot_mkr_2_solvers.ipynb <plot_mkr_2_solvers.ipynb>`
 
+    .. container:: sphx-glr-download sphx-glr-download-python
 
-  .. container:: sphx-glr-download sphx-glr-download-python
+      :download:`Download Python source code: plot_mkr_2_solvers.py <plot_mkr_2_solvers.py>`
 
-     :download:`Download Python source code: plot_mkr_2_solvers.py <plot_mkr_2_solvers.py>`
+    .. container:: sphx-glr-download sphx-glr-download-zip
 
-
-
-  .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-     :download:`Download Jupyter notebook: plot_mkr_2_solvers.ipynb <plot_mkr_2_solvers.ipynb>`
+      :download:`Download zipped: plot_mkr_2_solvers.zip <plot_mkr_2_solvers.zip>`
 
 
 .. only:: html

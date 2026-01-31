@@ -68,7 +68,7 @@ Y_test = backend.asarray(Y_test, dtype=backend.float32)
 # Run the solver, using random search
 # -----------------------------------
 # This method should work fine for
-# small number of kernels (< 20). The larger the number of kenels, the larger
+# small number of kernels (< 20). The larger the number of kernels, the larger
 # we need to sample the hyperparameter space (i.e. increasing ``n_iter``).
 
 ###############################################################################

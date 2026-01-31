@@ -1,41 +1,41 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Multiple-kernel ridge &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../_static/gallery-rendered-html.css" />
-    <script data-url_root="../../" id="documentation_options" src="../../_static/documentation_options.js"></script>
-    <script src="../../_static/jquery.js"></script>
-    <script src="../../_static/underscore.js"></script>
-    <script src="../../_static/doctools.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Multiple-kernel ridge &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="Multiple-kernel ridge with scikit-learn API" href="plot_mkr_1_sklearn_api.html" />
-    <link rel="prev" title="Fitting a model on GPU" href="../kernel_ridge/plot_model_on_gpu.py.html" />
+    <link rel="prev" title="Multiple-kernel ridge" href="index.html" />
    
   <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../index.html">
-    <img class="logo" src="../../_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="../../_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -59,8 +59,10 @@
 <ul>
   <li><a href="../../index.html">Documentation overview</a><ul>
   <li><a href="../index.html">Gallery of examples</a><ul>
-      <li>Previous: <a href="../kernel_ridge/plot_model_on_gpu.py.html" title="previous chapter">Fitting a model on GPU</a></li>
+  <li><a href="index.html">Multiple-kernel ridge</a><ul>
+      <li>Previous: <a href="index.html" title="previous chapter">Multiple-kernel ridge</a></li>
       <li>Next: <a href="plot_mkr_1_sklearn_api.html" title="next chapter">Multiple-kernel ridge with scikit-learn API</a></li>
+  </ul></li>
   </ul></li>
   </ul></li>
 </ul>
@@ -78,7 +80,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../search.html" method="get">
@@ -86,8 +88,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -98,37 +100,41 @@
             
   <div class="sphx-glr-download-link-note admonition note">
 <p class="admonition-title">Note</p>
-<p>Click <a class="reference internal" href="#sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"><span class="std std-ref">here</span></a>
-to download the full example code</p>
+<p><a class="reference internal" href="#sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"><span class="std std-ref">Go to the end</span></a>
+to download the full example code.</p>
 </div>
-<div class="sphx-glr-example-title section" id="multiple-kernel-ridge">
-<span id="sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"></span><h1>Multiple-kernel ridge<a class="headerlink" href="#multiple-kernel-ridge" title="Permalink to this headline">¶</a></h1>
+<section class="sphx-glr-example-title" id="multiple-kernel-ridge">
+<span id="sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"></span><h1>Multiple-kernel ridge<a class="headerlink" href="#multiple-kernel-ridge" title="Link to this heading">¶</a></h1>
 <p>This example demonstrates how to solve multiple kernel ridge regression.
 It uses random search and cross validation to select optimal hyperparameters.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
-<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">matplotlib.pyplot</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">plt</span>
 
-<span class="kn">from</span> <span class="nn">himalaya.backend</span> <span class="kn">import</span> <span class="n">set_backend</span>
-<span class="kn">from</span> <span class="nn">himalaya.kernel_ridge</span> <span class="kn">import</span> <span class="n">solve_multiple_kernel_ridge_random_search</span>
-<span class="kn">from</span> <span class="nn">himalaya.kernel_ridge</span> <span class="kn">import</span> <span class="n">predict_and_score_weighted_kernel_ridge</span>
-<span class="kn">from</span> <span class="nn">himalaya.utils</span> <span class="kn">import</span> <span class="n">generate_multikernel_dataset</span>
-<span class="kn">from</span> <span class="nn">himalaya.scoring</span> <span class="kn">import</span> <span class="n">r2_score_split</span>
-<span class="kn">from</span> <span class="nn">himalaya.viz</span> <span class="kn">import</span> <span class="n">plot_alphas_diagnostic</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.kernel_ridge</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_multiple_kernel_ridge_random_search</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.kernel_ridge</span><span class="w"> </span><span class="kn">import</span> <span class="n">predict_and_score_weighted_kernel_ridge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_multikernel_dataset</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">r2_score_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.viz</span><span class="w"> </span><span class="kn">import</span> <span class="n">plot_alphas_diagnostic</span>
 </pre></div>
 </div>
 <p>In this example, we use the <code class="docutils literal notranslate"><span class="pre">cupy</span></code> backend, and fit the model on GPU.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="section" id="generate-a-random-dataset">
-<h2>Generate a random dataset<a class="headerlink" href="#generate-a-random-dataset" title="Permalink to this headline">¶</a></h2>
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
+  warnings.warn(f&quot;Setting backend to {backend} failed: {str(error)}.&quot;
+</pre></div>
+</div>
+<section id="generate-a-random-dataset">
+<h2>Generate a random dataset<a class="headerlink" href="#generate-a-random-dataset" title="Link to this heading">¶</a></h2>
 <ul class="simple">
 <li><p>X_train : array of shape (n_samples_train, n_features)</p></li>
 <li><p>X_test : array of shape (n_samples_test, n_features)</p></li>
 <li><p>Y_train : array of shape (n_samples_train, n_targets)</p></li>
 <li><p>Y_test : array of shape (n_samples_test, n_targets)</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_kernels</span> <span class="o">=</span> <span class="mi">3</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">n_kernels</span> <span class="o">=</span> <span class="mi">3</span>
 <span class="n">n_targets</span> <span class="o">=</span> <span class="mi">50</span>
 <span class="n">kernel_weights</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">tile</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])[</span><span class="kc">None</span><span class="p">],</span> <span class="p">(</span><span class="n">n_targets</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 
@@ -149,11 +155,11 @@ It uses random search and cross validation to select optimal hyperparameters.</p
 <span class="n">Xs_test</span> <span class="o">=</span> <span class="p">[</span><span class="n">X_test</span><span class="p">[:,</span> <span class="n">slic</span><span class="p">]</span> <span class="k">for</span> <span class="n">slic</span> <span class="ow">in</span> <span class="n">slices</span><span class="p">]</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="precompute-the-linear-kernels">
-<h2>Precompute the linear kernels<a class="headerlink" href="#precompute-the-linear-kernels" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="precompute-the-linear-kernels">
+<h2>Precompute the linear kernels<a class="headerlink" href="#precompute-the-linear-kernels" title="Link to this heading">¶</a></h2>
 <p>We also cast them to float32.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">Ks_train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">X_train</span> <span class="o">@</span> <span class="n">X_train</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">X_train</span> <span class="ow">in</span> <span class="n">Xs_train</span><span class="p">])</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">Ks_train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">stack</span><span class="p">([</span><span class="n">X_train</span> <span class="o">@</span> <span class="n">X_train</span><span class="o">.</span><span class="n">T</span> <span class="k">for</span> <span class="n">X_train</span> <span class="ow">in</span> <span class="n">Xs_train</span><span class="p">])</span>
 <span class="n">Ks_train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Ks_train</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 <span class="n">Y_train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y_train</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 
@@ -163,26 +169,26 @@ It uses random search and cross validation to select optimal hyperparameters.</p
 <span class="n">Y_test</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y_test</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">backend</span><span class="o">.</span><span class="n">float32</span><span class="p">)</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="run-the-solver-using-random-search">
-<h2>Run the solver, using random search<a class="headerlink" href="#run-the-solver-using-random-search" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="run-the-solver-using-random-search">
+<h2>Run the solver, using random search<a class="headerlink" href="#run-the-solver-using-random-search" title="Link to this heading">¶</a></h2>
 <p>This method should work fine for
-small number of kernels (&lt; 20). The larger the number of kenels, the larger
+small number of kernels (&lt; 20). The larger the number of kernels, the larger
 we need to sample the hyperparameter space (i.e. increasing <code class="docutils literal notranslate"><span class="pre">n_iter</span></code>).</p>
 <p>Here we use 100 iterations to have a reasonably fast example (~40 sec).
 To have a better convergence, we probably need more iterations.
 Note that there is currently no stopping criterion in this method.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_iter</span> <span class="o">=</span> <span class="mi">100</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">n_iter</span> <span class="o">=</span> <span class="mi">100</span>
 </pre></div>
 </div>
 <p>Grid of regularization parameters.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">alphas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">alphas</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">21</span><span class="p">)</span>
 </pre></div>
 </div>
 <p>Batch parameters are used to reduce the necessary GPU memory. A larger value
 will be a bit faster, but the solver might crash if it runs out of memory.
 Optimal values depend on the size of your dataset.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">n_targets_batch</span> <span class="o">=</span> <span class="mi">1000</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">n_targets_batch</span> <span class="o">=</span> <span class="mi">1000</span>
 <span class="n">n_alphas_batch</span> <span class="o">=</span> <span class="mi">20</span>
 </pre></div>
 </div>
@@ -190,7 +196,7 @@ Optimal values depend on the size of your dataset.</p>
 To mitigate this, you can reduce <code class="docutils literal notranslate"><span class="pre">n_targets_batch</span></code> in the refit
 using <code class="docutils literal notranslate"><span class="pre">`n_targets_batch_refit</span></code>.
 If you don’t need the dual weights, use <code class="docutils literal notranslate"><span class="pre">return_weights</span> <span class="pre">=</span> <span class="pre">None</span></code>.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">return_weights</span> <span class="o">=</span> <span class="s1">&#39;dual&#39;</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">return_weights</span> <span class="o">=</span> <span class="s1">&#39;dual&#39;</span>
 <span class="n">n_targets_batch_refit</span> <span class="o">=</span> <span class="mi">200</span>
 </pre></div>
 </div>
@@ -206,7 +212,7 @@ target and the entire dataset</p></li>
 <li><p>return for each target the log kernel weights leading to the best CV score
 (and the best weights if necessary)</p></li>
 </ul>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">solve_multiple_kernel_ridge_random_search</span><span class="p">(</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">results</span> <span class="o">=</span> <span class="n">solve_multiple_kernel_ridge_random_search</span><span class="p">(</span>
     <span class="n">Ks</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span>
     <span class="n">Y</span><span class="o">=</span><span class="n">Y_train</span><span class="p">,</span>
     <span class="n">n_iter</span><span class="o">=</span><span class="n">n_iter</span><span class="p">,</span>
@@ -219,123 +225,122 @@ target and the entire dataset</p></li>
 <span class="p">)</span>
 </pre></div>
 </div>
-<p class="sphx-glr-script-out">Out:</p>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | 100 random sampling with cv |
-[                                        ] 1% | 0.23 sec | 100 random sampling with cv |
-[                                        ] 2% | 0.43 sec | 100 random sampling with cv |
-[.                                       ] 3% | 0.57 sec | 100 random sampling with cv |
-[.                                       ] 4% | 0.71 sec | 100 random sampling with cv |
-[..                                      ] 5% | 0.84 sec | 100 random sampling with cv |
-[..                                      ] 6% | 1.01 sec | 100 random sampling with cv |
-[..                                      ] 7% | 1.18 sec | 100 random sampling with cv |
-[...                                     ] 8% | 1.31 sec | 100 random sampling with cv |
-[...                                     ] 9% | 1.48 sec | 100 random sampling with cv |
-[....                                    ] 10% | 1.65 sec | 100 random sampling with cv |
-[....                                    ] 11% | 1.82 sec | 100 random sampling with cv |
-[....                                    ] 12% | 1.99 sec | 100 random sampling with cv |
-[.....                                   ] 13% | 2.13 sec | 100 random sampling with cv |
-[.....                                   ] 14% | 2.26 sec | 100 random sampling with cv |
-[......                                  ] 15% | 2.39 sec | 100 random sampling with cv |
-[......                                  ] 16% | 2.52 sec | 100 random sampling with cv |
-[......                                  ] 17% | 2.69 sec | 100 random sampling with cv |
-[.......                                 ] 18% | 2.83 sec | 100 random sampling with cv |
-[.......                                 ] 19% | 2.96 sec | 100 random sampling with cv |
-[........                                ] 20% | 3.09 sec | 100 random sampling with cv |
-[........                                ] 21% | 3.26 sec | 100 random sampling with cv |
-[........                                ] 22% | 3.43 sec | 100 random sampling with cv |
-[.........                               ] 23% | 3.56 sec | 100 random sampling with cv |
-[.........                               ] 24% | 3.70 sec | 100 random sampling with cv |
-[..........                              ] 25% | 3.83 sec | 100 random sampling with cv |
-[..........                              ] 26% | 3.96 sec | 100 random sampling with cv |
-[..........                              ] 27% | 4.10 sec | 100 random sampling with cv |
-[...........                             ] 28% | 4.23 sec | 100 random sampling with cv |
-[...........                             ] 29% | 4.36 sec | 100 random sampling with cv |
-[............                            ] 30% | 4.49 sec | 100 random sampling with cv |
-[............                            ] 31% | 4.63 sec | 100 random sampling with cv |
-[............                            ] 32% | 4.76 sec | 100 random sampling with cv |
-[.............                           ] 33% | 4.89 sec | 100 random sampling with cv |
-[.............                           ] 34% | 5.02 sec | 100 random sampling with cv |
-[..............                          ] 35% | 5.16 sec | 100 random sampling with cv |
-[..............                          ] 36% | 5.33 sec | 100 random sampling with cv |
-[..............                          ] 37% | 5.46 sec | 100 random sampling with cv |
-[...............                         ] 38% | 5.59 sec | 100 random sampling with cv |
-[...............                         ] 39% | 5.72 sec | 100 random sampling with cv |
-[................                        ] 40% | 5.86 sec | 100 random sampling with cv |
-[................                        ] 41% | 5.99 sec | 100 random sampling with cv |
-[................                        ] 42% | 6.12 sec | 100 random sampling with cv |
-[.................                       ] 43% | 6.25 sec | 100 random sampling with cv |
-[.................                       ] 44% | 6.42 sec | 100 random sampling with cv |
-[..................                      ] 45% | 6.56 sec | 100 random sampling with cv |
-[..................                      ] 46% | 6.69 sec | 100 random sampling with cv |
-[..................                      ] 47% | 6.82 sec | 100 random sampling with cv |
-[...................                     ] 48% | 6.99 sec | 100 random sampling with cv |
-[...................                     ] 49% | 7.12 sec | 100 random sampling with cv |
-[....................                    ] 50% | 7.26 sec | 100 random sampling with cv |
-[....................                    ] 51% | 7.39 sec | 100 random sampling with cv |
-[....................                    ] 52% | 7.52 sec | 100 random sampling with cv |
-[.....................                   ] 53% | 7.66 sec | 100 random sampling with cv |
-[.....................                   ] 54% | 7.83 sec | 100 random sampling with cv |
-[......................                  ] 55% | 7.96 sec | 100 random sampling with cv |
-[......................                  ] 56% | 8.09 sec | 100 random sampling with cv |
-[......................                  ] 57% | 8.23 sec | 100 random sampling with cv |
-[.......................                 ] 58% | 8.36 sec | 100 random sampling with cv |
-[.......................                 ] 59% | 8.49 sec | 100 random sampling with cv |
-[........................                ] 60% | 8.67 sec | 100 random sampling with cv |
-[........................                ] 61% | 8.80 sec | 100 random sampling with cv |
-[........................                ] 62% | 8.97 sec | 100 random sampling with cv |
-[.........................               ] 63% | 9.10 sec | 100 random sampling with cv |
-[.........................               ] 64% | 9.24 sec | 100 random sampling with cv |
-[..........................              ] 65% | 9.37 sec | 100 random sampling with cv |
-[..........................              ] 66% | 9.50 sec | 100 random sampling with cv |
-[..........................              ] 67% | 9.64 sec | 100 random sampling with cv |
-[...........................             ] 68% | 9.77 sec | 100 random sampling with cv |
-[...........................             ] 69% | 9.90 sec | 100 random sampling with cv |
-[............................            ] 70% | 10.04 sec | 100 random sampling with cv |
-[............................            ] 71% | 10.17 sec | 100 random sampling with cv |
-[............................            ] 72% | 10.30 sec | 100 random sampling with cv |
-[.............................           ] 73% | 10.44 sec | 100 random sampling with cv |
-[.............................           ] 74% | 10.61 sec | 100 random sampling with cv |
-[..............................          ] 75% | 10.74 sec | 100 random sampling with cv |
-[..............................          ] 76% | 10.92 sec | 100 random sampling with cv |
-[..............................          ] 77% | 11.05 sec | 100 random sampling with cv |
-[...............................         ] 78% | 11.18 sec | 100 random sampling with cv |
-[...............................         ] 79% | 11.32 sec | 100 random sampling with cv |
-[................................        ] 80% | 11.45 sec | 100 random sampling with cv |
-[................................        ] 81% | 11.59 sec | 100 random sampling with cv |
-[................................        ] 82% | 11.72 sec | 100 random sampling with cv |
-[.................................       ] 83% | 11.89 sec | 100 random sampling with cv |
-[.................................       ] 84% | 12.02 sec | 100 random sampling with cv |
-[..................................      ] 85% | 12.16 sec | 100 random sampling with cv |
-[..................................      ] 86% | 12.29 sec | 100 random sampling with cv |
-[..................................      ] 87% | 12.42 sec | 100 random sampling with cv |
-[...................................     ] 88% | 12.56 sec | 100 random sampling with cv |
-[...................................     ] 89% | 12.69 sec | 100 random sampling with cv |
-[....................................    ] 90% | 12.86 sec | 100 random sampling with cv |
-[....................................    ] 91% | 12.99 sec | 100 random sampling with cv |
-[....................................    ] 92% | 13.13 sec | 100 random sampling with cv |
-[.....................................   ] 93% | 13.26 sec | 100 random sampling with cv |
-[.....................................   ] 94% | 13.39 sec | 100 random sampling with cv |
-[......................................  ] 95% | 13.53 sec | 100 random sampling with cv |
-[......................................  ] 96% | 13.66 sec | 100 random sampling with cv |
-[......................................  ] 97% | 13.79 sec | 100 random sampling with cv |
-[....................................... ] 98% | 13.93 sec | 100 random sampling with cv |
-[....................................... ] 99% | 14.06 sec | 100 random sampling with cv |
-[........................................] 100% | 14.20 sec | 100 random sampling with cv |
+[                                        ] 1% | 1.41 sec | 100 random sampling with cv |
+[                                        ] 2% | 2.70 sec | 100 random sampling with cv |
+[.                                       ] 3% | 3.47 sec | 100 random sampling with cv |
+[.                                       ] 4% | 4.45 sec | 100 random sampling with cv |
+[..                                      ] 5% | 5.39 sec | 100 random sampling with cv |
+[..                                      ] 6% | 6.39 sec | 100 random sampling with cv |
+[..                                      ] 7% | 7.52 sec | 100 random sampling with cv |
+[...                                     ] 8% | 8.62 sec | 100 random sampling with cv |
+[...                                     ] 9% | 9.78 sec | 100 random sampling with cv |
+[....                                    ] 10% | 11.13 sec | 100 random sampling with cv |
+[....                                    ] 11% | 12.56 sec | 100 random sampling with cv |
+[....                                    ] 12% | 13.78 sec | 100 random sampling with cv |
+[.....                                   ] 13% | 14.99 sec | 100 random sampling with cv |
+[.....                                   ] 14% | 15.95 sec | 100 random sampling with cv |
+[......                                  ] 15% | 16.93 sec | 100 random sampling with cv |
+[......                                  ] 16% | 17.97 sec | 100 random sampling with cv |
+[......                                  ] 17% | 19.17 sec | 100 random sampling with cv |
+[.......                                 ] 18% | 20.26 sec | 100 random sampling with cv |
+[.......                                 ] 19% | 21.05 sec | 100 random sampling with cv |
+[........                                ] 20% | 22.10 sec | 100 random sampling with cv |
+[........                                ] 21% | 23.16 sec | 100 random sampling with cv |
+[........                                ] 22% | 24.59 sec | 100 random sampling with cv |
+[.........                               ] 23% | 25.68 sec | 100 random sampling with cv |
+[.........                               ] 24% | 26.49 sec | 100 random sampling with cv |
+[..........                              ] 25% | 27.37 sec | 100 random sampling with cv |
+[..........                              ] 26% | 28.55 sec | 100 random sampling with cv |
+[..........                              ] 27% | 29.67 sec | 100 random sampling with cv |
+[...........                             ] 28% | 30.59 sec | 100 random sampling with cv |
+[...........                             ] 29% | 31.87 sec | 100 random sampling with cv |
+[............                            ] 30% | 33.12 sec | 100 random sampling with cv |
+[............                            ] 31% | 34.20 sec | 100 random sampling with cv |
+[............                            ] 32% | 35.16 sec | 100 random sampling with cv |
+[.............                           ] 33% | 36.06 sec | 100 random sampling with cv |
+[.............                           ] 34% | 37.24 sec | 100 random sampling with cv |
+[..............                          ] 35% | 38.09 sec | 100 random sampling with cv |
+[..............                          ] 36% | 39.10 sec | 100 random sampling with cv |
+[..............                          ] 37% | 39.90 sec | 100 random sampling with cv |
+[...............                         ] 38% | 40.85 sec | 100 random sampling with cv |
+[...............                         ] 39% | 42.00 sec | 100 random sampling with cv |
+[................                        ] 40% | 43.08 sec | 100 random sampling with cv |
+[................                        ] 41% | 43.79 sec | 100 random sampling with cv |
+[................                        ] 42% | 44.85 sec | 100 random sampling with cv |
+[.................                       ] 43% | 45.85 sec | 100 random sampling with cv |
+[.................                       ] 44% | 47.07 sec | 100 random sampling with cv |
+[..................                      ] 45% | 48.17 sec | 100 random sampling with cv |
+[..................                      ] 46% | 49.34 sec | 100 random sampling with cv |
+[..................                      ] 47% | 50.30 sec | 100 random sampling with cv |
+[...................                     ] 48% | 51.43 sec | 100 random sampling with cv |
+[...................                     ] 49% | 52.27 sec | 100 random sampling with cv |
+[....................                    ] 50% | 53.45 sec | 100 random sampling with cv |
+[....................                    ] 51% | 54.53 sec | 100 random sampling with cv |
+[....................                    ] 52% | 55.78 sec | 100 random sampling with cv |
+[.....................                   ] 53% | 56.59 sec | 100 random sampling with cv |
+[.....................                   ] 54% | 57.70 sec | 100 random sampling with cv |
+[......................                  ] 55% | 58.83 sec | 100 random sampling with cv |
+[......................                  ] 56% | 60.06 sec | 100 random sampling with cv |
+[......................                  ] 57% | 61.20 sec | 100 random sampling with cv |
+[.......................                 ] 58% | 61.85 sec | 100 random sampling with cv |
+[.......................                 ] 59% | 62.88 sec | 100 random sampling with cv |
+[........................                ] 60% | 63.99 sec | 100 random sampling with cv |
+[........................                ] 61% | 65.19 sec | 100 random sampling with cv |
+[........................                ] 62% | 66.52 sec | 100 random sampling with cv |
+[.........................               ] 63% | 67.85 sec | 100 random sampling with cv |
+[.........................               ] 64% | 68.93 sec | 100 random sampling with cv |
+[..........................              ] 65% | 70.08 sec | 100 random sampling with cv |
+[..........................              ] 66% | 71.00 sec | 100 random sampling with cv |
+[..........................              ] 67% | 71.65 sec | 100 random sampling with cv |
+[...........................             ] 68% | 72.64 sec | 100 random sampling with cv |
+[...........................             ] 69% | 73.79 sec | 100 random sampling with cv |
+[............................            ] 70% | 74.78 sec | 100 random sampling with cv |
+[............................            ] 71% | 76.03 sec | 100 random sampling with cv |
+[............................            ] 72% | 77.15 sec | 100 random sampling with cv |
+[.............................           ] 73% | 78.15 sec | 100 random sampling with cv |
+[.............................           ] 74% | 78.97 sec | 100 random sampling with cv |
+[..............................          ] 75% | 80.10 sec | 100 random sampling with cv |
+[..............................          ] 76% | 81.55 sec | 100 random sampling with cv |
+[..............................          ] 77% | 82.39 sec | 100 random sampling with cv |
+[...............................         ] 78% | 83.59 sec | 100 random sampling with cv |
+[...............................         ] 79% | 84.80 sec | 100 random sampling with cv |
+[................................        ] 80% | 85.97 sec | 100 random sampling with cv |
+[................................        ] 81% | 87.12 sec | 100 random sampling with cv |
+[................................        ] 82% | 88.39 sec | 100 random sampling with cv |
+[.................................       ] 83% | 89.50 sec | 100 random sampling with cv |
+[.................................       ] 84% | 90.44 sec | 100 random sampling with cv |
+[..................................      ] 85% | 91.21 sec | 100 random sampling with cv |
+[..................................      ] 86% | 92.15 sec | 100 random sampling with cv |
+[..................................      ] 87% | 93.24 sec | 100 random sampling with cv |
+[...................................     ] 88% | 94.32 sec | 100 random sampling with cv |
+[...................................     ] 89% | 95.45 sec | 100 random sampling with cv |
+[....................................    ] 90% | 96.69 sec | 100 random sampling with cv |
+[....................................    ] 91% | 97.62 sec | 100 random sampling with cv |
+[....................................    ] 92% | 98.50 sec | 100 random sampling with cv |
+[.....................................   ] 93% | 99.42 sec | 100 random sampling with cv |
+[.....................................   ] 94% | 100.33 sec | 100 random sampling with cv |
+[......................................  ] 95% | 101.15 sec | 100 random sampling with cv |
+[......................................  ] 96% | 102.23 sec | 100 random sampling with cv |
+[......................................  ] 97% | 103.42 sec | 100 random sampling with cv |
+[....................................... ] 98% | 104.52 sec | 100 random sampling with cv |
+[....................................... ] 99% | 105.23 sec | 100 random sampling with cv |
+[........................................] 100% | 106.20 sec | 100 random sampling with cv |
 </pre></div>
 </div>
 <p>As we used the <code class="docutils literal notranslate"><span class="pre">cupy</span></code> backend, the results are <code class="docutils literal notranslate"><span class="pre">cupy</span></code> arrays, which are
 on GPU. Here, we cast the results back to CPU, and to <code class="docutils literal notranslate"><span class="pre">numpy</span></code> arrays.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">deltas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">deltas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
 <span class="n">dual_weights</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 <span class="n">cv_scores</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">results</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
 </pre></div>
 </div>
-</div>
-<div class="section" id="plot-the-convergence-curve">
-<h2>Plot the convergence curve<a class="headerlink" href="#plot-the-convergence-curve" title="Permalink to this headline">¶</a></h2>
+</section>
+<section id="plot-the-convergence-curve">
+<h2>Plot the convergence curve<a class="headerlink" href="#plot-the-convergence-curve" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">cv_scores</span></code> gives the scores for each sampled kernel weights.
 The convergence curve is thus the current maximum for each target.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">current_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">cv_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">current_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">maximum</span><span class="o">.</span><span class="n">accumulate</span><span class="p">(</span><span class="n">cv_scores</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">mean_current_max</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">mean</span><span class="p">(</span><span class="n">current_max</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">)</span>
 <span class="n">x_array</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="nb">len</span><span class="p">(</span><span class="n">mean_current_max</span><span class="p">)</span> <span class="o">+</span> <span class="mi">1</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">x_array</span><span class="p">,</span> <span class="n">mean_current_max</span><span class="p">,</span> <span class="s1">&#39;-o&#39;</span><span class="p">)</span>
@@ -347,24 +352,22 @@ The convergence curve is thus the current maximum for each target.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="Convergence curve, averaged over targets" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_001.png" />
-</div>
-<div class="section" id="plot-the-optimal-alphas-selected-by-the-solver">
-<h2>Plot the optimal alphas selected by the solver<a class="headerlink" href="#plot-the-optimal-alphas-selected-by-the-solver" title="Permalink to this headline">¶</a></h2>
+<img src="../../_images/sphx_glr_plot_mkr_0_random_search_001.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_001.png" alt="Convergence curve, averaged over targets" class = "sphx-glr-single-img"/></section>
+<section id="plot-the-optimal-alphas-selected-by-the-solver">
+<h2>Plot the optimal alphas selected by the solver<a class="headerlink" href="#plot-the-optimal-alphas-selected-by-the-solver" title="Link to this heading">¶</a></h2>
 <p>This plot is helpful to refine the alpha grid if the range is too small or
 too large.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">best_alphas</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">best_alphas</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
 <span class="n">plot_alphas_diagnostic</span><span class="p">(</span><span class="n">best_alphas</span><span class="p">,</span> <span class="n">alphas</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Best alphas selected by cross-validation&quot;</span><span class="p">)</span>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="Best alphas selected by cross-validation" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_002.png" />
-</div>
-<div class="section" id="compute-the-predictions-on-the-test-set">
-<h2>Compute the predictions on the test set<a class="headerlink" href="#compute-the-predictions-on-the-test-set" title="Permalink to this headline">¶</a></h2>
+<img src="../../_images/sphx_glr_plot_mkr_0_random_search_002.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_002.png" alt="Best alphas selected by cross-validation" class = "sphx-glr-single-img"/></section>
+<section id="compute-the-predictions-on-the-test-set">
+<h2>Compute the predictions on the test set<a class="headerlink" href="#compute-the-predictions-on-the-test-set" title="Link to this heading">¶</a></h2>
 <p>(requires the dual weights)</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">split</span> <span class="o">=</span> <span class="kc">False</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">split</span> <span class="o">=</span> <span class="kc">False</span>
 <span class="n">scores</span> <span class="o">=</span> <span class="n">predict_and_score_weighted_kernel_ridge</span><span class="p">(</span>
     <span class="n">Ks_test</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span>
     <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span> <span class="n">score_func</span><span class="o">=</span><span class="n">r2_score_split</span><span class="p">)</span>
@@ -376,15 +379,14 @@ too large.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="Histogram over targets" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_003.png" />
-</div>
-<div class="section" id="compute-the-split-predictions-on-the-test-set">
-<h2>Compute the split predictions on the test set<a class="headerlink" href="#compute-the-split-predictions-on-the-test-set" title="Permalink to this headline">¶</a></h2>
+<img src="../../_images/sphx_glr_plot_mkr_0_random_search_003.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_003.png" alt="Histogram over targets" class = "sphx-glr-single-img"/></section>
+<section id="compute-the-split-predictions-on-the-test-set">
+<h2>Compute the split predictions on the test set<a class="headerlink" href="#compute-the-split-predictions-on-the-test-set" title="Link to this heading">¶</a></h2>
 <p>(requires the dual weights)</p>
 <p>Here we apply the dual weights on each kernel separately
 (<code class="docutils literal notranslate"><span class="pre">exp(deltas[i])</span> <span class="pre">*</span> <span class="pre">kernel[i]</span></code>), and we compute the R<sup>2</sup> scores
 (corrected for correlations) of each prediction.</p>
-<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">split</span> <span class="o">=</span> <span class="kc">True</span>
+<div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">split</span> <span class="o">=</span> <span class="kc">True</span>
 <span class="n">scores_split</span> <span class="o">=</span> <span class="n">predict_and_score_weighted_kernel_ridge</span><span class="p">(</span>
     <span class="n">Ks_test</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">Y_test</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span>
     <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span> <span class="n">score_func</span><span class="o">=</span><span class="n">r2_score_split</span><span class="p">)</span>
@@ -398,19 +400,21 @@ too large.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img alt="Histogram of $R^2$ generalization score split between kernels" class="sphx-glr-single-img" src="../../_images/sphx_glr_plot_mkr_0_random_search_004.png" />
-<p class="sphx-glr-timing"><strong>Total running time of the script:</strong> ( 0 minutes  14.633 seconds)</p>
-<div class="sphx-glr-footer class sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py">
-<div class="sphx-glr-download sphx-glr-download-python docutils container">
-<p><a class="reference download internal" download="" href="../../_downloads/653b82cbcba3e05b6b8ac445ef39933b/plot_mkr_0_random_search.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mkr_0_random_search.py</span></code></a></p>
-</div>
+<img src="../../_images/sphx_glr_plot_mkr_0_random_search_004.png" srcset="../../_images/sphx_glr_plot_mkr_0_random_search_004.png" alt="Histogram of $R^2$ generalization score split between kernels" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 46.904 seconds)</p>
+<div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/79ed0bb08ce2efd81f538a540c2ebce2/plot_mkr_0_random_search.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mkr_0_random_search.ipynb</span></code></a></p>
 </div>
+<div class="sphx-glr-download sphx-glr-download-python docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/653b82cbcba3e05b6b8ac445ef39933b/plot_mkr_0_random_search.py"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Python</span> <span class="pre">source</span> <span class="pre">code:</span> <span class="pre">plot_mkr_0_random_search.py</span></code></a></p>
+</div>
+<div class="sphx-glr-download sphx-glr-download-zip docutils container">
+<p><a class="reference download internal" download="" href="../../_downloads/09beab01ce982ef5aa54fae76740a69c/plot_mkr_0_random_search.zip"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">zipped:</span> <span class="pre">plot_mkr_0_random_search.zip</span></code></a></p>
+</div>
 </div>
 <p class="sphx-glr-signature"><a class="reference external" href="https://sphinx-gallery.github.io">Gallery generated by Sphinx-Gallery</a></p>
-</div>
-</div>
+</section>
+</section>
 
 
           </div>
@@ -420,11 +424,11 @@ too large.</p>
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
       |
       <a href="../../_sources/_auto_examples/multiple_kernel_ridge/plot_mkr_0_random_search.rst.txt"

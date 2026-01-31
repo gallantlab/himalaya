@@ -1,39 +1,403 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.kernel_ridge._hyper_gradient &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <title>himalaya.kernel_ridge._hyper_gradient &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../../index.html">
-    <img class="logo" src="../../../_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="../../../_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -74,7 +438,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
@@ -82,8 +446,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -93,28 +457,44 @@
           <div class="body" role="main">
             
   <h1>Source code for himalaya.kernel_ridge._hyper_gradient</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">numbers</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
 
-<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
-<span class="kn">from</span> <span class="nn">..progress_bar</span> <span class="kn">import</span> <span class="n">ProgressBar</span>
-<span class="kn">from</span> <span class="nn">..utils</span> <span class="kn">import</span> <span class="n">compute_lipschitz_constants</span>
-<span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">l2_neg_loss</span>
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_cv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..progress_bar</span><span class="w"> </span><span class="kn">import</span> <span class="n">ProgressBar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">compute_lipschitz_constants</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">l2_neg_loss</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cv</span>
 
-<span class="kn">from</span> <span class="nn">._solvers</span> <span class="kn">import</span> <span class="n">solve_weighted_kernel_ridge_conjugate_gradient</span>
-<span class="kn">from</span> <span class="nn">._solvers</span> <span class="kn">import</span> <span class="n">solve_weighted_kernel_ridge_gradient_descent</span>
-<span class="kn">from</span> <span class="nn">._solvers</span> <span class="kn">import</span> <span class="n">solve_weighted_kernel_ridge_neumann_series</span>
-<span class="kn">from</span> <span class="nn">._random_search</span> <span class="kn">import</span> <span class="n">solve_multiple_kernel_ridge_random_search</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_weighted_kernel_ridge_conjugate_gradient</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_weighted_kernel_ridge_gradient_descent</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_weighted_kernel_ridge_neumann_series</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._random_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">solve_multiple_kernel_ridge_random_search</span>
 
 
-<div class="viewcode-block" id="solve_multiple_kernel_ridge_hyper_gradient"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient">[docs]</a><span class="k">def</span> <span class="nf">solve_multiple_kernel_ridge_hyper_gradient</span><span class="p">(</span>
-        <span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">score_func</span><span class="o">=</span><span class="n">l2_neg_loss</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">return_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Xs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_deltas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
-        <span class="n">max_iter_inner_dual</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">max_iter_inner_hyper</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">cg_tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
-        <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="s2">&quot;conjugate_gradient&quot;</span><span class="p">,</span>
-        <span class="n">kernel_ridge_method</span><span class="o">=</span><span class="s2">&quot;gradient_descent&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-        <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Solve bilinear kernel ridge regression with cross-validation.</span>
+<div class="viewcode-block" id="solve_multiple_kernel_ridge_hyper_gradient">
+<a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient.html#himalaya.kernel_ridge.solve_multiple_kernel_ridge_hyper_gradient">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_multiple_kernel_ridge_hyper_gradient</span><span class="p">(</span>
+    <span class="n">Ks</span><span class="p">,</span>
+    <span class="n">Y</span><span class="p">,</span>
+    <span class="n">score_func</span><span class="o">=</span><span class="n">l2_neg_loss</span><span class="p">,</span>
+    <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+    <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+    <span class="n">return_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">Xs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">initial_deltas</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+    <span class="n">max_iter</span><span class="o">=</span><span class="mi">10</span><span class="p">,</span>
+    <span class="n">tol</span><span class="o">=</span><span class="mf">1e-2</span><span class="p">,</span>
+    <span class="n">max_iter_inner_dual</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">max_iter_inner_hyper</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span>
+    <span class="n">cg_tol</span><span class="o">=</span><span class="mf">1e-3</span><span class="p">,</span>
+    <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="s2">&quot;conjugate_gradient&quot;</span><span class="p">,</span>
+    <span class="n">kernel_ridge_method</span><span class="o">=</span><span class="s2">&quot;gradient_descent&quot;</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
+    <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve bilinear kernel ridge regression with cross-validation.</span>
 
 <span class="sd">    The hyper-parameters deltas correspond to::</span>
 
@@ -195,34 +575,37 @@
     <span class="n">Y</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="n">dtype</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span> <span class="k">if</span> <span class="n">Y_in_cpu</span> <span class="k">else</span> <span class="n">device</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">fit_intercept</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s1">&#39;Coming soon.&#39;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;Coming soon.&quot;</span><span class="p">)</span>
 
     <span class="n">cv</span> <span class="o">=</span> <span class="n">check_cv</span><span class="p">(</span><span class="n">cv</span><span class="p">,</span> <span class="n">Y</span><span class="p">)</span>
     <span class="n">n_splits</span> <span class="o">=</span> <span class="n">cv</span><span class="o">.</span><span class="n">get_n_splits</span><span class="p">()</span>
     <span class="k">for</span> <span class="n">train</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">Y</span><span class="p">):</span>
         <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">val</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span> <span class="ow">or</span> <span class="nb">len</span><span class="p">(</span><span class="n">train</span><span class="p">)</span> <span class="o">==</span> <span class="mi">0</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Empty train or validation set. &quot;</span>
-                             <span class="s2">&quot;Check that `cv` is correctly defined.&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Empty train or validation set. &quot;</span>
+                <span class="s2">&quot;Check that `cv` is correctly defined.&quot;</span>
+            <span class="p">)</span>
 
-    <span class="n">deltas</span> <span class="o">=</span> <span class="n">_init_multiple_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">initial_deltas</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span>
-                                         <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span>
-                                         <span class="n">Y_in_cpu</span><span class="o">=</span><span class="n">Y_in_cpu</span><span class="p">)</span>
+    <span class="n">deltas</span> <span class="o">=</span> <span class="n">_init_multiple_kernel_ridge</span><span class="p">(</span>
+        <span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">initial_deltas</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="n">Y_in_cpu</span>
+    <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s1">&#39;primal&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s2">&quot;primal&quot;</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">Xs</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Xs is needed to compute the primal weights.&quot;</span><span class="p">)</span>
         <span class="n">n_features</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="k">for</span> <span class="n">X</span> <span class="ow">in</span> <span class="n">Xs</span><span class="p">)</span>
-        <span class="n">refit_weights</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span>
-                                           <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+        <span class="n">refit_weights</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
+            <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_features</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span>
+        <span class="p">)</span>
 
-    <span class="k">elif</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s1">&#39;dual&#39;</span><span class="p">:</span>
-        <span class="n">refit_weights</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span>
-                                           <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span><span class="p">)</span>
+    <span class="k">elif</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s2">&quot;dual&quot;</span><span class="p">:</span>
+        <span class="n">refit_weights</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
+            <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_samples</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span>
+        <span class="p">)</span>
     <span class="k">elif</span> <span class="n">return_weights</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">refit_weights</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter return_weights=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span>
-                         <span class="p">(</span><span class="n">return_weights</span><span class="p">,</span> <span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter return_weights=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">return_weights</span><span class="p">,))</span>
 
     <span class="n">lipschitz_constants</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">name</span> <span class="o">=</span> <span class="s2">&quot;hypergradient_&quot;</span> <span class="o">+</span> <span class="n">hyper_gradient_method</span>
@@ -237,19 +620,21 @@
             <span class="n">train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
             <span class="n">Ks_train</span> <span class="o">=</span> <span class="n">Ks</span><span class="p">[:,</span> <span class="n">train</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">train</span><span class="p">]</span>
             <span class="n">lipschitz_constants</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="n">compute_lipschitz_constants</span><span class="p">(</span><span class="n">Ks_train</span><span class="p">,</span>
-                                            <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">))</span>
+                <span class="n">compute_lipschitz_constants</span><span class="p">(</span><span class="n">Ks_train</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+            <span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter kernel_ridge_method=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span>
-                         <span class="p">(</span><span class="n">kernel_ridge_method</span><span class="p">,</span> <span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="s2">&quot;Unknown parameter kernel_ridge_method=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">kernel_ridge_method</span><span class="p">,)</span>
+        <span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">cg_tol</span><span class="p">,</span> <span class="p">(</span><span class="nb">int</span><span class="p">,</span> <span class="nb">float</span><span class="p">)):</span>
-        <span class="n">cg_tol</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">max_iter</span><span class="p">,</span> <span class="p">),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">cg_tol</span><span class="p">)</span>
+        <span class="n">cg_tol</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">max_iter</span><span class="p">,),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">cg_tol</span><span class="p">)</span>
 
     <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span>
 
     <span class="n">cv_scores</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
-        <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">max_iter</span> <span class="o">*</span> <span class="n">max_iter_inner_hyper</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s1">&#39;cpu&#39;</span><span class="p">)</span>
+        <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">max_iter</span> <span class="o">*</span> <span class="n">max_iter_inner_hyper</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span> <span class="n">device</span><span class="o">=</span><span class="s2">&quot;cpu&quot;</span>
+    <span class="p">)</span>
 
     <span class="n">batch_iterates</span> <span class="o">=</span> <span class="nb">range</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="p">)</span>
     <span class="n">bar</span> <span class="o">=</span> <span class="kc">None</span>
@@ -292,18 +677,24 @@
                     <span class="n">kwargs</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">()</span>
 
                 <span class="n">dual_weights_cv</span><span class="p">[</span><span class="n">kk</span><span class="p">]</span> <span class="o">=</span> <span class="n">inner_function_</span><span class="p">(</span>
-                    <span class="n">Ks_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">,</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
-                    <span class="n">initial_dual_weights</span><span class="o">=</span><span class="n">dual_weights_cv</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
-                    <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter_inner_dual_</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">cg_tol_</span><span class="p">,</span> <span class="o">**</span><span class="n">kwargs</span><span class="p">)</span>
+                    <span class="n">Ks_train</span><span class="p">,</span>
+                    <span class="n">Y_train</span><span class="p">,</span>
+                    <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
+                    <span class="n">initial_dual_weights</span><span class="o">=</span><span class="n">dual_weights_cv</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span>
+                    <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                    <span class="n">max_iter</span><span class="o">=</span><span class="n">max_iter_inner_dual_</span><span class="p">,</span>
+                    <span class="n">tol</span><span class="o">=</span><span class="n">cg_tol_</span><span class="p">,</span>
+                    <span class="o">**</span><span class="n">kwargs</span><span class="p">,</span>
+                <span class="p">)</span>
 
             <span class="c1">###################</span>
             <span class="c1"># update the deltas</span>
             <span class="n">deltas_old</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">])</span>
             <span class="k">for</span> <span class="n">jj</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">max_iter_inner_hyper</span><span class="p">):</span>
-
                 <span class="n">gradients</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">])</span>
                 <span class="n">scores</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">zeros_like</span><span class="p">(</span>
-                    <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]))</span>
+                    <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_splits</span><span class="p">,</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+                <span class="p">)</span>
                 <span class="k">for</span> <span class="n">kk</span><span class="p">,</span> <span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">val</span><span class="p">)</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">cv</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="n">Y</span><span class="p">)):</span>
                     <span class="n">val</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">val</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
                     <span class="n">train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">train</span><span class="p">,</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
@@ -312,13 +703,22 @@
                     <span class="n">Ks_train</span> <span class="o">=</span> <span class="n">Ks</span><span class="p">[:,</span> <span class="n">train</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">train</span><span class="p">]</span>
                     <span class="n">Y_val</span> <span class="o">=</span> <span class="n">Y_batch</span><span class="p">[</span><span class="n">val</span><span class="p">]</span>
 
-                    <span class="p">(</span><span class="n">gradients_kk</span><span class="p">,</span> <span class="n">step_sizes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">predictions</span><span class="p">,</span>
-                     <span class="n">previous_solutions</span><span class="p">[</span><span class="n">kk</span><span class="p">])</span> <span class="o">=</span> <span class="n">_compute_delta_gradient</span><span class="p">(</span>
-                         <span class="n">Ks_val</span><span class="o">=</span><span class="n">Ks_val</span><span class="p">,</span> <span class="n">Y_val</span><span class="o">=</span><span class="n">Y_val</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
-                         <span class="n">dual_weights</span><span class="o">=</span><span class="n">dual_weights_cv</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span> <span class="n">Ks_train</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span>
-                         <span class="n">tol</span><span class="o">=</span><span class="n">cg_tol</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
-                         <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="n">hyper_gradient_method</span><span class="p">,</span>
-                         <span class="n">previous_solution</span><span class="o">=</span><span class="n">previous_solutions</span><span class="p">[</span><span class="n">kk</span><span class="p">])</span>
+                    <span class="p">(</span>
+                        <span class="n">gradients_kk</span><span class="p">,</span>
+                        <span class="n">step_sizes</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span>
+                        <span class="n">predictions</span><span class="p">,</span>
+                        <span class="n">previous_solutions</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span>
+                    <span class="p">)</span> <span class="o">=</span> <span class="n">_compute_delta_gradient</span><span class="p">(</span>
+                        <span class="n">Ks_val</span><span class="o">=</span><span class="n">Ks_val</span><span class="p">,</span>
+                        <span class="n">Y_val</span><span class="o">=</span><span class="n">Y_val</span><span class="p">,</span>
+                        <span class="n">deltas</span><span class="o">=</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
+                        <span class="n">dual_weights</span><span class="o">=</span><span class="n">dual_weights_cv</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span>
+                        <span class="n">Ks_train</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span>
+                        <span class="n">tol</span><span class="o">=</span><span class="n">cg_tol</span><span class="p">[</span><span class="n">ii</span><span class="p">],</span>
+                        <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">,</span>
+                        <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="n">hyper_gradient_method</span><span class="p">,</span>
+                        <span class="n">previous_solution</span><span class="o">=</span><span class="n">previous_solutions</span><span class="p">[</span><span class="n">kk</span><span class="p">],</span>
+                    <span class="p">)</span>
 
                     <span class="n">gradients</span> <span class="o">+=</span> <span class="n">gradients_kk</span> <span class="o">*</span> <span class="n">Y_val</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">/</span> <span class="n">n_samples</span>
 
@@ -330,38 +730,47 @@
                 <span class="c1"># update deltas, using the minimum step size over splits</span>
                 <span class="n">step_size</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">min</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">stack</span><span class="p">(</span><span class="n">step_sizes</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
                 <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">-=</span> <span class="n">gradients</span> <span class="o">*</span> <span class="n">step_size</span><span class="p">[</span><span class="kc">None</span><span class="p">,</span> <span class="p">:]</span>
-                <span class="k">assert</span> <span class="ow">not</span> <span class="n">backend</span><span class="o">.</span><span class="n">any</span><span class="p">(</span>
-                    <span class="n">backend</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">])))</span>
+                <span class="k">assert</span> <span class="ow">not</span> <span class="n">backend</span><span class="o">.</span><span class="n">any</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">isinf</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">])))</span>
 
             <span class="c1">####################</span>
             <span class="c1"># stopping criterion</span>
             <span class="k">if</span> <span class="n">tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">max</span><span class="p">(</span>
-                        <span class="n">backend</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">deltas_old</span> <span class="o">-</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
-                    <span class="n">cv_scores</span><span class="p">[</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv_scores</span><span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">max</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">abs</span><span class="p">(</span><span class="n">deltas_old</span> <span class="o">-</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]))</span> <span class="o">&lt;</span> <span class="n">tol</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">it</span> <span class="o">+</span> <span class="mi">1</span> <span class="o">&lt;</span> <span class="n">cv_scores</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
+                        <span class="n">cv_scores</span><span class="p">[</span><span class="n">it</span> <span class="o">+</span> <span class="mi">1</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">cv_scores</span><span class="p">[</span><span class="n">it</span><span class="p">,</span> <span class="n">batch</span><span class="p">]</span>
                     <span class="k">break</span>
 
         <span class="c1">##########################################</span>
         <span class="c1"># refit dual weights on the entire dataset</span>
         <span class="k">if</span> <span class="n">return_weights</span> <span class="ow">in</span> <span class="p">[</span><span class="s2">&quot;primal&quot;</span><span class="p">,</span> <span class="s2">&quot;dual&quot;</span><span class="p">]:</span>
             <span class="n">dual_weights</span> <span class="o">=</span> <span class="n">solve_weighted_kernel_ridge_conjugate_gradient</span><span class="p">(</span>
-                <span class="n">Ks</span><span class="p">,</span> <span class="n">Y_batch</span><span class="p">,</span> <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span> <span class="n">initial_dual_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s1">&#39;primal&#39;</span><span class="p">:</span>
+                <span class="n">Ks</span><span class="p">,</span>
+                <span class="n">Y_batch</span><span class="p">,</span>
+                <span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">],</span>
+                <span class="n">initial_dual_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+                <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="n">tol</span><span class="o">=</span><span class="mf">1e-4</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s2">&quot;primal&quot;</span><span class="p">:</span>
                 <span class="c1"># multiply by g and not np.sqrt(g), as we then want to use</span>
                 <span class="c1"># the primal weights on the unscaled features Xs, and not</span>
                 <span class="c1"># on the scaled features (np.sqrt(g) * Xs)</span>
                 <span class="n">X</span> <span class="o">=</span> <span class="kc">None</span>
                 <span class="k">for</span> <span class="n">tt</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">refit_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]):</span>
-                    <span class="n">X</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">concatenate</span><span class="p">([</span>
-                        <span class="n">t</span> <span class="o">*</span> <span class="n">g</span> <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span>
-                            <span class="n">Xs</span><span class="p">,</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">][:,</span> <span class="n">tt</span><span class="p">]))</span>
-                    <span class="p">],</span> <span class="mi">1</span><span class="p">)</span>
+                    <span class="n">X</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">concatenate</span><span class="p">(</span>
+                        <span class="p">[</span>
+                            <span class="n">t</span> <span class="o">*</span> <span class="n">g</span>
+                            <span class="k">for</span> <span class="n">t</span><span class="p">,</span> <span class="n">g</span> <span class="ow">in</span> <span class="nb">zip</span><span class="p">(</span><span class="n">Xs</span><span class="p">,</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="n">deltas</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">][:,</span> <span class="n">tt</span><span class="p">]))</span>
+                        <span class="p">],</span>
+                        <span class="mi">1</span><span class="p">,</span>
+                    <span class="p">)</span>
                     <span class="n">refit_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">][:,</span> <span class="n">tt</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span>
-                        <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">]))</span>
+                        <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">X</span><span class="o">.</span><span class="n">T</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">[:,</span> <span class="n">tt</span><span class="p">])</span>
+                    <span class="p">)</span>
                 <span class="k">del</span> <span class="n">X</span>
 
-            <span class="k">elif</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s1">&#39;dual&#39;</span><span class="p">:</span>
+            <span class="k">elif</span> <span class="n">return_weights</span> <span class="o">==</span> <span class="s2">&quot;dual&quot;</span><span class="p">:</span>
                 <span class="n">refit_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">dual_weights</span><span class="p">)</span>
 
             <span class="k">del</span> <span class="n">dual_weights</span>
@@ -376,6 +785,7 @@
     <span class="k">return</span> <span class="n">results</span></div>
 
 
+
 <span class="c1">#: Dictionary with all multiple kernel ridge solvers</span>
 <span class="n">MULTIPLE_KERNEL_RIDGE_SOLVERS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;random_search&quot;</span><span class="p">:</span> <span class="n">solve_multiple_kernel_ridge_random_search</span><span class="p">,</span>
@@ -383,8 +793,8 @@
 <span class="p">}</span>
 
 
-<span class="k">def</span> <span class="nf">_init_multiple_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">initial_deltas</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="o">**</span><span class="n">ridgecv_kwargs</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Initialize deltas, i.e. log kernel weights.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_init_multiple_kernel_ridge</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">initial_deltas</span><span class="p">,</span> <span class="n">cv</span><span class="p">,</span> <span class="o">**</span><span class="n">ridgecv_kwargs</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Initialize deltas, i.e. log kernel weights.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -415,17 +825,25 @@
     <span class="k">if</span> <span class="n">initial_deltas</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="n">initial_deltas</span> <span class="o">=</span> <span class="mi">0</span>
 
-    <span class="k">if</span> <span class="p">((</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_deltas</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">initial_deltas</span> <span class="o">==</span> <span class="s1">&#39;ridgecv&#39;</span><span class="p">))):</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_deltas</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">initial_deltas</span> <span class="o">==</span> <span class="s2">&quot;ridgecv&quot;</span><span class="p">):</span>
         <span class="n">alphas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">logspace</span><span class="p">(</span><span class="o">-</span><span class="mi">10</span><span class="p">,</span> <span class="mi">20</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
-        <span class="n">gammas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">n_kernels</span><span class="p">,</span>
-                                   <span class="n">fill_value</span><span class="o">=</span><span class="mf">1.</span> <span class="o">/</span> <span class="n">n_kernels</span><span class="p">)[</span><span class="kc">None</span><span class="p">]</span>
+        <span class="n">gammas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="n">n_kernels</span><span class="p">,</span> <span class="n">fill_value</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">/</span> <span class="n">n_kernels</span><span class="p">)[</span><span class="kc">None</span><span class="p">]</span>
         <span class="n">deltas</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">solve_multiple_kernel_ridge_random_search</span><span class="p">(</span>
-            <span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="n">gammas</span><span class="p">,</span> <span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">n_alphas_batch</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-            <span class="n">return_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="o">**</span><span class="n">ridgecv_kwargs</span><span class="p">)</span>
+            <span class="n">Ks</span><span class="p">,</span>
+            <span class="n">Y</span><span class="p">,</span>
+            <span class="n">n_iter</span><span class="o">=</span><span class="n">gammas</span><span class="p">,</span>
+            <span class="n">alphas</span><span class="o">=</span><span class="n">alphas</span><span class="p">,</span>
+            <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span>
+            <span class="n">n_alphas_batch</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+            <span class="n">return_weights</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+            <span class="n">progress_bar</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+            <span class="o">**</span><span class="n">ridgecv_kwargs</span><span class="p">,</span>
+        <span class="p">)</span>
 
     <span class="k">elif</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">initial_deltas</span><span class="p">,</span> <span class="n">numbers</span><span class="o">.</span><span class="n">Number</span><span class="p">):</span>
-        <span class="n">deltas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span><span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_kernels</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span>
-                                   <span class="n">fill_value</span><span class="o">=</span><span class="n">initial_deltas</span><span class="p">)</span>
+        <span class="n">deltas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">full_like</span><span class="p">(</span>
+            <span class="n">Ks</span><span class="p">,</span> <span class="n">shape</span><span class="o">=</span><span class="p">(</span><span class="n">n_kernels</span><span class="p">,</span> <span class="n">n_targets</span><span class="p">),</span> <span class="n">fill_value</span><span class="o">=</span><span class="n">initial_deltas</span>
+        <span class="p">)</span>
 
     <span class="k">else</span><span class="p">:</span>
         <span class="n">deltas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">copy</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">initial_deltas</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">Ks</span><span class="p">))</span>
@@ -434,8 +852,8 @@
     <span class="k">return</span> <span class="n">deltas</span>
 
 
-<span class="k">def</span> <span class="nf">_compute_delta_loss</span><span class="p">(</span><span class="n">Ks_val</span><span class="p">,</span> <span class="n">Y_val</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the validation loss.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_delta_loss</span><span class="p">(</span><span class="n">Ks_val</span><span class="p">,</span> <span class="n">Y_val</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the validation loss.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -463,11 +881,18 @@
     <span class="k">return</span> <span class="n">loss</span>
 
 
-<span class="k">def</span> <span class="nf">_compute_delta_gradient</span><span class="p">(</span><span class="n">Ks_val</span><span class="p">,</span> <span class="n">Y_val</span><span class="p">,</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">,</span> <span class="n">Ks_train</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">previous_solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                            <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="s1">&#39;conjugate_gradient&#39;</span><span class="p">,</span>
-                            <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the gradient over deltas on the validation dataset.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_delta_gradient</span><span class="p">(</span>
+    <span class="n">Ks_val</span><span class="p">,</span>
+    <span class="n">Y_val</span><span class="p">,</span>
+    <span class="n">deltas</span><span class="p">,</span>
+    <span class="n">dual_weights</span><span class="p">,</span>
+    <span class="n">Ks_train</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">tol</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">previous_solution</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="n">hyper_gradient_method</span><span class="o">=</span><span class="s2">&quot;conjugate_gradient&quot;</span><span class="p">,</span>
+    <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+<span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the gradient over deltas on the validation dataset.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -521,11 +946,10 @@
     <span class="c1"># estimate a step size</span>
     <span class="n">XTXs</span> <span class="o">=</span> <span class="n">_compute_deltas_hessian</span><span class="p">(</span><span class="n">exp_delta_chi_val</span><span class="p">,</span> <span class="n">residuals</span><span class="p">)</span>
     <span class="c1"># (these lipschitz constants only correspond to the direct gradient)</span>
-    <span class="n">lipschitz_1</span> <span class="o">=</span> <span class="n">compute_lipschitz_constants</span><span class="p">(</span><span class="n">XTXs</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span>
-                                              <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
-    <span class="n">step_size</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="p">(</span><span class="n">lipschitz_1</span> <span class="o">+</span> <span class="mf">1e-15</span><span class="p">)</span>
+    <span class="n">lipschitz_1</span> <span class="o">=</span> <span class="n">compute_lipschitz_constants</span><span class="p">(</span><span class="n">XTXs</span><span class="p">,</span> <span class="s2">&quot;X&quot;</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">random_state</span><span class="p">)</span>
+    <span class="n">step_size</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">/</span> <span class="p">(</span><span class="n">lipschitz_1</span> <span class="o">+</span> <span class="mf">1e-15</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">hyper_gradient_method</span> <span class="o">==</span> <span class="s1">&#39;direct&#39;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">hyper_gradient_method</span> <span class="o">==</span> <span class="s2">&quot;direct&quot;</span><span class="p">:</span>
         <span class="n">gradient</span> <span class="o">=</span> <span class="n">direct_gradient</span>
         <span class="n">solution</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">else</span><span class="p">:</span>
@@ -535,27 +959,38 @@
         <span class="n">tmp</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">Ks_val</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span> <span class="n">residuals</span><span class="p">)</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">tmp</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
         <span class="n">nabla_g_1</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span>
-            <span class="n">tmp</span><span class="p">,</span>
-            <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])</span>
+            <span class="n">tmp</span><span class="p">,</span> <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">]</span>
+        <span class="p">)</span>
         <span class="n">nabla_g_1</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">nabla_g_1</span><span class="p">[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">],</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))</span>
         <span class="k">assert</span> <span class="n">nabla_g_1</span><span class="o">.</span><span class="n">shape</span> <span class="o">==</span> <span class="n">dual_weights</span><span class="o">.</span><span class="n">shape</span>
 
         <span class="c1"># solve linear system (sum_i gamma[i]*K[i] + 1) @ X = nabla_g_1</span>
         <span class="n">alpha</span> <span class="o">=</span> <span class="mi">1</span>
         <span class="k">assert</span> <span class="n">Ks_train</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
-        <span class="k">if</span> <span class="n">hyper_gradient_method</span> <span class="o">==</span> <span class="s1">&#39;conjugate_gradient&#39;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">hyper_gradient_method</span> <span class="o">==</span> <span class="s2">&quot;conjugate_gradient&quot;</span><span class="p">:</span>
             <span class="k">assert</span> <span class="n">tol</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
             <span class="n">solution</span> <span class="o">=</span> <span class="n">solve_weighted_kernel_ridge_conjugate_gradient</span><span class="p">(</span>
-                <span class="n">Ks</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">nabla_g_1</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="n">deltas</span><span class="p">,</span>
-                <span class="n">initial_dual_weights</span><span class="o">=</span><span class="n">previous_solution</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
-                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
-        <span class="k">elif</span> <span class="n">hyper_gradient_method</span> <span class="o">==</span> <span class="s1">&#39;neumann&#39;</span><span class="p">:</span>
+                <span class="n">Ks</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span>
+                <span class="n">Y</span><span class="o">=</span><span class="n">nabla_g_1</span><span class="p">,</span>
+                <span class="n">deltas</span><span class="o">=</span><span class="n">deltas</span><span class="p">,</span>
+                <span class="n">initial_dual_weights</span><span class="o">=</span><span class="n">previous_solution</span><span class="p">,</span>
+                <span class="n">max_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span>
+                <span class="n">tol</span><span class="o">=</span><span class="n">tol</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="p">)</span>
+        <span class="k">elif</span> <span class="n">hyper_gradient_method</span> <span class="o">==</span> <span class="s2">&quot;neumann&quot;</span><span class="p">:</span>
             <span class="n">solution</span> <span class="o">=</span> <span class="n">solve_weighted_kernel_ridge_neumann_series</span><span class="p">(</span>
-                <span class="n">Ks</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">nabla_g_1</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="n">deltas</span><span class="p">,</span> <span class="n">max_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                <span class="n">factor</span><span class="o">=</span><span class="mf">0.00001</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">)</span>
+                <span class="n">Ks</span><span class="o">=</span><span class="n">Ks_train</span><span class="p">,</span>
+                <span class="n">Y</span><span class="o">=</span><span class="n">nabla_g_1</span><span class="p">,</span>
+                <span class="n">deltas</span><span class="o">=</span><span class="n">deltas</span><span class="p">,</span>
+                <span class="n">max_iter</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
+                <span class="n">factor</span><span class="o">=</span><span class="mf">0.00001</span><span class="p">,</span>
+                <span class="n">alpha</span><span class="o">=</span><span class="n">alpha</span><span class="p">,</span>
+            <span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Unknown parameter hyper_gradient_method=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span>
-                             <span class="p">(</span><span class="n">hyper_gradient_method</span><span class="p">,</span> <span class="p">))</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown parameter hyper_gradient_method=</span><span class="si">%r</span><span class="s2">.&quot;</span> <span class="o">%</span> <span class="p">(</span><span class="n">hyper_gradient_method</span><span class="p">,)</span>
+            <span class="p">)</span>
 
         <span class="c1"># finish the indirect gradient</span>
         <span class="n">chi_train</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">Ks_train</span><span class="p">,</span> <span class="n">dual_weights</span><span class="p">)</span>
@@ -569,10 +1004,10 @@
     <span class="k">return</span> <span class="n">gradient</span><span class="p">,</span> <span class="n">step_size</span><span class="p">,</span> <span class="n">predictions</span><span class="p">,</span> <span class="n">solution</span>
 
 
-<span class="k">def</span> <span class="nf">_compute_deltas_hessian</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="n">residuals</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Compute the hessian of the direct gradient.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_compute_deltas_hessian</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="n">residuals</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Compute the hessian of the direct gradient.</span>
 
-<span class="sd">    The direct gradient correponds to a linear problem:</span>
+<span class="sd">    The direct gradient corresponds to a linear problem:</span>
 <span class="sd">        argmin_delta ||exp(delta) @ chi - Y||^2</span>
 <span class="sd">    where chi = Ks @ dual_weights.</span>
 
@@ -593,11 +1028,14 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
 
-    <span class="n">XTXs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
-                          <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)))</span>
-    <span class="n">XTbs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span><span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
-                          <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">residuals</span><span class="p">,</span>
-                                            <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">])[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
+    <span class="n">XTXs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span>
+        <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">)),</span>
+    <span class="p">)</span>
+    <span class="n">XTbs</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">matmul</span><span class="p">(</span>
+        <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">exp_delta_chi</span><span class="p">,</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">0</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+        <span class="n">backend</span><span class="o">.</span><span class="n">transpose</span><span class="p">(</span><span class="n">residuals</span><span class="p">,</span> <span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="mi">0</span><span class="p">))[:,</span> <span class="p">:,</span> <span class="kc">None</span><span class="p">],</span>
+    <span class="p">)[:,</span> <span class="p">:,</span> <span class="mi">0</span><span class="p">]</span>
     <span class="n">diagonal_view</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">diagonal_view</span><span class="p">(</span><span class="n">XTXs</span><span class="p">,</span> <span class="n">axis1</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">axis2</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
     <span class="n">diagonal_view</span> <span class="o">+=</span> <span class="n">XTbs</span>
     <span class="k">return</span> <span class="n">XTXs</span>
@@ -610,11 +1048,11 @@
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
     </div>
 

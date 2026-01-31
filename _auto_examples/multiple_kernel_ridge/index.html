@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Multiple-kernel ridge &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Multiple-kernel ridge" href="plot_mkr_0_random_search.html" />
+    <link rel="prev" title="Fitting a model on GPU" href="../kernel_ridge/plot_model_on_gpu.py.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  <div class="document">
+    
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<p class="logo">
+  <a href="../../index.html">
+    <img class="logo" src="../../_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
+    
+  </a>
+</p>
+
+
+
+
+
+
+<p>
+<iframe src="https://ghbtns.com/github-btn.html?user=gallantlab&repo=himalaya&type=star&count=true&size=large&v=2"
+  allowtransparency="true" frameborder="0" scrolling="0" width="200px" height="35px"></iframe>
+</p>
+
+
+
+
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Gallery of examples</a><ul>
+      <li>Previous: <a href="../kernel_ridge/plot_model_on_gpu.py.html" title="previous chapter">Fitting a model on GPU</a></li>
+      <li>Next: <a href="plot_mkr_0_random_search.html" title="next chapter">Multiple-kernel ridge</a></li>
+  </ul></li>
+  </ul></li>
+</ul>
+</div><h3>Navigation</h3>
+<ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../getting_started.html">Getting started</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../models.html">Model descriptions</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../flowchart.html">Model flowchart</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../troubleshooting.html">Troubleshooting</a></li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Gallery of examples</a></li>
+</ul>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../api.html">API</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../changelog.html">Changelog</a></li>
+</ul>
+
+
+<search id="searchbox" style="display: none" role="search">
+  <h3 id="searchlabel">Quick search</h3>
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
+        </div>
+      </div>
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <section id="multiple-kernel-ridge">
+<span id="sphx-glr-auto-examples-multiple-kernel-ridge"></span><h1>Multiple-kernel ridge<a class="headerlink" href="#multiple-kernel-ridge" title="Link to this heading">¶</a></h1>
+<div class="sphx-glr-thumbnails"><div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge"><img alt="" src="../../_images/sphx_glr_plot_mkr_0_random_search_thumb.png" />
+<p><a class="reference internal" href="plot_mkr_0_random_search.html#sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-0-random-search-py"><span class="std std-ref">Multiple-kernel ridge</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge with scikit-learn API"><img alt="" src="../../_images/sphx_glr_plot_mkr_1_sklearn_api_thumb.png" />
+<p><a class="reference internal" href="plot_mkr_1_sklearn_api.html#sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-1-sklearn-api-py"><span class="std std-ref">Multiple-kernel ridge with scikit-learn API</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge with scikit-learn API</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="The random-search strategy samples some kernel weights vectors from a Dirichlet distribution, then for each vector, it fits a KernelRidgeCV model and computes a cross-validation score for all targets. Then it selects for each target the kernel weight vector leading to the highest cross-validation score (e.g. the highest R^2 value). Extensively sampling the kernel weights space is exponentially expensive with the number of kernels, therefore this method is computationally expensive for a large number of kernels. However, since it reuses most of the computations for all targets, it scales very well with the number of targets."><img alt="" src="../../_images/sphx_glr_plot_mkr_2_solvers_thumb.png" />
+<p><a class="reference internal" href="plot_mkr_2_solvers.html#sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-2-solvers-py"><span class="std std-ref">Multiple-kernel ridge solvers</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge solvers</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge path between two kernels"><img alt="" src="../../_images/sphx_glr_plot_mkr_3_path_thumb.png" />
+<p><a class="reference internal" href="plot_mkr_3_path.html#sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-3-path-py"><span class="std std-ref">Multiple-kernel ridge path between two kernels</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge path between two kernels</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="- If the kernel weights hyper-parameters are known and identical across   targets, the kernels can be scaled and summed, and a simple KernelRidgeCV can   be used to fit the model. - If the kernel weights hyper-parameters are unknown and different across   targets, a MultipleKernelRidgeCV can be use to search the best   hyper-parameters per target. - If the kernel weights hyper-parameters are known and different across   targets, a WeightedKernelRidge model can be used to fit the ridge models on   each target independently."><img alt="" src="../../_images/sphx_glr_plot_mkr_4_refit_from_deltas_thumb.png" />
+<p><a class="reference internal" href="plot_mkr_4_refit_from_deltas.html#sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-4-refit-from-deltas-py"><span class="std std-ref">Multiple-kernel ridge fit from fixed hyper-parameters</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge fit from fixed hyper-parameters</div>
+</div><div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge refining"><img alt="" src="../../_images/sphx_glr_plot_mkr_5_refine_results_thumb.png" />
+<p><a class="reference internal" href="plot_mkr_5_refine_results.html#sphx-glr-auto-examples-multiple-kernel-ridge-plot-mkr-5-refine-results-py"><span class="std std-ref">Multiple-kernel ridge refining</span></a></p>
+  <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge refining</div>
+</div></div><div class="toctree-wrapper compound">
+</div>
+</section>
+
+
+          </div>
+          
+        </div>
+      </div>
+    <div class="clearer"></div>
+  </div>
+    <div class="footer">
+      &#169;2023, Gallant lab.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
+      
+      |
+      <a href="../../_sources/_auto_examples/multiple_kernel_ridge/index.rst.txt"
+          rel="nofollow">Page source</a>
+    </div>
+
+    
+
+    
+  </body>
+</html>

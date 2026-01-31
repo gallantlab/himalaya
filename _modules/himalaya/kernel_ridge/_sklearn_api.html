@@ -1,39 +1,403 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.kernel_ridge._sklearn_api &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <title>himalaya.kernel_ridge._sklearn_api &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../../index.html">
-    <img class="logo" src="../../../_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="../../../_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -74,7 +438,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
@@ -82,8 +446,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -93,45 +457,46 @@
           <div class="body" role="main">
             
   <h1>Source code for himalaya.kernel_ridge._sklearn_api</h1><div class="highlight"><pre>
-<span></span><span class="kn">from</span> <span class="nn">abc</span> <span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">import</span> <span class="nn">warnings</span>
+<span></span><span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 
-<span class="kn">from</span> <span class="nn">sklearn.base</span> <span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">MultiOutputMixin</span>
-<span class="kn">from</span> <span class="nn">sklearn.utils.validation</span> <span class="kn">import</span> <span class="n">check_is_fitted</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.base</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseEstimator</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">MultiOutputMixin</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">sklearn.utils.validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_is_fitted</span>
 
-<span class="kn">from</span> <span class="nn">._solvers</span> <span class="kn">import</span> <span class="n">KERNEL_RIDGE_SOLVERS</span>
-<span class="kn">from</span> <span class="nn">._solvers</span> <span class="kn">import</span> <span class="n">WEIGHTED_KERNEL_RIDGE_SOLVERS</span>
-<span class="kn">from</span> <span class="nn">._hyper_gradient</span> <span class="kn">import</span> <span class="n">MULTIPLE_KERNEL_RIDGE_SOLVERS</span>
-<span class="kn">from</span> <span class="nn">._random_search</span> <span class="kn">import</span> <span class="n">solve_kernel_ridge_cv_eigenvalues</span>
-<span class="kn">from</span> <span class="nn">._kernels</span> <span class="kn">import</span> <span class="n">pairwise_kernels</span>
-<span class="kn">from</span> <span class="nn">._kernels</span> <span class="kn">import</span> <span class="n">PAIRWISE_KERNEL_FUNCTIONS</span>
-<span class="kn">from</span> <span class="nn">._predictions</span> <span class="kn">import</span> <span class="n">predict_weighted_kernel_ridge</span>
-<span class="kn">from</span> <span class="nn">._predictions</span> <span class="kn">import</span> <span class="n">predict_and_score_weighted_kernel_ridge</span>
-<span class="kn">from</span> <span class="nn">._predictions</span> <span class="kn">import</span> <span class="n">primal_weights_weighted_kernel_ridge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">KERNEL_RIDGE_SOLVERS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._solvers</span><span class="w"> </span><span class="kn">import</span> <span class="n">WEIGHTED_KERNEL_RIDGE_SOLVERS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._hyper_gradient</span><span class="w"> </span><span class="kn">import</span> <span class="n">MULTIPLE_KERNEL_RIDGE_SOLVERS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._random_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">KERNEL_RIDGE_CV_SOLVERS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">pairwise_kernels</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._kernels</span><span class="w"> </span><span class="kn">import</span> <span class="n">PAIRWISE_KERNEL_FUNCTIONS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._predictions</span><span class="w"> </span><span class="kn">import</span> <span class="n">predict_weighted_kernel_ridge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._predictions</span><span class="w"> </span><span class="kn">import</span> <span class="n">predict_and_score_weighted_kernel_ridge</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">._predictions</span><span class="w"> </span><span class="kn">import</span> <span class="n">primal_weights_weighted_kernel_ridge</span>
 
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_array</span>
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_cv</span>
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">issparse</span>
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">_get_string_dtype</span>
-<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
-<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">force_cpu_backend</span>
-<span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">r2_score</span>
-<span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">r2_score_split</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_array</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_data</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">issparse</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">_get_string_dtype</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">force_cpu_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">r2_score</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">r2_score_split</span>
 
 
-<span class="k">class</span> <span class="nc">_BaseKernelRidge</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">MultiOutputMixin</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Base class for kernel ridge estimators&quot;&quot;&quot;</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BaseKernelRidge</span><span class="p">(</span><span class="n">ABC</span><span class="p">,</span> <span class="n">MultiOutputMixin</span><span class="p">,</span> <span class="n">RegressorMixin</span><span class="p">,</span> <span class="n">BaseEstimator</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for kernel ridge estimators&quot;&quot;&quot;</span>
 
     <span class="n">ALL_KERNELS</span> <span class="o">=</span> <span class="n">PAIRWISE_KERNEL_FUNCTIONS</span>
 
     <span class="nd">@property</span>
     <span class="nd">@classmethod</span>
     <span class="nd">@abstractmethod</span>
-    <span class="k">def</span> <span class="nf">ALL_SOLVERS</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">ALL_SOLVERS</span><span class="p">(</span><span class="bp">cls</span><span class="p">):</span>
         <span class="o">...</span>
 
-    <span class="k">def</span> <span class="nf">_call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">direct_params</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Helper function common to all classes, merging solver parameters.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_call_solver</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">direct_params</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Helper function common to all classes, merging solver parameters.&quot;&quot;&quot;</span>
 
         <span class="c1"># use self.solver_ if it exists, otherwise use self.solver</span>
         <span class="n">solver</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;solver_&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span><span class="p">)</span>
@@ -153,12 +518,19 @@
 
         <span class="k">return</span> <span class="n">function</span><span class="p">(</span><span class="o">**</span><span class="n">direct_params</span><span class="p">,</span> <span class="o">**</span><span class="n">solver_params</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span><span class="s1">&#39;requires_y&#39;</span><span class="p">:</span> <span class="kc">True</span><span class="p">}</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">__sklearn_tags__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__sklearn_tags__</span><span class="p">()</span>
+        <span class="n">tags</span><span class="o">.</span><span class="n">target_tags</span><span class="o">.</span><span class="n">required</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="n">tags</span>
 
-<div class="viewcode-block" id="KernelRidge"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge">[docs]</a><span class="k">class</span> <span class="nc">KernelRidge</span><span class="p">(</span><span class="n">_BaseKernelRidge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Kernel ridge regression.</span>
+
+<div class="viewcode-block" id="KernelRidge">
+<a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.KernelRidge.html#himalaya.kernel_ridge.KernelRidge">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KernelRidge</span><span class="p">(</span><span class="n">_BaseKernelRidge</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Kernel ridge regression.</span>
 
 <span class="sd">    Solve the kernel ridge regression::</span>
 
@@ -240,7 +612,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="n">KERNEL_RIDGE_SOLVERS</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mi">1</span><span class="p">,</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;auto&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alpha</span> <span class="o">=</span> <span class="n">alpha</span>
@@ -253,8 +625,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warn</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fit the model.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -275,7 +647,7 @@
         <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
         <span class="n">accept_sparse</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span>
                                                                     <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span> <span class="o">=</span> <span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
         <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">!=</span> <span class="n">y</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
@@ -298,7 +670,6 @@
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span> <span class="o">=</span> <span class="n">_to_cpu</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">!=</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">del</span> <span class="n">X</span>
 
         <span class="n">ravel</span> <span class="o">=</span> <span class="kc">False</span>
@@ -330,6 +701,10 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">=</span> <span class="n">tmp</span>
 
+        <span class="c1"># Apply sample weight scaling to dual coefficients (sklearn compatibility)</span>
+        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">*</span> <span class="n">sw</span>
+
         <span class="k">if</span> <span class="n">ravel</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span><span class="p">:</span>
@@ -338,8 +713,8 @@
         <span class="k">return</span> <span class="bp">self</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Predict using the model.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict using the model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -356,11 +731,8 @@
         <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
         <span class="n">accept_sparse</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span>
                                                                     <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span>
-                        <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Different number of features in X than during fit.&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> 
+                         <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
 
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">X</span>
@@ -371,8 +743,8 @@
         <span class="k">return</span> <span class="n">Y_hat</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -396,20 +768,20 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="k">return</span> <span class="n">r2_score</span><span class="p">(</span><span class="n">y_true</span><span class="p">,</span> <span class="n">y_pred</span><span class="p">)</span>
 
-    <span class="k">def</span> <span class="nf">_get_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_kernel</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
         <span class="n">kernel_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel_params</span> <span class="ow">or</span> <span class="p">{}</span>
-        <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">Y</span><span class="p">):</span>
             <span class="n">Y</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
         <span class="n">kernel</span> <span class="o">=</span> <span class="n">pairwise_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">metric</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">kernel</span><span class="p">,</span> <span class="o">**</span><span class="n">kernel_params</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">kernel</span><span class="p">)</span>
 
     <span class="nd">@property</span>
-    <span class="k">def</span> <span class="nf">_pairwise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_pairwise</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span>
 
-    <span class="k">def</span> <span class="nf">get_primal_coef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_fit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the primal coefficients, assuming the kernel is linear.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_primal_coef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X_fit</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the primal coefficients, assuming the kernel is linear.</span>
 
 <span class="sd">        When the kernel is linear, kernel ridge regression is equivalent to</span>
 <span class="sd">        ridge rergession, and the ridge regression (primal) coefficients can be</span>
@@ -449,8 +821,11 @@
         <span class="k">return</span> <span class="n">X_fit_T</span> <span class="o">@</span> <span class="n">dual_coef</span></div>
 
 
-<div class="viewcode-block" id="KernelRidgeCV"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV">[docs]</a><span class="k">class</span> <span class="nc">KernelRidgeCV</span><span class="p">(</span><span class="n">KernelRidge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Kernel ridge regression with efficient cross-validation over alpha.</span>
+
+<div class="viewcode-block" id="KernelRidgeCV">
+<a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.KernelRidgeCV.html#himalaya.kernel_ridge.KernelRidgeCV">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">KernelRidgeCV</span><span class="p">(</span><span class="n">KernelRidge</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Kernel ridge regression with efficient cross-validation over alpha.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -471,8 +846,8 @@
 <span class="sd">        See more details in the docstring of the function:</span>
 <span class="sd">        ``KernelRidgeCV.ALL_KERNELS[kernel]``</span>
 
-<span class="sd">    solver : str</span>
-<span class="sd">        Algorithm used during the fit, &quot;eigenvalues&quot; only for now.</span>
+<span class="sd">    solver : str in {&#39;eigenvalues&#39;, &#39;svd&#39;}</span>
+<span class="sd">        Algorithm used during the fit. &#39;svd&#39; is slower but more stable.</span>
 
 <span class="sd">    solver_params : dict or None</span>
 <span class="sd">        Additional parameters for the solver.</span>
@@ -528,9 +903,9 @@
 <span class="sd">    &gt;&gt;&gt; clf.fit(X, Y)</span>
 <span class="sd">    KernelRidgeCV()</span>
 <span class="sd">    &quot;&quot;&quot;</span>
-    <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="nb">dict</span><span class="p">(</span><span class="n">eigenvalues</span><span class="o">=</span><span class="n">solve_kernel_ridge_cv_eigenvalues</span><span class="p">)</span>
+    <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="n">KERNEL_RIDGE_CV_SOLVERS</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alphas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alphas</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mi">1</span><span class="p">],</span> <span class="n">kernel</span><span class="o">=</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="n">kernel_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;eigenvalues&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                  <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">alphas</span> <span class="o">=</span> <span class="n">alphas</span>
@@ -545,8 +920,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">warn</span> <span class="o">=</span> <span class="n">warn</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fit kernel ridge regression model</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit kernel ridge regression model</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -565,7 +940,7 @@
 <span class="sd">        self : returns an instance of self.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span> <span class="s2">&quot;csc&quot;</span><span class="p">),</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span> <span class="s2">&quot;csc&quot;</span><span class="p">),</span> <span class="n">ndim</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span> <span class="o">=</span> <span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_in_cpu</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
@@ -591,7 +966,6 @@
         <span class="n">K</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernel</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span> <span class="o">=</span> <span class="n">_to_cpu</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernel</span> <span class="o">!=</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">del</span> <span class="n">X</span>
 
         <span class="n">ravel</span> <span class="o">=</span> <span class="kc">False</span>
@@ -626,14 +1000,20 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;_xfail_checks&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;check_sample_weights_invariance&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;zero sample_weight is not equivalent to removing samples, &#39;</span>
                 <span class="s1">&#39;because of the cross-validation splits.&#39;</span><span class="p">,</span>
             <span class="p">}</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__sklearn_tags__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__sklearn_tags__</span><span class="p">()</span>
+        <span class="c1"># Note: _xfail_checks is excluded as it&#39;s deprecated in sklearn 1.6+</span>
+        <span class="k">return</span> <span class="n">tags</span></div>
+
 
 
 <span class="c1">###############################################################################</span>
@@ -642,13 +1022,13 @@
 <span class="c1">###############################################################################</span>
 
 
-<span class="k">class</span> <span class="nc">_BaseWeightedKernelRidge</span><span class="p">(</span><span class="n">_BaseKernelRidge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Private class for shared implementations.</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_BaseWeightedKernelRidge</span><span class="p">(</span><span class="n">_BaseKernelRidge</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Private class for shared implementations.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Predict using the model.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">predict</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Predict using the model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -673,11 +1053,8 @@
         <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="mi">2</span>
         <span class="n">accept_sparse</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span>
                                                                      <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span>
-                        <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Different number of features in X than during fit.&#39;</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> 
+                         <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
 
         <span class="n">Ks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">X</span>
@@ -688,20 +1065,28 @@
         <span class="k">else</span><span class="p">:</span>
             <span class="n">n_targets_batch</span> <span class="o">=</span> <span class="kc">None</span>
 
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;fit_intercept&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">intercept</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">intercept</span> <span class="o">=</span> <span class="kc">None</span>
+            
+
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">Y_hat</span> <span class="o">=</span> <span class="n">predict_weighted_kernel_ridge</span><span class="p">(</span>
                 <span class="n">Ks</span><span class="o">=</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span>
                 <span class="n">deltas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span>
-                <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">intercept</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">Y_hat</span> <span class="o">=</span> <span class="n">predict_weighted_kernel_ridge</span><span class="p">(</span>
                 <span class="n">Ks</span><span class="o">=</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">,</span>
-                <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">)</span>
+                <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">,</span>
+                <span class="n">intercept</span><span class="o">=</span><span class="n">intercept</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="n">Y_hat</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">score</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">split</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Return the coefficient of determination R^2 of the prediction.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -730,12 +1115,9 @@
         <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="mi">2</span>
         <span class="n">accept_sparse</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span>
                                                                      <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span>
-                        <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> 
+                         <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="o">.</span><span class="n">ndim</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
-                <span class="s1">&#39;Different number of features in X than during fit.&#39;</span><span class="p">)</span>
 
         <span class="n">Ks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span><span class="p">)</span>
         <span class="k">del</span> <span class="n">X</span>
@@ -747,20 +1129,25 @@
             <span class="n">n_targets_batch</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="n">score_func</span> <span class="o">=</span> <span class="n">r2_score_split</span> <span class="k">if</span> <span class="n">split</span> <span class="k">else</span> <span class="n">r2_score</span>
+        <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;fit_intercept&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">):</span>
+            <span class="n">intercept</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">intercept</span> <span class="o">=</span> <span class="kc">None</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="o">.</span><span class="n">ndim</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
             <span class="n">score</span> <span class="o">=</span> <span class="n">predict_and_score_weighted_kernel_ridge</span><span class="p">(</span>
                 <span class="n">Ks</span><span class="o">=</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span>
                 <span class="n">deltas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">Y</span><span class="o">=</span><span class="n">y</span><span class="p">[:,</span> <span class="kc">None</span><span class="p">],</span> <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span>
-                <span class="n">score_func</span><span class="o">=</span><span class="n">score_func</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
+                <span class="n">score_func</span><span class="o">=</span><span class="n">score_func</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">intercept</span><span class="p">,</span>
+                <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">)[</span><span class="o">...</span><span class="p">,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">score</span> <span class="o">=</span> <span class="n">predict_and_score_weighted_kernel_ridge</span><span class="p">(</span>
                 <span class="n">Ks</span><span class="o">=</span><span class="n">Ks</span><span class="p">,</span> <span class="n">dual_weights</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span>
-                <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span> <span class="n">score_func</span><span class="o">=</span><span class="n">score_func</span><span class="p">,</span>
+                <span class="n">split</span><span class="o">=</span><span class="n">split</span><span class="p">,</span> <span class="n">score_func</span><span class="o">=</span><span class="n">score_func</span><span class="p">,</span> <span class="n">intercept</span><span class="o">=</span><span class="n">intercept</span><span class="p">,</span>
                 <span class="n">n_targets_batch</span><span class="o">=</span><span class="n">n_targets_batch</span><span class="p">)</span>
         <span class="k">return</span> <span class="n">score</span>
 
-    <span class="k">def</span> <span class="nf">_get_kernels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_kernels</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
         <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span><span class="p">:</span>
             <span class="n">kernels</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
@@ -773,7 +1160,7 @@
             <span class="n">n_kernels</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">kernels</span><span class="p">)</span>
             <span class="n">kernels_params</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels_params</span> <span class="ow">or</span> <span class="p">[{}]</span> <span class="o">*</span> <span class="n">n_kernels</span>
 
-            <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">Y</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">issparse</span><span class="p">(</span><span class="n">Y</span><span class="p">):</span>
                 <span class="n">Y</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray_like</span><span class="p">(</span><span class="n">Y</span><span class="p">,</span> <span class="n">ref</span><span class="o">=</span><span class="n">X</span><span class="p">)</span>
 
             <span class="n">kernels</span> <span class="o">=</span> <span class="p">[]</span>
@@ -785,8 +1172,8 @@
         <span class="k">return</span> <span class="n">kernels</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">get_primal_coef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs_fit</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Returns the primal coefficients, assuming all kernels are linear.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_primal_coef</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">Xs_fit</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Returns the primal coefficients, assuming all kernels are linear.</span>
 
 <span class="sd">        When all kernels are linear, weighted kernel ridge regression is</span>
 <span class="sd">        equivalent to weighted ridge rergession, and the ridge regression</span>
@@ -824,8 +1211,10 @@
         <span class="k">return</span> <span class="n">primal_coef</span>
 
 
-<div class="viewcode-block" id="MultipleKernelRidgeCV"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV">[docs]</a><span class="k">class</span> <span class="nc">MultipleKernelRidgeCV</span><span class="p">(</span><span class="n">_BaseWeightedKernelRidge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Multiple-kernel ridge regression with cross-validation.</span>
+<div class="viewcode-block" id="MultipleKernelRidgeCV">
+<a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.MultipleKernelRidgeCV.html#himalaya.kernel_ridge.MultipleKernelRidgeCV">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">MultipleKernelRidgeCV</span><span class="p">(</span><span class="n">_BaseWeightedKernelRidge</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Multiple-kernel ridge regression with cross-validation.</span>
 
 <span class="sd">    Solve the kernel ridge regression::</span>
 
@@ -863,6 +1252,10 @@
 <span class="sd">        See more details in the docstring of the function:</span>
 <span class="sd">        ``MultipleKernelRidgeCV.ALL_SOLVERS[solver]``</span>
 
+<span class="sd">    fit_intercept : boolean</span>
+<span class="sd">        Whether to fit an intercept.</span>
+<span class="sd">        If False, X and Y must be zero-mean over samples.</span>
+
 <span class="sd">    cv : int or scikit-learn splitter</span>
 <span class="sd">        Cross-validation splitter. If an int, KFold is used.</span>
 
@@ -880,6 +1273,9 @@
 <span class="sd">    ----------</span>
 <span class="sd">    dual_coef_ : array of shape (n_samples) or (n_samples, n_targets)</span>
 <span class="sd">        Representation of weight vectors in kernel space.</span>
+
+<span class="sd">    intercept_ : float or array of shape (n_targets, )</span>
+<span class="sd">        Intercept. Only present if fit_intercept is True.</span>
 
 <span class="sd">    deltas_ : array of shape (n_kernels, n_targets)</span>
 <span class="sd">        Log of kernel weights.</span>
@@ -931,21 +1327,23 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="n">MULTIPLE_KERNEL_RIDGE_SOLVERS</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">],</span> <span class="n">kernels_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
-                 <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;random_search&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span>
-                 <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">kernels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">],</span> <span class="n">kernels_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;random_search&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
+                 <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+                 <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">=</span> <span class="n">kernels</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">kernels_params</span> <span class="o">=</span> <span class="n">kernels_params</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">=</span> <span class="n">solver</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span> <span class="o">=</span> <span class="n">solver_params</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span> <span class="o">=</span> <span class="n">fit_intercept</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cv</span> <span class="o">=</span> <span class="n">cv</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">random_state</span> <span class="o">=</span> <span class="n">random_state</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">Y_in_cpu</span> <span class="o">=</span> <span class="n">Y_in_cpu</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fit the model.</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit the model.</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -969,7 +1367,7 @@
         <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="mi">2</span>
         <span class="n">accept_sparse</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span>
                                                                      <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span> <span class="o">=</span> <span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">device</span> <span class="o">=</span> <span class="s2">&quot;cpu&quot;</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">Y_in_cpu</span> <span class="k">else</span> <span class="kc">None</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">],</span> <span class="n">device</span><span class="o">=</span><span class="n">device</span><span class="p">)</span>
@@ -987,7 +1385,6 @@
         <span class="n">Ks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span> <span class="o">=</span> <span class="n">_to_cpu</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">!=</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">del</span> <span class="n">X</span>
 
         <span class="n">ravel</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1007,13 +1404,23 @@
         <span class="c1"># ------------------ call the solver</span>
         <span class="n">tmp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_call_solver</span><span class="p">(</span><span class="n">Ks</span><span class="o">=</span><span class="n">Ks</span><span class="p">,</span> <span class="n">Y</span><span class="o">=</span><span class="n">y</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="n">cv</span><span class="p">,</span> <span class="n">return_weights</span><span class="o">=</span><span class="s2">&quot;dual&quot;</span><span class="p">,</span>
                                 <span class="n">Xs</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">,</span>
+                                <span class="n">fit_intercept</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span><span class="p">,</span>
                                 <span class="n">Y_in_cpu</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">Y_in_cpu</span><span class="p">)</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_scores_</span> <span class="o">=</span> <span class="n">tmp</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;random_search&quot;</span><span class="p">:</span>
+        <span class="c1"># ------------------ store results</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">cv_scores_</span> <span class="o">=</span> <span class="n">tmp</span><span class="p">[:</span><span class="mi">3</span><span class="p">]</span>
+        <span class="n">tmp</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="n">tmp</span><span class="p">[</span><span class="mi">3</span><span class="p">:])</span>
+
+        <span class="k">if</span> <span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+                <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver_params</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s2">&quot;return_alphas&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">)):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">best_alphas_</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">solver</span> <span class="o">==</span> <span class="s2">&quot;random_search&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">best_alphas_</span> <span class="o">=</span> <span class="mf">1.</span> <span class="o">/</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">)</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">best_alphas_</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">fit_intercept</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">intercept_</span> <span class="o">=</span> <span class="n">tmp</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">ravel</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
@@ -1021,18 +1428,26 @@
 
         <span class="k">return</span> <span class="bp">self</span>
 
-    <span class="k">def</span> <span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_more_tags</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
         <span class="k">return</span> <span class="p">{</span>
             <span class="s1">&#39;_xfail_checks&#39;</span><span class="p">:</span> <span class="p">{</span>
                 <span class="s1">&#39;check_sample_weights_invariance&#39;</span><span class="p">:</span>
                 <span class="s1">&#39;zero sample_weight is not equivalent to removing samples, &#39;</span>
                 <span class="s1">&#39;because of the cross-validation splits.&#39;</span><span class="p">,</span>
             <span class="p">}</span>
-        <span class="p">}</span></div>
+        <span class="p">}</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">__sklearn_tags__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">tags</span> <span class="o">=</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">__sklearn_tags__</span><span class="p">()</span>
+        <span class="c1"># Note: _xfail_checks is excluded as it&#39;s deprecated in sklearn 1.6+</span>
+        <span class="k">return</span> <span class="n">tags</span></div>
 
 
-<div class="viewcode-block" id="WeightedKernelRidge"><a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.WeightedKernelRidge.html#himalaya.kernel_ridge.WeightedKernelRidge">[docs]</a><span class="k">class</span> <span class="nc">WeightedKernelRidge</span><span class="p">(</span><span class="n">_BaseWeightedKernelRidge</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Weighted kernel ridge regression.</span>
+
+<div class="viewcode-block" id="WeightedKernelRidge">
+<a class="viewcode-back" href="../../../_generated/himalaya.kernel_ridge.WeightedKernelRidge.html#himalaya.kernel_ridge.WeightedKernelRidge">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">WeightedKernelRidge</span><span class="p">(</span><span class="n">_BaseWeightedKernelRidge</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Weighted kernel ridge regression.</span>
 
 <span class="sd">    Solve the kernel ridge regression::</span>
 
@@ -1050,41 +1465,42 @@
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
 <span class="sd">    alpha : float, or array of shape (n_targets, )</span>
-<span class="sd">        L2 regularization parameter.</span>
+<span class="sd">        L2 regularization parameter. This parameter is partly redundant with</span>
+<span class="sd">        ``deltas``, because the effective kernel weights are::</span>
+<span class="sd">        ``exp(deltas)/alpha``. If refitting a model with fixed hyperparameters</span>
+<span class="sd">        learned with MultipleKernelRidgeCV, this parameter must be set to 1,</span>
+<span class="sd">        and the deltas must be set to MultipleKernelRidgeCV().deltas_.</span>
 
 <span class="sd">    deltas : array of shape (n_kernels, ) or (n_kernels, n_targets)</span>
-<span class="sd">        Kernel weights.</span>
-<span class="sd">        Default to &quot;zeros&quot;, an array of shape (n_kernels, ) filled with zeros.</span>
+<span class="sd">        Log of kernel weights. Default to &quot;zeros&quot;, an array of shape</span>
+<span class="sd">        (n_kernels, ) filled with zeros.</span>
 
 <span class="sd">    kernels : list of (str or callable), default=[&quot;linear&quot;, &quot;polynomial&quot;]</span>
-<span class="sd">        List of kernel mapping. Available kernels are: &#39;linear&#39;,</span>
-<span class="sd">        &#39;polynomial, &#39;poly&#39;, &#39;rbf&#39;, &#39;sigmoid&#39;, &#39;cosine&#39;.</span>
-<span class="sd">        Set to &#39;precomputed&#39; in order to pass a precomputed kernel matrix to</span>
-<span class="sd">        the estimator methods instead of samples.</span>
-<span class="sd">        A callable should accept two arguments and the keyword arguments passed</span>
-<span class="sd">        to this object as kernel_params, and should return a floating point</span>
-<span class="sd">        number.</span>
+<span class="sd">        List of kernel mapping. Available kernels are: &#39;linear&#39;, &#39;polynomial,</span>
+<span class="sd">        &#39;poly&#39;, &#39;rbf&#39;, &#39;sigmoid&#39;, &#39;cosine&#39;. Set to &#39;precomputed&#39; in order to</span>
+<span class="sd">        pass a precomputed kernel matrix to the estimator methods instead of</span>
+<span class="sd">        samples. A callable should accept two arguments and the keyword</span>
+<span class="sd">        arguments passed to this object as kernel_params, and should return a</span>
+<span class="sd">        floating point number.</span>
 
 <span class="sd">    kernels_params : list of dict, or None</span>
-<span class="sd">        Additional parameters for the kernel functions.</span>
-<span class="sd">        See more details in the docstring of the function:</span>
-<span class="sd">        ``WeightedKernelRidge.ALL_KERNELS[kernel]``</span>
+<span class="sd">        Additional parameters for the kernel functions. See more details in the</span>
+<span class="sd">        docstring of the function: ``WeightedKernelRidge.ALL_KERNELS[kernel]``</span>
 
 <span class="sd">    solver : str</span>
 <span class="sd">        Algorithm used during the fit, &quot;conjugate_gradient&quot;, or</span>
 <span class="sd">        &quot;gradient_descent&quot;.</span>
 
 <span class="sd">    solver_params : dict or None</span>
-<span class="sd">        Additional parameters for the solver.</span>
-<span class="sd">        See more details in the docstring of the function:</span>
-<span class="sd">        ``WeightedKernelRidge.ALL_SOLVERS[solver]``</span>
+<span class="sd">        Additional parameters for the solver. See more details in the docstring</span>
+<span class="sd">        of the function: ``WeightedKernelRidge.ALL_SOLVERS[solver]``</span>
 
 <span class="sd">    random_state : int, or None</span>
 <span class="sd">        Random generator seed. Use an int for deterministic search.</span>
 
 <span class="sd">    force_cpu : bool</span>
-<span class="sd">        If True, computations will be performed on CPU, ignoring the</span>
-<span class="sd">        current backend. If False, use the current backend.</span>
+<span class="sd">        If True, computations will be performed on CPU, ignoring the current</span>
+<span class="sd">        backend. If False, use the current backend.</span>
 
 <span class="sd">    Attributes</span>
 <span class="sd">    ----------</span>
@@ -1130,7 +1546,7 @@
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="n">ALL_SOLVERS</span> <span class="o">=</span> <span class="n">WEIGHTED_KERNEL_RIDGE_SOLVERS</span>
 
-    <span class="k">def</span> <span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.</span><span class="p">,</span> <span class="n">deltas</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">,</span>
                  <span class="n">kernels</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;linear&quot;</span><span class="p">,</span> <span class="s2">&quot;polynomial&quot;</span><span class="p">],</span> <span class="n">kernels_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">solver</span><span class="o">=</span><span class="s2">&quot;conjugate_gradient&quot;</span><span class="p">,</span> <span class="n">solver_params</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                  <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">force_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">):</span>
@@ -1144,8 +1560,8 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">force_cpu</span> <span class="o">=</span> <span class="n">force_cpu</span>
 
     <span class="nd">@force_cpu_backend</span>
-    <span class="k">def</span> <span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
-        <span class="sd">&quot;&quot;&quot;Fit kernel ridge regression model</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">fit</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">y</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">sample_weight</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Fit kernel ridge regression model</span>
 
 <span class="sd">        Parameters</span>
 <span class="sd">        ----------</span>
@@ -1169,7 +1585,7 @@
         <span class="n">ndim</span> <span class="o">=</span> <span class="mi">3</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="mi">2</span>
         <span class="n">accept_sparse</span> <span class="o">=</span> <span class="kc">False</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">==</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="p">(</span><span class="s2">&quot;csr&quot;</span><span class="p">,</span>
                                                                      <span class="s2">&quot;csc&quot;</span><span class="p">)</span>
-        <span class="n">X</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
+        <span class="n">X</span> <span class="o">=</span> <span class="n">validate_data</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">reset</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">accept_sparse</span><span class="o">=</span><span class="n">accept_sparse</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="n">ndim</span><span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span> <span class="o">=</span> <span class="n">_get_string_dtype</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
         <span class="n">y</span> <span class="o">=</span> <span class="n">check_array</span><span class="p">(</span><span class="n">y</span><span class="p">,</span> <span class="n">dtype</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">dtype_</span><span class="p">,</span> <span class="n">ndim</span><span class="o">=</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">])</span>
 
@@ -1186,7 +1602,6 @@
         <span class="n">Ks</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_kernels</span><span class="p">(</span><span class="n">X</span><span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">X_fit_</span> <span class="o">=</span> <span class="n">_to_cpu</span><span class="p">(</span><span class="n">X</span><span class="p">)</span> <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">kernels</span> <span class="o">!=</span> <span class="s2">&quot;precomputed&quot;</span> <span class="k">else</span> <span class="kc">None</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">n_features_in_</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">del</span> <span class="n">X</span>
 
         <span class="n">ravel</span> <span class="o">=</span> <span class="kc">False</span>
@@ -1219,6 +1634,10 @@
                                             <span class="n">deltas</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">,</span>
                                             <span class="n">random_state</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">random_state</span><span class="p">)</span>
 
+        <span class="c1"># Apply sample weight scaling to dual coefficients (sklearn compatibility)</span>
+        <span class="k">if</span> <span class="n">sample_weight</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span> <span class="o">*</span> <span class="n">sw</span>
+
         <span class="k">if</span> <span class="n">ravel</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dual_coef_</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">1</span><span class="p">]:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">deltas_</span><span class="p">[:,</span> <span class="mi">0</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">ravel</span><span class="p">:</span>
@@ -1227,7 +1646,8 @@
         <span class="k">return</span> <span class="bp">self</span></div>
 
 
-<span class="k">def</span> <span class="nf">_to_cpu</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_to_cpu</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
     <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
     <span class="k">if</span> <span class="n">issparse</span><span class="p">(</span><span class="n">X</span><span class="p">):</span>
         <span class="k">return</span> <span class="n">X</span>
@@ -1242,11 +1662,11 @@
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
     </div>
 

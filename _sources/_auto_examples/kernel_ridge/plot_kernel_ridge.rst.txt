@@ -10,8 +10,8 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py>`
-        to download the full example code
+        :ref:`Go to the end <sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py>`
+        to download the full example code.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -31,7 +31,7 @@ Create a random dataset
 
 .. GENERATED FROM PYTHON SOURCE LINES 12-17
 
-.. code-block:: default
+.. code-block:: Python
 
     import numpy as np
     n_samples, n_features, n_targets = 10, 20, 4
@@ -54,7 +54,7 @@ scikit-learn estimator, with similar parameters and methods.
 
 .. GENERATED FROM PYTHON SOURCE LINES 22-39
 
-.. code-block:: default
+.. code-block:: Python
 
     import sklearn.kernel_ridge
     import himalaya.kernel_ridge
@@ -79,11 +79,9 @@ scikit-learn estimator, with similar parameters and methods.
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    7.105427357601002e-15
+    1.1102230246251565e-14
 
 
 
@@ -98,7 +96,7 @@ average score over targets.
 
 .. GENERATED FROM PYTHON SOURCE LINES 45-49
 
-.. code-block:: default
+.. code-block:: Python
 
 
     print(model_skl.score(X, Y))
@@ -110,13 +108,11 @@ average score over targets.
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    0.9999104439221304
-    [0.99990451 0.99985375 0.99994683 0.99993669]
-    0.9999104439221304
+    0.999901707232072
+    [0.99994141 0.99991882 0.99981273 0.99993386]
+    0.999901707232072
 
 
 
@@ -124,28 +120,26 @@ average score over targets.
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  0.017 seconds)
+   **Total running time of the script:** (0 minutes 0.014 seconds)
 
 
 .. _sphx_glr_download__auto_examples_kernel_ridge_plot_kernel_ridge.py:
 
+.. only:: html
 
-.. only :: html
+  .. container:: sphx-glr-footer sphx-glr-footer-example
 
- .. container:: sphx-glr-footer
-    :class: sphx-glr-footer-example
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
+      :download:`Download Jupyter notebook: plot_kernel_ridge.ipynb <plot_kernel_ridge.ipynb>`
 
+    .. container:: sphx-glr-download sphx-glr-download-python
 
-  .. container:: sphx-glr-download sphx-glr-download-python
+      :download:`Download Python source code: plot_kernel_ridge.py <plot_kernel_ridge.py>`
 
-     :download:`Download Python source code: plot_kernel_ridge.py <plot_kernel_ridge.py>`
+    .. container:: sphx-glr-download sphx-glr-download-zip
 
-
-
-  .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-     :download:`Download Jupyter notebook: plot_kernel_ridge.ipynb <plot_kernel_ridge.ipynb>`
+      :download:`Download zipped: plot_kernel_ridge.zip <plot_kernel_ridge.zip>`
 
 
 .. only:: html

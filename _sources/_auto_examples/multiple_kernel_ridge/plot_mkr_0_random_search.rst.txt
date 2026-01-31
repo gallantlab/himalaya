@@ -10,8 +10,8 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py>`
-        to download the full example code
+        :ref:`Go to the end <sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py>`
+        to download the full example code.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -25,7 +25,7 @@ It uses random search and cross validation to select optimal hyperparameters.
 
 .. GENERATED FROM PYTHON SOURCE LINES 7-18
 
-.. code-block:: default
+.. code-block:: Python
 
 
     import numpy as np
@@ -51,7 +51,7 @@ In this example, we use the ``cupy`` backend, and fit the model on GPU.
 
 .. GENERATED FROM PYTHON SOURCE LINES 21-24
 
-.. code-block:: default
+.. code-block:: Python
 
 
     backend = set_backend("cupy", on_error="warn")
@@ -59,6 +59,13 @@ In this example, we use the ``cupy`` backend, and fit the model on GPU.
 
 
 
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
+      warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 
 
@@ -75,7 +82,7 @@ Generate a random dataset
 
 .. GENERATED FROM PYTHON SOURCE LINES 32-53
 
-.. code-block:: default
+.. code-block:: Python
 
 
     n_kernels = 3
@@ -113,7 +120,7 @@ We also cast them to float32.
 
 .. GENERATED FROM PYTHON SOURCE LINES 57-67
 
-.. code-block:: default
+.. code-block:: Python
 
 
     Ks_train = backend.stack([X_train @ X_train.T for X_train in Xs_train])
@@ -137,7 +144,7 @@ We also cast them to float32.
 Run the solver, using random search
 -----------------------------------
 This method should work fine for
-small number of kernels (< 20). The larger the number of kenels, the larger
+small number of kernels (< 20). The larger the number of kernels, the larger
 we need to sample the hyperparameter space (i.e. increasing ``n_iter``).
 
 .. GENERATED FROM PYTHON SOURCE LINES 75-78
@@ -148,7 +155,7 @@ Note that there is currently no stopping criterion in this method.
 
 .. GENERATED FROM PYTHON SOURCE LINES 78-80
 
-.. code-block:: default
+.. code-block:: Python
 
     n_iter = 100
 
@@ -165,7 +172,7 @@ Grid of regularization parameters.
 
 .. GENERATED FROM PYTHON SOURCE LINES 82-84
 
-.. code-block:: default
+.. code-block:: Python
 
     alphas = np.logspace(-10, 10, 21)
 
@@ -184,7 +191,7 @@ Optimal values depend on the size of your dataset.
 
 .. GENERATED FROM PYTHON SOURCE LINES 88-91
 
-.. code-block:: default
+.. code-block:: Python
 
     n_targets_batch = 1000
     n_alphas_batch = 20
@@ -205,7 +212,7 @@ If you don't need the dual weights, use ``return_weights = None``.
 
 .. GENERATED FROM PYTHON SOURCE LINES 96-99
 
-.. code-block:: default
+.. code-block:: Python
 
     return_weights = 'dual'
     n_targets_batch_refit = 200
@@ -233,7 +240,7 @@ Run the solver. For each iteration, it will:
 
 .. GENERATED FROM PYTHON SOURCE LINES 111-123
 
-.. code-block:: default
+.. code-block:: Python
 
     results = solve_multiple_kernel_ridge_random_search(
         Ks=Ks_train,
@@ -253,11 +260,9 @@ Run the solver. For each iteration, it will:
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | 100 random sampling with cv |     [                                        ] 1% | 0.23 sec | 100 random sampling with cv |     [                                        ] 2% | 0.43 sec | 100 random sampling with cv |     [.                                       ] 3% | 0.57 sec | 100 random sampling with cv |     [.                                       ] 4% | 0.71 sec | 100 random sampling with cv |     [..                                      ] 5% | 0.84 sec | 100 random sampling with cv |     [..                                      ] 6% | 1.01 sec | 100 random sampling with cv |     [..                                      ] 7% | 1.18 sec | 100 random sampling with cv |     [...                                     ] 8% | 1.31 sec | 100 random sampling with cv |     [...                                     ] 9% | 1.48 sec | 100 random sampling with cv |     [....                                    ] 10% | 1.65 sec | 100 random sampling with cv |     [....                                    ] 11% | 1.82 sec | 100 random sampling with cv |     [....                                    ] 12% | 1.99 sec | 100 random sampling with cv |     [.....                                   ] 13% | 2.13 sec | 100 random sampling with cv |     [.....                                   ] 14% | 2.26 sec | 100 random sampling with cv |     [......                                  ] 15% | 2.39 sec | 100 random sampling with cv |     [......                                  ] 16% | 2.52 sec | 100 random sampling with cv |     [......                                  ] 17% | 2.69 sec | 100 random sampling with cv |     [.......                                 ] 18% | 2.83 sec | 100 random sampling with cv |     [.......                                 ] 19% | 2.96 sec | 100 random sampling with cv |     [........                                ] 20% | 3.09 sec | 100 random sampling with cv |     [........                                ] 21% | 3.26 sec | 100 random sampling with cv |     [........                                ] 22% | 3.43 sec | 100 random sampling with cv |     [.........                               ] 23% | 3.56 sec | 100 random sampling with cv |     [.........                               ] 24% | 3.70 sec | 100 random sampling with cv |     [..........                              ] 25% | 3.83 sec | 100 random sampling with cv |     [..........                              ] 26% | 3.96 sec | 100 random sampling with cv |     [..........                              ] 27% | 4.10 sec | 100 random sampling with cv |     [...........                             ] 28% | 4.23 sec | 100 random sampling with cv |     [...........                             ] 29% | 4.36 sec | 100 random sampling with cv |     [............                            ] 30% | 4.49 sec | 100 random sampling with cv |     [............                            ] 31% | 4.63 sec | 100 random sampling with cv |     [............                            ] 32% | 4.76 sec | 100 random sampling with cv |     [.............                           ] 33% | 4.89 sec | 100 random sampling with cv |     [.............                           ] 34% | 5.02 sec | 100 random sampling with cv |     [..............                          ] 35% | 5.16 sec | 100 random sampling with cv |     [..............                          ] 36% | 5.33 sec | 100 random sampling with cv |     [..............                          ] 37% | 5.46 sec | 100 random sampling with cv |     [...............                         ] 38% | 5.59 sec | 100 random sampling with cv |     [...............                         ] 39% | 5.72 sec | 100 random sampling with cv |     [................                        ] 40% | 5.86 sec | 100 random sampling with cv |     [................                        ] 41% | 5.99 sec | 100 random sampling with cv |     [................                        ] 42% | 6.12 sec | 100 random sampling with cv |     [.................                       ] 43% | 6.25 sec | 100 random sampling with cv |     [.................                       ] 44% | 6.42 sec | 100 random sampling with cv |     [..................                      ] 45% | 6.56 sec | 100 random sampling with cv |     [..................                      ] 46% | 6.69 sec | 100 random sampling with cv |     [..................                      ] 47% | 6.82 sec | 100 random sampling with cv |     [...................                     ] 48% | 6.99 sec | 100 random sampling with cv |     [...................                     ] 49% | 7.12 sec | 100 random sampling with cv |     [....................                    ] 50% | 7.26 sec | 100 random sampling with cv |     [....................                    ] 51% | 7.39 sec | 100 random sampling with cv |     [....................                    ] 52% | 7.52 sec | 100 random sampling with cv |     [.....................                   ] 53% | 7.66 sec | 100 random sampling with cv |     [.....................                   ] 54% | 7.83 sec | 100 random sampling with cv |     [......................                  ] 55% | 7.96 sec | 100 random sampling with cv |     [......................                  ] 56% | 8.09 sec | 100 random sampling with cv |     [......................                  ] 57% | 8.23 sec | 100 random sampling with cv |     [.......................                 ] 58% | 8.36 sec | 100 random sampling with cv |     [.......................                 ] 59% | 8.49 sec | 100 random sampling with cv |     [........................                ] 60% | 8.67 sec | 100 random sampling with cv |     [........................                ] 61% | 8.80 sec | 100 random sampling with cv |     [........................                ] 62% | 8.97 sec | 100 random sampling with cv |     [.........................               ] 63% | 9.10 sec | 100 random sampling with cv |     [.........................               ] 64% | 9.24 sec | 100 random sampling with cv |     [..........................              ] 65% | 9.37 sec | 100 random sampling with cv |     [..........................              ] 66% | 9.50 sec | 100 random sampling with cv |     [..........................              ] 67% | 9.64 sec | 100 random sampling with cv |     [...........................             ] 68% | 9.77 sec | 100 random sampling with cv |     [...........................             ] 69% | 9.90 sec | 100 random sampling with cv |     [............................            ] 70% | 10.04 sec | 100 random sampling with cv |     [............................            ] 71% | 10.17 sec | 100 random sampling with cv |     [............................            ] 72% | 10.30 sec | 100 random sampling with cv |     [.............................           ] 73% | 10.44 sec | 100 random sampling with cv |     [.............................           ] 74% | 10.61 sec | 100 random sampling with cv |     [..............................          ] 75% | 10.74 sec | 100 random sampling with cv |     [..............................          ] 76% | 10.92 sec | 100 random sampling with cv |     [..............................          ] 77% | 11.05 sec | 100 random sampling with cv |     [...............................         ] 78% | 11.18 sec | 100 random sampling with cv |     [...............................         ] 79% | 11.32 sec | 100 random sampling with cv |     [................................        ] 80% | 11.45 sec | 100 random sampling with cv |     [................................        ] 81% | 11.59 sec | 100 random sampling with cv |     [................................        ] 82% | 11.72 sec | 100 random sampling with cv |     [.................................       ] 83% | 11.89 sec | 100 random sampling with cv |     [.................................       ] 84% | 12.02 sec | 100 random sampling with cv |     [..................................      ] 85% | 12.16 sec | 100 random sampling with cv |     [..................................      ] 86% | 12.29 sec | 100 random sampling with cv |     [..................................      ] 87% | 12.42 sec | 100 random sampling with cv |     [...................................     ] 88% | 12.56 sec | 100 random sampling with cv |     [...................................     ] 89% | 12.69 sec | 100 random sampling with cv |     [....................................    ] 90% | 12.86 sec | 100 random sampling with cv |     [....................................    ] 91% | 12.99 sec | 100 random sampling with cv |     [....................................    ] 92% | 13.13 sec | 100 random sampling with cv |     [.....................................   ] 93% | 13.26 sec | 100 random sampling with cv |     [.....................................   ] 94% | 13.39 sec | 100 random sampling with cv |     [......................................  ] 95% | 13.53 sec | 100 random sampling with cv |     [......................................  ] 96% | 13.66 sec | 100 random sampling with cv |     [......................................  ] 97% | 13.79 sec | 100 random sampling with cv |     [....................................... ] 98% | 13.93 sec | 100 random sampling with cv |     [....................................... ] 99% | 14.06 sec | 100 random sampling with cv |     [........................................] 100% | 14.20 sec | 100 random sampling with cv | 
+    [                                        ] 0% | 0.00 sec | 100 random sampling with cv |     [                                        ] 1% | 1.41 sec | 100 random sampling with cv |     [                                        ] 2% | 2.70 sec | 100 random sampling with cv |     [.                                       ] 3% | 3.47 sec | 100 random sampling with cv |     [.                                       ] 4% | 4.45 sec | 100 random sampling with cv |     [..                                      ] 5% | 5.39 sec | 100 random sampling with cv |     [..                                      ] 6% | 6.39 sec | 100 random sampling with cv |     [..                                      ] 7% | 7.52 sec | 100 random sampling with cv |     [...                                     ] 8% | 8.62 sec | 100 random sampling with cv |     [...                                     ] 9% | 9.78 sec | 100 random sampling with cv |     [....                                    ] 10% | 11.13 sec | 100 random sampling with cv |     [....                                    ] 11% | 12.56 sec | 100 random sampling with cv |     [....                                    ] 12% | 13.78 sec | 100 random sampling with cv |     [.....                                   ] 13% | 14.99 sec | 100 random sampling with cv |     [.....                                   ] 14% | 15.95 sec | 100 random sampling with cv |     [......                                  ] 15% | 16.93 sec | 100 random sampling with cv |     [......                                  ] 16% | 17.97 sec | 100 random sampling with cv |     [......                                  ] 17% | 19.17 sec | 100 random sampling with cv |     [.......                                 ] 18% | 20.26 sec | 100 random sampling with cv |     [.......                                 ] 19% | 21.05 sec | 100 random sampling with cv |     [........                                ] 20% | 22.10 sec | 100 random sampling with cv |     [........                                ] 21% | 23.16 sec | 100 random sampling with cv |     [........                                ] 22% | 24.59 sec | 100 random sampling with cv |     [.........                               ] 23% | 25.68 sec | 100 random sampling with cv |     [.........                               ] 24% | 26.49 sec | 100 random sampling with cv |     [..........                              ] 25% | 27.37 sec | 100 random sampling with cv |     [..........                              ] 26% | 28.55 sec | 100 random sampling with cv |     [..........                              ] 27% | 29.67 sec | 100 random sampling with cv |     [...........                             ] 28% | 30.59 sec | 100 random sampling with cv |     [...........                             ] 29% | 31.87 sec | 100 random sampling with cv |     [............                            ] 30% | 33.12 sec | 100 random sampling with cv |     [............                            ] 31% | 34.20 sec | 100 random sampling with cv |     [............                            ] 32% | 35.16 sec | 100 random sampling with cv |     [.............                           ] 33% | 36.06 sec | 100 random sampling with cv |     [.............                           ] 34% | 37.24 sec | 100 random sampling with cv |     [..............                          ] 35% | 38.09 sec | 100 random sampling with cv |     [..............                          ] 36% | 39.10 sec | 100 random sampling with cv |     [..............                          ] 37% | 39.90 sec | 100 random sampling with cv |     [...............                         ] 38% | 40.85 sec | 100 random sampling with cv |     [...............                         ] 39% | 42.00 sec | 100 random sampling with cv |     [................                        ] 40% | 43.08 sec | 100 random sampling with cv |     [................                        ] 41% | 43.79 sec | 100 random sampling with cv |     [................                        ] 42% | 44.85 sec | 100 random sampling with cv |     [.................                       ] 43% | 45.85 sec | 100 random sampling with cv |     [.................                       ] 44% | 47.07 sec | 100 random sampling with cv |     [..................                      ] 45% | 48.17 sec | 100 random sampling with cv |     [..................                      ] 46% | 49.34 sec | 100 random sampling with cv |     [..................                      ] 47% | 50.30 sec | 100 random sampling with cv |     [...................                     ] 48% | 51.43 sec | 100 random sampling with cv |     [...................                     ] 49% | 52.27 sec | 100 random sampling with cv |     [....................                    ] 50% | 53.45 sec | 100 random sampling with cv |     [....................                    ] 51% | 54.53 sec | 100 random sampling with cv |     [....................                    ] 52% | 55.78 sec | 100 random sampling with cv |     [.....................                   ] 53% | 56.59 sec | 100 random sampling with cv |     [.....................                   ] 54% | 57.70 sec | 100 random sampling with cv |     [......................                  ] 55% | 58.83 sec | 100 random sampling with cv |     [......................                  ] 56% | 60.06 sec | 100 random sampling with cv |     [......................                  ] 57% | 61.20 sec | 100 random sampling with cv |     [.......................                 ] 58% | 61.85 sec | 100 random sampling with cv |     [.......................                 ] 59% | 62.88 sec | 100 random sampling with cv |     [........................                ] 60% | 63.99 sec | 100 random sampling with cv |     [........................                ] 61% | 65.19 sec | 100 random sampling with cv |     [........................                ] 62% | 66.52 sec | 100 random sampling with cv |     [.........................               ] 63% | 67.85 sec | 100 random sampling with cv |     [.........................               ] 64% | 68.93 sec | 100 random sampling with cv |     [..........................              ] 65% | 70.08 sec | 100 random sampling with cv |     [..........................              ] 66% | 71.00 sec | 100 random sampling with cv |     [..........................              ] 67% | 71.65 sec | 100 random sampling with cv |     [...........................             ] 68% | 72.64 sec | 100 random sampling with cv |     [...........................             ] 69% | 73.79 sec | 100 random sampling with cv |     [............................            ] 70% | 74.78 sec | 100 random sampling with cv |     [............................            ] 71% | 76.03 sec | 100 random sampling with cv |     [............................            ] 72% | 77.15 sec | 100 random sampling with cv |     [.............................           ] 73% | 78.15 sec | 100 random sampling with cv |     [.............................           ] 74% | 78.97 sec | 100 random sampling with cv |     [..............................          ] 75% | 80.10 sec | 100 random sampling with cv |     [..............................          ] 76% | 81.55 sec | 100 random sampling with cv |     [..............................          ] 77% | 82.39 sec | 100 random sampling with cv |     [...............................         ] 78% | 83.59 sec | 100 random sampling with cv |     [...............................         ] 79% | 84.80 sec | 100 random sampling with cv |     [................................        ] 80% | 85.97 sec | 100 random sampling with cv |     [................................        ] 81% | 87.12 sec | 100 random sampling with cv |     [................................        ] 82% | 88.39 sec | 100 random sampling with cv |     [.................................       ] 83% | 89.50 sec | 100 random sampling with cv |     [.................................       ] 84% | 90.44 sec | 100 random sampling with cv |     [..................................      ] 85% | 91.21 sec | 100 random sampling with cv |     [..................................      ] 86% | 92.15 sec | 100 random sampling with cv |     [..................................      ] 87% | 93.24 sec | 100 random sampling with cv |     [...................................     ] 88% | 94.32 sec | 100 random sampling with cv |     [...................................     ] 89% | 95.45 sec | 100 random sampling with cv |     [....................................    ] 90% | 96.69 sec | 100 random sampling with cv |     [....................................    ] 91% | 97.62 sec | 100 random sampling with cv |     [....................................    ] 92% | 98.50 sec | 100 random sampling with cv |     [.....................................   ] 93% | 99.42 sec | 100 random sampling with cv |     [.....................................   ] 94% | 100.33 sec | 100 random sampling with cv |     [......................................  ] 95% | 101.15 sec | 100 random sampling with cv |     [......................................  ] 96% | 102.23 sec | 100 random sampling with cv |     [......................................  ] 97% | 103.42 sec | 100 random sampling with cv |     [....................................... ] 98% | 104.52 sec | 100 random sampling with cv |     [....................................... ] 99% | 105.23 sec | 100 random sampling with cv |     [........................................] 100% | 106.20 sec | 100 random sampling with cv | 
 
 
 
@@ -269,7 +274,7 @@ on GPU. Here, we cast the results back to CPU, and to ``numpy`` arrays.
 
 .. GENERATED FROM PYTHON SOURCE LINES 126-130
 
-.. code-block:: default
+.. code-block:: Python
 
     deltas = backend.to_numpy(results[0])
     dual_weights = backend.to_numpy(results[1])
@@ -292,7 +297,7 @@ The convergence curve is thus the current maximum for each target.
 
 .. GENERATED FROM PYTHON SOURCE LINES 136-148
 
-.. code-block:: default
+.. code-block:: Python
 
 
     current_max = np.maximum.accumulate(cv_scores, axis=0)
@@ -309,9 +314,10 @@ The convergence curve is thus the current maximum for each target.
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_001.png
-    :alt: Convergence curve, averaged over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_001.png
+   :alt: Convergence curve, averaged over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_001.png
+   :class: sphx-glr-single-img
 
 
 
@@ -327,7 +333,7 @@ too large.
 
 .. GENERATED FROM PYTHON SOURCE LINES 154-160
 
-.. code-block:: default
+.. code-block:: Python
 
 
     best_alphas = 1. / np.sum(np.exp(deltas), axis=0)
@@ -338,9 +344,10 @@ too large.
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_002.png
-    :alt: Best alphas selected by cross-validation
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_002.png
+   :alt: Best alphas selected by cross-validation
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_002.png
+   :class: sphx-glr-single-img
 
 
 
@@ -354,7 +361,7 @@ Compute the predictions on the test set
 
 .. GENERATED FROM PYTHON SOURCE LINES 164-176
 
-.. code-block:: default
+.. code-block:: Python
 
 
     split = False
@@ -371,9 +378,10 @@ Compute the predictions on the test set
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_003.png
-    :alt: Histogram over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_003.png
+   :alt: Histogram over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_003.png
+   :class: sphx-glr-single-img
 
 
 
@@ -391,7 +399,7 @@ Here we apply the dual weights on each kernel separately
 
 .. GENERATED FROM PYTHON SOURCE LINES 184-197
 
-.. code-block:: default
+.. code-block:: Python
 
 
     split = True
@@ -409,9 +417,10 @@ Here we apply the dual weights on each kernel separately
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_004.png
-    :alt: Histogram of $R^2$ generalization score split between kernels
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_004.png
+   :alt: Histogram of $R^2$ generalization score split between kernels
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_0_random_search_004.png
+   :class: sphx-glr-single-img
 
 
 
@@ -420,28 +429,26 @@ Here we apply the dual weights on each kernel separately
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  14.633 seconds)
+   **Total running time of the script:** (1 minutes 46.904 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py:
 
+.. only:: html
 
-.. only :: html
+  .. container:: sphx-glr-footer sphx-glr-footer-example
 
- .. container:: sphx-glr-footer
-    :class: sphx-glr-footer-example
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
+      :download:`Download Jupyter notebook: plot_mkr_0_random_search.ipynb <plot_mkr_0_random_search.ipynb>`
 
+    .. container:: sphx-glr-download sphx-glr-download-python
 
-  .. container:: sphx-glr-download sphx-glr-download-python
+      :download:`Download Python source code: plot_mkr_0_random_search.py <plot_mkr_0_random_search.py>`
 
-     :download:`Download Python source code: plot_mkr_0_random_search.py <plot_mkr_0_random_search.py>`
+    .. container:: sphx-glr-download sphx-glr-download-zip
 
-
-
-  .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-     :download:`Download Jupyter notebook: plot_mkr_0_random_search.ipynb <plot_mkr_0_random_search.ipynb>`
+      :download:`Download zipped: plot_mkr_0_random_search.zip <plot_mkr_0_random_search.zip>`
 
 
 .. only:: html

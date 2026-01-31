@@ -1,0 +1,134 @@
+
+
+.. _sphx_glr__auto_examples_multiple_kernel_ridge:
+
+Multiple-kernel ridge
+---------------------
+
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbnails">
+
+.. thumbnail-parent-div-open
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge">
+
+.. only:: html
+
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_0_random_search_thumb.png
+    :alt:
+
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge with scikit-learn API">
+
+.. only:: html
+
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_1_sklearn_api_thumb.png
+    :alt:
+
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge with scikit-learn API</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="The random-search strategy samples some kernel weights vectors from a Dirichlet distribution, then for each vector, it fits a KernelRidgeCV model and computes a cross-validation score for all targets. Then it selects for each target the kernel weight vector leading to the highest cross-validation score (e.g. the highest R^2 value). Extensively sampling the kernel weights space is exponentially expensive with the number of kernels, therefore this method is computationally expensive for a large number of kernels. However, since it reuses most of the computations for all targets, it scales very well with the number of targets.">
+
+.. only:: html
+
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_2_solvers_thumb.png
+    :alt:
+
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge solvers</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge path between two kernels">
+
+.. only:: html
+
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_3_path_thumb.png
+    :alt:
+
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge path between two kernels</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="- If the kernel weights hyper-parameters are known and identical across   targets, the kernels can be scaled and summed, and a simple KernelRidgeCV can   be used to fit the model. - If the kernel weights hyper-parameters are unknown and different across   targets, a MultipleKernelRidgeCV can be use to search the best   hyper-parameters per target. - If the kernel weights hyper-parameters are known and different across   targets, a WeightedKernelRidge model can be used to fit the ridge models on   each target independently.">
+
+.. only:: html
+
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_4_refit_from_deltas_thumb.png
+    :alt:
+
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge fit from fixed hyper-parameters</div>
+    </div>
+
+
+.. raw:: html
+
+    <div class="sphx-glr-thumbcontainer" tooltip="Multiple-kernel ridge refining">
+
+.. only:: html
+
+  .. image:: /_auto_examples/multiple_kernel_ridge/images/thumb/sphx_glr_plot_mkr_5_refine_results_thumb.png
+    :alt:
+
+  :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py`
+
+.. raw:: html
+
+      <div class="sphx-glr-thumbnail-title">Multiple-kernel ridge refining</div>
+    </div>
+
+
+.. thumbnail-parent-div-close
+
+.. raw:: html
+
+    </div>
+
+
+.. toctree::
+   :hidden:
+
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_0_random_search
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_1_sklearn_api
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_2_solvers
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_3_path
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_4_refit_from_deltas
+   /_auto_examples/multiple_kernel_ridge/plot_mkr_5_refine_results
+

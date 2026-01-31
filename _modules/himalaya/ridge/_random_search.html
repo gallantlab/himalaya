@@ -1,39 +1,403 @@
-
 <!DOCTYPE html>
 
-<html>
+<html lang="en" data-content_root="../../../">
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.ridge._random_search &#8212; Himalaya 0.4.0 documentation</title>
-    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-binder.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-dataframe.css" />
-    <link rel="stylesheet" type="text/css" href="../../../_static/gallery-rendered-html.css" />
-    <script data-url_root="../../../" id="documentation_options" src="../../../_static/documentation_options.js"></script>
-    <script src="../../../_static/jquery.js"></script>
-    <script src="../../../_static/underscore.js"></script>
-    <script src="../../../_static/doctools.js"></script>
-    <script src="https://unpkg.com/mermaid/dist/mermaid.min.js"></script>
-    <script>mermaid.initialize({startOnLoad:true});</script>
+    <title>himalaya.ridge._random_search &#8212; Himalaya 0.4.9 documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=e9c93658" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
+    <script src="../../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
+    <script type="module" src="https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";import elkLayouts from "https://cdn.jsdelivr.net/npm/@mermaid-js/layout-elk@0.2.0/dist/mermaid-layout-elk.esm.min.mjs";mermaid.registerLayoutLoaders(elkLayouts);mermaid.initialize({startOnLoad:false});</script>
+    <script src="https://cdn.jsdelivr.net/npm/d3@7.9.0/dist/d3.min.js"></script>
+    <script type="module">import mermaid from "https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs";
+
+const defaultStyle = document.createElement('style');
+defaultStyle.textContent = `pre.mermaid {
+    /* Same as .mermaid-container > pre */
+    display: block;
+    width: 100%;
+}
+
+pre.mermaid > svg {
+    /* Same as .mermaid-container > pre > svg */
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+`;
+document.head.appendChild(defaultStyle);
+
+const fullscreenStyle = document.createElement('style');
+fullscreenStyle.textContent = `.mermaid-container {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.mermaid-container > pre {
+    display: block;
+    width: 100%;
+}
+
+.mermaid-container > pre > svg {
+    height: 500px;
+    width: 100%;
+    max-width: 100% !important;
+}
+
+.mermaid-fullscreen-btn {
+    width: 28px;
+    height: 28px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.3);
+    border-radius: 4px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+    font-size: 14px;
+    line-height: 1;
+    padding: 0;
+    color: #333;
+}
+
+.mermaid-fullscreen-btn:hover {
+    opacity: 100% !important;
+    background: rgba(255, 255, 255, 1);
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-btn.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-btn.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 3px 10px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal {
+    display: none;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 95vw;
+    height: 100vh;
+    background: rgba(255, 255, 255, 0.98);
+    z-index: 9999;
+    padding: 20px;
+    overflow: auto;
+}
+
+.mermaid-fullscreen-modal.dark-theme {
+    background: rgba(0, 0, 0, 0.98);
+}
+
+.mermaid-fullscreen-modal.active {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen {
+    position: relative;
+    width: 95vw;
+    height: 90vh;
+    max-width: 95vw;
+    max-height: 90vh;
+    background: white;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen.dark-theme {
+    background: #1a1a1a;
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.8);
+}
+
+.mermaid-container-fullscreen pre.mermaid {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.mermaid-container-fullscreen .mermaid svg {
+    height: 100% !important;
+    width: 100% !important;
+    cursor: grab;
+}
+
+.mermaid-fullscreen-close {
+    position: fixed !important;
+    top: 20px !important;
+    right: 20px !important;
+    width: 40px;
+    height: 40px;
+    background: rgba(255, 255, 255, 0.95);
+    border: 1px solid rgba(0, 0, 0, 0.2);
+    border-radius: 50%;
+    cursor: pointer;
+    z-index: 10000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    transition: all 0.2s;
+    font-size: 24px;
+    line-height: 1;
+    color: #333;
+}
+
+.mermaid-fullscreen-close:hover {
+    background: white;
+    box-shadow: 0 6px 16px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1);
+}
+
+.mermaid-fullscreen-close.dark-theme {
+    background: rgba(50, 50, 50, 0.95);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    color: #e0e0e0;
+}
+
+.mermaid-fullscreen-close.dark-theme:hover {
+    background: rgba(60, 60, 60, 1);
+    box-shadow: 0 6px 16px rgba(255, 255, 255, 0.2);
+}
+
+.mermaid-fullscreen-modal .mermaid-fullscreen-btn {
+    display: none !important;
+}`;
+document.head.appendChild(fullscreenStyle);
+
+// Detect if page has dark background
+const isDarkTheme = () => {
+    const bgColor = window.getComputedStyle(document.body).backgroundColor;
+    const match = bgColor.match(/rgb\((\d+),\s*(\d+),\s*(\d+)/);
+    if (match) {
+        const r = parseInt(match[1]);
+        const g = parseInt(match[2]);
+        const b = parseInt(match[3]);
+        const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+        return brightness < 128;
+    }
+    return false;
+};
+
+const load = async () => {
+    await mermaid.run();
+
+    const all_mermaids = document.querySelectorAll(".mermaid");
+    const mermaids_processed = document.querySelectorAll(".mermaid[data-processed='true']");
+
+    if ("False" === "True") {
+        const mermaids_to_add_zoom = -1 === -1 ? all_mermaids.length : -1;
+        if(mermaids_to_add_zoom > 0) {
+            var svgs = d3.selectAll("");
+            if(all_mermaids.length !== mermaids_processed.length) {
+                setTimeout(load, 200);
+                return;
+            } else if(svgs.size() !== mermaids_to_add_zoom) {
+                setTimeout(load, 200);
+                return;
+            } else {
+                svgs.each(function() {
+                    var svg = d3.select(this);
+                    svg.html("<g class='wrapper'>" + svg.html() + "</g>");
+                    var inner = svg.select("g");
+                    var zoom = d3.zoom().on("zoom", function(event) {
+                        inner.attr("transform", event.transform);
+                    });
+                    svg.call(zoom);
+                });
+            }
+        }
+    } else if(all_mermaids.length !== mermaids_processed.length) {
+        // Wait for mermaid to process all diagrams
+        setTimeout(load, 200);
+        return;
+    }
+
+    const darkTheme = isDarkTheme();
+
+    // Stop here if not adding fullscreen capability
+    if ("True" !== "True") return;
+
+    const modal = document.createElement('div');
+    modal.className = 'mermaid-fullscreen-modal' + (darkTheme ? ' dark-theme' : '');
+    modal.setAttribute('role', 'dialog');
+    modal.setAttribute('aria-modal', 'true');
+    modal.setAttribute('aria-label', 'Fullscreen diagram viewer');
+    modal.innerHTML = `
+        <button class="mermaid-fullscreen-close${darkTheme ? ' dark-theme' : ''}" aria-label="Close fullscreen">✕</button>
+        <div class="mermaid-container-fullscreen${darkTheme ? ' dark-theme' : ''}"></div>
+    `;
+    document.body.appendChild(modal);
+
+    const modalContent = modal.querySelector('.mermaid-container-fullscreen');
+    const closeBtn = modal.querySelector('.mermaid-fullscreen-close');
+
+    let previousScrollOffset = [window.scrollX, window.scrollY];
+
+    const closeModal = () => {
+        modal.classList.remove('active');
+        modalContent.innerHTML = '';
+        document.body.style.overflow = ''
+        window.scrollTo({left: previousScrollOffset[0], top: previousScrollOffset[1], behavior: 'instant'});
+    };
+
+    closeBtn.addEventListener('click', closeModal);
+    modal.addEventListener('click', (e) => {
+        if (e.target === modal) closeModal();
+    });
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModal();
+        }
+    });
+
+    const allButtons = [];
+
+    document.querySelectorAll('.mermaid').forEach((mermaidDiv) => {
+        if (mermaidDiv.parentNode.classList.contains('mermaid-container') ||
+            mermaidDiv.closest('.mermaid-fullscreen-modal')) {
+            return;
+        }
+
+        const container = document.createElement('div');
+        container.className = 'mermaid-container';
+        mermaidDiv.parentNode.insertBefore(container, mermaidDiv);
+        container.appendChild(mermaidDiv);
+
+        const fullscreenBtn = document.createElement('button');
+        fullscreenBtn.className = 'mermaid-fullscreen-btn' + (darkTheme ? ' dark-theme' : '');
+        fullscreenBtn.setAttribute('aria-label', 'View diagram in fullscreen');
+        fullscreenBtn.textContent = '⛶';
+        fullscreenBtn.style.opacity = '50%';
+
+        // Calculate dynamic position based on diagram's margin and padding
+        const diagramStyle = window.getComputedStyle(mermaidDiv);
+        const marginTop = parseFloat(diagramStyle.marginTop) || 0;
+        const marginRight = parseFloat(diagramStyle.marginRight) || 0;
+        const paddingTop = parseFloat(diagramStyle.paddingTop) || 0;
+        const paddingRight = parseFloat(diagramStyle.paddingRight) || 0;
+        fullscreenBtn.style.top = `${marginTop + paddingTop + 4}px`;
+        fullscreenBtn.style.right = `${marginRight + paddingRight + 4}px`;
+
+        fullscreenBtn.addEventListener('click', () => {
+            previousScrollOffset = [window.scroll, window.scrollY];
+            const clone = mermaidDiv.cloneNode(true);
+            modalContent.innerHTML = '';
+            modalContent.appendChild(clone);
+
+            const svg = clone.querySelector('svg');
+            if (svg) {
+                svg.removeAttribute('width');
+                svg.removeAttribute('height');
+                svg.style.width = '100%';
+                svg.style.height = 'auto';
+                svg.style.maxWidth = '100%';
+                svg.style.sdisplay = 'block';
+
+                if ("False" === "True") {
+                    setTimeout(() => {
+                        const g = svg.querySelector('g');
+                        if (g) {
+                            var svgD3 = d3.select(svg);
+                            svgD3.html("<g class='wrapper'>" + svgD3.html() + "</g>");
+                            var inner = svgD3.select("g");
+                            var zoom = d3.zoom().on("zoom", function(event) {
+                                inner.attr("transform", event.transform);
+                            });
+                            svgD3.call(zoom);
+                        }
+                    }, 100);
+                }
+            }
+
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+
+        container.appendChild(fullscreenBtn);
+        allButtons.push(fullscreenBtn);
+    });
+
+    // Update theme classes when theme changes
+    const updateTheme = () => {
+        const dark = isDarkTheme();
+        allButtons.forEach(btn => {
+            if (dark) {
+                btn.classList.add('dark-theme');
+            } else {
+                btn.classList.remove('dark-theme');
+            }
+        });
+        if (dark) {
+            modal.classList.add('dark-theme');
+            modalContent.classList.add('dark-theme');
+            closeBtn.classList.add('dark-theme');
+        } else {
+            modal.classList.remove('dark-theme');
+            modalContent.classList.remove('dark-theme');
+            closeBtn.classList.remove('dark-theme');
+        }
+    };
+
+    // Watch for theme changes
+    const observer = new MutationObserver(updateTheme);
+    observer.observe(document.documentElement, {
+        attributes: true,
+        attributeFilter: ['class', 'style', 'data-theme']
+    });
+    observer.observe(document.body, {
+        attributes: true,
+        attributeFilter: ['class', 'style']
+    });
+};
+
+window.addEventListener("load", load);
+</script>
     <link rel="index" title="Index" href="../../../genindex.html" />
     <link rel="search" title="Search" href="../../../search.html" />
    
   <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
   
+
   
-  <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=0.9" />
+  
 
   </head><body>
   <div class="document">
     
-      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
         <div class="sphinxsidebarwrapper">
 <p class="logo">
   <a href="../../../index.html">
-    <img class="logo" src="../../../_static/logo.svg" alt="Logo"/>
+    <img class="logo" src="../../../_static/logo.svg" alt="Logo" />
+    
+    <h1 class="logo logo-name">himalaya</h1>
     
   </a>
 </p>
@@ -74,7 +438,7 @@
 </ul>
 
 
-<div id="searchbox" style="display: none" role="search">
+<search id="searchbox" style="display: none" role="search">
   <h3 id="searchlabel">Quick search</h3>
     <div class="searchformwrapper">
     <form class="search" action="../../../search.html" method="get">
@@ -82,8 +446,8 @@
       <input type="submit" value="Go" />
     </form>
     </div>
-</div>
-<script>$('#searchbox').show(0);</script>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script>
         </div>
       </div>
       <div class="documentwrapper">
@@ -93,29 +457,31 @@
           <div class="body" role="main">
             
   <h1>Source code for himalaya.ridge._random_search</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span> <span class="nn">warnings</span>
-<span class="kn">import</span> <span class="nn">numbers</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numbers</span>
 
-<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">numpy</span><span class="w"> </span><span class="k">as</span><span class="w"> </span><span class="nn">np</span>
 
-<span class="kn">from</span> <span class="nn">..backend</span> <span class="kn">import</span> <span class="n">get_backend</span>
-<span class="kn">from</span> <span class="nn">..backend._utils</span> <span class="kn">import</span> <span class="n">_dtype_to_str</span>
-<span class="kn">from</span> <span class="nn">..progress_bar</span> <span class="kn">import</span> <span class="n">bar</span>
-<span class="kn">from</span> <span class="nn">..scoring</span> <span class="kn">import</span> <span class="n">l2_neg_loss</span>
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_random_state</span>
-<span class="kn">from</span> <span class="nn">..validation</span> <span class="kn">import</span> <span class="n">check_cv</span>
-<span class="kn">from</span> <span class="nn">..kernel_ridge</span> <span class="kn">import</span> <span class="n">generate_dirichlet_samples</span>
-<span class="kn">from</span> <span class="nn">..kernel_ridge._random_search</span> <span class="kn">import</span> <span class="n">_select_best_alphas</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_backend</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..backend._utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">_dtype_to_str</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..progress_bar</span><span class="w"> </span><span class="kn">import</span> <span class="n">bar</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..scoring</span><span class="w"> </span><span class="kn">import</span> <span class="n">l2_neg_loss</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_random_state</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..validation</span><span class="w"> </span><span class="kn">import</span> <span class="n">check_cv</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..kernel_ridge</span><span class="w"> </span><span class="kn">import</span> <span class="n">generate_dirichlet_samples</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">..kernel_ridge._random_search</span><span class="w"> </span><span class="kn">import</span> <span class="n">_select_best_alphas</span>
 
 
-<div class="viewcode-block" id="solve_group_ridge_random_search"><a class="viewcode-back" href="../../../_generated/himalaya.ridge.solve_group_ridge_random_search.html#himalaya.ridge.solve_group_ridge_random_search">[docs]</a><span class="k">def</span> <span class="nf">solve_group_ridge_random_search</span><span class="p">(</span>
+<div class="viewcode-block" id="solve_group_ridge_random_search">
+<a class="viewcode-back" href="../../../_generated/himalaya.ridge.solve_group_ridge_random_search.html#himalaya.ridge.solve_group_ridge_random_search">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_group_ridge_random_search</span><span class="p">(</span>
     <span class="n">Xs</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">concentration</span><span class="o">=</span><span class="p">[</span><span class="mf">0.1</span><span class="p">,</span>
                                       <span class="mf">1.0</span><span class="p">],</span> <span class="n">alphas</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
     <span class="n">score_func</span><span class="o">=</span><span class="n">l2_neg_loss</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">return_weights</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">local_alpha</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">jitter_alphas</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
     <span class="n">n_targets_batch_refit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_alphas_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">progress_bar</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
     <span class="n">conservative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">diagonalize_method</span><span class="o">=</span><span class="s2">&quot;svd&quot;</span><span class="p">,</span> <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Solve group ridge regression using random search on the simplex.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve group ridge regression using random search on the simplex.</span>
 
 <span class="sd">    Solve the group-regularized ridge regression::</span>
 
@@ -398,11 +764,12 @@
                             <span class="n">backend</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">used_alphas</span><span class="p">))[</span><span class="n">alpha_batch</span><span class="p">],</span>
                             <span class="n">alphas_indices</span><span class="p">[</span><span class="n">mask2</span><span class="p">])</span>
                         <span class="c1"># update corresponding weights</span>
-                        <span class="n">tmp</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">alphas_indices</span><span class="p">,</span> <span class="p">:,</span>
-                                      <span class="n">backend</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])[</span><span class="n">mask2</span><span class="p">]]</span>
+                        <span class="n">mask_target</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">arange</span><span class="p">(</span><span class="n">weights</span><span class="o">.</span><span class="n">shape</span><span class="p">[</span><span class="mi">2</span><span class="p">])</span>
+                        <span class="n">mask_target</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_gpu</span><span class="p">(</span><span class="n">mask_target</span><span class="p">)[</span><span class="n">mask2</span><span class="p">]</span>
+                        <span class="n">tmp</span> <span class="o">=</span> <span class="n">weights</span><span class="p">[</span><span class="n">alphas_indices</span><span class="p">,</span> <span class="p">:,</span> <span class="n">mask_target</span><span class="p">]</span>
                         <span class="n">primal_weights</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">][:,</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">mask2</span><span class="p">)]</span> <span class="o">=</span> \
                             <span class="n">backend</span><span class="o">.</span><span class="n">to_cpu</span><span class="p">(</span><span class="n">tmp</span><span class="p">)</span><span class="o">.</span><span class="n">T</span>
-                        <span class="k">del</span> <span class="n">weights</span><span class="p">,</span> <span class="n">alphas_indices</span><span class="p">,</span> <span class="n">mask2</span>
+                        <span class="k">del</span> <span class="n">weights</span><span class="p">,</span> <span class="n">alphas_indices</span><span class="p">,</span> <span class="n">mask2</span><span class="p">,</span> <span class="n">mask_target</span>
                     <span class="k">del</span> <span class="n">matrix</span>
 
                 <span class="c1"># multiply again by np.sqrt(g), as we then want to use</span>
@@ -431,9 +798,10 @@
         <span class="k">return</span> <span class="n">deltas</span><span class="p">,</span> <span class="n">refit_weights</span><span class="p">,</span> <span class="n">cv_scores</span></div>
 
 
-<span class="k">def</span> <span class="nf">_decompose_ridge</span><span class="p">(</span><span class="n">Xtrain</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">n_alphas_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;svd&quot;</span><span class="p">,</span>
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_decompose_ridge</span><span class="p">(</span><span class="n">Xtrain</span><span class="p">,</span> <span class="n">alphas</span><span class="p">,</span> <span class="n">n_alphas_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">method</span><span class="o">=</span><span class="s2">&quot;svd&quot;</span><span class="p">,</span>
                      <span class="n">negative_eigenvalues</span><span class="o">=</span><span class="s2">&quot;zeros&quot;</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Precompute resolution matrices for ridge predictions.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Precompute resolution matrices for ridge predictions.</span>
 
 <span class="sd">    To compute the prediction::</span>
 
@@ -459,7 +827,7 @@
 <span class="sd">        If the decomposition leads to negative eigenvalues (wrongly emerging</span>
 <span class="sd">        from float32 errors):</span>
 <span class="sd">            - &quot;error&quot; raises an error.</span>
-<span class="sd">            - &quot;zeros&quot; remplaces them with zeros.</span>
+<span class="sd">            - &quot;zeros&quot; replaces them with zeros.</span>
 <span class="sd">            - &quot;nan&quot; returns nans if the regularization does not compensate</span>
 <span class="sd">                twice the smallest negative value, else it ignores the problem.</span>
 
@@ -523,12 +891,14 @@
 <span class="p">}</span>
 
 
-<div class="viewcode-block" id="solve_ridge_cv_svd"><a class="viewcode-back" href="../../../_generated/himalaya.ridge.solve_ridge_cv_svd.html#himalaya.ridge.solve_ridge_cv_svd">[docs]</a><span class="k">def</span> <span class="nf">solve_ridge_cv_svd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">alphas</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
+<div class="viewcode-block" id="solve_ridge_cv_svd">
+<a class="viewcode-back" href="../../../_generated/himalaya.ridge.solve_ridge_cv_svd.html#himalaya.ridge.solve_ridge_cv_svd">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">solve_ridge_cv_svd</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">Y</span><span class="p">,</span> <span class="n">alphas</span><span class="o">=</span><span class="mf">1.0</span><span class="p">,</span> <span class="n">fit_intercept</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">score_func</span><span class="o">=</span><span class="n">l2_neg_loss</span><span class="p">,</span> <span class="n">cv</span><span class="o">=</span><span class="mi">5</span><span class="p">,</span> <span class="n">local_alpha</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span>
                        <span class="n">n_targets_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">n_targets_batch_refit</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                        <span class="n">n_alphas_batch</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">conservative</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">Y_in_cpu</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
                        <span class="n">warn</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
-    <span class="sd">&quot;&quot;&quot;Solve ridge regression with a grid search over alphas.</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Solve ridge regression with a grid search over alphas.</span>
 
 <span class="sd">    Parameters</span>
 <span class="sd">    ----------</span>
@@ -612,6 +982,7 @@
         <span class="n">deltas</span><span class="p">,</span> <span class="n">coefs</span><span class="p">,</span> <span class="n">cv_scores</span> <span class="o">=</span> <span class="n">tmp</span>
         <span class="n">best_alphas</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">exp</span><span class="p">(</span><span class="o">-</span><span class="n">deltas</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
         <span class="k">return</span> <span class="n">best_alphas</span><span class="p">,</span> <span class="n">coefs</span><span class="p">,</span> <span class="n">cv_scores</span></div>
+
 </pre></div>
 
           </div>
@@ -621,11 +992,11 @@
     <div class="clearer"></div>
   </div>
     <div class="footer">
-      &copy;2020, Gallant lab.
+      &#169;2023, Gallant lab.
       
       |
-      Powered by <a href="http://sphinx-doc.org/">Sphinx 4.1.2</a>
-      &amp; <a href="https://github.com/bitprophet/alabaster">Alabaster 0.7.12</a>
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 7.4.7</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 0.7.16</a>
       
     </div>
 

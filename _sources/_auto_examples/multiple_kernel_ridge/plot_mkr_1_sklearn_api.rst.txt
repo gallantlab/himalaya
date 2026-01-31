@@ -10,8 +10,8 @@
     .. note::
         :class: sphx-glr-download-link-note
 
-        Click :ref:`here <sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py>`
-        to download the full example code
+        :ref:`Go to the end <sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py>`
+        to download the full example code.
 
 .. rst-class:: sphx-glr-example-title
 
@@ -25,7 +25,7 @@ scikit-learn API.
 
 .. GENERATED FROM PYTHON SOURCE LINES 7-22
 
-.. code-block:: default
+.. code-block:: Python
 
 
     import numpy as np
@@ -58,7 +58,7 @@ Torch can perform computations both on CPU and GPU. To use CPU, use the
 
 .. GENERATED FROM PYTHON SOURCE LINES 28-31
 
-.. code-block:: default
+.. code-block:: Python
 
 
     backend = set_backend("torch_cuda", on_error="warn")
@@ -66,6 +66,13 @@ Torch can perform computations both on CPU and GPU. To use CPU, use the
 
 
 
+
+.. rst-class:: sphx-glr-script-out
+
+ .. code-block:: none
+
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
+      warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 
 
@@ -81,7 +88,7 @@ Generate a random dataset
 
 .. GENERATED FROM PYTHON SOURCE LINES 38-47
 
-.. code-block:: default
+.. code-block:: Python
 
 
     (X_train, X_test, Y_train, Y_test, kernel_weights,
@@ -107,7 +114,7 @@ to make a ``scikit-learn`` ``Pipeline``.
 
 .. GENERATED FROM PYTHON SOURCE LINES 51-59
 
-.. code-block:: default
+.. code-block:: Python
 
 
     # Find the start and end of each feature space X in Xs
@@ -133,7 +140,7 @@ linear kernel for all feature spaces, but ``ColumnKernelizer`` accepts any
 
 .. GENERATED FROM PYTHON SOURCE LINES 64-71
 
-.. code-block:: default
+.. code-block:: Python
 
     kernelizers = [(name, Kernelizer(), slice_)
                    for name, slice_ in zip(feature_names, slices)]
@@ -165,7 +172,7 @@ We can check its specific parameters in the function docstring:
 
 .. GENERATED FROM PYTHON SOURCE LINES 82-86
 
-.. code-block:: default
+.. code-block:: Python
 
     solver_function = MultipleKernelRidgeCV.ALL_SOLVERS["random_search"]
     print("Docstring of the function %s:" % solver_function.__name__)
@@ -176,8 +183,6 @@ We can check its specific parameters in the function docstring:
 
 
 .. rst-class:: sphx-glr-script-out
-
- Out:
 
  .. code-block:: none
 
@@ -277,7 +282,7 @@ Note that there is currently no stopping criterion in this method.
 
 .. GENERATED FROM PYTHON SOURCE LINES 90-92
 
-.. code-block:: default
+.. code-block:: Python
 
     n_iter = 100
 
@@ -294,7 +299,7 @@ Grid of regularization parameters.
 
 .. GENERATED FROM PYTHON SOURCE LINES 94-96
 
-.. code-block:: default
+.. code-block:: Python
 
     alphas = np.logspace(-10, 10, 41)
 
@@ -313,7 +318,7 @@ Optimal values depend on the size of your dataset.
 
 .. GENERATED FROM PYTHON SOURCE LINES 100-113
 
-.. code-block:: default
+.. code-block:: Python
 
     n_targets_batch = 1000
     n_alphas_batch = 20
@@ -341,7 +346,7 @@ Define and fit the pipeline
 
 .. GENERATED FROM PYTHON SOURCE LINES 115-118
 
-.. code-block:: default
+.. code-block:: Python
 
     pipe = make_pipeline(column_kernelizer, model)
     pipe.fit(X_train, Y_train)
@@ -352,29 +357,441 @@ Define and fit the pipeline
 
 .. rst-class:: sphx-glr-script-out
 
- Out:
-
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | 100 random sampling with cv |     [                                        ] 1% | 0.11 sec | 100 random sampling with cv |     [                                        ] 2% | 0.23 sec | 100 random sampling with cv |     [.                                       ] 3% | 0.34 sec | 100 random sampling with cv |     [.                                       ] 4% | 0.45 sec | 100 random sampling with cv |     [..                                      ] 5% | 0.56 sec | 100 random sampling with cv |     [..                                      ] 6% | 0.68 sec | 100 random sampling with cv |     [..                                      ] 7% | 0.79 sec | 100 random sampling with cv |     [...                                     ] 8% | 0.90 sec | 100 random sampling with cv |     [...                                     ] 9% | 1.02 sec | 100 random sampling with cv |     [....                                    ] 10% | 1.13 sec | 100 random sampling with cv |     [....                                    ] 11% | 1.24 sec | 100 random sampling with cv |     [....                                    ] 12% | 1.35 sec | 100 random sampling with cv |     [.....                                   ] 13% | 1.47 sec | 100 random sampling with cv |     [.....                                   ] 14% | 1.58 sec | 100 random sampling with cv |     [......                                  ] 15% | 1.69 sec | 100 random sampling with cv |     [......                                  ] 16% | 1.81 sec | 100 random sampling with cv |     [......                                  ] 17% | 1.92 sec | 100 random sampling with cv |     [.......                                 ] 18% | 2.03 sec | 100 random sampling with cv |     [.......                                 ] 19% | 2.14 sec | 100 random sampling with cv |     [........                                ] 20% | 2.26 sec | 100 random sampling with cv |     [........                                ] 21% | 2.37 sec | 100 random sampling with cv |     [........                                ] 22% | 2.45 sec | 100 random sampling with cv |     [.........                               ] 23% | 2.56 sec | 100 random sampling with cv |     [.........                               ] 24% | 2.65 sec | 100 random sampling with cv |     [..........                              ] 25% | 2.73 sec | 100 random sampling with cv |     [..........                              ] 26% | 2.81 sec | 100 random sampling with cv |     [..........                              ] 27% | 2.93 sec | 100 random sampling with cv |     [...........                             ] 28% | 3.04 sec | 100 random sampling with cv |     [...........                             ] 29% | 3.15 sec | 100 random sampling with cv |     [............                            ] 30% | 3.26 sec | 100 random sampling with cv |     [............                            ] 31% | 3.38 sec | 100 random sampling with cv |     [............                            ] 32% | 3.49 sec | 100 random sampling with cv |     [.............                           ] 33% | 3.60 sec | 100 random sampling with cv |     [.............                           ] 34% | 3.72 sec | 100 random sampling with cv |     [..............                          ] 35% | 3.83 sec | 100 random sampling with cv |     [..............                          ] 36% | 3.94 sec | 100 random sampling with cv |     [..............                          ] 37% | 4.06 sec | 100 random sampling with cv |     [...............                         ] 38% | 4.17 sec | 100 random sampling with cv |     [...............                         ] 39% | 4.25 sec | 100 random sampling with cv |     [................                        ] 40% | 4.36 sec | 100 random sampling with cv |     [................                        ] 41% | 4.48 sec | 100 random sampling with cv |     [................                        ] 42% | 4.56 sec | 100 random sampling with cv |     [.................                       ] 43% | 4.67 sec | 100 random sampling with cv |     [.................                       ] 44% | 4.76 sec | 100 random sampling with cv |     [..................                      ] 45% | 4.87 sec | 100 random sampling with cv |     [..................                      ] 46% | 4.98 sec | 100 random sampling with cv |     [..................                      ] 47% | 5.09 sec | 100 random sampling with cv |     [...................                     ] 48% | 5.21 sec | 100 random sampling with cv |     [...................                     ] 49% | 5.32 sec | 100 random sampling with cv |     [....................                    ] 50% | 5.40 sec | 100 random sampling with cv |     [....................                    ] 51% | 5.49 sec | 100 random sampling with cv |     [....................                    ] 52% | 5.60 sec | 100 random sampling with cv |     [.....................                   ] 53% | 5.71 sec | 100 random sampling with cv |     [.....................                   ] 54% | 5.82 sec | 100 random sampling with cv |     [......................                  ] 55% | 5.94 sec | 100 random sampling with cv |     [......................                  ] 56% | 6.02 sec | 100 random sampling with cv |     [......................                  ] 57% | 6.10 sec | 100 random sampling with cv |     [.......................                 ] 58% | 6.19 sec | 100 random sampling with cv |     [.......................                 ] 59% | 6.27 sec | 100 random sampling with cv |     [........................                ] 60% | 6.36 sec | 100 random sampling with cv |     [........................                ] 61% | 6.44 sec | 100 random sampling with cv |     [........................                ] 62% | 6.52 sec | 100 random sampling with cv |     [.........................               ] 63% | 6.61 sec | 100 random sampling with cv |     [.........................               ] 64% | 6.72 sec | 100 random sampling with cv |     [..........................              ] 65% | 6.83 sec | 100 random sampling with cv |     [..........................              ] 66% | 6.94 sec | 100 random sampling with cv |     [..........................              ] 67% | 7.06 sec | 100 random sampling with cv |     [...........................             ] 68% | 7.14 sec | 100 random sampling with cv |     [...........................             ] 69% | 7.26 sec | 100 random sampling with cv |     [............................            ] 70% | 7.34 sec | 100 random sampling with cv |     [............................            ] 71% | 7.42 sec | 100 random sampling with cv |     [............................            ] 72% | 7.51 sec | 100 random sampling with cv |     [.............................           ] 73% | 7.59 sec | 100 random sampling with cv |     [.............................           ] 74% | 7.67 sec | 100 random sampling with cv |     [..............................          ] 75% | 7.79 sec | 100 random sampling with cv |     [..............................          ] 76% | 7.90 sec | 100 random sampling with cv |     [..............................          ] 77% | 8.01 sec | 100 random sampling with cv |     [...............................         ] 78% | 8.10 sec | 100 random sampling with cv |     [...............................         ] 79% | 8.18 sec | 100 random sampling with cv |     [................................        ] 80% | 8.26 sec | 100 random sampling with cv |     [................................        ] 81% | 8.35 sec | 100 random sampling with cv |     [................................        ] 82% | 8.43 sec | 100 random sampling with cv |     [.................................       ] 83% | 8.51 sec | 100 random sampling with cv |     [.................................       ] 84% | 8.63 sec | 100 random sampling with cv |     [..................................      ] 85% | 8.74 sec | 100 random sampling with cv |     [..................................      ] 86% | 8.85 sec | 100 random sampling with cv |     [..................................      ] 87% | 8.97 sec | 100 random sampling with cv |     [...................................     ] 88% | 9.05 sec | 100 random sampling with cv |     [...................................     ] 89% | 9.17 sec | 100 random sampling with cv |     [....................................    ] 90% | 9.25 sec | 100 random sampling with cv |     [....................................    ] 91% | 9.33 sec | 100 random sampling with cv |     [....................................    ] 92% | 9.42 sec | 100 random sampling with cv |     [.....................................   ] 93% | 9.53 sec | 100 random sampling with cv |     [.....................................   ] 94% | 9.61 sec | 100 random sampling with cv |     [......................................  ] 95% | 9.73 sec | 100 random sampling with cv |     [......................................  ] 96% | 9.84 sec | 100 random sampling with cv |     [......................................  ] 97% | 9.93 sec | 100 random sampling with cv |     [....................................... ] 98% | 10.01 sec | 100 random sampling with cv |     [....................................... ] 99% | 10.09 sec | 100 random sampling with cv |     [........................................] 100% | 10.18 sec | 100 random sampling with cv | 
+    [                                        ] 0% | 0.00 sec | 100 random sampling with cv |     [                                        ] 1% | 1.25 sec | 100 random sampling with cv |     [                                        ] 2% | 2.76 sec | 100 random sampling with cv |     [.                                       ] 3% | 4.19 sec | 100 random sampling with cv |     [.                                       ] 4% | 5.52 sec | 100 random sampling with cv |     [..                                      ] 5% | 6.86 sec | 100 random sampling with cv |     [..                                      ] 6% | 8.47 sec | 100 random sampling with cv |     [..                                      ] 7% | 9.75 sec | 100 random sampling with cv |     [...                                     ] 8% | 11.37 sec | 100 random sampling with cv |     [...                                     ] 9% | 12.70 sec | 100 random sampling with cv |     [....                                    ] 10% | 14.15 sec | 100 random sampling with cv |     [....                                    ] 11% | 15.41 sec | 100 random sampling with cv |     [....                                    ] 12% | 16.85 sec | 100 random sampling with cv |     [.....                                   ] 13% | 17.99 sec | 100 random sampling with cv |     [.....                                   ] 14% | 19.39 sec | 100 random sampling with cv |     [......                                  ] 15% | 20.74 sec | 100 random sampling with cv |     [......                                  ] 16% | 21.86 sec | 100 random sampling with cv |     [......                                  ] 17% | 23.18 sec | 100 random sampling with cv |     [.......                                 ] 18% | 24.49 sec | 100 random sampling with cv |     [.......                                 ] 19% | 25.69 sec | 100 random sampling with cv |     [........                                ] 20% | 27.21 sec | 100 random sampling with cv |     [........                                ] 21% | 28.54 sec | 100 random sampling with cv |     [........                                ] 22% | 30.13 sec | 100 random sampling with cv |     [.........                               ] 23% | 31.65 sec | 100 random sampling with cv |     [.........                               ] 24% | 32.93 sec | 100 random sampling with cv |     [..........                              ] 25% | 34.12 sec | 100 random sampling with cv |     [..........                              ] 26% | 35.56 sec | 100 random sampling with cv |     [..........                              ] 27% | 36.94 sec | 100 random sampling with cv |     [...........                             ] 28% | 38.19 sec | 100 random sampling with cv |     [...........                             ] 29% | 39.38 sec | 100 random sampling with cv |     [............                            ] 30% | 40.39 sec | 100 random sampling with cv |     [............                            ] 31% | 42.04 sec | 100 random sampling with cv |     [............                            ] 32% | 43.36 sec | 100 random sampling with cv |     [.............                           ] 33% | 44.73 sec | 100 random sampling with cv |     [.............                           ] 34% | 45.92 sec | 100 random sampling with cv |     [..............                          ] 35% | 46.98 sec | 100 random sampling with cv |     [..............                          ] 36% | 48.26 sec | 100 random sampling with cv |     [..............                          ] 37% | 49.33 sec | 100 random sampling with cv |     [...............                         ] 38% | 50.56 sec | 100 random sampling with cv |     [...............                         ] 39% | 51.76 sec | 100 random sampling with cv |     [................                        ] 40% | 53.02 sec | 100 random sampling with cv |     [................                        ] 41% | 54.45 sec | 100 random sampling with cv |     [................                        ] 42% | 55.68 sec | 100 random sampling with cv |     [.................                       ] 43% | 56.88 sec | 100 random sampling with cv |     [.................                       ] 44% | 58.17 sec | 100 random sampling with cv |     [..................                      ] 45% | 59.48 sec | 100 random sampling with cv |     [..................                      ] 46% | 60.67 sec | 100 random sampling with cv |     [..................                      ] 47% | 61.82 sec | 100 random sampling with cv |     [...................                     ] 48% | 63.32 sec | 100 random sampling with cv |     [...................                     ] 49% | 64.80 sec | 100 random sampling with cv |     [....................                    ] 50% | 66.01 sec | 100 random sampling with cv |     [....................                    ] 51% | 67.40 sec | 100 random sampling with cv |     [....................                    ] 52% | 68.86 sec | 100 random sampling with cv |     [.....................                   ] 53% | 69.95 sec | 100 random sampling with cv |     [.....................                   ] 54% | 71.18 sec | 100 random sampling with cv |     [......................                  ] 55% | 72.52 sec | 100 random sampling with cv |     [......................                  ] 56% | 73.75 sec | 100 random sampling with cv |     [......................                  ] 57% | 74.76 sec | 100 random sampling with cv |     [.......................                 ] 58% | 75.97 sec | 100 random sampling with cv |     [.......................                 ] 59% | 77.12 sec | 100 random sampling with cv |     [........................                ] 60% | 78.20 sec | 100 random sampling with cv |     [........................                ] 61% | 79.58 sec | 100 random sampling with cv |     [........................                ] 62% | 80.76 sec | 100 random sampling with cv |     [.........................               ] 63% | 81.84 sec | 100 random sampling with cv |     [.........................               ] 64% | 83.20 sec | 100 random sampling with cv |     [..........................              ] 65% | 84.62 sec | 100 random sampling with cv |     [..........................              ] 66% | 85.92 sec | 100 random sampling with cv |     [..........................              ] 67% | 87.25 sec | 100 random sampling with cv |     [...........................             ] 68% | 88.30 sec | 100 random sampling with cv |     [...........................             ] 69% | 89.81 sec | 100 random sampling with cv |     [............................            ] 70% | 91.15 sec | 100 random sampling with cv |     [............................            ] 71% | 92.45 sec | 100 random sampling with cv |     [............................            ] 72% | 93.92 sec | 100 random sampling with cv |     [.............................           ] 73% | 95.04 sec | 100 random sampling with cv |     [.............................           ] 74% | 96.35 sec | 100 random sampling with cv |     [..............................          ] 75% | 97.63 sec | 100 random sampling with cv |     [..............................          ] 76% | 98.80 sec | 100 random sampling with cv |     [..............................          ] 77% | 100.07 sec | 100 random sampling with cv |     [...............................         ] 78% | 101.12 sec | 100 random sampling with cv |     [...............................         ] 79% | 102.32 sec | 100 random sampling with cv |     [................................        ] 80% | 103.62 sec | 100 random sampling with cv |     [................................        ] 81% | 104.94 sec | 100 random sampling with cv |     [................................        ] 82% | 106.08 sec | 100 random sampling with cv |     [.................................       ] 83% | 107.29 sec | 100 random sampling with cv |     [.................................       ] 84% | 108.61 sec | 100 random sampling with cv |     [..................................      ] 85% | 110.04 sec | 100 random sampling with cv |     [..................................      ] 86% | 111.17 sec | 100 random sampling with cv |     [..................................      ] 87% | 112.58 sec | 100 random sampling with cv |     [...................................     ] 88% | 113.96 sec | 100 random sampling with cv |     [...................................     ] 89% | 115.07 sec | 100 random sampling with cv |     [....................................    ] 90% | 116.20 sec | 100 random sampling with cv |     [....................................    ] 91% | 117.57 sec | 100 random sampling with cv |     [....................................    ] 92% | 119.10 sec | 100 random sampling with cv |     [.....................................   ] 93% | 120.47 sec | 100 random sampling with cv |     [.....................................   ] 94% | 121.78 sec | 100 random sampling with cv |     [......................................  ] 95% | 123.22 sec | 100 random sampling with cv |     [......................................  ] 96% | 124.53 sec | 100 random sampling with cv |     [......................................  ] 97% | 125.72 sec | 100 random sampling with cv |     [....................................... ] 98% | 127.13 sec | 100 random sampling with cv |     [....................................... ] 99% | 128.59 sec | 100 random sampling with cv |     [........................................] 100% | 129.75 sec | 100 random sampling with cv | 
 
 
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 {color: black;background-color: white;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 pre{padding: 0;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-toggleable {background-color: white;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-estimator:hover {background-color: #d4ebff;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-item {z-index: 1;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-parallel-item:only-child::after {width: 0;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-cf857815-9f78-4844-bd5a-9c136fc30b35 div.sk-text-repr-fallback {display: none;}</style><div id="sk-cf857815-9f78-4844-bd5a-9c136fc30b35" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+    <style>#sk-container-id-4 {
+      /* Definition of color scheme common for light and dark mode */
+      --sklearn-color-text: #000;
+      --sklearn-color-text-muted: #666;
+      --sklearn-color-line: gray;
+      /* Definition of color scheme for unfitted estimators */
+      --sklearn-color-unfitted-level-0: #fff5e6;
+      --sklearn-color-unfitted-level-1: #f6e4d2;
+      --sklearn-color-unfitted-level-2: #ffe0b3;
+      --sklearn-color-unfitted-level-3: chocolate;
+      /* Definition of color scheme for fitted estimators */
+      --sklearn-color-fitted-level-0: #f0f8ff;
+      --sklearn-color-fitted-level-1: #d4ebff;
+      --sklearn-color-fitted-level-2: #b3dbfd;
+      --sklearn-color-fitted-level-3: cornflowerblue;
+
+      /* Specific color for light theme */
+      --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+      --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-icon: #696969;
+
+      @media (prefers-color-scheme: dark) {
+        /* Redefinition of color scheme for dark theme */
+        --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+        --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-icon: #878787;
+      }
+    }
+
+    #sk-container-id-4 {
+      color: var(--sklearn-color-text);
+    }
+
+    #sk-container-id-4 pre {
+      padding: 0;
+    }
+
+    #sk-container-id-4 input.sk-hidden--visually {
+      border: 0;
+      clip: rect(1px 1px 1px 1px);
+      clip: rect(1px, 1px, 1px, 1px);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    #sk-container-id-4 div.sk-dashed-wrapped {
+      border: 1px dashed var(--sklearn-color-line);
+      margin: 0 0.4em 0.5em 0.4em;
+      box-sizing: border-box;
+      padding-bottom: 0.4em;
+      background-color: var(--sklearn-color-background);
+    }
+
+    #sk-container-id-4 div.sk-container {
+      /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+         but bootstrap.min.css set `[hidden] { display: none !important; }`
+         so we also need the `!important` here to be able to override the
+         default hidden behavior on the sphinx rendered scikit-learn.org.
+         See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+      display: inline-block !important;
+      position: relative;
+    }
+
+    #sk-container-id-4 div.sk-text-repr-fallback {
+      display: none;
+    }
+
+    div.sk-parallel-item,
+    div.sk-serial,
+    div.sk-item {
+      /* draw centered vertical line to link estimators */
+      background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+      background-size: 2px 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    /* Parallel-specific style estimator block */
+
+    #sk-container-id-4 div.sk-parallel-item::after {
+      content: "";
+      width: 100%;
+      border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+      flex-grow: 1;
+    }
+
+    #sk-container-id-4 div.sk-parallel {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background-color: var(--sklearn-color-background);
+      position: relative;
+    }
+
+    #sk-container-id-4 div.sk-parallel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sk-container-id-4 div.sk-parallel-item:first-child::after {
+      align-self: flex-end;
+      width: 50%;
+    }
+
+    #sk-container-id-4 div.sk-parallel-item:last-child::after {
+      align-self: flex-start;
+      width: 50%;
+    }
+
+    #sk-container-id-4 div.sk-parallel-item:only-child::after {
+      width: 0;
+    }
+
+    /* Serial-specific style estimator block */
+
+    #sk-container-id-4 div.sk-serial {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--sklearn-color-background);
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+
+
+    /* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+    clickable and can be expanded/collapsed.
+    - Pipeline and ColumnTransformer use this feature and define the default style
+    - Estimators will overwrite some part of the style using the `sk-estimator` class
+    */
+
+    /* Pipeline and ColumnTransformer style (default) */
+
+    #sk-container-id-4 div.sk-toggleable {
+      /* Default theme specific background. It is overwritten whether we have a
+      specific estimator or a Pipeline/ColumnTransformer */
+      background-color: var(--sklearn-color-background);
+    }
+
+    /* Toggleable label */
+    #sk-container-id-4 label.sk-toggleable__label {
+      cursor: pointer;
+      display: flex;
+      width: 100%;
+      margin-bottom: 0;
+      padding: 0.5em;
+      box-sizing: border-box;
+      text-align: center;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.5em;
+    }
+
+    #sk-container-id-4 label.sk-toggleable__label .caption {
+      font-size: 0.6rem;
+      font-weight: lighter;
+      color: var(--sklearn-color-text-muted);
+    }
+
+    #sk-container-id-4 label.sk-toggleable__label-arrow:before {
+      /* Arrow on the left of the label */
+      content: "▸";
+      float: left;
+      margin-right: 0.25em;
+      color: var(--sklearn-color-icon);
+    }
+
+    #sk-container-id-4 label.sk-toggleable__label-arrow:hover:before {
+      color: var(--sklearn-color-text);
+    }
+
+    /* Toggleable content - dropdown */
+
+    #sk-container-id-4 div.sk-toggleable__content {
+      max-height: 0;
+      max-width: 0;
+      overflow: hidden;
+      text-align: left;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-4 div.sk-toggleable__content.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-4 div.sk-toggleable__content pre {
+      margin: 0.2em;
+      border-radius: 0.25em;
+      color: var(--sklearn-color-text);
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-4 div.sk-toggleable__content.fitted pre {
+      /* unfitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-4 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+      /* Expand drop-down */
+      max-height: 200px;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #sk-container-id-4 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+      content: "▾";
+    }
+
+    /* Pipeline/ColumnTransformer-specific style */
+
+    #sk-container-id-4 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-4 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator-specific style */
+
+    /* Colorize estimator box */
+    #sk-container-id-4 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-4 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    #sk-container-id-4 div.sk-label label.sk-toggleable__label,
+    #sk-container-id-4 div.sk-label label {
+      /* The background is the default theme color */
+      color: var(--sklearn-color-text-on-default-background);
+    }
+
+    /* On hover, darken the color of the background */
+    #sk-container-id-4 div.sk-label:hover label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    /* Label box, darken color on hover, fitted */
+    #sk-container-id-4 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator label */
+
+    #sk-container-id-4 div.sk-label label {
+      font-family: monospace;
+      font-weight: bold;
+      display: inline-block;
+      line-height: 1.2em;
+    }
+
+    #sk-container-id-4 div.sk-label-container {
+      text-align: center;
+    }
+
+    /* Estimator-specific */
+    #sk-container-id-4 div.sk-estimator {
+      font-family: monospace;
+      border: 1px dotted var(--sklearn-color-border-box);
+      border-radius: 0.25em;
+      box-sizing: border-box;
+      margin-bottom: 0.5em;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-4 div.sk-estimator.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    /* on hover */
+    #sk-container-id-4 div.sk-estimator:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-4 div.sk-estimator.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Specification for estimator info (e.g. "i" and "?") */
+
+    /* Common style for "i" and "?" */
+
+    .sk-estimator-doc-link,
+    a:link.sk-estimator-doc-link,
+    a:visited.sk-estimator-doc-link {
+      float: right;
+      font-size: smaller;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1em;
+      height: 1em;
+      width: 1em;
+      text-decoration: none !important;
+      margin-left: 0.5em;
+      text-align: center;
+      /* unfitted */
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+      color: var(--sklearn-color-unfitted-level-1);
+    }
+
+    .sk-estimator-doc-link.fitted,
+    a:link.sk-estimator-doc-link.fitted,
+    a:visited.sk-estimator-doc-link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    div.sk-estimator:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    /* Span, style for the box shown on hovering the info icon */
+    .sk-estimator-doc-link span {
+      display: none;
+      z-index: 9999;
+      position: relative;
+      font-weight: normal;
+      right: .2ex;
+      padding: .5ex;
+      margin: .5ex;
+      width: min-content;
+      min-width: 20ex;
+      max-width: 50ex;
+      color: var(--sklearn-color-text);
+      box-shadow: 2pt 2pt 4pt #999;
+      /* unfitted */
+      background: var(--sklearn-color-unfitted-level-0);
+      border: .5pt solid var(--sklearn-color-unfitted-level-3);
+    }
+
+    .sk-estimator-doc-link.fitted span {
+      /* fitted */
+      background: var(--sklearn-color-fitted-level-0);
+      border: var(--sklearn-color-fitted-level-3);
+    }
+
+    .sk-estimator-doc-link:hover span {
+      display: block;
+    }
+
+    /* "?"-specific style due to the `<a>` HTML tag */
+
+    #sk-container-id-4 a.estimator_doc_link {
+      float: right;
+      font-size: 1rem;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1rem;
+      height: 1rem;
+      width: 1rem;
+      text-decoration: none;
+      /* unfitted */
+      color: var(--sklearn-color-unfitted-level-1);
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+    }
+
+    #sk-container-id-4 a.estimator_doc_link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    #sk-container-id-4 a.estimator_doc_link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    #sk-container-id-4 a.estimator_doc_link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+    }
+    </style><div id="sk-container-id-4" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                      ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
-                                                     slice(0, 1000, None)),
+                                                     slice(np.int64(0), np.int64(1000), None)),
                                                     (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
-                                                     slice(1000, 2000, None)),
+                                                     slice(np.int64(1000), np.int64(2000), None)),
                                                     (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
-                                                     slice(2000, 3000, None))])),
+                                                     slice(np.int64(2000), np.int64(3000), None))])),
                     (&#x27;multiplekernelridgecv&#x27;,
-                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
-                                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.1622776...
+                     MultipleKernelRidgeCV(kernels=&#x27;precompu...
            1.00000000e+02, 3.16227766e+02, 1.00000000e+03, 3.16227766e+03,
            1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
            1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
@@ -384,19 +801,18 @@ Define and fit the pipeline
                                                           &#x27;n_alphas_batch&#x27;: 20,
                                                           &#x27;n_iter&#x27;: 100,
                                                           &#x27;n_targets_batch&#x27;: 1000,
-                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="e87efac6-9cef-42f3-a0de-e07375aa628a" type="checkbox" ><label for="e87efac6-9cef-42f3-a0de-e07375aa628a" class="sk-toggleable__label sk-toggleable__label-arrow">Pipeline</label><div class="sk-toggleable__content"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
+                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-6" type="checkbox" ><label for="sk-estimator-id-6" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Pipeline</div></div><div><a class="sk-estimator-doc-link fitted" rel="noreferrer" target="_blank" href="https://scikit-learn.org/1.6/modules/generated/sklearn.pipeline.Pipeline.html">?<span>Documentation for Pipeline</span></a><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>Pipeline(steps=[(&#x27;columnkernelizer&#x27;,
                      ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;,
                                                      Kernelizer(),
-                                                     slice(0, 1000, None)),
+                                                     slice(np.int64(0), np.int64(1000), None)),
                                                     (&#x27;Feature space 1&#x27;,
                                                      Kernelizer(),
-                                                     slice(1000, 2000, None)),
+                                                     slice(np.int64(1000), np.int64(2000), None)),
                                                     (&#x27;Feature space 2&#x27;,
                                                      Kernelizer(),
-                                                     slice(2000, 3000, None))])),
+                                                     slice(np.int64(2000), np.int64(3000), None))])),
                     (&#x27;multiplekernelridgecv&#x27;,
-                     MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
-                                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.1622776...
+                     MultipleKernelRidgeCV(kernels=&#x27;precompu...
            1.00000000e+02, 3.16227766e+02, 1.00000000e+03, 3.16227766e+03,
            1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
            1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
@@ -406,12 +822,12 @@ Define and fit the pipeline
                                                           &#x27;n_alphas_batch&#x27;: 20,
                                                           &#x27;n_iter&#x27;: 100,
                                                           &#x27;n_targets_batch&#x27;: 1000,
-                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div></div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="c6cfdbc0-5988-4c1f-895a-c4e69cd74378" type="checkbox" ><label for="c6cfdbc0-5988-4c1f-895a-c4e69cd74378" class="sk-toggleable__label sk-toggleable__label-arrow">columnkernelizer: ColumnKernelizer</label><div class="sk-toggleable__content"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
-                                    slice(0, 1000, None)),
+                                                          &#x27;n_targets_batch_refit&#x27;: 200}))])</pre></div> </div></div><div class="sk-serial"><div class="sk-item sk-dashed-wrapped"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-7" type="checkbox" ><label for="sk-estimator-id-7" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>columnkernelizer: ColumnKernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>ColumnKernelizer(transformers=[(&#x27;Feature space 0&#x27;, Kernelizer(),
+                                    slice(np.int64(0), np.int64(1000), None)),
                                    (&#x27;Feature space 1&#x27;, Kernelizer(),
-                                    slice(1000, 2000, None)),
+                                    slice(np.int64(1000), np.int64(2000), None)),
                                    (&#x27;Feature space 2&#x27;, Kernelizer(),
-                                    slice(2000, 3000, None))])</pre></div></div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="62398f65-6317-4f5c-aabb-e4ffea5860b2" type="checkbox" ><label for="62398f65-6317-4f5c-aabb-e4ffea5860b2" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 0</label><div class="sk-toggleable__content"><pre>slice(0, 1000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="d17c3bb1-48e5-40f7-ac22-d0caab4dfb18" type="checkbox" ><label for="d17c3bb1-48e5-40f7-ac22-d0caab4dfb18" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="83b45e0f-564e-4ca4-9cf4-d3250bae4d42" type="checkbox" ><label for="83b45e0f-564e-4ca4-9cf4-d3250bae4d42" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 1</label><div class="sk-toggleable__content"><pre>slice(1000, 2000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="a9fb3266-bc37-47e6-be91-ea88215c1ec2" type="checkbox" ><label for="a9fb3266-bc37-47e6-be91-ea88215c1ec2" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="68aa3855-3eaa-4305-8f60-b21284788a2c" type="checkbox" ><label for="68aa3855-3eaa-4305-8f60-b21284788a2c" class="sk-toggleable__label sk-toggleable__label-arrow">Feature space 2</label><div class="sk-toggleable__content"><pre>slice(2000, 3000, None)</pre></div></div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="be3185ba-f0be-4fce-a40a-61a082d59ee5" type="checkbox" ><label for="be3185ba-f0be-4fce-a40a-61a082d59ee5" class="sk-toggleable__label sk-toggleable__label-arrow">Kernelizer</label><div class="sk-toggleable__content"><pre>Kernelizer()</pre></div></div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="43bc7532-b4e9-435e-93c4-71a7920fcf4e" type="checkbox" ><label for="43bc7532-b4e9-435e-93c4-71a7920fcf4e" class="sk-toggleable__label sk-toggleable__label-arrow">MultipleKernelRidgeCV</label><div class="sk-toggleable__content"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
+                                    slice(np.int64(2000), np.int64(3000), None))])</pre></div> </div></div><div class="sk-parallel"><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-8" type="checkbox" ><label for="sk-estimator-id-8" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 0</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(0), np.int64(1000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-9" type="checkbox" ><label for="sk-estimator-id-9" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-10" type="checkbox" ><label for="sk-estimator-id-10" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 1</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(1000), np.int64(2000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-11" type="checkbox" ><label for="sk-estimator-id-11" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div><div class="sk-parallel-item"><div class="sk-item"><div class="sk-label-container"><div class="sk-label fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-12" type="checkbox" ><label for="sk-estimator-id-12" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Feature space 2</div></div></label><div class="sk-toggleable__content fitted"><pre>slice(np.int64(2000), np.int64(3000), None)</pre></div> </div></div><div class="sk-serial"><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-13" type="checkbox" ><label for="sk-estimator-id-13" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>Kernelizer</div></div></label><div class="sk-toggleable__content fitted"><pre>Kernelizer()</pre></div> </div></div></div></div></div></div></div><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-14" type="checkbox" ><label for="sk-estimator-id-14" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>MultipleKernelRidgeCV</div></div></label><div class="sk-toggleable__content fitted"><pre>MultipleKernelRidgeCV(kernels=&#x27;precomputed&#x27;,
                           solver_params={&#x27;alphas&#x27;: array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
@@ -425,7 +841,7 @@ Define and fit the pipeline
                                          &#x27;jitter_alphas&#x27;: True,
                                          &#x27;n_alphas_batch&#x27;: 20, &#x27;n_iter&#x27;: 100,
                                          &#x27;n_targets_batch&#x27;: 1000,
-                                         &#x27;n_targets_batch_refit&#x27;: 200})</pre></div></div></div></div></div></div></div>
+                                         &#x27;n_targets_batch_refit&#x27;: 200})</pre></div> </div></div></div></div></div></div>
     </div>
     <br />
     <br />
@@ -437,7 +853,7 @@ Plot the convergence curve
 
 .. GENERATED FROM PYTHON SOURCE LINES 121-137
 
-.. code-block:: default
+.. code-block:: Python
 
 
     # ``cv_scores`` gives the scores for each sampled kernel weights.
@@ -458,9 +874,10 @@ Plot the convergence curve
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_1_sklearn_api_001.png
-    :alt: Convergence curve, averaged over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_1_sklearn_api_001.png
+   :alt: Convergence curve, averaged over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_1_sklearn_api_001.png
+   :class: sphx-glr-single-img
 
 
 
@@ -480,7 +897,7 @@ Fit the baseline model ``KernelRidgeCV``
 
 .. GENERATED FROM PYTHON SOURCE LINES 146-149
 
-.. code-block:: default
+.. code-block:: Python
 
     baseline = KernelRidgeCV(kernel="linear", alphas=alphas)
     baseline.fit(X_train, Y_train)
@@ -493,7 +910,422 @@ Fit the baseline model ``KernelRidgeCV``
 .. raw:: html
 
     <div class="output_subarea output_html rendered_html output_result">
-    <style>#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a {color: black;background-color: white;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a pre{padding: 0;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-toggleable {background-color: white;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a label.sk-toggleable__label {cursor: pointer;display: block;width: 100%;margin-bottom: 0;padding: 0.3em;box-sizing: border-box;text-align: center;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a label.sk-toggleable__label-arrow:before {content: "▸";float: left;margin-right: 0.25em;color: #696969;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a label.sk-toggleable__label-arrow:hover:before {color: black;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-estimator:hover label.sk-toggleable__label-arrow:before {color: black;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-toggleable__content {max-height: 0;max-width: 0;overflow: hidden;text-align: left;background-color: #f0f8ff;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-toggleable__content pre {margin: 0.2em;color: black;border-radius: 0.25em;background-color: #f0f8ff;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a input.sk-toggleable__control:checked~div.sk-toggleable__content {max-height: 200px;max-width: 100%;overflow: auto;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {content: "▾";}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {background-color: #d4ebff;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a input.sk-hidden--visually {border: 0;clip: rect(1px 1px 1px 1px);clip: rect(1px, 1px, 1px, 1px);height: 1px;margin: -1px;overflow: hidden;padding: 0;position: absolute;width: 1px;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-estimator {font-family: monospace;background-color: #f0f8ff;border: 1px dotted black;border-radius: 0.25em;box-sizing: border-box;margin-bottom: 0.5em;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-estimator:hover {background-color: #d4ebff;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel-item::after {content: "";width: 100%;border-bottom: 1px solid gray;flex-grow: 1;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-label:hover label.sk-toggleable__label {background-color: #d4ebff;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-serial::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-serial {display: flex;flex-direction: column;align-items: center;background-color: white;padding-right: 0.2em;padding-left: 0.2em;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-item {z-index: 1;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel {display: flex;align-items: stretch;justify-content: center;background-color: white;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel::before {content: "";position: absolute;border-left: 1px solid gray;box-sizing: border-box;top: 2em;bottom: 0;left: 50%;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel-item {display: flex;flex-direction: column;position: relative;background-color: white;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel-item:first-child::after {align-self: flex-end;width: 50%;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel-item:last-child::after {align-self: flex-start;width: 50%;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-parallel-item:only-child::after {width: 0;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-dashed-wrapped {border: 1px dashed gray;margin: 0 0.4em 0.5em 0.4em;box-sizing: border-box;padding-bottom: 0.4em;background-color: white;position: relative;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-label label {font-family: monospace;font-weight: bold;background-color: white;display: inline-block;line-height: 1.2em;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-label-container {position: relative;z-index: 2;text-align: center;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-container {/* jupyter's `normalize.less` sets `[hidden] { display: none; }` but bootstrap.min.css set `[hidden] { display: none !important; }` so we also need the `!important` here to be able to override the default hidden behavior on the sphinx rendered scikit-learn.org. See: https://github.com/scikit-learn/scikit-learn/issues/21755 */display: inline-block !important;position: relative;}#sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a div.sk-text-repr-fallback {display: none;}</style><div id="sk-3504f4d0-a254-4ec9-b33d-a48316b76f6a" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+    <style>#sk-container-id-5 {
+      /* Definition of color scheme common for light and dark mode */
+      --sklearn-color-text: #000;
+      --sklearn-color-text-muted: #666;
+      --sklearn-color-line: gray;
+      /* Definition of color scheme for unfitted estimators */
+      --sklearn-color-unfitted-level-0: #fff5e6;
+      --sklearn-color-unfitted-level-1: #f6e4d2;
+      --sklearn-color-unfitted-level-2: #ffe0b3;
+      --sklearn-color-unfitted-level-3: chocolate;
+      /* Definition of color scheme for fitted estimators */
+      --sklearn-color-fitted-level-0: #f0f8ff;
+      --sklearn-color-fitted-level-1: #d4ebff;
+      --sklearn-color-fitted-level-2: #b3dbfd;
+      --sklearn-color-fitted-level-3: cornflowerblue;
+
+      /* Specific color for light theme */
+      --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, white)));
+      --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, black)));
+      --sklearn-color-icon: #696969;
+
+      @media (prefers-color-scheme: dark) {
+        /* Redefinition of color scheme for dark theme */
+        --sklearn-color-text-on-default-background: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-background: var(--sg-background-color, var(--theme-background, var(--jp-layout-color0, #111)));
+        --sklearn-color-border-box: var(--sg-text-color, var(--theme-code-foreground, var(--jp-content-font-color1, white)));
+        --sklearn-color-icon: #878787;
+      }
+    }
+
+    #sk-container-id-5 {
+      color: var(--sklearn-color-text);
+    }
+
+    #sk-container-id-5 pre {
+      padding: 0;
+    }
+
+    #sk-container-id-5 input.sk-hidden--visually {
+      border: 0;
+      clip: rect(1px 1px 1px 1px);
+      clip: rect(1px, 1px, 1px, 1px);
+      height: 1px;
+      margin: -1px;
+      overflow: hidden;
+      padding: 0;
+      position: absolute;
+      width: 1px;
+    }
+
+    #sk-container-id-5 div.sk-dashed-wrapped {
+      border: 1px dashed var(--sklearn-color-line);
+      margin: 0 0.4em 0.5em 0.4em;
+      box-sizing: border-box;
+      padding-bottom: 0.4em;
+      background-color: var(--sklearn-color-background);
+    }
+
+    #sk-container-id-5 div.sk-container {
+      /* jupyter's `normalize.less` sets `[hidden] { display: none; }`
+         but bootstrap.min.css set `[hidden] { display: none !important; }`
+         so we also need the `!important` here to be able to override the
+         default hidden behavior on the sphinx rendered scikit-learn.org.
+         See: https://github.com/scikit-learn/scikit-learn/issues/21755 */
+      display: inline-block !important;
+      position: relative;
+    }
+
+    #sk-container-id-5 div.sk-text-repr-fallback {
+      display: none;
+    }
+
+    div.sk-parallel-item,
+    div.sk-serial,
+    div.sk-item {
+      /* draw centered vertical line to link estimators */
+      background-image: linear-gradient(var(--sklearn-color-text-on-default-background), var(--sklearn-color-text-on-default-background));
+      background-size: 2px 100%;
+      background-repeat: no-repeat;
+      background-position: center center;
+    }
+
+    /* Parallel-specific style estimator block */
+
+    #sk-container-id-5 div.sk-parallel-item::after {
+      content: "";
+      width: 100%;
+      border-bottom: 2px solid var(--sklearn-color-text-on-default-background);
+      flex-grow: 1;
+    }
+
+    #sk-container-id-5 div.sk-parallel {
+      display: flex;
+      align-items: stretch;
+      justify-content: center;
+      background-color: var(--sklearn-color-background);
+      position: relative;
+    }
+
+    #sk-container-id-5 div.sk-parallel-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    #sk-container-id-5 div.sk-parallel-item:first-child::after {
+      align-self: flex-end;
+      width: 50%;
+    }
+
+    #sk-container-id-5 div.sk-parallel-item:last-child::after {
+      align-self: flex-start;
+      width: 50%;
+    }
+
+    #sk-container-id-5 div.sk-parallel-item:only-child::after {
+      width: 0;
+    }
+
+    /* Serial-specific style estimator block */
+
+    #sk-container-id-5 div.sk-serial {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      background-color: var(--sklearn-color-background);
+      padding-right: 1em;
+      padding-left: 1em;
+    }
+
+
+    /* Toggleable style: style used for estimator/Pipeline/ColumnTransformer box that is
+    clickable and can be expanded/collapsed.
+    - Pipeline and ColumnTransformer use this feature and define the default style
+    - Estimators will overwrite some part of the style using the `sk-estimator` class
+    */
+
+    /* Pipeline and ColumnTransformer style (default) */
+
+    #sk-container-id-5 div.sk-toggleable {
+      /* Default theme specific background. It is overwritten whether we have a
+      specific estimator or a Pipeline/ColumnTransformer */
+      background-color: var(--sklearn-color-background);
+    }
+
+    /* Toggleable label */
+    #sk-container-id-5 label.sk-toggleable__label {
+      cursor: pointer;
+      display: flex;
+      width: 100%;
+      margin-bottom: 0;
+      padding: 0.5em;
+      box-sizing: border-box;
+      text-align: center;
+      align-items: start;
+      justify-content: space-between;
+      gap: 0.5em;
+    }
+
+    #sk-container-id-5 label.sk-toggleable__label .caption {
+      font-size: 0.6rem;
+      font-weight: lighter;
+      color: var(--sklearn-color-text-muted);
+    }
+
+    #sk-container-id-5 label.sk-toggleable__label-arrow:before {
+      /* Arrow on the left of the label */
+      content: "▸";
+      float: left;
+      margin-right: 0.25em;
+      color: var(--sklearn-color-icon);
+    }
+
+    #sk-container-id-5 label.sk-toggleable__label-arrow:hover:before {
+      color: var(--sklearn-color-text);
+    }
+
+    /* Toggleable content - dropdown */
+
+    #sk-container-id-5 div.sk-toggleable__content {
+      max-height: 0;
+      max-width: 0;
+      overflow: hidden;
+      text-align: left;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-5 div.sk-toggleable__content.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-5 div.sk-toggleable__content pre {
+      margin: 0.2em;
+      border-radius: 0.25em;
+      color: var(--sklearn-color-text);
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-5 div.sk-toggleable__content.fitted pre {
+      /* unfitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    #sk-container-id-5 input.sk-toggleable__control:checked~div.sk-toggleable__content {
+      /* Expand drop-down */
+      max-height: 200px;
+      max-width: 100%;
+      overflow: auto;
+    }
+
+    #sk-container-id-5 input.sk-toggleable__control:checked~label.sk-toggleable__label-arrow:before {
+      content: "▾";
+    }
+
+    /* Pipeline/ColumnTransformer-specific style */
+
+    #sk-container-id-5 div.sk-label input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-5 div.sk-label.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator-specific style */
+
+    /* Colorize estimator box */
+    #sk-container-id-5 div.sk-estimator input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-5 div.sk-estimator.fitted input.sk-toggleable__control:checked~label.sk-toggleable__label {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    #sk-container-id-5 div.sk-label label.sk-toggleable__label,
+    #sk-container-id-5 div.sk-label label {
+      /* The background is the default theme color */
+      color: var(--sklearn-color-text-on-default-background);
+    }
+
+    /* On hover, darken the color of the background */
+    #sk-container-id-5 div.sk-label:hover label.sk-toggleable__label {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    /* Label box, darken color on hover, fitted */
+    #sk-container-id-5 div.sk-label.fitted:hover label.sk-toggleable__label.fitted {
+      color: var(--sklearn-color-text);
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Estimator label */
+
+    #sk-container-id-5 div.sk-label label {
+      font-family: monospace;
+      font-weight: bold;
+      display: inline-block;
+      line-height: 1.2em;
+    }
+
+    #sk-container-id-5 div.sk-label-container {
+      text-align: center;
+    }
+
+    /* Estimator-specific */
+    #sk-container-id-5 div.sk-estimator {
+      font-family: monospace;
+      border: 1px dotted var(--sklearn-color-border-box);
+      border-radius: 0.25em;
+      box-sizing: border-box;
+      margin-bottom: 0.5em;
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-0);
+    }
+
+    #sk-container-id-5 div.sk-estimator.fitted {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-0);
+    }
+
+    /* on hover */
+    #sk-container-id-5 div.sk-estimator:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-2);
+    }
+
+    #sk-container-id-5 div.sk-estimator.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-2);
+    }
+
+    /* Specification for estimator info (e.g. "i" and "?") */
+
+    /* Common style for "i" and "?" */
+
+    .sk-estimator-doc-link,
+    a:link.sk-estimator-doc-link,
+    a:visited.sk-estimator-doc-link {
+      float: right;
+      font-size: smaller;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1em;
+      height: 1em;
+      width: 1em;
+      text-decoration: none !important;
+      margin-left: 0.5em;
+      text-align: center;
+      /* unfitted */
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+      color: var(--sklearn-color-unfitted-level-1);
+    }
+
+    .sk-estimator-doc-link.fitted,
+    a:link.sk-estimator-doc-link.fitted,
+    a:visited.sk-estimator-doc-link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    div.sk-estimator:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link:hover,
+    .sk-estimator-doc-link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    div.sk-estimator.fitted:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover,
+    div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
+    .sk-estimator-doc-link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    /* Span, style for the box shown on hovering the info icon */
+    .sk-estimator-doc-link span {
+      display: none;
+      z-index: 9999;
+      position: relative;
+      font-weight: normal;
+      right: .2ex;
+      padding: .5ex;
+      margin: .5ex;
+      width: min-content;
+      min-width: 20ex;
+      max-width: 50ex;
+      color: var(--sklearn-color-text);
+      box-shadow: 2pt 2pt 4pt #999;
+      /* unfitted */
+      background: var(--sklearn-color-unfitted-level-0);
+      border: .5pt solid var(--sklearn-color-unfitted-level-3);
+    }
+
+    .sk-estimator-doc-link.fitted span {
+      /* fitted */
+      background: var(--sklearn-color-fitted-level-0);
+      border: var(--sklearn-color-fitted-level-3);
+    }
+
+    .sk-estimator-doc-link:hover span {
+      display: block;
+    }
+
+    /* "?"-specific style due to the `<a>` HTML tag */
+
+    #sk-container-id-5 a.estimator_doc_link {
+      float: right;
+      font-size: 1rem;
+      line-height: 1em;
+      font-family: monospace;
+      background-color: var(--sklearn-color-background);
+      border-radius: 1rem;
+      height: 1rem;
+      width: 1rem;
+      text-decoration: none;
+      /* unfitted */
+      color: var(--sklearn-color-unfitted-level-1);
+      border: var(--sklearn-color-unfitted-level-1) 1pt solid;
+    }
+
+    #sk-container-id-5 a.estimator_doc_link.fitted {
+      /* fitted */
+      border: var(--sklearn-color-fitted-level-1) 1pt solid;
+      color: var(--sklearn-color-fitted-level-1);
+    }
+
+    /* On hover */
+    #sk-container-id-5 a.estimator_doc_link:hover {
+      /* unfitted */
+      background-color: var(--sklearn-color-unfitted-level-3);
+      color: var(--sklearn-color-background);
+      text-decoration: none;
+    }
+
+    #sk-container-id-5 a.estimator_doc_link.fitted:hover {
+      /* fitted */
+      background-color: var(--sklearn-color-fitted-level-3);
+    }
+    </style><div id="sk-container-id-5" class="sk-top-container"><div class="sk-text-repr-fallback"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -503,7 +1335,7 @@ Fit the baseline model ``KernelRidgeCV``
            1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
            1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
            1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
-           1.00000000e+10]))</pre><b>Please rerun this cell to show the HTML repr or trust the notebook.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="9851dd97-0add-4746-9588-c861f7874bf5" type="checkbox" checked><label for="9851dd97-0add-4746-9588-c861f7874bf5" class="sk-toggleable__label sk-toggleable__label-arrow">KernelRidgeCV</label><div class="sk-toggleable__content"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
+           1.00000000e+10]))</pre><b>In a Jupyter environment, please rerun this cell to show the HTML representation or trust the notebook. <br />On GitHub, the HTML representation is unable to render, please try loading this page with nbviewer.org.</b></div><div class="sk-container" hidden><div class="sk-item"><div class="sk-estimator fitted sk-toggleable"><input class="sk-toggleable__control sk-hidden--visually" id="sk-estimator-id-15" type="checkbox" checked><label for="sk-estimator-id-15" class="sk-toggleable__label fitted sk-toggleable__label-arrow"><div><div>KernelRidgeCV</div></div><div><span class="sk-estimator-doc-link fitted">i<span>Fitted</span></span></div></label><div class="sk-toggleable__content fitted"><pre>KernelRidgeCV(alphas=array([1.00000000e-10, 3.16227766e-10, 1.00000000e-09, 3.16227766e-09,
            1.00000000e-08, 3.16227766e-08, 1.00000000e-07, 3.16227766e-07,
            1.00000000e-06, 3.16227766e-06, 1.00000000e-05, 3.16227766e-05,
            1.00000000e-04, 3.16227766e-04, 1.00000000e-03, 3.16227766e-03,
@@ -513,7 +1345,7 @@ Fit the baseline model ``KernelRidgeCV``
            1.00000000e+04, 3.16227766e+04, 1.00000000e+05, 3.16227766e+05,
            1.00000000e+06, 3.16227766e+06, 1.00000000e+07, 3.16227766e+07,
            1.00000000e+08, 3.16227766e+08, 1.00000000e+09, 3.16227766e+09,
-           1.00000000e+10]))</pre></div></div></div></div></div>
+           1.00000000e+10]))</pre></div> </div></div></div></div>
     </div>
     <br />
     <br />
@@ -524,7 +1356,7 @@ Compute scores of both models
 
 .. GENERATED FROM PYTHON SOURCE LINES 151-157
 
-.. code-block:: default
+.. code-block:: Python
 
     scores = pipe.score(X_test, Y_test)
     scores = backend.to_numpy(scores)
@@ -545,7 +1377,7 @@ Plot histograms
 
 .. GENERATED FROM PYTHON SOURCE LINES 159-166
 
-.. code-block:: default
+.. code-block:: Python
 
     bins = np.linspace(0, max(scores_baseline.max(), scores.max()), 50)
     plt.hist(scores_baseline, bins, alpha=0.7, label="KernelRidgeCV")
@@ -557,9 +1389,10 @@ Plot histograms
 
 
 
-.. image:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_1_sklearn_api_002.png
-    :alt: Histogram over targets
-    :class: sphx-glr-single-img
+.. image-sg:: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_1_sklearn_api_002.png
+   :alt: Histogram over targets
+   :srcset: /_auto_examples/multiple_kernel_ridge/images/sphx_glr_plot_mkr_1_sklearn_api_002.png
+   :class: sphx-glr-single-img
 
 
 
@@ -568,28 +1401,26 @@ Plot histograms
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** ( 0 minutes  12.366 seconds)
+   **Total running time of the script:** (2 minutes 12.677 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py:
 
+.. only:: html
 
-.. only :: html
+  .. container:: sphx-glr-footer sphx-glr-footer-example
 
- .. container:: sphx-glr-footer
-    :class: sphx-glr-footer-example
+    .. container:: sphx-glr-download sphx-glr-download-jupyter
 
+      :download:`Download Jupyter notebook: plot_mkr_1_sklearn_api.ipynb <plot_mkr_1_sklearn_api.ipynb>`
 
+    .. container:: sphx-glr-download sphx-glr-download-python
 
-  .. container:: sphx-glr-download sphx-glr-download-python
+      :download:`Download Python source code: plot_mkr_1_sklearn_api.py <plot_mkr_1_sklearn_api.py>`
 
-     :download:`Download Python source code: plot_mkr_1_sklearn_api.py <plot_mkr_1_sklearn_api.py>`
+    .. container:: sphx-glr-download sphx-glr-download-zip
 
-
-
-  .. container:: sphx-glr-download sphx-glr-download-jupyter
-
-     :download:`Download Jupyter notebook: plot_mkr_1_sklearn_api.ipynb <plot_mkr_1_sklearn_api.ipynb>`
+      :download:`Download zipped: plot_mkr_1_sklearn_api.zip <plot_mkr_1_sklearn_api.zip>`
 
 
 .. only:: html
