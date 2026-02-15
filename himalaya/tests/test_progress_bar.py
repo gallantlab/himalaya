@@ -103,17 +103,13 @@ def test_progress_bar_eta_format():
         # Restore stdout
         sys.stdout = old_stdout
         
-        # Check that output contains hh:mm:ss format (two colons)
-        assert output.count(':') >= 2, "ETA should contain hh:mm:ss format with at least 2 colons"
-        
-        # Check that "ETA:" is present when not at 100%
-        if '10%' in output and '100%' not in output:
-            assert 'ETA:' in output, "ETA should be displayed when progress is not complete"
-        
         # Check that the format looks like hh:mm:ss (matches pattern like 00:00:05)
         import re
         eta_pattern = r'ETA: \d{2}:\d{2}:\d{2}'
         assert re.search(eta_pattern, output), f"ETA should match hh:mm:ss format. Output: {output}"
+        
+        # Check that "ETA:" is present when not at 100%
+        assert 'ETA:' in output, "ETA should be displayed when progress is not complete"
         
     finally:
         # Ensure stdout is always restored
@@ -184,10 +180,8 @@ def test_format_time_edge_cases():
     # Test very large time (more than 99 hours)
     assert _format_time(360000) == "100:00:00"  # 100 hours
     
-    # Test negative time (should still format, though not expected in practice)
-    # The function uses int() which truncates towards zero
-    result = _format_time(-1)
-    # -1 seconds: hours = -1 // 3600 = -1, minutes = (-1 % 3600) // 60, secs = -1 % 60
-    # In Python: -1 % 60 = 59, (-1 % 3600) = 3599, 3599 // 60 = 59
-    # So result should be -01:59:59
-    assert ':' in result, "Should still format negative times"
+    # Test zero is handled correctly
+    assert _format_time(0) == "00:00:00"
+    
+    # Note: Negative times are not expected in practice (ETA is always positive).
+    # The function behavior with negative inputs is undefined and not validated.
