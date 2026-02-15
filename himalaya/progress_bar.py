@@ -74,7 +74,6 @@ class ProgressBar():
         self.n_spinner = len(self.spinner_symbols)
         self._do_print = verbose_bool
         self.start = time.time()
-        self.last_update_time = self.start
 
         self.closed = False
         self.update(initial_value)
@@ -121,8 +120,6 @@ class ProgressBar():
                 eta_str = f"{iter_per_sec:.2f} it/s"
             else:
                 eta_str = ""
-        
-        self.last_update_time = current_time
 
         # The \r tells the cursor to return to the beginning of the line rather
         # than starting a new line.  This allows us to have a progressbar-style
