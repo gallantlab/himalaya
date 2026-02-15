@@ -2,6 +2,25 @@ import sys
 import time
 
 
+def _format_time(seconds):
+    """Format seconds as hh:mm:ss.
+    
+    Parameters
+    ----------
+    seconds : float
+        Time in seconds.
+    
+    Returns
+    -------
+    str
+        Formatted time string in hh:mm:ss format.
+    """
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
 def bar(iterable, title='', use_it=True):
     """Simple API for progress_bar.
 
@@ -115,7 +134,8 @@ class ProgressBar():
             remaining = max_value - self.cur_value
             if remaining > 0 and iter_per_sec > 0:
                 eta_seconds = remaining / iter_per_sec
-                eta_str = f"{iter_per_sec:.2f} it/s, ETA: {eta_seconds:.0f}s"
+                eta_formatted = _format_time(eta_seconds)
+                eta_str = f"{iter_per_sec:.2f} it/s, ETA: {eta_formatted}"
             elif remaining == 0:
                 eta_str = f"{iter_per_sec:.2f} it/s"
             else:
