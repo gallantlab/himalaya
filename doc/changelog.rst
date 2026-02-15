@@ -4,7 +4,7 @@ Changelog
 Development Version
 -------------------
 
-- 
+- ENH add iteration rate and estimated time to completion to progress bar 
 
 Version 0.4.5
 -------------
