@@ -60,7 +60,7 @@ class ProgressBar():
     """
 
     spinner_symbols = ['|', '/', '-', '\\']
-    template = '\r[{0}{1}] {2:0.0f}% {3} {4:.02f} sec | {5} | '
+    template = '\r[{0}{1}] {2:0.0f}% {3} {4:.02f} sec | {5} | {6}'
 
     def __init__(self, title='', max_value=None, initial_value=0, max_chars=40,
                  progress_character='.', spinner=False, verbose_bool=True):
@@ -74,6 +74,7 @@ class ProgressBar():
         self.n_spinner = len(self.spinner_symbols)
         self._do_print = verbose_bool
         self.start = time.time()
+        self.last_update_time = self.start
 
         self.closed = False
         self.update(initial_value)
@@ -105,7 +106,23 @@ class ProgressBar():
             self.title = title
 
         # time from start
-        duration = time.time() - self.start
+        current_time = time.time()
+        duration = current_time - self.start
+
+        # Calculate iteration rate and estimated time remaining
+        eta_str = ""
+        if self.cur_value > 0 and duration > 0:
+            iter_per_sec = self.cur_value / duration
+            remaining = max_value - self.cur_value
+            if remaining > 0 and iter_per_sec > 0:
+                eta_seconds = remaining / iter_per_sec
+                eta_str = f"{iter_per_sec:.2f} it/s, ETA: {eta_seconds:.0f}s"
+            elif remaining == 0:
+                eta_str = f"{iter_per_sec:.2f} it/s"
+            else:
+                eta_str = ""
+        
+        self.last_update_time = current_time
 
         # The \r tells the cursor to return to the beginning of the line rather
         # than starting a new line.  This allows us to have a progressbar-style
@@ -113,7 +130,7 @@ class ProgressBar():
         bar = self.template.format(self.progress_character * num_chars,
                                    ' ' * num_left, progress * 100,
                                    self.spinner_symbols[self.spinner_index],
-                                   duration, self.title)
+                                   duration, self.title, eta_str)
         # Force a flush because sometimes when using bash scripts and pipes,
         # the output is not printed until after the program exits.
         if self._do_print:
