@@ -132,15 +132,16 @@ class ProgressBar():
         if self.cur_value > 0 and duration > 0:
             iter_per_sec = self.cur_value / duration
             remaining = max_value - self.cur_value
-            if remaining > 0 and iter_per_sec > 0:
+            # Show ETA: 00:00:00 when progress displays as 100% (even if not exactly 1.0)
+            # This happens when progress >= 0.995 due to rounding in the display format
+            if remaining > 0 and iter_per_sec > 0 and progress < 0.995:
                 eta_seconds = remaining / iter_per_sec
                 eta_formatted = _format_time(eta_seconds)
                 eta_str = f"{iter_per_sec:.2f} it/s, ETA: {eta_formatted}"
-            elif remaining == 0:
-                # Show ETA: 00:00:00 at completion to avoid leaving trailing characters
-                eta_str = f"{iter_per_sec:.2f} it/s, ETA: 00:00:00"
             else:
-                eta_str = ""
+                # Show ETA: 00:00:00 at completion (when progress displays as 100%)
+                # to avoid leaving trailing characters
+                eta_str = f"{iter_per_sec:.2f} it/s, ETA: 00:00:00"
 
         # The \r tells the cursor to return to the beginning of the line rather
         # than starting a new line.  This allows us to have a progressbar-style
