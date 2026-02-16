@@ -12,7 +12,7 @@ def test_progress_bar():
         pass
 
     bar_ = ProgressBar(title="La barre", max_value=10, initial_value=0,
-                       max_chars=40, progress_character='.', spinner=False,
+                       max_chars=30, progress_character='.', spinner=False,
                        verbose_bool=True)
     for ii in bar_(range(10)):
         pass

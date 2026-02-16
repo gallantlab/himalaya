@@ -81,7 +81,7 @@ class ProgressBar():
     spinner_symbols = ['|', '/', '-', '\\']
     template = '\r[{0}{1}] {2:0.0f}% {3} {4:.02f} sec | {5} | {6}'
 
-    def __init__(self, title='', max_value=None, initial_value=0, max_chars=40,
+    def __init__(self, title='', max_value=None, initial_value=0, max_chars=30,
                  progress_character='.', spinner=False, verbose_bool=True):
         self.cur_value = initial_value
         self.max_value = max_value
