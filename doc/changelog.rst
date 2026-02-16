@@ -5,7 +5,7 @@ Development Version
 -------------------
 
 - ENH add iteration rate and estimated time to completion to progress bar
-- ENH change ETA format to hh:mm:ss for better readability 
+- ENH change ETA format to hh:mm:ss for better readability
 
 Version 0.4.5
 -------------

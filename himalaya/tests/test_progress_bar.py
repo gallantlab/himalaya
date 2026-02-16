@@ -93,8 +93,8 @@ def test_progress_bar_eta_format():
         # Create a progress bar
         bar = ProgressBar(title='Test', max_value=100, verbose_bool=True)
         
-        # Simulate some progress
-        time.sleep(0.1)
+        # Set start time to simulate 0.1 seconds elapsed
+        bar.start = time.time() - 0.1
         bar.update(10)
         
         # Get the output
@@ -117,7 +117,7 @@ def test_progress_bar_eta_format():
 
 
 def test_progress_bar_eta_at_completion():
-    """Test that progress bar doesn't show ETA at completion."""
+    """Test that progress bar shows ETA: 00:00:00 at completion."""
     # Capture stdout
     old_stdout = sys.stdout
     sys.stdout = io.StringIO()
@@ -125,7 +125,8 @@ def test_progress_bar_eta_at_completion():
     try:
         # Create a progress bar and complete it
         bar = ProgressBar(title='Test', max_value=100, verbose_bool=True)
-        time.sleep(0.1)
+        # Set start time to simulate 0.1 seconds elapsed
+        bar.start = time.time() - 0.1
         bar.update(100)
         
         # Get the output
@@ -134,12 +135,12 @@ def test_progress_bar_eta_at_completion():
         # Restore stdout
         sys.stdout = old_stdout
         
-        # At 100%, there should be no ETA, but there should be it/s
+        # At 100%, there should be it/s and ETA: 00:00:00
         assert 'it/s' in output, "Should show iteration rate at completion"
-        # The last update at 100% should not have ETA
+        # The last update at 100% should show ETA: 00:00:00
         lines = output.strip().split('\r')
         last_line = lines[-1] if lines else ""
-        assert 'ETA:' not in last_line, "Should not show ETA at 100% completion"
+        assert 'ETA: 00:00:00' in last_line, "Should show ETA: 00:00:00 at 100% completion"
         
     finally:
         sys.stdout = old_stdout
@@ -154,7 +155,8 @@ def test_progress_bar_with_various_speeds():
     try:
         # Test 1: Fast iterations (short ETA)
         bar1 = ProgressBar(title='Fast', max_value=100, verbose_bool=True)
-        time.sleep(0.05)
+        # Set start time to simulate 0.05 seconds elapsed
+        bar1.start = time.time() - 0.05
         bar1.update(50)  # 50% in 0.05s -> ETA should be very short
         output1 = sys.stdout.getvalue()
         assert '00:00:' in output1, "Fast progress should show short ETA"
@@ -164,7 +166,8 @@ def test_progress_bar_with_various_speeds():
         
         # Test 2: Slow iterations (longer ETA)
         bar2 = ProgressBar(title='Slow', max_value=1000, verbose_bool=True)
-        time.sleep(0.1)
+        # Set start time to simulate 0.1 seconds elapsed
+        bar2.start = time.time() - 0.1
         bar2.update(1)  # 0.1% in 0.1s -> ETA should be longer
         output2 = sys.stdout.getvalue()
         # With only 1 out of 1000 done in 0.1s, ETA will be ~99.9s = 00:01:39

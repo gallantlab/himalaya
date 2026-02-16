@@ -137,7 +137,8 @@ class ProgressBar():
                 eta_formatted = _format_time(eta_seconds)
                 eta_str = f"{iter_per_sec:.2f} it/s, ETA: {eta_formatted}"
             elif remaining == 0:
-                eta_str = f"{iter_per_sec:.2f} it/s"
+                # Show ETA: 00:00:00 at completion to avoid leaving trailing characters
+                eta_str = f"{iter_per_sec:.2f} it/s, ETA: 00:00:00"
             else:
                 eta_str = ""
 
