@@ -2,6 +2,25 @@ import sys
 import time
 
 
+def _format_time(seconds):
+    """Format seconds as hh:mm:ss.
+    
+    Parameters
+    ----------
+    seconds : float
+        Time in seconds.
+    
+    Returns
+    -------
+    str
+        Formatted time string in hh:mm:ss format.
+    """
+    hours = int(seconds // 3600)
+    minutes = int((seconds % 3600) // 60)
+    secs = int(seconds % 60)
+    return f"{hours:02d}:{minutes:02d}:{secs:02d}"
+
+
 def bar(iterable, title='', use_it=True):
     """Simple API for progress_bar.
 
@@ -60,9 +79,9 @@ class ProgressBar():
     """
 
     spinner_symbols = ['|', '/', '-', '\\']
-    template = '\r[{0}{1}] {2:0.0f}% {3} {4:.02f} sec | {5} | '
+    template = '\r[{0}{1}] {2:0.0f}% {3} {4:.02f} sec | {5} | {6}'
 
-    def __init__(self, title='', max_value=None, initial_value=0, max_chars=40,
+    def __init__(self, title='', max_value=None, initial_value=0, max_chars=30,
                  progress_character='.', spinner=False, verbose_bool=True):
         self.cur_value = initial_value
         self.max_value = max_value
@@ -105,7 +124,24 @@ class ProgressBar():
             self.title = title
 
         # time from start
-        duration = time.time() - self.start
+        current_time = time.time()
+        duration = current_time - self.start
+
+        # Calculate iteration rate and estimated time remaining
+        eta_str = ""
+        if self.cur_value > 0 and duration > 0:
+            iter_per_sec = self.cur_value / duration
+            remaining = max_value - self.cur_value
+            # Show ETA: 00:00:00 when progress displays as 100% (even if not exactly 1.0)
+            # This happens when progress >= 0.995 due to rounding in the display format
+            if remaining > 0 and iter_per_sec > 0 and progress < 0.995:
+                eta_seconds = remaining / iter_per_sec
+                eta_formatted = _format_time(eta_seconds)
+                eta_str = f"{iter_per_sec:.2f} it/s, ETA: {eta_formatted}"
+            else:
+                # Show ETA: 00:00:00 at completion (when progress displays as 100%)
+                # to avoid leaving trailing characters
+                eta_str = f"{iter_per_sec:.2f} it/s, ETA: 00:00:00"
 
         # The \r tells the cursor to return to the beginning of the line rather
         # than starting a new line.  This allows us to have a progressbar-style
@@ -113,7 +149,7 @@ class ProgressBar():
         bar = self.template.format(self.progress_character * num_chars,
                                    ' ' * num_left, progress * 100,
                                    self.spinner_symbols[self.spinner_index],
-                                   duration, self.title)
+                                   duration, self.title, eta_str)
         # Force a flush because sometimes when using bash scripts and pipes,
         # the output is not printed until after the program exits.
         if self._do_print:
