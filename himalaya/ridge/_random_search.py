@@ -213,6 +213,10 @@ def solve_group_ridge_random_search(
                 Xtrain = X_[train] - Xtrain_mean
                 Xtest = X_[test] - Xtrain_mean
 
+            # When Y stays on CPU, use CPU indices to index it
+            train_cpu = backend.to_cpu(train) if Y_in_cpu else train
+            test_cpu = backend.to_cpu(test) if Y_in_cpu else test
+
             for matrix, alpha_batch in _decompose_ridge(
                     Xtrain=Xtrain, alphas=alphas, negative_eigenvalues="nan",
                     n_alphas_batch=n_alphas_batch, method=diagonalize_method):
@@ -225,8 +229,10 @@ def solve_group_ridge_random_search(
                 predictions = None
                 for start in range(0, n_targets, n_targets_batch):
                     batch = slice(start, start + n_targets_batch)
-                    Ytrain = backend.to_gpu(Y[:, batch][train], device=device)
-                    Ytest = backend.to_gpu(Y[:, batch][test], device=device)
+                    Ytrain = backend.to_gpu(Y[:, batch][train_cpu],
+                                            device=device)
+                    Ytest = backend.to_gpu(Y[:, batch][test_cpu],
+                                           device=device)
                     if fit_intercept:
                         Ytrain_mean = Ytrain.mean(0)
                         Ytrain = Ytrain - Ytrain_mean
@@ -248,7 +254,7 @@ def solve_group_ridge_random_search(
                 scores[jj, alpha_batch, :][too_small_alphas] = -1e5
 
                 del matrix, predictions
-            del train, test, Xtrain, Xtest
+            del train, test, train_cpu, test_cpu, Xtrain, Xtest
 
         # select best alphas
         alphas_argmax, cv_scores_ii = _select_best_alphas(
