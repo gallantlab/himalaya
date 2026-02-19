@@ -159,7 +159,7 @@ and refine it with hyperparameter gradient descent.
 
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | 5 random sampling with cv |     [........                                ] 20% | 1.38 sec | 5 random sampling with cv |     [................                        ] 40% | 3.02 sec | 5 random sampling with cv |     [........................                ] 60% | 4.46 sec | 5 random sampling with cv |     [................................        ] 80% | 5.80 sec | 5 random sampling with cv |     [........................................] 100% | 7.21 sec | 5 random sampling with cv | 
+    [                              ] 0% | 0.00 sec | 5 random sampling with cv |     [......                        ] 20% | 1.32 sec | 5 random sampling with cv | 0.75 it/s, ETA: 00:00:05    [............                  ] 40% | 2.85 sec | 5 random sampling with cv | 0.70 it/s, ETA: 00:00:04    [..................            ] 60% | 4.27 sec | 5 random sampling with cv | 0.70 it/s, ETA: 00:00:02    [........................      ] 80% | 5.69 sec | 5 random sampling with cv | 0.70 it/s, ETA: 00:00:01    [..............................] 100% | 7.07 sec | 5 random sampling with cv | 0.71 it/s, ETA: 00:00:00
 
 
 .. raw:: html
@@ -690,7 +690,7 @@ Use the random-search to initialize the gradient-descent
 
  .. code-block:: none
 
-    [                                        ] 0% | 0.00 sec | hypergradient_direct |     [                                        ] 0% | 0.00 sec | hypergradient_direct |     [....                                    ] 10% | 3.21 sec | hypergradient_direct |     [........                                ] 20% | 3.95 sec | hypergradient_direct |     [............                            ] 30% | 4.71 sec | hypergradient_direct |     [................                        ] 40% | 5.47 sec | hypergradient_direct |     [....................                    ] 50% | 6.22 sec | hypergradient_direct |     [........................                ] 60% | 6.95 sec | hypergradient_direct |     [............................            ] 70% | 7.66 sec | hypergradient_direct |     [................................        ] 80% | 8.41 sec | hypergradient_direct |     [....................................    ] 90% | 9.17 sec | hypergradient_direct |     [........................................] 100% | 9.97 sec | hypergradient_direct | 
+    [                              ] 0% | 0.00 sec | hypergradient_direct |     [                              ] 0% | 0.00 sec | hypergradient_direct |     [...                           ] 10% | 3.20 sec | hypergradient_direct | 0.31 it/s, ETA: 00:00:28    [......                        ] 20% | 3.92 sec | hypergradient_direct | 0.51 it/s, ETA: 00:00:15    [.........                     ] 30% | 4.67 sec | hypergradient_direct | 0.64 it/s, ETA: 00:00:10    [............                  ] 40% | 5.41 sec | hypergradient_direct | 0.74 it/s, ETA: 00:00:08    [...............               ] 50% | 6.15 sec | hypergradient_direct | 0.81 it/s, ETA: 00:00:06    [..................            ] 60% | 6.89 sec | hypergradient_direct | 0.87 it/s, ETA: 00:00:04    [.....................         ] 70% | 7.63 sec | hypergradient_direct | 0.92 it/s, ETA: 00:00:03    [........................      ] 80% | 8.37 sec | hypergradient_direct | 0.96 it/s, ETA: 00:00:02    [...........................   ] 90% | 9.10 sec | hypergradient_direct | 0.99 it/s, ETA: 00:00:01    [..............................] 100% | 9.89 sec | hypergradient_direct | 1.01 it/s, ETA: 00:00:00
 
 
 .. raw:: html
@@ -1219,7 +1219,7 @@ Compute predictions on a test set
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 21.042 seconds)
+   **Total running time of the script:** (0 minutes 20.918 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py:

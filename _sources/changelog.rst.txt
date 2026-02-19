@@ -4,7 +4,39 @@ Changelog
 Development Version
 -------------------
 
-- 
+Version 0.4.10
+--------------
+(*February 2026*)
+
+- FIX device mismatch when ``Y_in_cpu=True`` with GPU backend in ``RidgeCV`` random search.
+- ENH add iteration rate and estimated time to completion to progress bar.
+- ENH change ETA format to hh:mm:ss for better readability.
+
+Version 0.4.9
+-------------
+(*January 2026*)
+
+- FIX out-of-bounds error when convergence occurs at last iteration.
+
+Version 0.4.8
+-------------
+(*August 2025*)
+
+- MNT maintenance release.
+
+Version 0.4.7
+-------------
+(*August 2025*)
+
+- FIX estimators to pass scikit-learn checks with scikit-learn >= 1.6.
+- MNT run tests on macOS.
+
+Version 0.4.6
+-------------
+(*June 2024*)
+
+- FIX ``ComplexWarning`` for numpy >= 1.26.
+- MNT use codecov token.
 
 Version 0.4.5
 -------------

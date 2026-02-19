@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Changelog &#8212; Himalaya 0.4.9 documentation</title>
+    <title>Changelog &#8212; Himalaya 0.4.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="_static/documentation_options.js?v=e3241242"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -96,8 +96,44 @@
 <h1>Changelog<a class="headerlink" href="#changelog" title="Link to this heading">¶</a></h1>
 <section id="development-version">
 <h2>Development Version<a class="headerlink" href="#development-version" title="Link to this heading">¶</a></h2>
+</section>
+<section id="version-0-4-10">
+<h2>Version 0.4.10<a class="headerlink" href="#version-0-4-10" title="Link to this heading">¶</a></h2>
+<p>(<em>February 2026</em>)</p>
 <ul class="simple">
-<li></li>
+<li><p>FIX device mismatch when <code class="docutils literal notranslate"><span class="pre">Y_in_cpu=True</span></code> with GPU backend in <code class="docutils literal notranslate"><span class="pre">RidgeCV</span></code> random search.</p></li>
+<li><p>ENH add iteration rate and estimated time to completion to progress bar.</p></li>
+<li><p>ENH change ETA format to hh:mm:ss for better readability.</p></li>
+</ul>
+</section>
+<section id="version-0-4-9">
+<h2>Version 0.4.9<a class="headerlink" href="#version-0-4-9" title="Link to this heading">¶</a></h2>
+<p>(<em>January 2026</em>)</p>
+<ul class="simple">
+<li><p>FIX out-of-bounds error when convergence occurs at last iteration.</p></li>
+</ul>
+</section>
+<section id="version-0-4-8">
+<h2>Version 0.4.8<a class="headerlink" href="#version-0-4-8" title="Link to this heading">¶</a></h2>
+<p>(<em>August 2025</em>)</p>
+<ul class="simple">
+<li><p>MNT maintenance release.</p></li>
+</ul>
+</section>
+<section id="version-0-4-7">
+<h2>Version 0.4.7<a class="headerlink" href="#version-0-4-7" title="Link to this heading">¶</a></h2>
+<p>(<em>August 2025</em>)</p>
+<ul class="simple">
+<li><p>FIX estimators to pass scikit-learn checks with scikit-learn &gt;= 1.6.</p></li>
+<li><p>MNT run tests on macOS.</p></li>
+</ul>
+</section>
+<section id="version-0-4-6">
+<h2>Version 0.4.6<a class="headerlink" href="#version-0-4-6" title="Link to this heading">¶</a></h2>
+<p>(<em>June 2024</em>)</p>
+<ul class="simple">
+<li><p>FIX <code class="docutils literal notranslate"><span class="pre">ComplexWarning</span></code> for numpy &gt;= 1.26.</p></li>
+<li><p>MNT use codecov token.</p></li>
 </ul>
 </section>
 <section id="version-0-4-5">

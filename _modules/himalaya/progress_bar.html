@@ -4,14 +4,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.progress_bar &#8212; Himalaya 0.4.9 documentation</title>
+    <title>himalaya.progress_bar &#8212; Himalaya 0.4.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../_static/documentation_options.js?v=e3241242"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
@@ -461,6 +461,25 @@ window.addEventListener("load", load);
 <span class="kn">import</span><span class="w"> </span><span class="nn">time</span>
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_format_time</span><span class="p">(</span><span class="n">seconds</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Format seconds as hh:mm:ss.</span>
+<span class="sd">    </span>
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    seconds : float</span>
+<span class="sd">        Time in seconds.</span>
+<span class="sd">    </span>
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    str</span>
+<span class="sd">        Formatted time string in hh:mm:ss format.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">hours</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span> <span class="o">//</span> <span class="mi">3600</span><span class="p">)</span>
+    <span class="n">minutes</span> <span class="o">=</span> <span class="nb">int</span><span class="p">((</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">3600</span><span class="p">)</span> <span class="o">//</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="n">secs</span> <span class="o">=</span> <span class="nb">int</span><span class="p">(</span><span class="n">seconds</span> <span class="o">%</span> <span class="mi">60</span><span class="p">)</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">hours</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">minutes</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">:</span><span class="si">{</span><span class="n">secs</span><span class="si">:</span><span class="s2">02d</span><span class="si">}</span><span class="s2">&quot;</span>
+
+
 <div class="viewcode-block" id="bar">
 <a class="viewcode-back" href="../../_generated/himalaya.progress_bar.bar.html#himalaya.progress_bar.bar">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">bar</span><span class="p">(</span><span class="n">iterable</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">use_it</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
@@ -524,9 +543,9 @@ window.addEventListener("load", load);
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="n">spinner_symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s1">&#39;|&#39;</span><span class="p">,</span> <span class="s1">&#39;/&#39;</span><span class="p">,</span> <span class="s1">&#39;-&#39;</span><span class="p">,</span> <span class="s1">&#39;</span><span class="se">\\</span><span class="s1">&#39;</span><span class="p">]</span>
-    <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\r</span><span class="s1">[</span><span class="si">{0}{1}</span><span class="s1">] </span><span class="si">{2:0.0f}</span><span class="s1">% </span><span class="si">{3}</span><span class="s1"> </span><span class="si">{4:.02f}</span><span class="s1"> sec | </span><span class="si">{5}</span><span class="s1"> | &#39;</span>
+    <span class="n">template</span> <span class="o">=</span> <span class="s1">&#39;</span><span class="se">\r</span><span class="s1">[</span><span class="si">{0}{1}</span><span class="s1">] </span><span class="si">{2:0.0f}</span><span class="s1">% </span><span class="si">{3}</span><span class="s1"> </span><span class="si">{4:.02f}</span><span class="s1"> sec | </span><span class="si">{5}</span><span class="s1"> | </span><span class="si">{6}</span><span class="s1">&#39;</span>
 
-    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_chars</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span>
+    <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">title</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">max_value</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span> <span class="n">initial_value</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">max_chars</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span>
                  <span class="n">progress_character</span><span class="o">=</span><span class="s1">&#39;.&#39;</span><span class="p">,</span> <span class="n">spinner</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span> <span class="n">verbose_bool</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span> <span class="o">=</span> <span class="n">initial_value</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">max_value</span> <span class="o">=</span> <span class="n">max_value</span>
@@ -569,7 +588,24 @@ window.addEventListener("load", load);
             <span class="bp">self</span><span class="o">.</span><span class="n">title</span> <span class="o">=</span> <span class="n">title</span>
 
         <span class="c1"># time from start</span>
-        <span class="n">duration</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+        <span class="n">current_time</span> <span class="o">=</span> <span class="n">time</span><span class="o">.</span><span class="n">time</span><span class="p">()</span>
+        <span class="n">duration</span> <span class="o">=</span> <span class="n">current_time</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">start</span>
+
+        <span class="c1"># Calculate iteration rate and estimated time remaining</span>
+        <span class="n">eta_str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">duration</span> <span class="o">&gt;</span> <span class="mi">0</span><span class="p">:</span>
+            <span class="n">iter_per_sec</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span> <span class="o">/</span> <span class="n">duration</span>
+            <span class="n">remaining</span> <span class="o">=</span> <span class="n">max_value</span> <span class="o">-</span> <span class="bp">self</span><span class="o">.</span><span class="n">cur_value</span>
+            <span class="c1"># Show ETA: 00:00:00 when progress displays as 100% (even if not exactly 1.0)</span>
+            <span class="c1"># This happens when progress &gt;= 0.995 due to rounding in the display format</span>
+            <span class="k">if</span> <span class="n">remaining</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">iter_per_sec</span> <span class="o">&gt;</span> <span class="mi">0</span> <span class="ow">and</span> <span class="n">progress</span> <span class="o">&lt;</span> <span class="mf">0.995</span><span class="p">:</span>
+                <span class="n">eta_seconds</span> <span class="o">=</span> <span class="n">remaining</span> <span class="o">/</span> <span class="n">iter_per_sec</span>
+                <span class="n">eta_formatted</span> <span class="o">=</span> <span class="n">_format_time</span><span class="p">(</span><span class="n">eta_seconds</span><span class="p">)</span>
+                <span class="n">eta_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iter_per_sec</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> it/s, ETA: </span><span class="si">{</span><span class="n">eta_formatted</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="c1"># Show ETA: 00:00:00 at completion (when progress displays as 100%)</span>
+                <span class="c1"># to avoid leaving trailing characters</span>
+                <span class="n">eta_str</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">iter_per_sec</span><span class="si">:</span><span class="s2">.2f</span><span class="si">}</span><span class="s2"> it/s, ETA: 00:00:00&quot;</span>
 
         <span class="c1"># The \r tells the cursor to return to the beginning of the line rather</span>
         <span class="c1"># than starting a new line.  This allows us to have a progressbar-style</span>
@@ -577,7 +613,7 @@ window.addEventListener("load", load);
         <span class="n">bar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">template</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">progress_character</span> <span class="o">*</span> <span class="n">num_chars</span><span class="p">,</span>
                                    <span class="s1">&#39; &#39;</span> <span class="o">*</span> <span class="n">num_left</span><span class="p">,</span> <span class="n">progress</span> <span class="o">*</span> <span class="mi">100</span><span class="p">,</span>
                                    <span class="bp">self</span><span class="o">.</span><span class="n">spinner_symbols</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">spinner_index</span><span class="p">],</span>
-                                   <span class="n">duration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">)</span>
+                                   <span class="n">duration</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">title</span><span class="p">,</span> <span class="n">eta_str</span><span class="p">)</span>
         <span class="c1"># Force a flush because sometimes when using bash scripts and pipes,</span>
         <span class="c1"># the output is not printed until after the program exits.</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">_do_print</span><span class="p">:</span>

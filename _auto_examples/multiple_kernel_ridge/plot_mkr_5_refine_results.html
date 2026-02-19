@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Multiple-kernel ridge refining &#8212; Himalaya 0.4.9 documentation</title>
+    <title>Multiple-kernel ridge refining &#8212; Himalaya 0.4.10 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="../../_static/documentation_options.js?v=ebe9904d"></script>
+    <script src="../../_static/documentation_options.js?v=e3241242"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -177,12 +177,12 @@ and refine it with hyperparameter gradient descent.</p>
 <span class="n">pipe_1</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | 5 random sampling with cv |
-[........                                ] 20% | 1.38 sec | 5 random sampling with cv |
-[................                        ] 40% | 3.02 sec | 5 random sampling with cv |
-[........................                ] 60% | 4.46 sec | 5 random sampling with cv |
-[................................        ] 80% | 5.80 sec | 5 random sampling with cv |
-[........................................] 100% | 7.21 sec | 5 random sampling with cv |
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                              ] 0% | 0.00 sec | 5 random sampling with cv |
+[......                        ] 20% | 1.32 sec | 5 random sampling with cv | 0.75 it/s, ETA: 00:00:05
+[............                  ] 40% | 2.85 sec | 5 random sampling with cv | 0.70 it/s, ETA: 00:00:04
+[..................            ] 60% | 4.27 sec | 5 random sampling with cv | 0.70 it/s, ETA: 00:00:02
+[........................      ] 80% | 5.69 sec | 5 random sampling with cv | 0.70 it/s, ETA: 00:00:01
+[..............................] 100% | 7.07 sec | 5 random sampling with cv | 0.71 it/s, ETA: 00:00:00
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
@@ -682,18 +682,18 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 <span class="n">pipe_2</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X_train</span><span class="p">,</span> <span class="n">Y_train</span><span class="p">[:,</span> <span class="n">mask</span><span class="p">])</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                                        ] 0% | 0.00 sec | hypergradient_direct |
-[                                        ] 0% | 0.00 sec | hypergradient_direct |
-[....                                    ] 10% | 3.21 sec | hypergradient_direct |
-[........                                ] 20% | 3.95 sec | hypergradient_direct |
-[............                            ] 30% | 4.71 sec | hypergradient_direct |
-[................                        ] 40% | 5.47 sec | hypergradient_direct |
-[....................                    ] 50% | 6.22 sec | hypergradient_direct |
-[........................                ] 60% | 6.95 sec | hypergradient_direct |
-[............................            ] 70% | 7.66 sec | hypergradient_direct |
-[................................        ] 80% | 8.41 sec | hypergradient_direct |
-[....................................    ] 90% | 9.17 sec | hypergradient_direct |
-[........................................] 100% | 9.97 sec | hypergradient_direct |
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                              ] 0% | 0.00 sec | hypergradient_direct |
+[                              ] 0% | 0.00 sec | hypergradient_direct |
+[...                           ] 10% | 3.20 sec | hypergradient_direct | 0.31 it/s, ETA: 00:00:28
+[......                        ] 20% | 3.92 sec | hypergradient_direct | 0.51 it/s, ETA: 00:00:15
+[.........                     ] 30% | 4.67 sec | hypergradient_direct | 0.64 it/s, ETA: 00:00:10
+[............                  ] 40% | 5.41 sec | hypergradient_direct | 0.74 it/s, ETA: 00:00:08
+[...............               ] 50% | 6.15 sec | hypergradient_direct | 0.81 it/s, ETA: 00:00:06
+[..................            ] 60% | 6.89 sec | hypergradient_direct | 0.87 it/s, ETA: 00:00:04
+[.....................         ] 70% | 7.63 sec | hypergradient_direct | 0.92 it/s, ETA: 00:00:03
+[........................      ] 80% | 8.37 sec | hypergradient_direct | 0.96 it/s, ETA: 00:00:02
+[...........................   ] 90% | 9.10 sec | hypergradient_direct | 0.99 it/s, ETA: 00:00:01
+[..............................] 100% | 9.89 sec | hypergradient_direct | 1.01 it/s, ETA: 00:00:00
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
@@ -1199,7 +1199,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_5_refine_results_001.png" srcset="../../_images/sphx_glr_plot_mkr_5_refine_results_001.png" alt="$R^2$ generalization score" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 21.042 seconds)</p>
+<img src="../../_images/sphx_glr_plot_mkr_5_refine_results_001.png" srcset="../../_images/sphx_glr_plot_mkr_5_refine_results_001.png" alt="$R^2$ generalization score" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 20.918 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-5-refine-results-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/f93f4016dd09046d474c8ff5791a7a31/plot_mkr_5_refine_results.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mkr_5_refine_results.ipynb</span></code></a></p>

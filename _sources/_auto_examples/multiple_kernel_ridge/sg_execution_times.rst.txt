@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**06:30.223** total execution time for 6 files **from _auto_examples/multiple_kernel_ridge**:
+**06:33.203** total execution time for 6 files **from _auto_examples/multiple_kernel_ridge**:
 
 .. container::
 
@@ -33,20 +33,20 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py` (``plot_mkr_1_sklearn_api.py``)
-     - 02:12.677
+     - 02:09.284
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py` (``plot_mkr_0_random_search.py``)
-     - 01:46.904
+     - 01:50.164
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py` (``plot_mkr_2_solvers.py``)
-     - 01:09.778
+     - 01:08.934
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py` (``plot_mkr_3_path.py``)
-     - 00:56.118
+     - 01:00.190
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py` (``plot_mkr_5_refine_results.py``)
-     - 00:21.042
+     - 00:20.918
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py` (``plot_mkr_4_refit_from_deltas.py``)
-     - 00:03.703
+     - 00:03.714
      - 0.0
