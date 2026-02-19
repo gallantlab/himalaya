@@ -11,6 +11,11 @@ from himalaya.scoring import r2_score
 
 from himalaya.ridge import solve_group_ridge_random_search
 
+GPU_BACKENDS = [
+    "cupy",
+    "torch_cuda",
+]
+
 
 def _create_dataset(backend):
     n_featuress = (10, 20)
@@ -119,3 +124,29 @@ def test_different_number_of_samples(backend):
 
     with pytest.raises(ValueError, match="same number of samples"):
         solve_group_ridge_random_search(Xs[:4], Y[:3])
+
+
+@pytest.mark.parametrize('backend', GPU_BACKENDS)
+def test_solve_group_ridge_random_search_Y_in_cpu(backend):
+    """Test that Y_in_cpu=True works correctly with GPU backends.
+
+    Regression test for device mismatch when indexing CPU tensor Y with GPU
+    indices (train/test splits) during cross-validation.
+    """
+    backend = set_backend(backend)
+
+    Xs, Y, gammas = _create_dataset(backend)
+    # Keep Y on CPU while Xs are on GPU
+    Y_cpu = backend.to_cpu(Y)
+    alphas = backend.asarray_like(backend.logspace(-3, 5, 9), Xs[0])
+    cv = sklearn.model_selection.check_cv(5)
+
+    # This should not raise a device mismatch error
+    results = solve_group_ridge_random_search(
+        Xs, Y_cpu, n_iter=gammas, alphas=alphas, score_func=r2_score, cv=cv,
+        progress_bar=False, return_weights=True, Y_in_cpu=True,
+        diagonalize_method="svd")
+    best_deltas, refit_weights, cv_scores = results
+
+    # Results should be on CPU (since Y_in_cpu=True)
+    assert not backend.is_in_gpu(cv_scores)

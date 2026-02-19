@@ -213,6 +213,11 @@ def solve_group_ridge_random_search(
                 Xtrain = X_[train] - Xtrain_mean
                 Xtest = X_[test] - Xtrain_mean
 
+            # When Y stays on CPU, convert indices back to CPU to index it
+            if Y_in_cpu:
+                train = backend.to_cpu(train)
+                test = backend.to_cpu(test)
+
             for matrix, alpha_batch in _decompose_ridge(
                     Xtrain=Xtrain, alphas=alphas, negative_eigenvalues="nan",
                     n_alphas_batch=n_alphas_batch, method=diagonalize_method):
