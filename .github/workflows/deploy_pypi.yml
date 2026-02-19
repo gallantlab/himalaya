@@ -3,8 +3,9 @@ name: Deploy to PyPI
 # is larger than the latest version on PyPI.
 
 on:
+  workflow_dispatch:
   push:
-    branches:    
+    branches:
       - main
     paths:
       # trigger workflow only on commits that change __init__.py
