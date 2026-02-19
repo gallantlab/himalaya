@@ -4,6 +4,7 @@ Changelog
 Development Version
 -------------------
 
+- FIX device mismatch when ``Y_in_cpu=True`` with GPU backend in ``RidgeCV`` random search.
 - ENH add iteration rate and estimated time to completion to progress bar
 - ENH change ETA format to hh:mm:ss for better readability
 
