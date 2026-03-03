@@ -25,6 +25,8 @@ Options
     --fast                Use small dimensions for a quick smoke test
     --warmup INT          Untimed warmup iterations for GPU backends (default: 1)
     --n_targets_batch INT Target batch size for CV (default: 5000)
+    --diagonalize_method  Diagonalization method for KernelRidgeCV: eigh or svd
+                          (default: eigh). svd is more stable across backends.
 
 The script generates (datetime-stamped so successive runs don't overwrite):
     <output_dir>/benchmark_<YYYYMMDD_HHMMSS>.json   Full results with metadata
@@ -195,7 +197,7 @@ def _run_ridgecv(X_train, Y_train, X_test, alphas, cv, backend_name,
 
 
 def _run_kernelridgecv(X_train, Y_train, X_test, alphas, cv, backend_name,
-                       n_targets_batch=None):
+                       n_targets_batch=None, diagonalize_method="eigh"):
     from himalaya.backend import set_backend
     from himalaya.kernel_ridge import KernelRidgeCV
 
@@ -208,11 +210,11 @@ def _run_kernelridgecv(X_train, Y_train, X_test, alphas, cv, backend_name,
     Y_tr = backend.asarray(Y_train)
     X_te = backend.asarray(X_test)
 
-    solver_params = {}
+    solver_params = {"diagonalize_method": diagonalize_method}
     if n_targets_batch is not None:
         solver_params["n_targets_batch"] = n_targets_batch
     model = KernelRidgeCV(alphas=alphas, kernel="linear", cv=cv, warn=False,
-                          solver_params=solver_params or None)
+                          solver_params=solver_params)
 
     _sync_backend(backend_name)
     t0 = time.perf_counter()
@@ -320,6 +322,8 @@ def run_benchmarks(args):
         print(f"Warmup iterations for GPU backends: {args.warmup}")
     if args.n_targets_batch is not None:
         print(f"Target batch size: {args.n_targets_batch}")
+    if args.diagonalize_method != "eigh":
+        print(f"KernelRidgeCV diagonalize method: {args.diagonalize_method}")
     print()
 
     all_results = []
@@ -346,6 +350,10 @@ def run_benchmarks(args):
                 n_warmup = args.warmup if backend_name in (
                     "torch_cuda", "torch_mps") else 0
                 n_tb = getattr(args, "n_targets_batch", None)
+                extra_kw = {}
+                if model_name == "KernelRidgeCV":
+                    extra_kw["diagonalize_method"] = args.diagonalize_method
+
                 for _ in range(n_warmup):
                     if model_name == "MultipleKernelRidgeCV":
                         _run_multiplekernelridgecv(
@@ -362,6 +370,7 @@ def run_benchmarks(args):
                             alphas=alphas, cv=args.cv,
                             backend_name=backend_name,
                             n_targets_batch=n_tb,
+                            **extra_kw,
                         )
 
                 for rep in range(args.n_repetitions):
@@ -382,6 +391,7 @@ def run_benchmarks(args):
                             alphas=alphas, cv=args.cv,
                             backend_name=backend_name,
                             n_targets_batch=n_tb,
+                            **extra_kw,
                         )
                     timings_fit.append(t_fit)
                     timings_pred.append(t_pred)
@@ -742,6 +752,12 @@ def main():
         "--n_targets_batch", type=int, default=5000,
         help="Size of target batches during cross-validation. Reduces memory "
         "pressure, especially important for GPU backends. Default: 5000.",
+    )
+    parser.add_argument(
+        "--diagonalize_method", type=str, default="eigh",
+        choices=["eigh", "svd"],
+        help="Method for kernel matrix diagonalization in KernelRidgeCV. "
+        "'svd' is more numerically stable across backends. Default: eigh.",
     )
     args = parser.parse_args()
 
