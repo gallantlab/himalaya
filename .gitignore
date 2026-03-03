@@ -16,6 +16,9 @@ doc/_build/
 doc/_auto_examples/
 doc/_generated/
 
+# Benchmark results
+benchmarks/benchmark_results/
+
 # Claude stuff
 CLAUDE.md
 .claude

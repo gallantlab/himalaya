@@ -19,9 +19,12 @@ Options
     --seed INT            Random seed (default: 42)
     --backends STR,...     Comma-separated list of backends to test
                           (default: auto-detect available)
-    --output_dir DIR      Directory for result files (default: benchmark_results)
+    --output_dir DIR      Directory for result files
+                          (default: benchmarks/benchmark_results)
     --float64             Use float64 input instead of the default float32
     --fast                Use small dimensions for a quick smoke test
+    --warmup INT          Untimed warmup iterations for GPU backends (default: 1)
+    --n_targets_batch INT Target batch size for CV (default: 5000)
 
 The script generates (datetime-stamped so successive runs don't overwrite):
     <output_dir>/benchmark_<YYYYMMDD_HHMMSS>.json   Full results with metadata
@@ -144,7 +147,8 @@ def _compare_arrays(ref, test, label):
 # should be compared across backends.
 # ---------------------------------------------------------------------------
 
-def _run_ridgecv(X_train, Y_train, X_test, alphas, cv, backend_name):
+def _run_ridgecv(X_train, Y_train, X_test, alphas, cv, backend_name,
+                 n_targets_batch=None):
     from himalaya.backend import set_backend
     from himalaya.ridge import RidgeCV
 
@@ -157,7 +161,11 @@ def _run_ridgecv(X_train, Y_train, X_test, alphas, cv, backend_name):
     Y_tr = backend.asarray(Y_train)
     X_te = backend.asarray(X_test)
 
-    model = RidgeCV(alphas=alphas, cv=cv)
+    solver_params = {}
+    if n_targets_batch is not None:
+        solver_params["n_targets_batch"] = n_targets_batch
+    model = RidgeCV(alphas=alphas, cv=cv,
+                    solver_params=solver_params or None)
 
     _sync_backend(backend_name)
     t0 = time.perf_counter()
@@ -179,7 +187,8 @@ def _run_ridgecv(X_train, Y_train, X_test, alphas, cv, backend_name):
     return model, preds, t_fit, t_pred, extra
 
 
-def _run_kernelridgecv(X_train, Y_train, X_test, alphas, cv, backend_name):
+def _run_kernelridgecv(X_train, Y_train, X_test, alphas, cv, backend_name,
+                       n_targets_batch=None):
     from himalaya.backend import set_backend
     from himalaya.kernel_ridge import KernelRidgeCV
 
@@ -192,7 +201,11 @@ def _run_kernelridgecv(X_train, Y_train, X_test, alphas, cv, backend_name):
     Y_tr = backend.asarray(Y_train)
     X_te = backend.asarray(X_test)
 
-    model = KernelRidgeCV(alphas=alphas, kernel="linear", cv=cv, warn=False)
+    solver_params = {}
+    if n_targets_batch is not None:
+        solver_params["n_targets_batch"] = n_targets_batch
+    model = KernelRidgeCV(alphas=alphas, kernel="linear", cv=cv, warn=False,
+                          solver_params=solver_params or None)
 
     _sync_backend(backend_name)
     t0 = time.perf_counter()
@@ -215,7 +228,8 @@ def _run_kernelridgecv(X_train, Y_train, X_test, alphas, cv, backend_name):
 
 
 def _run_multiplekernelridgecv(
-    X_train, Y_train, X_test, cv, n_iter, random_state, backend_name
+    X_train, Y_train, X_test, cv, n_iter, random_state, backend_name,
+    n_targets_batch=None
 ):
     from himalaya.backend import set_backend
     from himalaya.kernel_ridge import MultipleKernelRidgeCV
@@ -229,10 +243,13 @@ def _run_multiplekernelridgecv(
     Y_tr = backend.asarray(Y_train)
     X_te = backend.asarray(X_test)
 
+    solver_params = dict(n_iter=n_iter, progress_bar=False)
+    if n_targets_batch is not None:
+        solver_params["n_targets_batch"] = n_targets_batch
     model = MultipleKernelRidgeCV(
         kernels=["linear", "polynomial"],
         solver="random_search",
-        solver_params=dict(n_iter=n_iter, progress_bar=False),
+        solver_params=solver_params,
         cv=cv,
         random_state=random_state,
     )
@@ -292,6 +309,10 @@ def run_benchmarks(args):
         f"n_targets={args.n_targets}, dtype={dtype.__name__}"
     )
     print(f"Repetitions per benchmark: {args.n_repetitions}")
+    if args.warmup > 0:
+        print(f"Warmup iterations for GPU backends: {args.warmup}")
+    if args.n_targets_batch is not None:
+        print(f"Target batch size: {args.n_targets_batch}")
     print()
 
     all_results = []
@@ -314,6 +335,28 @@ def run_benchmarks(args):
             error_msg = None
 
             try:
+                # Warmup iterations for GPU backends (untimed)
+                n_warmup = args.warmup if backend_name in (
+                    "torch_cuda", "torch_mps") else 0
+                n_tb = getattr(args, "n_targets_batch", None)
+                for _ in range(n_warmup):
+                    if model_name == "MultipleKernelRidgeCV":
+                        _run_multiplekernelridgecv(
+                            X_train, Y_train, X_test,
+                            cv=args.cv, n_iter=args.n_iter,
+                            random_state=args.seed,
+                            backend_name=backend_name,
+                            n_targets_batch=n_tb,
+                        )
+                    else:
+                        runner = MODEL_RUNNERS[model_name]
+                        runner(
+                            X_train, Y_train, X_test,
+                            alphas=alphas, cv=args.cv,
+                            backend_name=backend_name,
+                            n_targets_batch=n_tb,
+                        )
+
                 for rep in range(args.n_repetitions):
                     if model_name == "MultipleKernelRidgeCV":
                         _, preds, t_fit, t_pred, extras = (
@@ -322,6 +365,7 @@ def run_benchmarks(args):
                                 cv=args.cv, n_iter=args.n_iter,
                                 random_state=args.seed,
                                 backend_name=backend_name,
+                                n_targets_batch=n_tb,
                             )
                         )
                     else:
@@ -330,6 +374,7 @@ def run_benchmarks(args):
                             X_train, Y_train, X_test,
                             alphas=alphas, cv=args.cv,
                             backend_name=backend_name,
+                            n_targets_batch=n_tb,
                         )
                     timings_fit.append(t_fit)
                     timings_pred.append(t_pred)
@@ -359,6 +404,8 @@ def run_benchmarks(args):
                 record["predict_time_mean"] = None
                 record["predict_time_std"] = None
                 record["predict_time_min"] = None
+                record["total_time_mean"] = None
+                record["total_time_std"] = None
                 all_results.append(record)
                 continue
 
@@ -369,6 +416,9 @@ def run_benchmarks(args):
             record["predict_time_mean"] = float(np.mean(timings_pred))
             record["predict_time_std"] = float(np.std(timings_pred))
             record["predict_time_min"] = float(np.min(timings_pred))
+            timings_total = [f + p for f, p in zip(timings_fit, timings_pred)]
+            record["total_time_mean"] = float(np.mean(timings_total))
+            record["total_time_std"] = float(np.std(timings_total))
 
             # Print timing summary
             print(
@@ -476,6 +526,8 @@ def write_csv(results, path):
         "predict_time_mean",
         "predict_time_std",
         "predict_time_min",
+        "total_time_mean",
+        "total_time_std",
         "reference_backend",
         "predictions_max_abs_diff",
         "predictions_mean_abs_diff",
@@ -500,12 +552,14 @@ def print_summary_table(results):
     # Build a lookup for reference fit/predict times per model so we can
     # compute time multipliers.  The reference backend is the first backend
     # tested for each model (reference_backend is None for that row).
-    ref_times = {}  # model -> (fit_time_mean, predict_time_mean)
+    # model -> (fit_time_mean, predict_time_mean, total_time_mean)
+    ref_times = {}
     for rec in results:
         if rec.get("reference_backend") is None and rec.get("status") == "ok":
             ref_times[rec["model"]] = (
                 rec["fit_time_mean"],
                 rec["predict_time_mean"],
+                rec["total_time_mean"],
             )
 
     def _speedup(rec, time_key):
@@ -516,7 +570,12 @@ def print_summary_table(results):
         ref = ref_times.get(rec.get("model"))
         if ref is None:
             return "-"
-        idx = 0 if time_key == "fit_time_mean" else 1
+        key_to_idx = {
+            "fit_time_mean": 0,
+            "predict_time_mean": 1,
+            "total_time_mean": 2,
+        }
+        idx = key_to_idx.get(time_key, 0)
         ref_t = ref[idx]
         cur_t = rec.get(time_key)
         if ref_t is None or cur_t is None or cur_t == 0:
@@ -538,6 +597,11 @@ def print_summary_table(results):
         ("Predict (std)", lambda r: f"{r['predict_time_std']:.4f}s"
          if r.get("predict_time_std") is not None else "-"),
         ("Predict (x ref)", lambda r: _speedup(r, "predict_time_mean")),
+        ("Total (mean)", lambda r: f"{r['total_time_mean']:.4f}s"
+         if r.get("total_time_mean") is not None else "-"),
+        ("Total (std)", lambda r: f"{r['total_time_std']:.4f}s"
+         if r.get("total_time_std") is not None else "-"),
+        ("Total (x ref)", lambda r: _speedup(r, "total_time_mean")),
         ("vs Ref", lambda r: r.get("reference_backend") or "-"),
         ("Max |diff|", lambda r: f"{r['predictions_max_abs_diff']:.2e}"
          if r.get("predictions_max_abs_diff") is not None else "-"),
@@ -571,6 +635,61 @@ def print_summary_table(results):
     print()
 
 
+def plot_results(results, output_dir, stamp):
+    """Plot a grouped bar chart of total computation time by model and backend."""
+    try:
+        import matplotlib
+        matplotlib.use("Agg")
+        import matplotlib.pyplot as plt
+    except ImportError:
+        print("matplotlib not installed, skipping plot.")
+        return
+
+    ok_results = [r for r in results if r.get("status") == "ok"]
+    if not ok_results:
+        return
+
+    models = []
+    for r in ok_results:
+        if r["model"] not in models:
+            models.append(r["model"])
+    backends = []
+    for r in ok_results:
+        if r["backend"] not in backends:
+            backends.append(r["backend"])
+
+    # Build data: model x backend -> total_time_mean
+    data = {}
+    for r in ok_results:
+        data[(r["model"], r["backend"])] = (
+            r["total_time_mean"], r["total_time_std"])
+
+    x = np.arange(len(models))
+    n_backends = len(backends)
+    width = 0.8 / n_backends
+
+    fig, ax = plt.subplots(figsize=(max(8, len(models) * 3), 5))
+    for i, backend in enumerate(backends):
+        means = [data.get((m, backend), (0, 0))[0] for m in models]
+        stds = [data.get((m, backend), (0, 0))[1] for m in models]
+        offset = (i - (n_backends - 1) / 2) * width
+        ax.bar(x + offset, means, width, yerr=stds, label=backend,
+               capsize=3)
+
+    ax.set_ylabel("Total time (s)")
+    ax.set_title("Benchmark: Total Computation Time (fit + predict)")
+    ax.set_xticks(x)
+    ax.set_xticklabels(models)
+    ax.legend()
+    ax.grid(axis="y", alpha=0.3)
+    fig.tight_layout()
+
+    plot_path = os.path.join(output_dir, f"benchmark_{stamp}.png")
+    fig.savefig(plot_path, dpi=150)
+    plt.close(fig)
+    print(f"Plot saved to {plot_path}")
+
+
 def main():
     parser = argparse.ArgumentParser(
         description="Benchmark himalaya backends for speed and correctness."
@@ -583,7 +702,8 @@ def main():
                         help="Upper bound for logspace alphas (default: 20).")
     parser.add_argument("--cv", type=int, default=3)
     parser.add_argument("--n_iter", type=int, default=5)
-    parser.add_argument("--n_repetitions", type=int, default=10)
+    parser.add_argument("--n_repetitions", type=int, default=10,
+                        help="Repetitions per benchmark (default: 10).")
     parser.add_argument("--seed", type=int, default=42)
     parser.add_argument(
         "--backends",
@@ -592,7 +712,9 @@ def main():
         help="Comma-separated backends, e.g. 'numpy,torch,torch_mps'. "
         "Default: auto-detect.",
     )
-    parser.add_argument("--output_dir", type=str, default="benchmark_results")
+    parser.add_argument("--output_dir", type=str, default=None,
+                        help="Directory for result files. Default: "
+                        "benchmarks/benchmark_results (relative to script).")
     parser.add_argument(
         "--float64", action="store_true",
         help="Use float64 input instead of the default float32.",
@@ -602,6 +724,17 @@ def main():
         help="Quick smoke test with small dimensions "
         "(n_samples=200, n_features=100, n_targets=50, n_alphas=5, "
         "n_repetitions=3).",
+    )
+    parser.add_argument(
+        "--warmup", type=int, default=1,
+        help="Number of untimed warmup iterations for GPU backends "
+        "(torch_cuda, torch_mps). Helps reduce variance from JIT compilation. "
+        "Default: 1.",
+    )
+    parser.add_argument(
+        "--n_targets_batch", type=int, default=5000,
+        help="Size of target batches during cross-validation. Reduces memory "
+        "pressure, especially important for GPU backends. Default: 5000.",
     )
     args = parser.parse_args()
 
@@ -615,6 +748,11 @@ def main():
             # Only override if the user didn't explicitly set the flag
             if f"--{key}" not in sys.argv:
                 setattr(args, key, val)
+
+    # Resolve output directory (default: benchmark_results/ next to this script)
+    if args.output_dir is None:
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        args.output_dir = os.path.join(script_dir, "benchmark_results")
 
     # Resolve backends
     if args.backends is None:
@@ -639,6 +777,7 @@ def main():
     csv_path = os.path.join(args.output_dir, f"benchmark_{stamp}.csv")
     write_json(results, system_info, args, json_path)
     write_csv(results, csv_path)
+    plot_results(results, args.output_dir, stamp)
 
     # Print markdown summary table
     print_summary_table(results)
