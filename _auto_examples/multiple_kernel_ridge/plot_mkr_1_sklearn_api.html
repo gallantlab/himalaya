@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Multiple-kernel ridge with scikit-learn API &#8212; Himalaya 0.4.10 documentation</title>
+    <title>Multiple-kernel ridge with scikit-learn API &#8212; Himalaya 0.4.11 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="../../_static/documentation_options.js?v=e3241242"></script>
+    <script src="../../_static/documentation_options.js?v=475c965b"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -128,7 +128,7 @@ scikit-learn API.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;torch_cuda&quot;</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:66: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
   warnings.warn(f&quot;Setting backend to {backend} failed: {str(error)}.&quot;
 </pre></div>
 </div>
@@ -303,106 +303,106 @@ Optimal values depend on the size of your dataset.</p>
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                              ] 0% | 0.00 sec | 100 random sampling with cv |
-[                              ] 1% | 1.62 sec | 100 random sampling with cv | 0.62 it/s, ETA: 00:02:40
-[                              ] 2% | 3.20 sec | 100 random sampling with cv | 0.63 it/s, ETA: 00:02:36
-[                              ] 3% | 4.50 sec | 100 random sampling with cv | 0.67 it/s, ETA: 00:02:25
-[.                             ] 4% | 5.68 sec | 100 random sampling with cv | 0.70 it/s, ETA: 00:02:16
-[.                             ] 5% | 7.05 sec | 100 random sampling with cv | 0.71 it/s, ETA: 00:02:13
-[.                             ] 6% | 8.51 sec | 100 random sampling with cv | 0.70 it/s, ETA: 00:02:13
-[..                            ] 7% | 9.79 sec | 100 random sampling with cv | 0.71 it/s, ETA: 00:02:10
-[..                            ] 8% | 11.29 sec | 100 random sampling with cv | 0.71 it/s, ETA: 00:02:09
-[..                            ] 9% | 12.71 sec | 100 random sampling with cv | 0.71 it/s, ETA: 00:02:08
-[...                           ] 10% | 14.15 sec | 100 random sampling with cv | 0.71 it/s, ETA: 00:02:07
-[...                           ] 11% | 15.27 sec | 100 random sampling with cv | 0.72 it/s, ETA: 00:02:03
-[...                           ] 12% | 16.63 sec | 100 random sampling with cv | 0.72 it/s, ETA: 00:02:01
-[...                           ] 13% | 17.89 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:01:59
-[....                          ] 14% | 19.33 sec | 100 random sampling with cv | 0.72 it/s, ETA: 00:01:58
-[....                          ] 15% | 20.74 sec | 100 random sampling with cv | 0.72 it/s, ETA: 00:01:57
-[....                          ] 16% | 21.82 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:01:54
-[.....                         ] 17% | 23.29 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:01:53
-[.....                         ] 18% | 24.67 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:01:52
-[.....                         ] 19% | 25.97 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:01:50
-[......                        ] 20% | 27.47 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:01:49
-[......                        ] 21% | 28.52 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:47
-[......                        ] 22% | 29.82 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:45
-[......                        ] 23% | 31.19 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:44
-[.......                       ] 24% | 32.29 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:42
-[.......                       ] 25% | 33.56 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:40
-[.......                       ] 26% | 35.03 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:39
-[........                      ] 27% | 36.34 sec | 100 random sampling with cv | 0.74 it/s, ETA: 00:01:38
-[........                      ] 28% | 37.46 sec | 100 random sampling with cv | 0.75 it/s, ETA: 00:01:36
-[........                      ] 29% | 38.68 sec | 100 random sampling with cv | 0.75 it/s, ETA: 00:01:34
-[.........                     ] 30% | 39.90 sec | 100 random sampling with cv | 0.75 it/s, ETA: 00:01:33
-[.........                     ] 31% | 41.23 sec | 100 random sampling with cv | 0.75 it/s, ETA: 00:01:31
-[.........                     ] 32% | 42.40 sec | 100 random sampling with cv | 0.75 it/s, ETA: 00:01:30
-[.........                     ] 33% | 43.59 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:28
-[..........                    ] 34% | 44.97 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:27
-[..........                    ] 35% | 46.23 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:25
-[..........                    ] 36% | 47.41 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:24
-[...........                   ] 37% | 48.69 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:22
-[...........                   ] 38% | 49.81 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:21
-[...........                   ] 39% | 50.75 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:19
-[............                  ] 40% | 52.08 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:18
-[............                  ] 41% | 53.43 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:16
-[............                  ] 42% | 54.39 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:15
-[............                  ] 43% | 55.24 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:13
-[.............                 ] 44% | 56.39 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:11
-[.............                 ] 45% | 57.55 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:10
-[.............                 ] 46% | 58.71 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:08
-[..............                ] 47% | 59.89 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:07
-[..............                ] 48% | 61.36 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:06
-[..............                ] 49% | 62.71 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:05
-[...............               ] 50% | 63.75 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:03
-[...............               ] 51% | 65.04 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:02
-[...............               ] 52% | 66.36 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:01
-[...............               ] 53% | 67.74 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:00
-[................              ] 54% | 69.27 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:59
-[................              ] 55% | 70.60 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:57
-[................              ] 56% | 71.94 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:56
-[.................             ] 57% | 73.05 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:55
-[.................             ] 58% | 74.43 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:53
-[.................             ] 59% | 75.53 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:52
-[..................            ] 60% | 76.74 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:51
-[..................            ] 61% | 77.95 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:49
-[..................            ] 62% | 79.25 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:48
-[..................            ] 63% | 80.38 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:47
-[...................           ] 64% | 81.63 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:00:45
-[...................           ] 65% | 82.72 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:44
-[...................           ] 66% | 83.82 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:43
-[....................          ] 67% | 85.14 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:41
-[....................          ] 68% | 86.29 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:40
-[....................          ] 69% | 87.70 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:39
-[.....................         ] 70% | 89.10 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:38
-[.....................         ] 71% | 90.29 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:36
-[.....................         ] 72% | 91.67 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:35
-[.....................         ] 73% | 92.79 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:34
-[......................        ] 74% | 94.12 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:33
-[......................        ] 75% | 95.46 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:31
-[......................        ] 76% | 96.75 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:30
-[.......................       ] 77% | 97.70 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:29
-[.......................       ] 78% | 98.84 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:27
-[.......................       ] 79% | 99.95 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:26
-[........................      ] 80% | 101.13 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:25
-[........................      ] 81% | 102.36 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:24
-[........................      ] 82% | 103.39 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:22
-[........................      ] 83% | 104.49 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:21
-[.........................     ] 84% | 105.79 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:20
-[.........................     ] 85% | 106.99 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:18
-[.........................     ] 86% | 108.19 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:17
-[..........................    ] 87% | 109.52 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:16
-[..........................    ] 88% | 110.66 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:00:15
-[..........................    ] 89% | 111.89 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:00:13
-[...........................   ] 90% | 113.27 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:12
-[...........................   ] 91% | 114.54 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:11
-[...........................   ] 92% | 116.05 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:10
-[...........................   ] 93% | 117.35 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:08
-[............................  ] 94% | 118.79 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:07
-[............................  ] 95% | 119.97 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:06
-[............................  ] 96% | 121.32 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:05
-[............................. ] 97% | 122.36 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:03
-[............................. ] 98% | 123.53 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:02
-[............................. ] 99% | 124.83 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:01
-[..............................] 100% | 126.07 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:00:00
+[                              ] 1% | 1.63 sec | 100 random sampling with cv | 0.61 it/s, ETA: 00:02:41
+[                              ] 2% | 2.97 sec | 100 random sampling with cv | 0.67 it/s, ETA: 00:02:25
+[                              ] 3% | 4.30 sec | 100 random sampling with cv | 0.70 it/s, ETA: 00:02:19
+[.                             ] 4% | 5.62 sec | 100 random sampling with cv | 0.71 it/s, ETA: 00:02:14
+[.                             ] 5% | 6.90 sec | 100 random sampling with cv | 0.72 it/s, ETA: 00:02:11
+[.                             ] 6% | 8.18 sec | 100 random sampling with cv | 0.73 it/s, ETA: 00:02:08
+[..                            ] 7% | 9.36 sec | 100 random sampling with cv | 0.75 it/s, ETA: 00:02:04
+[..                            ] 8% | 10.53 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:02:01
+[..                            ] 9% | 11.85 sec | 100 random sampling with cv | 0.76 it/s, ETA: 00:01:59
+[...                           ] 10% | 13.04 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:57
+[...                           ] 11% | 14.25 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:55
+[...                           ] 12% | 15.60 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:54
+[...                           ] 13% | 16.73 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:51
+[....                          ] 14% | 18.19 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:51
+[....                          ] 15% | 19.60 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:51
+[....                          ] 16% | 20.73 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:48
+[.....                         ] 17% | 22.11 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:47
+[.....                         ] 18% | 23.49 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:47
+[.....                         ] 19% | 24.63 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:45
+[......                        ] 20% | 25.93 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:43
+[......                        ] 21% | 27.08 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:41
+[......                        ] 22% | 28.43 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:40
+[......                        ] 23% | 29.77 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:39
+[.......                       ] 24% | 31.03 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:38
+[.......                       ] 25% | 32.10 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:36
+[.......                       ] 26% | 33.52 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:35
+[........                      ] 27% | 34.95 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:34
+[........                      ] 28% | 36.14 sec | 100 random sampling with cv | 0.77 it/s, ETA: 00:01:32
+[........                      ] 29% | 37.17 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:30
+[.........                     ] 30% | 38.17 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:29
+[.........                     ] 31% | 39.54 sec | 100 random sampling with cv | 0.78 it/s, ETA: 00:01:28
+[.........                     ] 32% | 40.68 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:26
+[.........                     ] 33% | 42.02 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:25
+[..........                    ] 34% | 43.20 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:23
+[..........                    ] 35% | 44.30 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:22
+[..........                    ] 36% | 45.44 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:20
+[...........                   ] 37% | 46.74 sec | 100 random sampling with cv | 0.79 it/s, ETA: 00:01:19
+[...........                   ] 38% | 47.75 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:17
+[...........                   ] 39% | 48.91 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:16
+[............                  ] 40% | 50.08 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:15
+[............                  ] 41% | 51.48 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:14
+[............                  ] 42% | 52.63 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:12
+[............                  ] 43% | 53.64 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:11
+[.............                 ] 44% | 54.71 sec | 100 random sampling with cv | 0.80 it/s, ETA: 00:01:09
+[.............                 ] 45% | 55.69 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:08
+[.............                 ] 46% | 56.80 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:06
+[..............                ] 47% | 58.11 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:05
+[..............                ] 48% | 59.33 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:04
+[..............                ] 49% | 60.67 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:03
+[...............               ] 50% | 61.57 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:01
+[...............               ] 51% | 63.00 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:01:00
+[...............               ] 52% | 64.49 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:59
+[...............               ] 53% | 65.62 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:58
+[................              ] 54% | 67.01 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:57
+[................              ] 55% | 68.16 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:55
+[................              ] 56% | 69.42 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:54
+[.................             ] 57% | 70.50 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:53
+[.................             ] 58% | 71.69 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:51
+[.................             ] 59% | 72.75 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:50
+[..................            ] 60% | 73.74 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:49
+[..................            ] 61% | 75.00 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:47
+[..................            ] 62% | 76.14 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:46
+[..................            ] 63% | 77.39 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:45
+[...................           ] 64% | 78.53 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:44
+[...................           ] 65% | 79.66 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:42
+[...................           ] 66% | 80.85 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:41
+[....................          ] 67% | 82.26 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:40
+[....................          ] 68% | 83.44 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:39
+[....................          ] 69% | 84.57 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:37
+[.....................         ] 70% | 85.91 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:36
+[.....................         ] 71% | 87.16 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:35
+[.....................         ] 72% | 88.46 sec | 100 random sampling with cv | 0.81 it/s, ETA: 00:00:34
+[.....................         ] 73% | 89.47 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:33
+[......................        ] 74% | 90.49 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:31
+[......................        ] 75% | 91.77 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:30
+[......................        ] 76% | 93.17 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:29
+[.......................       ] 77% | 94.20 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:28
+[.......................       ] 78% | 95.16 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:26
+[.......................       ] 79% | 96.35 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:25
+[........................      ] 80% | 97.63 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:24
+[........................      ] 81% | 98.71 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:23
+[........................      ] 82% | 99.88 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:21
+[........................      ] 83% | 100.91 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:20
+[.........................     ] 84% | 102.12 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:19
+[.........................     ] 85% | 103.31 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:18
+[.........................     ] 86% | 104.45 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:17
+[..........................    ] 87% | 105.72 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:15
+[..........................    ] 88% | 107.13 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:14
+[..........................    ] 89% | 108.24 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:13
+[...........................   ] 90% | 109.44 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:12
+[...........................   ] 91% | 110.56 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:10
+[...........................   ] 92% | 111.74 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:09
+[...........................   ] 93% | 113.04 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:08
+[............................  ] 94% | 114.39 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:07
+[............................  ] 95% | 115.62 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:06
+[............................  ] 96% | 116.89 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:04
+[............................. ] 97% | 118.10 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:03
+[............................. ] 98% | 119.49 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:02
+[............................. ] 99% | 121.07 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:01
+[..............................] 100% | 122.16 sec | 100 random sampling with cv | 0.82 it/s, ETA: 00:00:00
 </pre></div>
 </div>
 <div class="output_subarea output_html rendered_html output_result">
@@ -1372,7 +1372,7 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_1_sklearn_api_002.png" srcset="../../_images/sphx_glr_plot_mkr_1_sklearn_api_002.png" alt="Histogram over targets" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 9.284 seconds)</p>
+<img src="../../_images/sphx_glr_plot_mkr_1_sklearn_api_002.png" srcset="../../_images/sphx_glr_plot_mkr_1_sklearn_api_002.png" alt="Histogram over targets" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (2 minutes 5.183 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-1-sklearn-api-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/2807b30d5475271095a9dd91c0f89aa5/plot_mkr_1_sklearn_api.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mkr_1_sklearn_api.ipynb</span></code></a></p>

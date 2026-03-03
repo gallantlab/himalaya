@@ -80,7 +80,7 @@ the backend is kept unchanged.
 
  .. code-block:: none
 
-    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:66: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
       warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 

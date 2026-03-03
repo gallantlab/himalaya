@@ -82,7 +82,7 @@ In this example, we use the ``torch_cuda`` backend (GPU).
 
  .. code-block:: none
 
-    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
+    /home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:66: UserWarning: Setting backend to torch_cuda failed: PyTorch with CUDA is not available..Falling back to numpy backend.
       warnings.warn(f"Setting backend to {backend} failed: {str(error)}."
 
 
@@ -1189,7 +1189,7 @@ Compare the predictions on a test set
 
 .. rst-class:: sphx-glr-timing
 
-   **Total running time of the script:** (0 minutes 3.714 seconds)
+   **Total running time of the script:** (0 minutes 3.586 seconds)
 
 
 .. _sphx_glr_download__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py:

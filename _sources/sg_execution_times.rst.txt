@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**06:33.269** total execution time for 9 files **from all galleries**:
+**06:10.159** total execution time for 9 files **from all galleries**:
 
 .. container::
 
@@ -33,25 +33,25 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_1_sklearn_api.py` (``../examples/multiple_kernel_ridge/plot_mkr_1_sklearn_api.py``)
-     - 02:09.284
+     - 02:05.183
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_0_random_search.py` (``../examples/multiple_kernel_ridge/plot_mkr_0_random_search.py``)
-     - 01:50.164
+     - 01:37.451
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_2_solvers.py` (``../examples/multiple_kernel_ridge/plot_mkr_2_solvers.py``)
-     - 01:08.934
+     - 01:07.068
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_3_path.py` (``../examples/multiple_kernel_ridge/plot_mkr_3_path.py``)
-     - 01:00.190
+     - 00:55.950
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_5_refine_results.py` (``../examples/multiple_kernel_ridge/plot_mkr_5_refine_results.py``)
-     - 00:20.918
+     - 00:20.857
      - 0.0
    * - :ref:`sphx_glr__auto_examples_multiple_kernel_ridge_plot_mkr_4_refit_from_deltas.py` (``../examples/multiple_kernel_ridge/plot_mkr_4_refit_from_deltas.py``)
-     - 00:03.714
+     - 00:03.586
      - 0.0
    * - :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py` (``../examples/kernel_ridge/plot_kernel_ridge_cv.py``)
-     - 00:00.047
+     - 00:00.046
      - 0.0
    * - :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py` (``../examples/kernel_ridge/plot_kernel_ridge.py``)
      - 00:00.013

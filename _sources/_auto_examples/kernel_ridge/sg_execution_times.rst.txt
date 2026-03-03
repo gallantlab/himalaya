@@ -6,7 +6,7 @@
 
 Computation times
 =================
-**00:00.066** total execution time for 3 files **from _auto_examples/kernel_ridge**:
+**00:00.064** total execution time for 3 files **from _auto_examples/kernel_ridge**:
 
 .. container::
 
@@ -33,7 +33,7 @@ Computation times
      - Time
      - Mem (MB)
    * - :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge_cv.py` (``plot_kernel_ridge_cv.py``)
-     - 00:00.047
+     - 00:00.046
      - 0.0
    * - :ref:`sphx_glr__auto_examples_kernel_ridge_plot_kernel_ridge.py` (``plot_kernel_ridge.py``)
      - 00:00.013

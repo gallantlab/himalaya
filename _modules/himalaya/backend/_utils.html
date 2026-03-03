@@ -4,14 +4,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.backend._utils &#8212; Himalaya 0.4.10 documentation</title>
+    <title>himalaya.backend._utils &#8212; Himalaya 0.4.11 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="../../../_static/documentation_options.js?v=e3241242"></script>
+    <script src="../../../_static/documentation_options.js?v=475c965b"></script>
     <script src="../../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
@@ -457,8 +457,8 @@ window.addEventListener("load", load);
           <div class="body" role="main">
             
   <h1>Source code for himalaya.backend._utils</h1><div class="highlight"><pre>
-<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
-<span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span></span><span class="kn">import</span><span class="w"> </span><span class="nn">importlib</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">types</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">functools</span><span class="w"> </span><span class="kn">import</span> <span class="n">wraps</span>
 
@@ -467,6 +467,7 @@ window.addEventListener("load", load);
     <span class="s2">&quot;cupy&quot;</span><span class="p">,</span>
     <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;torch_cuda&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;torch_mps&quot;</span><span class="p">,</span>
 <span class="p">]</span>
 
 <span class="n">CURRENT_BACKEND</span> <span class="o">=</span> <span class="s2">&quot;numpy&quot;</span>
@@ -476,6 +477,7 @@ window.addEventListener("load", load);
     <span class="s2">&quot;cupy&quot;</span><span class="p">:</span> <span class="s2">&quot;numpy&quot;</span><span class="p">,</span>
     <span class="s2">&quot;torch&quot;</span><span class="p">:</span> <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
     <span class="s2">&quot;torch_cuda&quot;</span><span class="p">:</span> <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;torch_mps&quot;</span><span class="p">:</span> <span class="s2">&quot;torch&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
 
@@ -509,6 +511,15 @@ window.addEventListener("load", load);
 
         <span class="n">module</span> <span class="o">=</span> <span class="n">importlib</span><span class="o">.</span><span class="n">import_module</span><span class="p">(</span><span class="n">__package__</span> <span class="o">+</span> <span class="s2">&quot;.&quot;</span> <span class="o">+</span> <span class="n">backend</span><span class="p">)</span>
         <span class="n">CURRENT_BACKEND</span> <span class="o">=</span> <span class="n">backend</span>
+
+        <span class="c1"># Additional warning for torch_mps precision limitations</span>
+        <span class="k">if</span> <span class="n">backend</span> <span class="o">==</span> <span class="s2">&quot;torch_mps&quot;</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="s2">&quot;You are using the torch_mps backend which operates with float32 precision. &quot;</span>
+                <span class="s2">&quot;Results may be less precise than other backends due to MPS framework limitations. &quot;</span>
+                <span class="s2">&quot;Consider &#39;torch&#39; (CPU) or &#39;numpy&#39; backends for maximum precision.&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span>
+            <span class="p">)</span>
     <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">error</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">on_error</span> <span class="o">==</span> <span class="s2">&quot;raise&quot;</span><span class="p">:</span>
             <span class="k">raise</span> <span class="n">error</span>
@@ -548,6 +559,8 @@ window.addEventListener("load", load);
         <span class="k">return</span> <span class="nb">str</span><span class="p">(</span><span class="n">dtype</span><span class="p">)[</span><span class="mi">6</span><span class="p">:]</span>
     <span class="k">elif</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
+    <span class="k">elif</span> <span class="n">dtype</span> <span class="ow">is</span> <span class="nb">bool</span><span class="p">:</span>
+        <span class="k">return</span> <span class="s2">&quot;bool&quot;</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
 

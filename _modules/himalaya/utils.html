@@ -4,14 +4,14 @@
   <head>
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>himalaya.utils &#8212; Himalaya 0.4.10 documentation</title>
+    <title>himalaya.utils &#8212; Himalaya 0.4.11 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="../../_static/documentation_options.js?v=e3241242"></script>
+    <script src="../../_static/documentation_options.js?v=475c965b"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <script type="module" src="https://cdn.jsdelivr.net/npm/mermaid@11.12.1/dist/mermaid.esm.min.mjs"></script>
@@ -518,11 +518,39 @@ window.addEventListener("load", load);
 <span class="k">def</span><span class="w"> </span><span class="nf">assert_array_almost_equal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="mi">6</span><span class="p">,</span> <span class="n">err_msg</span><span class="o">=</span><span class="s1">&#39;&#39;</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Test array equality, casting all arrays to numpy.&quot;&quot;&quot;</span>
     <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+
+    <span class="c1"># Auto-adjust precision for torch_mps backend due to float32 conversion.</span>
+    <span class="c1"># Float32 has ~7 digits of precision; complex computations (SVD, solving</span>
+    <span class="c1"># linear systems) typically achieve ~4 digits, so cap at 3 to keep a</span>
+    <span class="c1"># safety margin while still catching real regressions (1e-3 level).</span>
+    <span class="k">if</span> <span class="n">backend</span><span class="o">.</span><span class="n">name</span> <span class="o">==</span> <span class="s2">&quot;torch_mps&quot;</span><span class="p">:</span>
+        <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
+        <span class="k">if</span> <span class="n">decimal</span> <span class="o">&gt;</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Reducing precision from decimal=</span><span class="si">{</span><span class="n">decimal</span><span class="si">}</span><span class="s2"> to decimal=3 for &quot;</span>
+                <span class="s2">&quot;torch_mps backend due to float32 precision limitations&quot;</span><span class="p">,</span>
+                <span class="ne">UserWarning</span>
+            <span class="p">)</span>
+            <span class="n">decimal</span> <span class="o">=</span> <span class="mi">3</span>
+
     <span class="n">x</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">x</span><span class="p">)</span>
     <span class="n">y</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">y</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">np</span><span class="o">.</span><span class="n">testing</span><span class="o">.</span><span class="n">assert_array_almost_equal</span><span class="p">(</span><span class="n">x</span><span class="p">,</span> <span class="n">y</span><span class="p">,</span> <span class="n">decimal</span><span class="o">=</span><span class="n">decimal</span><span class="p">,</span>
                                                 <span class="n">err_msg</span><span class="o">=</span><span class="n">err_msg</span><span class="p">,</span>
                                                 <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">to_numpy_float64</span><span class="p">(</span><span class="n">result</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Convert backend array to numpy float64, for sklearn compatibility.</span>
+
+<span class="sd">    Sklearn expects float64 numpy arrays. Float32 backends (e.g. torch_mps)</span>
+<span class="sd">    need an explicit upcast after conversion to numpy.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">backend</span> <span class="o">=</span> <span class="n">get_backend</span><span class="p">()</span>
+    <span class="n">result</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">to_numpy</span><span class="p">(</span><span class="n">result</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">result</span><span class="o">.</span><span class="n">dtype</span> <span class="o">==</span> <span class="n">np</span><span class="o">.</span><span class="n">float32</span><span class="p">:</span>
+        <span class="n">result</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">astype</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">float64</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">result</span>
 
 
 <div class="viewcode-block" id="generate_multikernel_dataset">
@@ -640,6 +668,82 @@ window.addEventListener("load", load);
             <span class="k">return</span> <span class="n">array</span><span class="p">[:,</span> <span class="n">batch</span><span class="p">]</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">()</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">skip_torch_mps_precision_checks</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="n">estimator</span><span class="p">,</span> <span class="n">check</span><span class="p">,</span>
+                                    <span class="n">precision_sensitive_checks</span><span class="o">=</span><span class="kc">None</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Skip sklearn checks that fail due to torch_mps float32 precision limitations.</span>
+
+<span class="sd">    This utility function provides a centralized way to handle precision-sensitive</span>
+<span class="sd">    sklearn estimator checks when using the torch_mps backend, which uses float32</span>
+<span class="sd">    precision that can cause small numerical differences exceeding sklearn&#39;s strict</span>
+<span class="sd">    tolerance requirements.</span>
+
+<span class="sd">    Parameters</span>
+<span class="sd">    ----------</span>
+<span class="sd">    backend : object</span>
+<span class="sd">        The current backend instance</span>
+<span class="sd">    estimator : object</span>
+<span class="sd">        The estimator being tested</span>
+<span class="sd">    check : callable</span>
+<span class="sd">        The sklearn check function (partial with check name)</span>
+<span class="sd">    precision_sensitive_checks : dict, optional</span>
+<span class="sd">        Dictionary mapping estimator names to lists of check names that should be</span>
+<span class="sd">        skipped due to precision issues. If None, uses default set.</span>
+
+<span class="sd">    Returns</span>
+<span class="sd">    -------</span>
+<span class="sd">    bool</span>
+<span class="sd">        True if the check should be skipped, False otherwise</span>
+
+<span class="sd">    Examples</span>
+<span class="sd">    --------</span>
+<span class="sd">    &gt;&gt;&gt; # In test function:</span>
+<span class="sd">    &gt;&gt;&gt; if skip_torch_mps_precision_checks(backend, estimator, check):</span>
+<span class="sd">    ...     pytest.skip(&quot;torch_mps precision limitation&quot;)</span>
+<span class="sd">    &gt;&gt;&gt; check(estimator)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="c1"># Default precision-sensitive checks if not provided</span>
+    <span class="k">if</span> <span class="n">precision_sensitive_checks</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="n">precision_sensitive_checks</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="s1">&#39;KernelRidge_&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;check_methods_subset_invariance&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;check_sample_weight_equivalence_on_dense_data&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;check_sample_weight_equivalence_on_sparse_data&#39;</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;KernelRidgeCV_&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;check_methods_subset_invariance&#39;</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;Kernelizer_&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;check_methods_subset_invariance&#39;</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;WeightedKernelRidge_&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;check_sample_weight_equivalence_on_dense_data&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;check_sample_weight_equivalence_on_sparse_data&#39;</span><span class="p">,</span>
+                <span class="s1">&#39;check_methods_subset_invariance&#39;</span>
+            <span class="p">],</span>
+            <span class="s1">&#39;MultipleKernelRidgeCV_&#39;</span><span class="p">:</span> <span class="p">[</span>
+                <span class="s1">&#39;check_methods_subset_invariance&#39;</span>
+            <span class="p">]</span>
+        <span class="p">}</span>
+
+    <span class="c1"># Only apply to torch_mps backend</span>
+    <span class="c1"># Use getattr for safety in case backend doesn&#39;t have name attribute</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">backend</span><span class="p">,</span> <span class="s1">&#39;name&#39;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="o">!=</span> <span class="s2">&quot;torch_mps&quot;</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="c1"># Check if we have a callable check with a function name</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">check</span><span class="p">,</span> <span class="s1">&#39;func&#39;</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="n">check_name</span> <span class="o">=</span> <span class="n">check</span><span class="o">.</span><span class="n">func</span><span class="o">.</span><span class="vm">__name__</span>
+    <span class="n">estimator_name</span> <span class="o">=</span> <span class="n">estimator</span><span class="o">.</span><span class="vm">__class__</span><span class="o">.</span><span class="vm">__name__</span>
+
+    <span class="c1"># Check if this estimator/check combination should be skipped</span>
+    <span class="k">if</span> <span class="n">estimator_name</span> <span class="ow">in</span> <span class="n">precision_sensitive_checks</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">check_name</span> <span class="ow">in</span> <span class="n">precision_sensitive_checks</span><span class="p">[</span><span class="n">estimator_name</span><span class="p">]</span>
+
+    <span class="k">return</span> <span class="kc">False</span>
 </pre></div>
 
           </div>

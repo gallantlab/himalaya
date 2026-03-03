@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Getting started &#8212; Himalaya 0.4.10 documentation</title>
+    <title>Getting started &#8212; Himalaya 0.4.11 documentation</title>
     <link rel="stylesheet" type="text/css" href="_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="_static/documentation_options.js?v=e3241242"></script>
+    <script src="_static/documentation_options.js?v=475c965b"></script>
     <script src="_static/doctools.js?v=9a2dae69"></script>
     <script src="_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="genindex.html" />
@@ -158,8 +158,8 @@ website.</p>
 <section id="himalaya-backends">
 <h2>Himalaya backends<a class="headerlink" href="#himalaya-backends" title="Link to this heading">¶</a></h2>
 <p><code class="docutils literal notranslate"><span class="pre">Himalaya</span></code> can be used seamlessly with different backends.
-The available backends are <code class="docutils literal notranslate"><span class="pre">numpy</span></code> (default), <code class="docutils literal notranslate"><span class="pre">cupy</span></code>, <code class="docutils literal notranslate"><span class="pre">torch</span></code>, and
-<code class="docutils literal notranslate"><span class="pre">torch_cuda</span></code>.
+The available backends are <code class="docutils literal notranslate"><span class="pre">numpy</span></code> (default), <code class="docutils literal notranslate"><span class="pre">cupy</span></code>, <code class="docutils literal notranslate"><span class="pre">torch</span></code>,
+<code class="docutils literal notranslate"><span class="pre">torch_cuda</span></code>, and <code class="docutils literal notranslate"><span class="pre">torch_mps</span></code> (Apple Silicon).
 To change the backend, call:</p>
 <div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_backend</span>
 <span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;torch&quot;</span><span class="p">)</span>
@@ -178,6 +178,15 @@ the <code class="docutils literal notranslate"><span class="pre">cupy</span></co
 <span class="n">data</span> <span class="o">=</span> <span class="n">backend</span><span class="o">.</span><span class="n">asarray</span><span class="p">(</span><span class="n">data</span><span class="p">)</span>
 </pre></div>
 </div>
+<p>On Apple Silicon Macs, you can use the <code class="docutils literal notranslate"><span class="pre">torch_mps</span></code> backend for GPU
+acceleration via Metal Performance Shaders:</p>
+<div class="highlight-python notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span><span class="w"> </span><span class="nn">himalaya.backend</span><span class="w"> </span><span class="kn">import</span> <span class="n">set_backend</span>
+<span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;torch_mps&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Note that the <code class="docutils literal notranslate"><span class="pre">torch_mps</span></code> backend uses float32 precision, which may produce
+slightly less precise results than CPU backends. Use <code class="docutils literal notranslate"><span class="pre">n_targets_batch</span></code> in
+<code class="docutils literal notranslate"><span class="pre">solver_params</span></code> to manage memory on MPS devices.</p>
 </section>
 </section>
 <section id="installation">

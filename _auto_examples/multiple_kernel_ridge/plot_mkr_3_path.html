@@ -5,14 +5,14 @@
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
 
-    <title>Multiple-kernel ridge path between two kernels &#8212; Himalaya 0.4.10 documentation</title>
+    <title>Multiple-kernel ridge path between two kernels &#8212; Himalaya 0.4.11 documentation</title>
     <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=03e43079" />
     <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=e9c93658" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery.css?v=d2d258e8" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-binder.css?v=f4aeca0c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-dataframe.css?v=2082cf3c" />
     <link rel="stylesheet" type="text/css" href="../../_static/sg_gallery-rendered-html.css?v=1277b6f3" />
-    <script src="../../_static/documentation_options.js?v=e3241242"></script>
+    <script src="../../_static/documentation_options.js?v=475c965b"></script>
     <script src="../../_static/doctools.js?v=9a2dae69"></script>
     <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
     <link rel="index" title="Index" href="../../genindex.html" />
@@ -131,7 +131,7 @@ is then computed, and decomposed over both kernels.</p>
 <div class="highlight-Python notranslate"><div class="highlight"><pre><span></span><span class="n">backend</span> <span class="o">=</span> <span class="n">set_backend</span><span class="p">(</span><span class="s2">&quot;cupy&quot;</span><span class="p">,</span> <span class="n">on_error</span><span class="o">=</span><span class="s2">&quot;warn&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:55: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
+<div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>/home/runner/work/himalaya/himalaya/himalaya/backend/_utils.py:66: UserWarning: Setting backend to cupy failed: Cupy not installed..Falling back to numpy backend.
   warnings.warn(f&quot;Setting backend to {backend} failed: {str(error)}.&quot;
 </pre></div>
 </div>
@@ -670,47 +670,47 @@ div.sk-label-container:hover .sk-estimator-doc-link.fitted:hover,
 </pre></div>
 </div>
 <div class="sphx-glr-script-out highlight-none notranslate"><div class="highlight"><pre><span></span>[                              ] 0% | 0.00 sec | Hyperparameter candidates |
-[                              ] 2% | 1.62 sec | Hyperparameter candidates | 0.62 it/s, ETA: 00:01:04
-[.                             ] 5% | 2.96 sec | Hyperparameter candidates | 0.68 it/s, ETA: 00:00:57
-[..                            ] 7% | 4.49 sec | Hyperparameter candidates | 0.67 it/s, ETA: 00:00:56
-[..                            ] 10% | 6.03 sec | Hyperparameter candidates | 0.66 it/s, ETA: 00:00:55
-[...                           ] 12% | 7.54 sec | Hyperparameter candidates | 0.66 it/s, ETA: 00:00:54
-[....                          ] 15% | 8.98 sec | Hyperparameter candidates | 0.67 it/s, ETA: 00:00:52
-[.....                         ] 17% | 10.30 sec | Hyperparameter candidates | 0.68 it/s, ETA: 00:00:50
-[.....                         ] 20% | 11.58 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:47
-[......                        ] 22% | 12.97 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:46
-[.......                       ] 24% | 14.24 sec | Hyperparameter candidates | 0.70 it/s, ETA: 00:00:44
-[........                      ] 27% | 15.77 sec | Hyperparameter candidates | 0.70 it/s, ETA: 00:00:43
-[........                      ] 29% | 17.22 sec | Hyperparameter candidates | 0.70 it/s, ETA: 00:00:41
-[.........                     ] 32% | 18.65 sec | Hyperparameter candidates | 0.70 it/s, ETA: 00:00:40
-[..........                    ] 34% | 20.17 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:38
-[..........                    ] 37% | 21.60 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:37
-[...........                   ] 39% | 23.08 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:36
-[............                  ] 41% | 24.45 sec | Hyperparameter candidates | 0.70 it/s, ETA: 00:00:34
-[.............                 ] 44% | 25.83 sec | Hyperparameter candidates | 0.70 it/s, ETA: 00:00:33
-[.............                 ] 46% | 27.45 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:31
-[..............                ] 49% | 28.96 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:30
-[...............               ] 51% | 30.57 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:29
-[................              ] 54% | 32.03 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:27
-[................              ] 56% | 33.60 sec | Hyperparameter candidates | 0.68 it/s, ETA: 00:00:26
-[.................             ] 59% | 35.16 sec | Hyperparameter candidates | 0.68 it/s, ETA: 00:00:24
-[..................            ] 61% | 36.49 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:23
-[...................           ] 63% | 37.91 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:21
-[...................           ] 66% | 39.38 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:20
-[....................          ] 68% | 40.89 sec | Hyperparameter candidates | 0.68 it/s, ETA: 00:00:18
-[.....................         ] 71% | 42.27 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:17
-[.....................         ] 73% | 43.72 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:16
-[......................        ] 76% | 45.14 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:14
-[.......................       ] 78% | 46.63 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:13
-[........................      ] 80% | 47.92 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:11
-[........................      ] 83% | 49.27 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:10
-[.........................     ] 85% | 50.87 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:08
-[..........................    ] 88% | 52.24 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:07
-[...........................   ] 90% | 53.71 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:05
-[...........................   ] 93% | 55.18 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:04
-[............................  ] 95% | 56.76 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:02
-[............................. ] 98% | 58.22 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:01
-[..............................] 100% | 59.76 sec | Hyperparameter candidates | 0.69 it/s, ETA: 00:00:00
+[                              ] 2% | 1.29 sec | Hyperparameter candidates | 0.77 it/s, ETA: 00:00:51
+[.                             ] 5% | 2.63 sec | Hyperparameter candidates | 0.76 it/s, ETA: 00:00:51
+[..                            ] 7% | 3.89 sec | Hyperparameter candidates | 0.77 it/s, ETA: 00:00:49
+[..                            ] 10% | 5.29 sec | Hyperparameter candidates | 0.76 it/s, ETA: 00:00:48
+[...                           ] 12% | 6.58 sec | Hyperparameter candidates | 0.76 it/s, ETA: 00:00:47
+[....                          ] 15% | 7.96 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:46
+[.....                         ] 17% | 9.34 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:45
+[.....                         ] 20% | 10.73 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:44
+[......                        ] 22% | 12.18 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:43
+[.......                       ] 24% | 13.52 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:41
+[........                      ] 27% | 15.00 sec | Hyperparameter candidates | 0.73 it/s, ETA: 00:00:40
+[........                      ] 29% | 16.43 sec | Hyperparameter candidates | 0.73 it/s, ETA: 00:00:39
+[.........                     ] 32% | 17.46 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:37
+[..........                    ] 34% | 18.61 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:35
+[..........                    ] 37% | 20.10 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:34
+[...........                   ] 39% | 21.53 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:33
+[............                  ] 41% | 22.76 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:32
+[.............                 ] 44% | 24.15 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:30
+[.............                 ] 46% | 25.45 sec | Hyperparameter candidates | 0.75 it/s, ETA: 00:00:29
+[..............                ] 49% | 26.89 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:28
+[...............               ] 51% | 28.31 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:26
+[................              ] 54% | 29.76 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:25
+[................              ] 56% | 31.09 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:24
+[.................             ] 59% | 32.50 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:23
+[..................            ] 61% | 33.84 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:21
+[...................           ] 63% | 35.29 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:20
+[...................           ] 66% | 36.66 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:19
+[....................          ] 68% | 38.01 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:17
+[.....................         ] 71% | 39.31 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:16
+[.....................         ] 73% | 40.77 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:14
+[......................        ] 76% | 41.86 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:13
+[.......................       ] 78% | 43.27 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:12
+[........................      ] 80% | 44.67 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:10
+[........................      ] 83% | 46.01 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:09
+[.........................     ] 85% | 47.52 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:08
+[..........................    ] 88% | 48.76 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:06
+[...........................   ] 90% | 50.23 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:05
+[...........................   ] 93% | 51.48 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:04
+[............................  ] 95% | 52.93 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:02
+[............................. ] 98% | 54.22 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:01
+[..............................] 100% | 55.53 sec | Hyperparameter candidates | 0.74 it/s, ETA: 00:00:00
 </pre></div>
 </div>
 <p>Plot the variance decomposition for all the hyperparameter ratios.</p>
@@ -733,7 +733,7 @@ the feature spaces are used with similar scales in the simulated dataset.</p>
 <span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
 </pre></div>
 </div>
-<img src="../../_images/sphx_glr_plot_mkr_3_path_001.png" srcset="../../_images/sphx_glr_plot_mkr_3_path_001.png" alt="$R^2$ score decomposition" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (1 minutes 0.190 seconds)</p>
+<img src="../../_images/sphx_glr_plot_mkr_3_path_001.png" srcset="../../_images/sphx_glr_plot_mkr_3_path_001.png" alt="$R^2$ score decomposition" class = "sphx-glr-single-img"/><p class="sphx-glr-timing"><strong>Total running time of the script:</strong> (0 minutes 55.950 seconds)</p>
 <div class="sphx-glr-footer sphx-glr-footer-example docutils container" id="sphx-glr-download-auto-examples-multiple-kernel-ridge-plot-mkr-3-path-py">
 <div class="sphx-glr-download sphx-glr-download-jupyter docutils container">
 <p><a class="reference download internal" download="" href="../../_downloads/cb7de2ee770f6e4a0dcc1d3189cf4c25/plot_mkr_3_path.ipynb"><code class="xref download docutils literal notranslate"><span class="pre">Download</span> <span class="pre">Jupyter</span> <span class="pre">notebook:</span> <span class="pre">plot_mkr_3_path.ipynb</span></code></a></p>
