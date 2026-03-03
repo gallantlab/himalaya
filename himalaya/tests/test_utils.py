@@ -78,12 +78,12 @@ def test_assert_array_almost_equal_torch_mps_precision_warning():
     # The torch_mps backend will automatically skip this test if MPS is not available
     backend = set_backend('torch_mps')
 
-    # Create test arrays that are close but require precision > 4
+    # Create test arrays that are close but require precision > 3
     x = backend.asarray([1.0, 2.0, 3.0])
-    y = backend.asarray([1.00001, 2.00001, 3.00001])  # diff ~1e-5
+    y = backend.asarray([1.0001, 2.0001, 3.0001])  # diff ~1e-4
 
-    # Test that decimal > 4 triggers warning and auto-reduction
-    with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=2"):
+    # Test that decimal > 3 triggers warning and auto-reduction
+    with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=3"):
         assert_array_almost_equal(x, y, decimal=6)
 
     import warnings

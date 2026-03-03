@@ -57,16 +57,19 @@ def assert_array_almost_equal(x, y, decimal=6, err_msg='', verbose=True):
     """Test array equality, casting all arrays to numpy."""
     backend = get_backend()
 
-    # Auto-adjust precision for torch_mps backend due to float32 conversion
+    # Auto-adjust precision for torch_mps backend due to float32 conversion.
+    # Float32 has ~7 digits of precision; complex computations (SVD, solving
+    # linear systems) typically achieve ~4 digits, so cap at 3 to keep a
+    # safety margin while still catching real regressions (1e-3 level).
     if backend.name == "torch_mps":
         import warnings
-        if decimal > 2:
+        if decimal > 3:
             warnings.warn(
-                f"Reducing precision from decimal={decimal} to decimal=2 for "
-                "torch_mps backend due to float32 conversion limitations",
+                f"Reducing precision from decimal={decimal} to decimal=3 for "
+                "torch_mps backend due to float32 precision limitations",
                 UserWarning
             )
-            decimal = 2
+            decimal = 3
 
     x = backend.to_numpy(x)
     y = backend.to_numpy(y)
