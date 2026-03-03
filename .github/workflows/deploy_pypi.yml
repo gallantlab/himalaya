@@ -3,8 +3,9 @@ name: Deploy to PyPI
 # is larger than the latest version on PyPI.
 
 on:
+  workflow_dispatch:
   push:
-    branches:    
+    branches:
       - main
     paths:
       # trigger workflow only on commits that change __init__.py
@@ -14,8 +15,8 @@ jobs:
   deploy-pypi:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v4
-    - uses: actions/setup-python@v5
+    - uses: actions/checkout@v6
+    - uses: actions/setup-python@v6
 
     - name: Get versions
       # Compare the latest version on PyPI, and the current version
