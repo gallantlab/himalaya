@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import sklearn.utils.estimator_checks
 from sklearn.pipeline import make_pipeline
@@ -7,7 +6,6 @@ from sklearn.exceptions import NotFittedError
 from sklearn.base import clone
 
 from himalaya.backend import set_backend
-from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import (
     assert_array_almost_equal,

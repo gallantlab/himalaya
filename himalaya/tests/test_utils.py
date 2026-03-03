@@ -133,7 +133,8 @@ class _MockBackend:
 class _MockEstimator:
     """Mock estimator for testing purposes."""
     def __init__(self, name):
-        self.__class__.__name__ = name
+        # Create a unique subclass so __name__ isn't shared across instances.
+        self.__class__ = type(name, (_MockEstimator,), {})
 
 
 class _MockCheck:

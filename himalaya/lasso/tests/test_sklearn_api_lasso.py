@@ -1,4 +1,3 @@
-import numpy as np
 import pytest
 import sklearn.utils.estimator_checks
 
