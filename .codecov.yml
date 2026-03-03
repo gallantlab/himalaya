@@ -23,9 +23,10 @@ coverage:
 # which folders/files to ignore
 ignore:
  - setup.py
- # GPU not available on github-actions
+ # GPU/MPS not available on github-actions
  - himalaya/backend/cupy.py
  - himalaya/backend/torch_cuda.py
+ - himalaya/backend/torch_mps.py
 
 
 # Pull request comments:

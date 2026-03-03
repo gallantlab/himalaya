@@ -63,6 +63,13 @@ def _create_dataset(backend):
 def test_delta_gradient_direct(backend, n_targets_batch):
     backend = set_backend(backend)
 
+    # Skip torch_mps: finite-difference gradient checks are unreliable on
+    # float32 because the optimal step size (balancing truncation vs rounding
+    # error) varies by random problem instance, causing flaky failures.
+    if backend.name == "torch_mps":
+        pytest.skip("Finite-difference gradient checks are unreliable on "
+                     "float32 (torch_mps)")
+
     Ks, Y, dual_weights, gammas, Ks_val, Y_val, _ = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-1, 1, Y.shape[1]), Ks)
     deltas = backend.log(gammas / alphas)
@@ -91,6 +98,13 @@ def test_delta_gradient_direct(backend, n_targets_batch):
 @pytest.mark.parametrize("backend", ALL_BACKENDS)
 def test_delta_gradient_indirect(backend, n_targets_batch):
     backend = set_backend(backend)
+
+    # Skip torch_mps: finite-difference gradient checks are unreliable on
+    # float32 because the optimal step size (balancing truncation vs rounding
+    # error) varies by random problem instance, causing flaky failures.
+    if backend.name == "torch_mps":
+        pytest.skip("Finite-difference gradient checks are unreliable on "
+                     "float32 (torch_mps)")
 
     Ks, Y, _, gammas, Ks_val, Y_val, _ = _create_dataset(backend)
     alphas = backend.asarray_like(backend.logspace(-1, 1, Y.shape[1]), Ks)

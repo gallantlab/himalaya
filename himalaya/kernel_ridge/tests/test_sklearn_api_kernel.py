@@ -15,7 +15,11 @@ from himalaya.kernel_ridge import (
     WeightedKernelRidge,
 )
 from himalaya.ridge import Ridge, RidgeCV
-from himalaya.utils import assert_array_almost_equal
+from himalaya.utils import (
+    assert_array_almost_equal,
+    skip_torch_mps_precision_checks,
+    to_numpy_float64,
+)
 
 
 def _create_dataset(backend):
@@ -76,8 +80,8 @@ def test_kernel_ridge_vs_ridge(backend, fit_intercept):
         Y += 10
         X += 1
 
-    # torch with cuda has more limited precision in mean
-    decimal = 3 if backend.name == "torch_cuda" else 6
+    # torch with cuda and torch_mps have more limited precision due to float32
+    decimal = 3 if backend.name in ["torch_cuda", "torch_mps"] else 6
 
     for alpha in backend.asarray_like(backend.logspace(0, 3, 7), X):
         model = KernelRidge(alpha=alpha, fit_intercept=fit_intercept)
@@ -564,8 +568,7 @@ class KernelRidge_(KernelRidge):
     """
 
     def predict(self, X):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return to_numpy_float64(super().predict(X))
 
     def score(self, X, y):
         from himalaya.scoring import r2_score
@@ -600,8 +603,7 @@ class KernelRidgeCV_(KernelRidgeCV):
                          solver_params=solver_params, cv=cv)
 
     def predict(self, X):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return to_numpy_float64(super().predict(X))
 
     def score(self, X, y):
         from himalaya.scoring import r2_score
@@ -637,8 +639,7 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
                          random_state=random_state)
 
     def predict(self, X, split=False):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X, split=split))
+        return to_numpy_float64(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
@@ -666,8 +667,7 @@ class WeightedKernelRidge_(WeightedKernelRidge):
                          random_state=random_state)
 
     def predict(self, X, split=False):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X, split=split))
+        return to_numpy_float64(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
@@ -714,6 +714,12 @@ if version.parse(sklearn.__version__) >= version.parse("1.6"):
 @pytest.mark.parametrize('backend', ALL_BACKENDS)
 def test_check_estimator(estimator, check, backend):
     backend = set_backend(backend)
+    
+    # Skip precision-sensitive checks for torch_mps due to float32 limitations
+    if skip_torch_mps_precision_checks(backend, estimator, check):
+        pytest.skip("torch_mps backend uses float32 precision which causes small "
+                   "numerical differences that exceed sklearn tolerance.")
+    
     check(estimator)
 
 

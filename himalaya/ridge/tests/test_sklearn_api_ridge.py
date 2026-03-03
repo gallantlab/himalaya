@@ -1,4 +1,5 @@
 from himalaya.scoring import r2_score
+import numpy as np
 import pytest
 import sklearn.kernel_ridge
 import sklearn.utils.estimator_checks
@@ -7,6 +8,7 @@ from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
+from himalaya.utils import to_numpy_float64
 
 from himalaya.ridge import Ridge
 from himalaya.ridge import RidgeCV
@@ -145,8 +147,7 @@ class Ridge_(Ridge):
     """
 
     def predict(self, X):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return to_numpy_float64(super().predict(X))
 
     def score(self, X, y):
         from himalaya.validation import check_array
@@ -175,8 +176,7 @@ class RidgeCV_(RidgeCV):
                          solver_params=solver_params, cv=cv)
 
     def predict(self, X):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X))
+        return to_numpy_float64(super().predict(X))
 
     def score(self, X, y):
         from himalaya.validation import check_array
@@ -213,8 +213,7 @@ class GroupRidgeCV_(GroupRidgeCV):
                          random_state=random_state)
 
     def predict(self, X, split=False):
-        backend = get_backend()
-        return backend.to_numpy(super().predict(X, split=split))
+        return to_numpy_float64(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()

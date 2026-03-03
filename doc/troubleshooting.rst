@@ -7,8 +7,8 @@ them.
    :maxdepth: 2
 
 
-CUDA out of memory
-------------------
+GPU out of memory
+-----------------
 
 The GPU memory is often smaller than the CPU memory, so it requires more
 attention to avoid running out of memory. Himalaya implements a series of
@@ -49,7 +49,7 @@ can take significant computational time. To skip this check, simply call
 Eigenvalue decomposition error in kernel ridge solvers
 ------------------------------------------------------
 
-When using GPU backends (e.g. ``torch_cuda``) with float32 precision, the
+When using GPU backends (e.g. ``torch_cuda``, ``torch_mps``) with float32 precision, the
 eigenvalue decomposition (``eigh``) used internally by
 :class:`~himalaya.kernel_ridge.KernelRidgeCV` and
 :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV` solvers can fail on
@@ -61,3 +61,21 @@ use SVD instead of ``eigh`` for the decomposition. SVD is slower but more
 numerically robust::
 
     model = KernelRidgeCV(solver_params=dict(diagonalize_method="svd"))
+
+
+Apple Silicon MPS backend (torch_mps)
+--------------------------------------
+
+The ``torch_mps`` backend uses Apple's Metal Performance Shaders for GPU
+acceleration on Apple Silicon Macs. There are some limitations to be aware of:
+
+- **float32 only**: MPS does not support float64, so all computations use
+  float32 precision. Results may differ slightly from CPU backends.
+- **CPU fallback for eigh/svd**: The MPS framework does not support eigenvalue
+  decomposition or SVD, so these operations automatically fall back to CPU.
+  This affects solvers in :class:`~himalaya.kernel_ridge.KernelRidgeCV` and
+  :class:`~himalaya.kernel_ridge.MultipleKernelRidgeCV`.
+- **Memory pressure**: MPS devices share memory with the system. Use
+  ``n_targets_batch`` in ``solver_params`` to limit memory usage::
+
+      model = KernelRidgeCV(solver_params=dict(n_targets_batch=200))

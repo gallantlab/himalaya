@@ -72,8 +72,8 @@ Himalaya backends
 =================
 
 ``Himalaya`` can be used seamlessly with different backends.
-The available backends are ``numpy`` (default), ``cupy``, ``torch``, and
-``torch_cuda``.
+The available backends are ``numpy`` (default), ``cupy``, ``torch``,
+``torch_cuda``, and ``torch_mps`` (Apple Silicon).
 To change the backend, call:
 
 .. code-block:: python
@@ -98,6 +98,18 @@ the ``cupy`` or the ``torch_cuda`` backend:
     backend = set_backend("cupy")  # or "torch_cuda"
 
     data = backend.asarray(data)
+
+On Apple Silicon Macs, you can use the ``torch_mps`` backend for GPU
+acceleration via Metal Performance Shaders:
+
+.. code-block:: python
+
+    from himalaya.backend import set_backend
+    backend = set_backend("torch_mps")
+
+Note that the ``torch_mps`` backend uses float32 precision, which may produce
+slightly less precise results than CPU backends. Use ``n_targets_batch`` in
+``solver_params`` to manage memory on MPS devices.
 
 
 Installation

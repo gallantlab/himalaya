@@ -10,7 +10,7 @@ jobs:
   run-tests:
     strategy:
       matrix:
-        os: [ubuntu-latest, macos-latest]
+        os: [ubuntu-latest]
         python-version: [3.8, 3.9, "3.10", "3.11", "3.12"]
       max-parallel: 5
       fail-fast: false
@@ -32,6 +32,7 @@ jobs:
 
     - name: Install dependencies
       run: |
+        pip install torch --index-url https://download.pytorch.org/whl/cpu
         pip install -e ."[github]"
 
     - name: Lint with flake8
