@@ -130,14 +130,21 @@ def _compare_arrays(ref, test, label):
         }
     abs_diff = np.abs(ref - test)
     rel_diff = abs_diff / (np.abs(ref) + 1e-30)
+    if ref.size > 1:
+        with warnings.catch_warnings():
+            warnings.simplefilter("ignore", RuntimeWarning)
+            corr = float(np.corrcoef(ref, test)[0, 1])
+        if np.isnan(corr):
+            corr = None
+    else:
+        corr = None
     return {
         "label": label,
         "max_abs_diff": float(np.max(abs_diff)),
         "mean_abs_diff": float(np.mean(abs_diff)),
         "max_rel_diff": float(np.max(rel_diff)),
         "mean_rel_diff": float(np.mean(rel_diff)),
-        "correlation": float(np.corrcoef(ref, test)[0, 1])
-        if ref.size > 1 else None,
+        "correlation": corr,
     }
 
 
@@ -300,7 +307,7 @@ def run_benchmarks(args):
     X_train, X_test = X[:split], X[split:]
     Y_train, Y_test = Y[:split], Y[split:]
 
-    alphas = np.logspace(-3, args.alpha_max, args.n_alphas, dtype=dtype).tolist()
+    alphas = np.logspace(-3, args.alpha_max, args.n_alphas, dtype=dtype)
 
     backends = args.backends
     print(f"Backends to benchmark: {backends}")

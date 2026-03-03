@@ -11,6 +11,22 @@ Important Notes:
     - Automatic conversion from float64 to float32 inputs
     - Reduced precision in iterative algorithms and gradient computations
     - Some sklearn compatibility tests are skipped due to precision requirements
+
+Memory and Performance:
+    MPS devices have limited unified memory compared to CUDA GPUs. When
+    fitting models with many targets (e.g. 10,000+), processing all targets
+    at once can cause high memory pressure and significant slowdowns.
+
+    To avoid this, set ``n_targets_batch`` in ``solver_params`` to process
+    targets in smaller batches. A value of 5000 is a good starting point::
+
+        model = RidgeCV(
+            alphas=alphas,
+            solver_params={"n_targets_batch": 5000},
+        )
+
+    This applies to all CV estimators: ``RidgeCV``, ``KernelRidgeCV``,
+    ``MultipleKernelRidgeCV``, and ``GroupRidgeCV``.
 """
 import warnings
 
