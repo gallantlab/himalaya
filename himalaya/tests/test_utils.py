@@ -75,180 +75,121 @@ def test_generate_multikernel_dataset(backend, name):
 
 def test_assert_array_almost_equal_torch_mps_precision_warning():
     """Test that torch_mps backend automatically reduces precision and warns."""
-    # The torch_mps backend will automatically skip this test if MPS is not available
-    backend = set_backend('torch_mps')
+    from unittest.mock import patch
 
-    # Create test arrays that are close but require precision > 3
-    x = backend.asarray([1.0, 2.0, 3.0])
-    y = backend.asarray([1.0001, 2.0001, 3.0001])  # diff ~1e-4
+    # Mock a torch_mps-like backend so this test runs on CI (no MPS needed)
+    mock_backend = type('MockBackend', (), {
+        'name': 'torch_mps',
+        'to_numpy': staticmethod(lambda x: np.asarray(x)),
+    })()
 
-    # Test that decimal > 3 triggers warning and auto-reduction
-    with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=3"):
-        assert_array_almost_equal(x, y, decimal=6)
+    x = np.array([1.0, 2.0, 3.0])
+    y = np.array([1.0001, 2.0001, 3.0001])  # diff ~1e-4
 
-    import warnings
+    with patch('himalaya.utils.get_backend', return_value=mock_backend):
+        # decimal > 3 triggers warning and auto-reduction
+        with pytest.warns(UserWarning, match="Reducing precision from decimal=6 to decimal=3"):
+            assert_array_almost_equal(x, y, decimal=6)
 
-    # Test that other backends are unaffected
-    for backend_name in ['numpy', 'torch']:
-        try:
-            backend = set_backend(backend_name)
-            x = backend.asarray([1.0, 2.0, 3.0])
-            y = backend.asarray([1.0, 2.0, 3.0])
+        # decimal <= 3 should not warn
+        import warnings
+        with warnings.catch_warnings(record=True) as warning_list:
+            warnings.simplefilter("always")
+            assert_array_almost_equal(x, y, decimal=3)
+        precision_warnings = [w for w in warning_list
+                              if "Reducing precision" in str(w.message)]
+        assert len(precision_warnings) == 0
 
-            with warnings.catch_warnings(record=True) as warning_list:
-                warnings.simplefilter("always")
-                assert_array_almost_equal(x, y, decimal=6)
-            # Should not have precision reduction warnings
-            precision_warnings = [w for w in warning_list if "Reducing precision" in str(w.message)]
-            assert len(precision_warnings) == 0
-        except Exception:
-            # Skip if backend not available
-            pass
+    # Non-torch_mps backends should not warn
+    set_backend('numpy')
+    x_eq = np.array([1.0, 2.0, 3.0])
+    y_eq = np.array([1.0, 2.0, 3.0])
+    with warnings.catch_warnings(record=True) as warning_list:
+        warnings.simplefilter("always")
+        assert_array_almost_equal(x_eq, y_eq, decimal=6)
+    precision_warnings = [w for w in warning_list
+                          if "Reducing precision" in str(w.message)]
+    assert len(precision_warnings) == 0
 
 
-class MockEstimator:
+class _MockBackend:
+    """Mock backend for testing skip_torch_mps_precision_checks without MPS."""
+    def __init__(self, name):
+        self.name = name
+
+
+class _MockEstimator:
     """Mock estimator for testing purposes."""
     def __init__(self, name):
         self.__class__.__name__ = name
 
 
-class MockCheck:
+class _MockCheck:
     """Mock sklearn check function for testing purposes."""
     def __init__(self, func_name):
         self.func = type('MockFunc', (), {'__name__': func_name})()
 
 
-def test_skip_torch_mps_precision_checks_torch_mps_backend():
-    """Test that function correctly identifies torch_mps precision issues."""
-    backend = set_backend('torch_mps')
-    
-    # Test KernelRidge_ with precision-sensitive check
-    estimator = MockEstimator('KernelRidge_')
-    check = MockCheck('check_methods_subset_invariance')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is True
-    
-    # Test KernelRidge_ with sample weight checks
-    check = MockCheck('check_sample_weight_equivalence_on_dense_data')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is True
-    
-    check = MockCheck('check_sample_weight_equivalence_on_sparse_data') 
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is True
-    
-    # Test KernelRidgeCV_ with precision-sensitive check
-    estimator = MockEstimator('KernelRidgeCV_')
-    check = MockCheck('check_methods_subset_invariance')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is True
-    
-    # Test Kernelizer_ with precision-sensitive check
-    estimator = MockEstimator('Kernelizer_')
-    check = MockCheck('check_methods_subset_invariance')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is True
+def test_skip_torch_mps_precision_checks():
+    """Test skip_torch_mps_precision_checks with all default cases."""
+    mps_backend = _MockBackend("torch_mps")
 
-
-def test_skip_torch_mps_precision_checks_other_backends():
-    """Test that function returns False for non-torch_mps backends."""
-    estimator = MockEstimator('KernelRidge_')
-    check = MockCheck('check_methods_subset_invariance')
-    
-    # Test with numpy backend
-    backend = set_backend('numpy')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-    
-    # Test with torch backend if available
-    try:
-        backend = set_backend('torch')
-        assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-    except Exception:
-        # Skip if torch backend not available
-        pass
-
-
-def test_skip_torch_mps_precision_checks_non_sensitive_checks():
-    """Test that function returns False for non-precision-sensitive checks."""
-    backend = set_backend('torch_mps')
-    estimator = MockEstimator('KernelRidge_')
-    
-    # Test with a check that shouldn't be skipped
-    check = MockCheck('check_estimator_repr')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-    
-    # Test with another non-sensitive check
-    check = MockCheck('check_fit_score_takes_y')
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-
-
-def test_skip_torch_mps_precision_checks_unknown_estimator():
-    """Test that function returns False for unknown estimator types."""
-    backend = set_backend('torch_mps')
-    estimator = MockEstimator('UnknownEstimator')
-    check = MockCheck('check_methods_subset_invariance')
-    
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-
-
-def test_skip_torch_mps_precision_checks_no_func_attribute():
-    """Test that function returns False when check has no func attribute."""
-    backend = set_backend('torch_mps')
-    estimator = MockEstimator('KernelRidge_')
-    
-    # Mock check without func attribute
-    check = type('MockCheckNoFunc', (), {})()
-    
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-
-
-def test_skip_torch_mps_precision_checks_custom_config():
-    """Test that function works with custom precision-sensitive checks config."""
-    backend = set_backend('torch_mps')
-    estimator = MockEstimator('CustomEstimator')
-    check = MockCheck('custom_precision_check')
-    
-    # Should return False with default config
-    assert skip_torch_mps_precision_checks(backend, estimator, check) is False
-    
-    # Should return True with custom config
-    custom_config = {
-        'CustomEstimator': ['custom_precision_check']
-    }
-    assert skip_torch_mps_precision_checks(
-        backend, estimator, check, custom_config) is True
-
-
-def test_skip_torch_mps_precision_checks_complete_coverage():
-    """Test that all default precision-sensitive checks are covered."""
-    backend = set_backend('torch_mps')
-    
-    # Test all default estimator/check combinations
+    # All default estimator/check combinations should be skipped
     default_cases = [
         ('KernelRidge_', 'check_methods_subset_invariance'),
         ('KernelRidge_', 'check_sample_weight_equivalence_on_dense_data'),
         ('KernelRidge_', 'check_sample_weight_equivalence_on_sparse_data'),
         ('KernelRidgeCV_', 'check_methods_subset_invariance'),
         ('Kernelizer_', 'check_methods_subset_invariance'),
+        ('WeightedKernelRidge_', 'check_sample_weight_equivalence_on_dense_data'),
+        ('WeightedKernelRidge_', 'check_sample_weight_equivalence_on_sparse_data'),
+        ('WeightedKernelRidge_', 'check_methods_subset_invariance'),
+        ('MultipleKernelRidgeCV_', 'check_methods_subset_invariance'),
     ]
-    
     for estimator_name, check_name in default_cases:
-        estimator = MockEstimator(estimator_name)
-        check = MockCheck(check_name)
-        assert skip_torch_mps_precision_checks(backend, estimator, check) is True, \
-            f"Failed for {estimator_name}.{check_name}"
+        estimator = _MockEstimator(estimator_name)
+        check = _MockCheck(check_name)
+        assert skip_torch_mps_precision_checks(
+            mps_backend, estimator, check) is True, \
+            f"Should skip {estimator_name}.{check_name}"
 
+    # Non-sensitive checks should NOT be skipped
+    estimator = _MockEstimator('KernelRidge_')
+    for check_name in ['check_estimator_repr', 'check_fit_score_takes_y']:
+        check = _MockCheck(check_name)
+        assert skip_torch_mps_precision_checks(
+            mps_backend, estimator, check) is False
 
-def test_skip_torch_mps_precision_checks_robustness():
-    """Test that function handles edge cases gracefully."""
-    estimator = MockEstimator('KernelRidge_')
-    check = MockCheck('check_methods_subset_invariance')
-    
-    # Test with backend that has no name attribute
-    class MockBackendNoName:
-        pass
-    
-    backend_no_name = MockBackendNoName()
-    assert skip_torch_mps_precision_checks(backend_no_name, estimator, check) is False
-    
-    # Test with backend that has name=None
-    class MockBackendNoneName:
-        name = None
-    
-    backend_none_name = MockBackendNoneName()
-    assert skip_torch_mps_precision_checks(backend_none_name, estimator, check) is False
+    # Unknown estimator should NOT be skipped
+    estimator = _MockEstimator('UnknownEstimator')
+    check = _MockCheck('check_methods_subset_invariance')
+    assert skip_torch_mps_precision_checks(
+        mps_backend, estimator, check) is False
+
+    # Non-torch_mps backends should NOT be skipped
+    for name in ["numpy", "torch", "torch_cuda"]:
+        backend = _MockBackend(name)
+        estimator = _MockEstimator('KernelRidge_')
+        check = _MockCheck('check_methods_subset_invariance')
+        assert skip_torch_mps_precision_checks(
+            backend, estimator, check) is False
+
+    # Check without func attribute should NOT be skipped
+    check_no_func = type('MockCheckNoFunc', (), {})()
+    assert skip_torch_mps_precision_checks(
+        mps_backend, _MockEstimator('KernelRidge_'), check_no_func) is False
+
+    # Backend without name attribute should NOT be skipped
+    backend_no_name = type('MockBackendNoName', (), {})()
+    assert skip_torch_mps_precision_checks(
+        backend_no_name, _MockEstimator('KernelRidge_'),
+        _MockCheck('check_methods_subset_invariance')) is False
+
+    # Custom config should work
+    custom_config = {'CustomEstimator': ['custom_check']}
+    assert skip_torch_mps_precision_checks(
+        mps_backend, _MockEstimator('CustomEstimator'),
+        _MockCheck('custom_check'), custom_config) is True
+    assert skip_torch_mps_precision_checks(
+        mps_backend, _MockEstimator('CustomEstimator'),
+        _MockCheck('other_check'), custom_config) is False
