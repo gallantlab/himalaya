@@ -15,7 +15,11 @@ from himalaya.kernel_ridge import (
     WeightedKernelRidge,
 )
 from himalaya.ridge import Ridge, RidgeCV
-from himalaya.utils import assert_array_almost_equal, skip_torch_mps_precision_checks
+from himalaya.utils import (
+    assert_array_almost_equal,
+    skip_torch_mps_precision_checks,
+    to_numpy_float64,
+)
 
 
 def _create_dataset(backend):
@@ -564,12 +568,7 @@ class KernelRidge_(KernelRidge):
     """
 
     def predict(self, X):
-        backend = get_backend()
-        result = backend.to_numpy(super().predict(X))
-        # Convert to float64 for sklearn compatibility if backend is torch_mps
-        if backend.name == "torch_mps" and result.dtype == np.float32:
-            result = result.astype(np.float64)
-        return result
+        return to_numpy_float64(super().predict(X))
 
     def score(self, X, y):
         from himalaya.scoring import r2_score
@@ -604,12 +603,7 @@ class KernelRidgeCV_(KernelRidgeCV):
                          solver_params=solver_params, cv=cv)
 
     def predict(self, X):
-        backend = get_backend()
-        result = backend.to_numpy(super().predict(X))
-        # Convert to float64 for sklearn compatibility if backend is torch_mps
-        if backend.name == "torch_mps" and result.dtype == np.float32:
-            result = result.astype(np.float64)
-        return result
+        return to_numpy_float64(super().predict(X))
 
     def score(self, X, y):
         from himalaya.scoring import r2_score
@@ -645,12 +639,7 @@ class MultipleKernelRidgeCV_(MultipleKernelRidgeCV):
                          random_state=random_state)
 
     def predict(self, X, split=False):
-        backend = get_backend()
-        result = backend.to_numpy(super().predict(X, split=split))
-        # Convert to float64 for sklearn compatibility if backend is torch_mps
-        if backend.name == "torch_mps" and result.dtype == np.float32:
-            result = result.astype(np.float64)
-        return result
+        return to_numpy_float64(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()
@@ -678,12 +667,7 @@ class WeightedKernelRidge_(WeightedKernelRidge):
                          random_state=random_state)
 
     def predict(self, X, split=False):
-        backend = get_backend()
-        result = backend.to_numpy(super().predict(X, split=split))
-        # Convert to float64 for sklearn compatibility if backend is torch_mps
-        if backend.name == "torch_mps" and result.dtype == np.float32:
-            result = result.astype(np.float64)
-        return result
+        return to_numpy_float64(super().predict(X, split=split))
 
     def score(self, X, y, split=False):
         backend = get_backend()

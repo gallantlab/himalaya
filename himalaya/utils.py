@@ -78,6 +78,19 @@ def assert_array_almost_equal(x, y, decimal=6, err_msg='', verbose=True):
                                                 verbose=verbose)
 
 
+def to_numpy_float64(result):
+    """Convert backend array to numpy float64, for sklearn compatibility.
+
+    Sklearn expects float64 numpy arrays. Float32 backends (e.g. torch_mps)
+    need an explicit upcast after conversion to numpy.
+    """
+    backend = get_backend()
+    result = backend.to_numpy(result)
+    if result.dtype == np.float32:
+        result = result.astype(np.float64)
+    return result
+
+
 def generate_multikernel_dataset(n_kernels=4, n_targets=500,
                                  n_samples_train=1000, n_samples_test=400,
                                  noise=0.1, kernel_weights=None,

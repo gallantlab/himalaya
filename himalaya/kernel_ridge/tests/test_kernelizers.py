@@ -9,7 +9,11 @@ from sklearn.base import clone
 from himalaya.backend import set_backend
 from himalaya.backend import get_backend
 from himalaya.backend import ALL_BACKENDS
-from himalaya.utils import assert_array_almost_equal, skip_torch_mps_precision_checks
+from himalaya.utils import (
+    assert_array_almost_equal,
+    skip_torch_mps_precision_checks,
+    to_numpy_float64,
+)
 
 from himalaya.kernel_ridge import Kernelizer
 from himalaya.kernel_ridge import ColumnKernelizer
@@ -329,20 +333,10 @@ class Kernelizer_(Kernelizer):
     """
 
     def fit_transform(self, X, y=None):
-        backend = get_backend()
-        result = backend.to_numpy(super().fit_transform(X, y))
-        # Convert to float64 for sklearn compatibility if backend is torch_mps
-        if backend.name == "torch_mps" and result.dtype == np.float32:
-            result = result.astype(np.float64)
-        return result
+        return to_numpy_float64(super().fit_transform(X, y))
 
     def transform(self, X):
-        backend = get_backend()
-        result = backend.to_numpy(super().transform(X))
-        # Convert to float64 for sklearn compatibility if backend is torch_mps
-        if backend.name == "torch_mps" and result.dtype == np.float32:
-            result = result.astype(np.float64)
-        return result
+        return to_numpy_float64(super().transform(X))
 
     def __sklearn_tags__(self):
         tags = super().__sklearn_tags__()

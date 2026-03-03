@@ -7,6 +7,7 @@ from himalaya.utils import (
     compute_lipschitz_constants,
     generate_multikernel_dataset,
     skip_torch_mps_precision_checks,
+    to_numpy_float64,
 )
 
 
@@ -110,6 +111,17 @@ def test_assert_array_almost_equal_torch_mps_precision_warning():
     precision_warnings = [w for w in warning_list
                           if "Reducing precision" in str(w.message)]
     assert len(precision_warnings) == 0
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_to_numpy_float64(backend):
+    """Test that to_numpy_float64 returns float64 numpy arrays."""
+    backend = set_backend(backend)
+    x = backend.asarray([1.0, 2.0, 3.0])
+    result = to_numpy_float64(x)
+    assert isinstance(result, np.ndarray)
+    assert result.dtype == np.float64
+    np.testing.assert_array_equal(result, [1.0, 2.0, 3.0])
 
 
 class _MockBackend:

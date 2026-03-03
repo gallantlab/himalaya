@@ -253,8 +253,7 @@ def eigh(input):
         msg = (f"The eigenvalues decomposition failed on backend {name}. You may"
                " try using `diagonalize_method='svd'`, or `solver_params={"
                "'diagonalize_method': 'svd'}` if called through the class API.")
-        raise RuntimeError(
-            f"{msg}\nOriginal error:\n{type(e).__name__}: {e}")
+        raise RuntimeError(msg) from e
 
 
 def svd(input, full_matrices=True):
@@ -274,5 +273,4 @@ def svd(input, full_matrices=True):
     except Exception as e:
         msg = (f"The SVD decomposition failed on backend {name}. You may"
                " try using a different solver if available.")
-        raise RuntimeError(
-            f"{msg}\nOriginal error:\n{type(e).__name__}: {e}")
+        raise RuntimeError(msg) from e
