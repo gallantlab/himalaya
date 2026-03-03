@@ -26,16 +26,6 @@ if not torch.backends.mps.is_available():
         pytest.skip("PyTorch with MPS is not available.")
     raise RuntimeError("PyTorch with MPS is not available.")
 
-# Warn users about precision limitations
-warnings.warn(
-    "torch_mps backend uses float32 precision due to MPS framework limitations. "
-    "This may result in reduced numerical precision compared to float64 backends. "
-    "For high-precision requirements, consider using 'torch' (CPU) or 'numpy' backends.",
-    UserWarning,
-    stacklevel=2
-)
-
-
 ###############################################################################
 
 name = "torch_mps"
@@ -146,17 +136,17 @@ def to_gpu(array, device="mps"):
 
 
 def std_float64(X, axis=None, demean=True, keepdims=False):
-    """Compute the standard deviation of X with double precision on CPU,
-    then cast back the result to original dtype on the original device.
+    """Compute the standard deviation of X on MPS in float32.
+
+    Since MPS only supports float32, there is no benefit to moving data to CPU
+    for float64 computation — the input is already float32.
     """
-    X_64 = torch.as_tensor(X.to("cpu"), dtype=torch.float64, device="cpu")
-    X_std = (X_64 ** 2).sum(dim=axis, dtype=torch.float64)
+    X_std = (X ** 2).sum(dim=axis)
     if demean:
-        X_std -= X_64.sum(axis, dtype=torch.float64) ** 2 / X.shape[axis]
+        X_std -= X.sum(axis) ** 2 / X.shape[axis]
     X_std = X_std ** .5
     X_std /= (X.shape[axis] ** .5)
 
-    X_std = torch.as_tensor(X_std, dtype=torch.float32, device=X.device)
     if keepdims:
         X_std = X_std.unsqueeze(dim=axis)
 
@@ -164,12 +154,13 @@ def std_float64(X, axis=None, demean=True, keepdims=False):
 
 
 def mean_float64(X, axis=None, keepdims=False):
-    """Compute the mean of X with double precision on CPU,
-    then cast back the result to original dtype on the original device.
-    """
-    X_mean = X.to("cpu").sum(axis, dtype=torch.float64) / X.shape[axis]
+    """Compute the mean of X on MPS in float32.
 
-    X_mean = torch.as_tensor(X_mean, dtype=X.dtype, device=X.device)
+    Since MPS only supports float32, there is no benefit to moving data to CPU
+    for float64 computation — the input is already float32.
+    """
+    X_mean = X.sum(axis) / X.shape[axis]
+
     if keepdims:
         X_mean = X_mean.unsqueeze(dim=axis)
     return X_mean
@@ -232,17 +223,15 @@ def full_like(array, fill_value, shape=None, dtype=None, device=None):
 def eigh(input):
     """Compute eigendecomposition on CPU and move results back to MPS.
 
-    PyTorch's MPS backend doesn't fully support torch.linalg.eigh, so we
-    perform the computation on CPU and move the results back to MPS device.
+    PyTorch's MPS backend doesn't support torch.linalg.eigh, so we
+    perform the computation on CPU in float32 and move results back.
     """
     try:
-        # Move to CPU, compute eigendecomposition, then move back to MPS
         input_device = input.device
-        input = input.cpu().to(torch.float64)
-        eigenvalues, eigenvectors = torch.linalg.eigh(input)
-        eigenvalues = eigenvalues.to(dtype=torch.float32, device=input_device)
-        eigenvectors = eigenvectors.to(dtype=torch.float32, device=input_device)
-
+        input_cpu = input.cpu()
+        eigenvalues, eigenvectors = torch.linalg.eigh(input_cpu)
+        eigenvalues = eigenvalues.to(device=input_device)
+        eigenvectors = eigenvectors.to(device=input_device)
         return eigenvalues, eigenvectors
     except Exception as e:
         msg = (f"The eigenvalues decomposition failed on backend {name}. You may"
@@ -255,20 +244,16 @@ def eigh(input):
 def svd(input, full_matrices=True):
     """Compute SVD on CPU and move results back to MPS.
 
-    PyTorch's MPS backend doesn't natively support torch.linalg.svd and falls
-    back to CPU. We make this explicit to avoid warnings and ensure consistent behavior.
+    PyTorch's MPS backend falls back to CPU for torch.linalg.svd. We make
+    this explicit to avoid warnings and ensure consistent behavior.
     """
     try:
-        # Move to CPU, compute SVD, then move back to MPS
         input_device = input.device
-        input = input.cpu().to(torch.float64)
-        U, S, Vh = torch.linalg.svd(input, full_matrices=full_matrices)
-
-        # Move results back to original device (MPS)
-        U = U.to(dtype=torch.float32, device=input_device)
-        S = S.to(dtype=torch.float32, device=input_device)
-        Vh = Vh.to(dtype=torch.float32, device=input_device)
-
+        input_cpu = input.cpu()
+        U, S, Vh = torch.linalg.svd(input_cpu, full_matrices=full_matrices)
+        U = U.to(device=input_device)
+        S = S.to(device=input_device)
+        Vh = Vh.to(device=input_device)
         return U, S, Vh
     except Exception as e:
         msg = (f"The SVD decomposition failed on backend {name}. You may"
