@@ -4,6 +4,10 @@ Changelog
 Development Version
 -------------------
 
+Version 0.4.11
+--------------
+(*March 2026*)
+
 - ENH add ``torch_mps`` backend for Apple Silicon GPU acceleration via Metal
   Performance Shaders. Uses float32 precision; set ``n_targets_batch`` in
   ``solver_params`` to manage memory pressure on MPS devices.
