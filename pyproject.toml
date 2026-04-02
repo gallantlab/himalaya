@@ -1,0 +1,40 @@
+[build-system]
+requires = ["setuptools>=64", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "himalaya"
+version = "0.4.11"
+description = "Multiple-target machine learning"
+readme = {file = "README.rst", content-type = "text/x-rst"}
+requires-python = ">=3.9"
+license = {file = "LICENSE.md"}
+maintainers = [
+  {name = "Tom Dupre la Tour", email = "tomdlt@berkeley.edu"},
+]
+dependencies = [
+  "numpy",
+  "scikit-learn",
+]
+
+[project.optional-dependencies]
+all_backends = ["cupy", "torch"]
+viz = ["matplotlib"]
+test = ["pytest", "himalaya[viz]", "himalaya[all_backends]"]
+github = ["pytest", "himalaya[viz]", "torch", "pytest-rerunfailures"]
+all = [
+  "himalaya[all_backends,viz,test]"
+]
+doc = [
+  "numpydoc",
+  "sphinx",
+  "sphinx_gallery",
+  "sphinxcontrib-mermaid",
+  "torch", # only pytorch, because cupy doesn't run on github
+  "himalaya[viz]"
+]
+
+[project.urls]
+Homepage = "https://gallantlab.org/himalaya/"
+Source = "https://github.com/gallantlab/himalaya"
+Issues = "https://github.com/gallantlab/himalaya/issues"
