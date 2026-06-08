@@ -165,7 +165,7 @@ def to_gpu(array, device=None):
 
 
 def is_in_gpu(array):
-    return getattr(array, "device", None) is not None
+    return getattr(array, "device", 'cpu') != 'cpu'
 
 
 def asarray(a, dtype=None, order=None, device=None):
