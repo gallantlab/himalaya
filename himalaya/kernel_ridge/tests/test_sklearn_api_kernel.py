@@ -686,18 +686,28 @@ def expected_failed_checks(estimator):
     """
     estimator_name = estimator.__class__.__name__
 
-    # Only handle estimators that previously had _xfail_checks
+    # himalaya intentionally allows fitting with all-zero sample weights
+    # (see test_kernel_ridge_sample_weight_basic) instead of raising the
+    # ValueError that scikit-learn's check_all_zero_sample_weights_error
+    # expects.
+    checks = {
+        'check_all_zero_sample_weights_error':
+        'himalaya allows fitting with all-zero sample weights instead of '
+        'raising a ValueError.',
+    }
+
+    # The cross-validation estimators previously had _xfail_checks
     if estimator_name in ['KernelRidgeCV_', 'MultipleKernelRidgeCV_']:
-        return {
+        checks.update({
             'check_sample_weight_equivalence_on_dense_data':
             'zero sample_weight is not equivalent to removing samples, '
             'because of the cross-validation splits.',
             'check_sample_weight_equivalence_on_sparse_data':
             'zero sample_weight is not equivalent to removing samples, '
             'because of the cross-validation splits.',
-        }
+        })
 
-    return {}
+    return checks
 
 
 # Handle sklearn version compatibility for expected_failed_checks parameter
