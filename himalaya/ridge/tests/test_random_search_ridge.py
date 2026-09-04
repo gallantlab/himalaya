@@ -9,6 +9,7 @@ from himalaya.backend import ALL_BACKENDS
 from himalaya.utils import assert_array_almost_equal
 from himalaya.scoring import r2_score
 
+from himalaya.ridge import GroupRidgeCV
 from himalaya.ridge import solve_group_ridge_random_search
 
 GPU_BACKENDS = [
@@ -124,6 +125,66 @@ def test_different_number_of_samples(backend):
 
     with pytest.raises(ValueError, match="same number of samples"):
         solve_group_ridge_random_search(Xs[:4], Y[:3])
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+def test_group_ridge_scales_float32_with_small_dirichlet_gamma(backend):
+    backend = set_backend(backend)
+    random_state = np.random.RandomState(0)
+    Xs = [
+        backend.asarray(random_state.randn(20, n_features), backend.float32)
+        for n_features in (3, 4)
+    ]
+    Y = backend.asarray(random_state.randn(20, 2), backend.float32)
+
+    # random_state=13 produces a sampled weight that casts to zero in float32.
+    model = GroupRidgeCV(
+        groups="input",
+        cv=2,
+        random_state=13,
+        solver_params=dict(n_iter=100, progress_bar=False),
+    ).fit(Xs, Y)
+
+    assert np.isfinite(backend.to_numpy(model.deltas_)).all()
+    assert np.isfinite(backend.to_numpy(model.coef_)).all()
+
+
+@pytest.mark.parametrize('backend', ALL_BACKENDS)
+@pytest.mark.parametrize(
+    "gamma_dtype, small_gamma",
+    [
+        ("float64", 1e-46),
+        ("float32", np.nextafter(np.float32(0), np.float32(1))),
+    ],
+)
+def test_group_ridge_scales_float32_with_small_explicit_gamma(
+    backend, gamma_dtype, small_gamma
+):
+    backend = set_backend(backend)
+    random_state = np.random.RandomState(1)
+    Xs = [
+        backend.asarray(random_state.randn(20, n_features), backend.float32)
+        for n_features in (3, 4)
+    ]
+    Y = backend.asarray(random_state.randn(20, 2), backend.float32)
+    gammas = np.array([[0.5, 0.5], [small_gamma, 1.0]], dtype=gamma_dtype)
+    original_gammas = gammas.copy()
+
+    deltas, coefficients, scores = solve_group_ridge_random_search(
+        Xs,
+        Y,
+        n_iter=gammas,
+        cv=2,
+        return_weights=True,
+        progress_bar=False,
+    )
+
+    assert np.isfinite(backend.to_numpy(deltas)).all()
+    assert np.isfinite(backend.to_numpy(coefficients)).all()
+    assert np.isfinite(backend.to_numpy(scores)).all()
+    expected_delta = np.log(np.finfo("float32").tiny)
+    assert np.isclose(backend.to_numpy(deltas), expected_delta).any()
+    assert np.array_equal(gammas, original_gammas)
 
 
 @pytest.mark.parametrize('backend', GPU_BACKENDS)
