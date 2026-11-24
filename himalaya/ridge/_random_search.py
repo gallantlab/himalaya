@@ -118,7 +118,15 @@ def solve_group_ridge_random_search(
         alphas = backend.ones_like(Y, shape=(1, )) * alphas
 
     dtype = Xs[0].dtype
-    gammas = backend.asarray(gammas, dtype=dtype)
+    gammas = backend.copy(backend.asarray(gammas, dtype=dtype))
+    # A weight that casts to zero, or whose sqrt is flushed to zero, zeroes X_
+    # and then fills it with NaNs when the scaling is undone. In float32, this
+    # happens with weights sampled from a Dirichlet distribution with a small
+    # concentration, and on MPS, which flushes subnormals to zero in sqrt.
+    min_normal = backend.asarray_like(
+        np.finfo(_dtype_to_str(dtype)).tiny, gammas)
+    small_nonnegative = (gammas >= 0) & (gammas < min_normal)
+    gammas[small_nonnegative] = min_normal
     device = getattr(gammas, "device", None)
     gammas, alphas = backend.check_arrays(gammas, alphas)
     Y = backend.asarray(Y, dtype=dtype, device="cpu" if Y_in_cpu else device)
