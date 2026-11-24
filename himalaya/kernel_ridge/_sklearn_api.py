@@ -244,7 +244,8 @@ class KernelRidge(_BaseKernelRidge):
         # Apply sample weight scaling to dual coefficients (sklearn compatibility)
         if sample_weight is not None:
             # Ensure sw is on the same device as dual_coef_
-            sw = backend.asarray(sw, device=self.dual_coef_.device if hasattr(self.dual_coef_, 'device') else None)
+            if not backend.is_in_gpu(self.dual_coef_):
+                sw = backend.to_cpu(sw)
             self.dual_coef_ = self.dual_coef_ * sw
 
         if ravel:
@@ -1173,7 +1174,8 @@ class WeightedKernelRidge(_BaseWeightedKernelRidge):
         # Apply sample weight scaling to dual coefficients (sklearn compatibility)
         if sample_weight is not None:
             # Ensure sw is on the same device as dual_coef_
-            sw = backend.asarray(sw, device=self.dual_coef_.device if hasattr(self.dual_coef_, 'device') else None)
+            if not backend.is_in_gpu(self.dual_coef_):
+                sw = backend.to_cpu(sw)
             self.dual_coef_ = self.dual_coef_ * sw
 
         if ravel or self.deltas_.shape[1] != self.dual_coef_.shape[1]:
