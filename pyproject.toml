@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=64", "wheel"]
+requires = ["setuptools>=64", "setuptools_scm>=8", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "himalaya"
-version = "0.4.11"
+dynamic = ["version"]
 description = "Multiple-target machine learning"
 readme = {file = "README.rst", content-type = "text/x-rst"}
 requires-python = ">=3.9"
@@ -33,6 +33,10 @@ doc = [
   "torch", # only pytorch, because cupy doesn't run on github
   "himalaya[viz]"
 ]
+
+[tool.setuptools_scm]
+version_file = "himalaya/_version.py"
+local_scheme = "no-local-version"
 
 [project.urls]
 Homepage = "https://gallantlab.org/himalaya/"
